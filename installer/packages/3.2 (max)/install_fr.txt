@@ -1,0 +1,55 @@
+
+   Bienvenue chez  A T H L E T I C A
+   ---------------------------------
+
+Pour installer Athletica sur un serveur avec Apache / IIS (avec PHP) et
+MySQL préinstallés, vous devez procéder comme suit:
+
+
+Etape 1: empaqueter Athletica
+******************************
+Créez dans votre répertoire web (Apache: htdocs, IIS: wwwroot) un nouveau 
+dossier portant le nom "athletica".
+Empaquetez tous les fichiers du dossier "athletica" de l’archive Zip dans le 
+répertoire nouvellement créé sur votre ordinateur.
+
+Etape 2: créer une banque de données
+****************************
+Créez une nouvelle banque de données portant le nom "athletica" dans un 
+manager de banque de données de votre choix
+Téléchargez l’image de la banque de données de l’archive Zip athletica.sql 
+dans la banque de données.
+
+
+Etape 3: créer un utilisateur pour la banque de données
+************************************
+Pour qu’athletica puisse accéder à la banque de données, il faut enregistrer 
+un utilisateur pour la banque de données, ce que vous pouvez faire dans 
+votre manager de banque de données.
+Utilisez les ajustages suivants:
+Nom d’utilisateur: athletica
+Host: localhost
+Mot de passe: athletica
+Droits globaux: aucun
+Droits sur la banque de données athletica: tous
+
+
+Info sur les étapes 2 et 3
+*****************************
+Si pour une raison quelconque vous ne pouviez pas utiliser les noms prévus 
+pour la banque de données ou l’utilisateur, vous pouvez naturellement aussi 
+utiliser vos propres appellations.
+Vous devez toutefois adapter le fichier de configuration athletica.
+Pour ce faire, ouvrez le ficher dossier Web\athletica\parameters.inc.php.
+A la ligne 12, vous pouvez changer la valeur ("athletica") du nom de la 
+banque de données, à la ligne 13 la valeur du nom d’utilisateur.
+
+
+Installation terminée
+**************************
+Vous avez terminé toutes les étapes nécessaires à l’installation 
+d’athletica.
+Ouvrez votre webbrowser et naviguez vers l’adresse "localhost\athletica".
+
+
+Bien du plaisir avec Athletica!

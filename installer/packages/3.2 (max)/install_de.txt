@@ -1,0 +1,53 @@
+
+   Willkommen bei  A T H L E T I C A
+   ---------------------------------
+
+Um Athletica auf einem Server mit vorinstalliertem Apache / IIS (mit PHP) und 
+MySQL zu installieren, gehen Sie wie folgt vor:
+
+
+Schritt 1: Athletica entpacken
+******************************
+Erstellen Sie in Ihrem Web-Verzeichnis (Apache: htdocs, IIS: wwwroot) ein neues
+Verzeichnis mit dem Namen "athletica".
+Entpacken Sie alle Dateien aus dem Verzeichnis "athletica" im Zip-Archiv in das
+neu angelegte Verzeichnis auf Ihrem Rechner.
+
+
+Schritt 2: Datenbank anlegen
+****************************
+Erstellen Sie in einem Datenbank-Manager Ihrer Wahl eine neue Datenbank mit dem Namen "athletica".
+Laden Sie das im Zip-Archiv enthaltene Datenbankabbild athletica.sql in die Datenbank.
+
+
+Schritt 3: Datenbankbenutzer anlegen
+************************************
+Damit athletica auf die Datenbank zugreifen kann, muss ein Datenbankbenutzer erfasst 
+werden. Dies können Sie in Ihrem Datenbank-Manager erledigen.
+Verwenden Sie folgende Einstellungen:
+Benutzername: athletica
+Host: localhost
+Passwort: athletica
+Globale Rechte: Keine
+Rechte auf die Datenbank athletica: Alle
+
+
+Info zu den Schritten 2 und 3
+*****************************
+Sollte es aus irgend einem Grund nicht möglich sein, die vorgesehenen Namen für die
+Datenbank oder den Benutzer zu verwenden, können selbstverständlich auch eigene 
+Bezeichnungen verwendet werden.
+Sie müssen jedoch die athletica-Konfigurationsdatei anpassen.
+Öffnen Sie dazu die Datei Web-Verzeichnis\athletica\parameters.inc.php.
+Auf Zeile 12 können Sie den Wert ("athletica") für den Datenbanknamen, auf Zeile 13
+den Wert für den Benutzernamen ändern.
+
+
+Installation abgeschlossen
+**************************
+Sie haben alle Schritte, die für die Installation von athletica notwendig sind, 
+abgeschlossen.
+Öffnen Sie Ihren Webbrowser und navigieren Sie zur Adresse "localhost\athletica".
+
+
+Viel Vergnügen mit Athletica!
