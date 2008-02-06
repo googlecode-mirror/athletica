@@ -1,0 +1,18 @@
+##
+## athletica sql upgrade to 3.0.1
+## ----------------------------
+##
+##
+
+
+ALTER TABLE `meeting` ADD `Passwort` VARCHAR( 50 ) NOT NULL AFTER `Zeitmessung` ;
+
+
+INSERT INTO `faq` VALUES (NULL, 'Was ist neu?', '<ul> \r\n<li>Meeting Passwort Schutz</li>\r\n<li>SVM Modus 2007</li>\r\n<li>Team SM Modus 2007</li>\r\n<li>Rangpunktewertung für Mannschaftskämpfe</li>\r\n<li>Startnummern nach Mannschaften</li>\r\n<li>Anmeldemaske über Lizenznummer erweitert</li>\r\n<li>Telefonbuchsortierung (äöü usw.)</li>\r\n<li>Runden zusammenfassen</li>\r\n<li>Anzeige von „Wettkampf-Info“ ausgedehnt</li>\r\n<li>Listen merken sich die letzte Sortierung</li>\r\n<li>neuer Zeitplan Wettkampfbüro</li>\r\n<li>Diverse Anpassungen</li>\r\n</ul>', 'y', 350, 50, 'meeting', 'de');
+INSERT INTO `faq` VALUES (NULL, 'Wie kann ich Runden (Kategorien) zusammenfassen?', 'Runden der gleichen Disziplinen aus unterschiedlichen Kategorien können zusammengefasst werden. Hier werden alle Runden angezeigt, die Sie zusammenfassen können.<br>\r\nDie Runde der aktuell ausgewählten Disziplin wird beim Zusammenfassen zur „Hauptrunde“. Nur über die Hauptrunde können Sie nachher diese Disziplin durchführen.<br>\r\nWählen Sie mit den Kästchen alle Runden aus, welche mit der aktuellen zusammengehören sollen.', 'y', 300, 10, 'meeting_definitions', 'de');
+INSERT INTO `faq` VALUES (NULL, 'Qu’y a-t-il de nouveau?', '<ul> <li>Mot de passe protection du meeting </li>\r\n<li>Formule CSI 2007</li>\r\n<li>Formule CS Team 2007</li>\r\n<li>Classements aux points pour les concours par équipe</li>\r\n<li>Dossards selon les équipes</li>\r\n<li>Elargir la grille d’inscription avec les numéros de licence</li>\r\n<li>Tri annuaire téléphonique (äöü etc.)</li>\r\n<li>Regrouper des tours</li>\r\n<li>Affichage élargi des "Infos-concours"</li>\r\n<li>Les listes remarquent le dernier tri</li>\r\n<li>Nouvel horaire bureau des calculs</li>\r\n</ul>', 'y', 350, 50, 'meeting', 'fr');
+INSERT INTO `faq` VALUES (NULL, 'Wie schütze ich die Bearbeitungsfunktionen?', 'Unter dem Menupunkt „Administration“ kann ein Passwort für das aktuelle Meeting gesetzt werden.<br>\r\nUm Änderungen an einem geschützten Meeting vorzunehmen, muss der Benutzer das Passwort eingeben. Er bleibt so lange angemeldet, bis er Athletica (den Browser) schliesst. Der Speaker-Modus kann weiterhin ohne Passwort erreicht werden.<br>\r\nDiese Funktion ist dazu gedacht, unbeabsichtigte Änderungen durch z.B. den Speaker zu verhindern. Sie ist kein effektiver Schutz gegen bösartige Angriffe!', 'y', 350, 450, 'meeting', 'de');
+INSERT INTO `faq` VALUES (NULL, 'Comment regrouper des tours (cat&eacute;gories)?', 'Il est possible de regrouper des tours de la m&ecirc;me discipline de cat&eacute;gories diff&eacute;rentes. Tous les tours que vous pouvez regrouper sont affich&eacute;s ici.&lt;br&gt;\r\nAu regroupement, le tour de la discipline actuellement s&eacute;lectionn&eacute;e devient le „tour principal“. Vous ne pouvez ensuite organiser cette discipline que par le tour principal.&lt;br&gt;\r\nS&eacute;lectionnez tous les tours qui doivent faire partie de l’actuel.', 'y', 300, 10, 'meeting_definitions', 'fr');
+INSERT INTO `faq` VALUES (NULL, 'Comment protéger les fonctions de remaniement?', 'Il est possible d’insérer un mot de passe au point „Administration“ du menu.<br>\r\nPour apporter des changements à un meeting protégé, l’utilisateur doit introduire le mot de passe.  Il reste annoncé ainsi jusqu’à ce qu’il ferme Athletica (le navigateur). Le mode speaker peut toujours être atteint sans mot de passe.<br>\r\nCette fonction est prévue pour empêcher des changements involontaires par ex. par le speaker. Elle ne constitue pas de protection effective contre des agressions méchantes!', 'y', 350, 450, 'meeting', 'fr');
+
+

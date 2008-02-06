@@ -1,0 +1,29 @@
+
+	----------------------------
+		Athletica Installation
+	----------------------------
+
+Die Installationsanleitung findet sich als Teil der Applikationsdokumentation
+unter:
+
+	doc/de/admin/install.html
+
+
+Upgrade von WinMAX_2_1_1:
+-------------------------
+Alte Version de-installieren und aktuellstes Paket herunterladen und neu
+installieren.
+Achtung: Bestehende Daten gehen verloren!
+
+Upgrade allgemein:
+------------------
+
+1.) Bestehendes 'athletica'-Verzeichnis im Dokumentenverzeichnis des Webservers
+ersetzen (Apache auf Windows C:\Programme\Apache Group\Apache\htdocs\athletica).
+
+2.) Mit dem eingesetzten DB-Administrationswerkezug (z.B. phpMyAdmin) die
+Datei 'athletica.sql' aus dem sql-Verzeichnis einspielen. Achtung: Bestehende
+Daten gehen verloren!
+
+Wir wuenschen viel Spass mit Athletica!
+
