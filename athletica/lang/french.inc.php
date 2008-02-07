@@ -617,4 +617,22 @@ $strVersionOK = 'Votre version Athletica a été mise à jour!';
 
 $strDay = 'Jour';
 $strAll = 'tous';
+
+$strEmptyCache = 'Vider cache';
+$strEmptyCacheInfo = 'Avec cette fonction vous pouvez supprimer les athlètes et les sociétés enregistrés (modifications personnelles)<br>
+		<b>Attention:</b> n’effectuez cette fonction que si à ce moment vous n’avez pas saisi d’inscriptions à des meetings dans Athletica.<br><br>
+		
+		Déroulement recommandé: <br>
+		1. Vider cache<br>
+		2. Saisir meeting<br>
+		3. Mise à jour des données de base et comparaison avec meeting';
+$strEmptyCacheDo = "Vous êtes sur le point de supprimer tous les athlètes et sociétés saisis, ainsi que les modifications que vous avez apportées (aux athlètes et sociétés).<br>
+		Avec cette fonction vous pouvez éliminer les problèmes avec les athlètes et/ou sociétés non trouvés.<br><br>
+		N’effectuez cette fonction que si vous n’avez pas encore inscrits d’athlètes à tous les meetings saisis (ceci est également valable pour la comparaison des inscriptions en ligne). Celles-ci seraient en effet effacées.<br><br>
+
+		Voulez-vous continuer?";
+$strEmptyCacheDone = "Le cache a été vidé. Effectuez maintenant une mise à jour des données de base.";
+$strEmptyCacheReference = 'Quelques athlètes et/ou sociétés ne sont pas encore référencés (inscriptions). Le cache ne peut pas être vidé.';
+$strSelectMeeting = 'Sélectionner meeting';
+$strBaseMeetingAct = 'Informations téléchargées (inscriptions, No d’event) sont importées dans le meeting Athletica suivant:';
 ?>
