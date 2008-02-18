@@ -5,7 +5,7 @@
  *	-------------------------------
  *	
  */
-
+ 
 require('./convtables.inc.php');
 
 require('./lib/cl_gui_button.lib.php');
@@ -50,6 +50,11 @@ if ($_POST['arg']=="change_cat")
 else if ($_POST['arg']=="change_event")
 {
 	AA_meeting_changeEvent();
+}
+// change event data
+else if ($_POST['arg']=="change_event_discipline")
+{
+    AA_meeting_changeEventDiscipline();
 }
 // change type of combined event (needed for bestlist)
 else if($_POST['arg']=="change_combtype"){
@@ -107,7 +112,7 @@ else if($_POST['arg']=="change_svmcat"){
 }
 // add a new combined contest
 elseif($_POST['arg']=="add_combtype"){
-	
+	         
 	AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);
 	
 }
@@ -138,7 +143,7 @@ elseif($_POST['arg']=="new_discipline"){
 				, xMeeting = ".$_COOKIE['meeting_id']."
 				, Punktetabelle = ".$_POST['punktetabelle']."
 				, Mehrkampfcode = $t
-				, Mehrkampfreihenfolge = 127");
+				, Mehrkampfreihenfolge = 127");          
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -378,8 +383,8 @@ $sql = "SELECT
 			  w.Mehrkampfcode DESC
 			, w.Mehrkampfreihenfolge
 			, d.Anzeige;";
-$result = mysql_query($sql);
-
+$result = mysql_query($sql);   
+ 
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -389,13 +394,14 @@ else			// no DB error
 	// display list
 	$i=0;
 	$k=0;
+    $c=0;           // count of combined disciplines
 	$comb=0;		// combined code
 	$cType = 0;
 	$cGroups = array();	// combined groups
 	$tsm = 0;	// count team sm disc
 	
 	while ($row = mysql_fetch_row($result))
-	{
+	{   
 		$punktetabelle = $row[3];
 		
 		// check on combined event order and set if unset
@@ -645,7 +651,7 @@ else			// no DB error
 	<?php $dd = new GUI_ConfigDropDown('conv', 'cvtTable', $row[3], "comb_$row[7].submit()"); ?>
 	</form>
 	</table>
-				<?php
+				<?php    
 				
 				// get count of groups of entrys for current combined event
 				$cGroups = array();
@@ -681,13 +687,13 @@ else			// no DB error
 						AND 
 							a.Gruppe != ''
 						ORDER BY
-							g ASC;";
+							g ASC;";                   
 				$res_c = mysql_query($sql);
 				if(mysql_errno() > 0){
 					AA_printErrorMsg(mysql_errno().": ".mysql_error());
 				}else{
 					while($row_c = mysql_fetch_array($res_c)){
-						$cGroups[] = $row_c[0];
+						$cGroups[] = $row_c[0]; 
 					}
 					mysql_free_result($res_c);
 				}
@@ -732,16 +738,113 @@ else			// no DB error
 			//
 			?>
 		<tr>
-			<form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
-			<input type="hidden" name="arg" value="change_event">
+			<form method="POST" action="meeting_definition_category.php" name="event_neu_<?php echo $row[0] ?>">
+			<input type="hidden" name="arg" value="change_event_discipline">
 			<input type="hidden" name="g" value="">
 			<input type="hidden" name="round" value="">
 			<input type="hidden" name="item" value="<?php echo $row[0] ?>">
 			<input type="hidden" name="info" value="<?php echo $row[13] ?>">
 			<input type="hidden" name="last" value="<?php echo $row[14] ?>">
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
-			<input type="hidden" name="nocat" value="1"/>
-			<td class='dialog'><?php echo $row[6]; ?></td>
+			<input type="hidden" name="nocat" value="1"/> 
+			
+            <?php
+         
+            if(!empty($_POST['combinedtype']) || !empty($_POST['cmbtype']) || !empty($row[7])  ){
+                if  (!empty($_POST['combinedtype'])) {
+                    $t = $_POST['combinedtype'];
+                }
+                elseif  (!empty($_POST['cmbtype'])) {
+                          $t = $_POST['cmbtype'];
+                }
+                elseif  (!empty($row[7])) {
+                          $t = $row[7];
+                }                 
+                               
+                // check if combined type has predefined disciplines
+                            
+                $sql_k = "SELECT 
+                                Geschlecht 
+                          FROM 
+                                kategorie 
+                          WHERE 
+                                xKategorie = ".$category.";";  
+                                
+                $query_k = mysql_query($sql_k);                   
+                $row_k = mysql_fetch_assoc($query_k);
+                                                      
+                $my_tmp = $t;
+                if($my_tmp==394 && ($row_k['Geschlecht']=='m' || $row_k['Geschlecht']=='M')){
+                    $my_tmp = 3942;
+                }
+               
+                if(isset($cfgCombinedDef[$my_tmp])){
+                    $tt = $cfgCombinedDef[$my_tmp];   
+                    
+                    ?>
+                    <td class='forms'>            
+                    <input name='cmbtype' type='hidden' value='<?php echo $t; ?>' />
+                    <?php
+                    $dropdown = new GUI_Select('discipline_cmb', 1, "document.event_neu_$row[0].submit()");                                       
+                         
+                    $res_d = mysql_query("SELECT 
+                                                xDisziplin
+                                                , Name
+                                                , Code 
+                                          FROM 
+                                                disziplin");  
+                    $val=$cfgCombinedWO[$tt][$c];
+                    while ($row_d = mysql_fetch_array($res_d)){                             
+                        $res_new = mysql_query("SELECT 
+                                                    xDisziplin
+                                                    , Name 
+                                                FROM 
+                                                    disziplin 
+                                                WHERE
+                                                    Code = $val");
+                                                    
+                        $row_new = mysql_fetch_array($res_new);
+                        $d_name = $row_new[1];                         
+                           
+                        if(!empty($_POST['combinedtype'])){
+                            if($row_d[2] == $cfgCombinedWO[$tt][$c]) {                                         
+                                $dropdown->selectOption($val);
+                            }
+                        }                            
+                        else {
+                             $dropdown->selectOption($row[16]);                                       
+                        }                           
+                                    
+                    $dropdown->addOption( $row_d[1],$row_d[2]);   
+                    }                                              
+                       
+                $dropdown->printList();  
+                          
+                $c++;                                       // count of combined disciplines  
+                }
+                 else {                    
+                     ?>
+                     <td class='dialog'><?php echo $row[6]; ?></td>
+                     </td>
+                     <?php                      
+                 }                   
+               ?> 
+            </td>
+            </form>     
+             <?php       
+            }             
+
+            ?>             
+            <form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
+            <input type="hidden" name="arg" value="change_event">
+            <input type="hidden" name="g" value="">
+            <input type="hidden" name="round" value="">
+            <input type="hidden" name="item" value="<?php echo $row[0] ?>">
+            <input type="hidden" name="info" value="<?php echo $row[13] ?>">
+            <input type="hidden" name="last" value="<?php echo $row[14] ?>">
+            <input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
+            <input type="hidden" name="nocat" value="1"/>             
+            
 			<td class='forms'>
 			<?php
 			if($row[3]>=100){

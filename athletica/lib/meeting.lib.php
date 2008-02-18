@@ -13,7 +13,7 @@ if (!defined('AA_MEETING'))
 // change general meeting data
 //
 function AA_meeting_changeData()
-{
+{   
 	include('./config.inc.php');
 	require('./lib/common.lib.php');
 
@@ -106,7 +106,7 @@ function AA_meeting_changeData()
 // add a new event
 //
 function AA_meeting_addEvent()
-{
+{  
 	require('./lib/common.lib.php');
 	require('./lib/cl_timetable.lib.php');
 	
@@ -348,7 +348,7 @@ function AA_meeting_addEvent()
 // add new combined event
 //
 function AA_meeting_addCombinedEvent($disfee, $penalty){
-	
+	    
 	include('./convtables.inc.php');
 	require('./lib/common.lib.php');
 	
@@ -364,7 +364,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		$sql_k = "SELECT Geschlecht FROM kategorie WHERE xKategorie = ".$_POST['cat'].";";
 		$query_k = mysql_query($sql_k);
 		$row_k = mysql_fetch_assoc($query_k);
-		
+		    
 		$tmp = $t;			
 		if($tmp==394 && ($row_k['Geschlecht']=='m' || $row_k['Geschlecht']=='M')){
 			$tmp = 3942;
@@ -396,6 +396,8 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 						, Mehrkampfcode = $t
 						, Mehrkampfende = $combEnd
 						, Mehrkampfreihenfolge = $k");
+                
+       
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					break;
@@ -403,9 +405,9 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				
 			}
 			
-			// set conversion table
+			// set conversion table               
 			$_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
-			$_POST['conv'] = $cfgCombinedWO[$tt."_F"];
+			$_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
 			$_POST['conv_changed'] = 'yes';
 			AA_meeting_changeCategory($t);
 			
@@ -707,6 +709,124 @@ function AA_meeting_changeEvent()
 	return;
 }
 
+// change event data
+//
+function AA_meeting_changeEventDiscipline()
+{   
+    include('./convtables.inc.php');
+    require('./lib/common.lib.php');
+
+    $info = '';
+    if(!empty($_POST['info'])) {
+        $info = $_POST['info'];
+    }
+    $wind = 0;
+    if(!empty($_POST['wind'])) {
+        $wind = 1;
+    }
+    $deposit = 0;
+    if(!empty($_POST['deposit'])) {
+        $deposit = strtr($_POST['deposit'], ",", ".");
+    }
+    $fee = 0;
+    if(!empty($_POST['fee'])) {
+        $fee = strtr($_POST['fee'], ",", ".");
+    }
+    $timing = 0;
+    if(!empty($_POST['timing'])) {
+        $timing = 1;
+    }
+    $tauto = 0;
+    if(!empty($_POST['timingAuto'])) {
+        $tauto = 1;
+    }
+    $cat=0;
+    if(!empty($_POST['cat'])) {   
+        $cat=$_POST['cat'];         
+    }
+    $discipline=0;
+    $code=0;
+    if(!empty($_POST['discipline_cmb'])) {
+        $code=$_POST['discipline_cmb'];
+     }
+    if(!empty($_POST['cmbtype'])) {
+        $combined=$_POST['cmbtype'];           
+                                        //   check if athletes announced
+        $sql_a="SELECT
+                    w.xWettkampf
+                    , s.xAnmeldung 
+                FROM 
+                    wettkampf AS w 
+                INNER JOIN 
+                    start AS s USING (xWettkampf)
+                WHERE 
+                    w.mehrkampfcode=".$combined."
+                    AND w.xMeeting=".$_COOKIE['meeting_id']."
+                    AND w.xKategorie=".$cat.";";              
+
+        $result_a = mysql_query($sql_a);         
+         
+        if (mysql_num_rows($result_a)!= 0) {
+                                                //   athletes already announced
+            ?>
+            <script type="text/javascript">
+                alert("<?php echo $strErrDiscCombChange; ?>");                 
+            </script>
+            <?php
+            return;
+        }   
+
+        $sql="SELECT
+                    xDisziplin
+              FROM 
+                    disziplin
+              WHERE
+                    code = ".$code.";";
+
+        $result = mysql_query($sql);
+
+        if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        else {
+                $row = mysql_fetch_row($result);
+                $discipline=$row[0];
+        }
+         mysql_free_result($result);
+    }
+
+    mysql_query("
+        LOCK TABLES
+            disziplin READ
+            , serienstart READ
+            , start READ
+            , resultat wRITE
+            , wettkampf WRITE
+            , runde READ
+            , r READ
+            , w READ
+    ");
+
+    mysql_query("
+        UPDATE wettkampf SET
+            Windmessung = $wind
+            , Haftgeld='$deposit'
+            , Startgeld='$fee'
+            , xDisziplin='$discipline'
+            , Info=\"$info\"
+            , Zeitmessung=$timing
+            , ZeitmessungAuto=$tauto
+        WHERE xWettkampf = " . $_POST['item']
+    );
+
+    // Check if any error returned from DB
+    if(mysql_errno() > 0) {
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }
+    
+    mysql_query("UNLOCK TABLES");
+    return;
+}
 
 //
 // delete a single event

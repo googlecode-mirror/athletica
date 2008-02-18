@@ -644,4 +644,5 @@ $strEmptyCacheReference = 'Einige Athleten und/oder Vereine werden noch referenz
 		Stellen Sie sicher dass keine Athleten und/oder Vereine angemeldet wurden.';
 $strSelectMeeting = 'Meeting auswählen';
 $strBaseMeetingAct = 'Heruntergeladene Informationen (Anmeldungen, Eventnr.) werden<br>in folgendes Athletica-Meeting importiert:';
+$strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten angemeldet sind.'
 ?>
