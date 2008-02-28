@@ -720,6 +720,13 @@ else if ($_POST['arg'] == 'restore')
 								   AUTO_INCREMENT = ".$new_id.";";
 			$query_ai = mysql_query($sql_ai);
 			
+			
+			// ACHTUNG:
+			// Temporäre Änderung (Fredy Mollet): Hallen-Flag bei den Stadien auf "n" setzen (damit bei den Punkten kein i erscheint)
+			$sql_st = "UPDATE stadion 
+						  SET Halle = 'n';";
+			$query_st = mysql_query($sql_st);
+			
 		}
 		
 		if(!$error){

@@ -129,12 +129,12 @@ $dd = new GUI_ConfigDropDown('tracks2', 'cfgTrackOrder', 0, '', true);
 			<input type="checkbox" value="yes" name="thousend">
 		</td>
 		<td class='forms'>
-			<input type="checkbox" value="yes" name="hall">
+			<input type="checkbox" value="yes" name="hall" disabled="disabled">
 		</td>
 		<td class='forms'>
 			<button type='submit'>
 				<?php echo $strSave; ?>
-		  	</button>
+			</button>
 		</td>
 
 		</form>	
@@ -189,7 +189,7 @@ while ($row = mysql_fetch_row($result))
 		</td>
 		<td class='forms'>
 			<input type="checkbox" name="hall" value="yes" 
-			onchange="submitForm(document.stad<?php echo $i ?>)" <?php if($row[5] == 'y'){ echo "checked"; } ?>>
+			onchange="submitForm(document.stad<?php echo $i ?>)" disabled="disabled" <?php if($row[5] == 'y'){ echo "checked"; } ?>>
 		</td>
 		<td>
 	<?php
