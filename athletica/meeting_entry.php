@@ -6,7 +6,7 @@
  *	-----------------
  *	
  */
-
+   
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -312,8 +312,9 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 	}
 	
 	mysql_query("LOCK TABLES anmeldung READ, disziplin READ, runde READ,"
-		. " kategorie READ, base_athlete READ, base_performance READ, wettkampf READ, start WRITE");
+		. " kategorie READ, base_athlete READ, base_performance READ, wettkampf READ, start READ, start WRITE");
 	
+    
 	foreach($events as $event){
 		if(AA_checkReference("wettkampf", "xWettkampf", $event) == 0)	// Event does not exist (anymore)
 		{
@@ -325,9 +326,9 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 			{
 				AA_printErrorMsg($strEntry . $strErrNotValid);
 			}
-			else
-			{
-				// check if event already started
+			else                     
+			{   
+                // check if event already started
 				$res = mysql_query("SELECT disziplin.Name"
 										. " FROM disziplin"
 										. ", runde"
@@ -352,10 +353,10 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 					// get performance from base data if searched for an athlete
 					//
 					$perf = 0;
-					if($_POST['license'] != ''){
-						// need codes of category and discipline
+					if($_POST['license'] != ''){    
+						// need codes of category and discipline        // meine 3 zugefügt
 						$res = mysql_query("
-							SELECT disziplin.Code, kategorie.Code, disziplin.Typ FROM
+							SELECT disziplin.Code, kategorie.Code, disziplin.Typ, disziplin.xDisziplin, kategorie.xKategorie,wettkampf.xMeeting  FROM
 								disziplin
 								, kategorie
 								, wettkampf
@@ -369,31 +370,37 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 								SELECT
 									base_performance.best_effort
 									, base_performance.season_effort
+                                    , base_performance.id_performance
 								FROM
 									base_performance
 									, base_athlete
 								WHERE	base_athlete.license = ".$_POST['license']."
 								AND	base_performance.id_athlete = base_athlete.id_athlete
-								AND	base_performance.discipline = ".$rowCodes[0]);
+								AND	base_performance.discipline = ".$rowCodes[0]); 
 								//AND	base_performance.category = '".$rowCodes[1]."'");
+                                                               
 						}
 						if(mysql_errno() > 0){
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-						}else{
+						}else{ 
 							$bigger = 0;
 							$smaller = 0;
-							$rowPerf = mysql_fetch_array($res);
-							if($rowPerf[0] > $rowPerf[1]){
+							$rowPerf = mysql_fetch_array($res); 
+                             
+							if($rowPerf[0] > $rowPerf[1]){ 
 								$bigger = $rowPerf[0];
 								$smaller = $rowPerf[1];
-							}else{
+                               
+							}else{ 
 								$bigger = $rowPerf[1];
 								$smaller = $rowPerf[0];
 							}
-							if($bigger == 0 || empty($bigger)){ $bigger = $smaller; }
-							if($smaller == 0 || empty($smaller)){ $smaller = $bigger; }
-							//echo ltrim($bigger,"0");
-							
+                            
+							if($bigger == 0 || empty($bigger)){  $bigger = $smaller; }
+							if($smaller == 0 || empty($smaller)){  $smaller = $bigger; }    
+                                
+							//echo ltrim($bigger,"0");    
+                            
 							if(($rowCodes[2] == $cfgDisciplineType[$strDiscTypeTrack])
 								|| ($rowCodes[2] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
 								|| ($rowCodes[2] == $cfgDisciplineType[$strDiscTypeRelay])
@@ -402,18 +409,36 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 								$pt = new PerformanceTime(trim($smaller));
 								$perf = $pt->getPerformance();
 								
+                               $best=AA_getBestPreviousTrack($event,$rowCodes[3], $_POST['item'] );  
+                               
+                                if ($best!=0) {         // previous best exist
+                                    if ($perf==0){
+                                        $perf=$best;
+                                    }
+                                    elseif ($best<$perf)
+                                        $perf=$best;                                             
+                                }                                 
 							}
 							else {
 								//echo $bigger;
 								/*$pa = new PerformanceAttempt($bigger);
 								$perf = $pa->getPerformance();*/
-								$perf = (ltrim($bigger,"0"))*100;
+                                  
+                                $best=AA_getBestPreviousTech($event, $rowCodes[3], $_POST['item']);
+                                                                          
+								$perf = (ltrim($bigger,"0"))*100;                                  
+                                
+                                if ($best!=0) {       // previous best exist
+                                    if ($best>$perf )                        
+                                        $perf=$best; 
+                                } 
 							}
 							if($perf == NULL) {	// invalid performance
 								$perf = 0;
-							}
+							}  
+                            
 						}
-					}
+					}     
 					
 					mysql_query("INSERT INTO start SET "
 									 . " xWettkampf='" . $event
@@ -1306,6 +1331,7 @@ $dis2 = false;
 			, w.Mehrkampfcode
 			, w.Typ
 			, k.Geschlecht
+            , d.xDisziplin
 		FROM
 			wettkampf as w
 			, disziplin AS d
@@ -1386,7 +1412,7 @@ $dis2 = false;
 		// display list of events
 		//while ($event_row = mysql_fetch_row($res))
 		foreach($event_rows as $event_row)
-		{
+		{   
 			if($last_cat != $event_row[3]){	// new row with title for separating categories
 				if($comb > 0){
 					echo "</table></td>";
@@ -1419,16 +1445,16 @@ $dis2 = false;
 					start
 				WHERE xWettkampf = $event_row[0]
 				AND xAnmeldung = $row[0]
-			");
-
+			");   
+                     
 			if(mysql_errno() > 0)		// DB error
 			{
 			  AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			else				// no DB error
 			{
-				$start_row = mysql_fetch_row($r);
-				
+				$start_row = mysql_fetch_row($r);         
+    		
 				// check if this is a valid selection (age on category)
 				//if($event_row[5] < $agelimit || (substr($event_row[6],0,1) != $sex && substr($event_row[6],3,1) != $sex)){
 				
@@ -1447,16 +1473,16 @@ $dis2 = false;
 					|| ($event_row[2] == $cfgDisciplineType[$strDiscTypeRelay])
 					|| ($event_row[2] == $cfgDisciplineType[$strDiscTypeDistance]))
 				{
-					$class = 'time';
+					$class = 'time';  
 					if($event_row[2] == $cfgDisciplineType[$strDiscTypeDistance]){
-						$perf = AA_formatResultTime($start_row[1]);
+					    $perf = AA_formatResultTime($start_row[1]);
 					}else{
-						$perf = AA_formatResultTime($start_row[1], false, true);
-					}
+					    $perf = AA_formatResultTime($start_row[1], false, true);
+					}                    
 				}
-				else {
-					$class = 'meter';
-					$perf = AA_formatResultMeter($start_row[1]);
+				else { 
+				     $class = 'meter';                      
+                     $perf = AA_formatResultMeter($start_row[1]);                            
 				}
 				
 				//
@@ -1479,7 +1505,7 @@ $dis2 = false;
 						$start_comb = true;
 					}
 					mysql_free_result($resStartComb);
-					
+					 
 					if($start_comb) {		// combined selected
 						if($comb != $event_row[9]){
 							if($comb > 0){
@@ -1504,7 +1530,7 @@ $dis2 = false;
 							<?php
 						}
 						
-						if($start_row[0] != 0) { // start of each discipline, athlete can choose for optional disciplines
+						if($start_row[0] != 0) { // start of each discipline, athlete can choose for optional disciplines                           
 							printf("<tr><td><input name='events[]' type='checkbox' id='$event_row[0]'
 								onclick='updateStarts(\"del_event\", $start_row[0], $event_row[0])'
 								value='$start_row[0]' checked/>
@@ -1541,7 +1567,7 @@ $dis2 = false;
 						}
 					}
 				}else{
-					if($start_row[0] != 0) {		// event selected
+					if($start_row[0] != 0) {		// event selected                       
 						printf("<td>$span<input name='events[]' type='checkbox' id='$event_row[0]'"
 						. " onclick='updateStarts(\"del_event\", $start_row[0], $event_row[0])'"
 						. " value='$start_row[0]' checked/>$event_row[1] ($event_row[7]) $span_end</td>\n");
