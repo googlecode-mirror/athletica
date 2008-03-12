@@ -50,6 +50,11 @@ class PRINT_Page extends GUI_Page
 	function startPage()
 	{
 		global $cfgPageContentHeight;
+        
+        global $HTTP_USER_AGENT; 
+        if (ereg("Firefox",$HTTP_USER_AGENT))
+             $cfgPageContentHeight=252; 
+        
 		$this->lpp = $GLOBALS['cfgPrtLinesPerPage'];		// lines per page
 		?>
 <body onLoad="printPage()">
@@ -65,7 +70,7 @@ class PRINT_Page extends GUI_Page
 </script>
 
 <?php $this->printPageHeader() ?>
-
+ 
 <div style="height:<?php echo $cfgPageContentHeight ?>mm;"> <!-- content div will position the footer on bottom -->
 <table class='frame'>
 <tr class='frame'>
@@ -191,18 +196,22 @@ class PRINT_Page extends GUI_Page
 </html>
 <?php
 	}
-
-
-	/**
-	 * insertPageBreak
-	 * ---------------
-	 * Terminates layout table and inserts a page break (printing).
-	 */
-	function insertPageBreak()
-	{
-		global $cfgPageContentHeight;
+    
+    
+    /**
+     * insertPageBreak
+     * ---------------
+     * Terminates layout table and inserts a page break (printing).
+     */
+    function insertPageBreak()
+    {
+        global $cfgPageContentHeight;
+        
+        global $HTTP_USER_AGENT; 
+        if (ereg("Firefox",$HTTP_USER_AGENT))
+             $cfgPageContentHeight=252;                 // for browser firefox
 ?>
-	</td>
+    </td>
 </tr>
 </table>
 </div>
@@ -212,14 +221,14 @@ class PRINT_Page extends GUI_Page
 <br style='page-break-after:always' />
 
 <?php $this->printPageHeader() ?>
-
+        
 <div style="height:<?php echo $cfgPageContentHeight ?>mm;">
 <table class='frame'>
 <tr class='frame'>
-	<td class='frame'>
+    <td class='frame'>
 <?php
-		$this->linecnt = 0;
-	}
+        $this->linecnt = 0;
+    }
 
 	/**
 	 * printDocTitle

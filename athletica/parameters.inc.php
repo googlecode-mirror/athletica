@@ -154,8 +154,15 @@ $cfgTrackOrder = array(					4=>array (1=>3
 /**
  *	Various other options
  */
+ 
+// if (ereg("Firefox",$HTTP_USER_AGENT))   // browser Mozilla Firefox
+//    $cfgPageContentHeight = 265;
+// else
+//    $cfgPageContentHeight = 265
+    
 $cfgPrtLinesPerPage = 57;		// printer dependent
-$cfgPageContentHeight = 265;		// content layer height in mm, will position header an footer on printings
+$cfgPageContentHeight = 285;	// content layer height in mm, will position header an footer on printings 
+                                // for browser firefox: set cfgPageContentHeight on 252 in cl_print_page.lib.php and  cl_print_contest.lib.php
 $cfgCookieExpires = 31536000;	// Secs, after which cookies will expire
 $cfgMonitorReload = 60;			// Secs, after which event and speaker monitor
 										// page will be reloaded

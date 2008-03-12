@@ -124,12 +124,16 @@ class PRINT_Contest extends PRINT_Page
 <?php
 	}
 
-
-	function insertPageBreak()
-	{
-		global $cfgPageContentHeight;
+    function insertPageBreak()
+    {     
+        global $cfgPageContentHeight;
+        
+        global $HTTP_USER_AGENT; 
+        if (ereg("Firefox",$HTTP_USER_AGENT))
+             $cfgPageContentHeight=252;         // for browser firefox
+        
 ?>
-	</td>
+    </td>
 </tr>
 </table>
 </div>
@@ -139,17 +143,17 @@ class PRINT_Contest extends PRINT_Page
 <br style='page-break-after:always' />
 
 <?php $this->printPageHeader() ?>
-
+   
 <div style="height:<?php echo $cfgPageContentHeight ?>mm;">
 <table class='frame'>
 <tr class='frame'>
-	<td class='frame'>
+    <td class='frame'>
 
 <?php
-		$this->linecnt = 0;
-		$this->printHeaderLine();
-		$this->printFreeTxt();
-	}
+        $this->linecnt = 0;
+        $this->printHeaderLine();
+        $this->printFreeTxt();
+    }   
 
 	function printEndHeat()
 	{

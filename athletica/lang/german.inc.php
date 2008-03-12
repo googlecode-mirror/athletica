@@ -490,7 +490,7 @@ $strRoundtypes = "Rundentypen";
 
 $strSave = "Speichern";
 $strSearch = "Suchen";
-$strSearchForLicense = "&Uuml;ber Lizenznummer anmelden:";
+$strSearchForLicense = "&Uuml;ber Lizenznr. oder Name anmelden:";
 $strSearchResults = "Suchresultate";
 $strSeed = "Einteilen";
 $strSeedHeat = "Neu einteilen";
@@ -644,5 +644,7 @@ $strEmptyCacheReference = 'Einige Athleten und/oder Vereine werden noch referenz
 		Stellen Sie sicher dass keine Athleten und/oder Vereine angemeldet wurden.';
 $strSelectMeeting = 'Meeting auswählen';
 $strBaseMeetingAct = 'Heruntergeladene Informationen (Anmeldungen, Eventnr.) werden<br>in folgendes Athletica-Meeting importiert:';
-$strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten angemeldet sind.'
+$strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten angemeldet sind.';
+$strSearchForClub = 'Über Verein anmelden';
+$strNoAthletesToClub= 'Keine Athleten in Stammdaten zu diesem Verein vorhanden';
 ?>

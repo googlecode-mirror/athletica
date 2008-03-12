@@ -5,8 +5,7 @@
  *	meeting_entry_add.php
  *	---------------------
  *	
- */
-
+ */     
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -25,10 +24,10 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 
 // initialize variables
 $category = 0;
-if(!empty($_POST['category'])) {
+if(!empty($_POST['category'])) {  
 	$category = $_POST['category'];	// store selected category
 }
-else if(!empty($_GET['cat'])) {
+else if(!empty($_GET['cat'])) {   
 	$category = $_GET['cat'];	// store selected category
 }
 
@@ -39,6 +38,10 @@ if(!empty($_POST['club'])) {
 $club2 = 0;
 if(!empty($_POST['club2'])) {
 	$club2 = $_POST['club2'];	// store selected club2
+}
+$clubSearch = 0;
+if(!empty($_POST['clubSearch'])) {
+    $clubSearch = $_POST['clubSearch'];    // store selected club from search 
 }
 $clubtext = '';
 if(!empty($_POST['clubtext'])) {
@@ -53,7 +56,7 @@ $athlete_id = 0;
 if(!empty($_POST['athlete_id'])){
 	$athlete_id = $_POST['athlete_id']; // store athleteid from search request
 }
-
+         
 // check if search from base is activated
 $allow_search_from_base = "true";
 if(isset($_COOKIE['asfb'])){
@@ -63,7 +66,7 @@ if(isset($_COOKIE['asfb'])){
 $discs_def = array();
 $combs_def = array();
 
-if(!empty($_GET['asfb'])) {
+if(!empty($_GET['asfb'])) {  
 	$allow_search_from_base = $_GET['asfb'];
 	setcookie('asfb',$_GET['asfb'],time()+100000);
 	
@@ -199,67 +202,141 @@ $nbr = 0;
 
 // search request for license number
 if(isset($_POST['searchfield'])){
-	$licensenr = $_POST['searchfield'];
-	$search_occurred = true;
+    if(is_numeric($_POST['searchfield'])) {    // search request for license number
+	    $licensenr = $_POST['searchfield'];
+        $search_occurred = true;  
+        $searchparam = " WHERE license = " . $_POST['searchfield'];  
 	
-	$sql = "SELECT * FROM base_athlete 
-		WHERE license = $licensenr";
-	$result = mysql_query($sql);
-	if(!$result){
-		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-	}else{
-		if(mysql_num_rows($result) == 0){ // no athlete was found
-			$search_match = false;
-		}else{ // search match
-			$row_athlete = mysql_fetch_assoc($result);
-			$search_match = true;
-			$lastname = $row_athlete['lastname'];
-			$firstname = $row_athlete['firstname'];
-			$athlete_id = $row_athlete['id_athlete'];
-			$birth_date = $row_athlete['birth_date'];
-			$nationality = $row_athlete['nationality'];
-			$club = $row_athlete['account_code'];
-			$club_name = '';
-			$club2 = $row_athlete['second_account_code'];
-			$club2_name = '';
-			$clubinfo = $row_athlete['account_info'];
-			$athletesex = $row_athlete['sex'];
-			//
-			// get club id from club code
-			//
-			$result = mysql_query("select xVerein, Name from verein where xCode = '".$club."'");
-			if(mysql_errno() > 0){
-				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-			}else{
-				$rowClub1 = mysql_fetch_array($result);
-				$club = $rowClub1[0];
-				$club_name = $rowClub1[1];
-				if(!empty($club2)){
-					$result = mysql_query("select xVerein, Name from verein where xCode = '".$club2."'");
-					if(mysql_errno() > 0){
-						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-					}else{
-						$rowClub2 = mysql_fetch_array($result);
-						$club2 = $rowClub2[0];
-						$club2_name = $rowClub2[1];
-					}
-				}
-			}
-			mysql_free_result($result);
+	    $sql = "SELECT * FROM base_athlete " . $searchparam; 
+		    //WHERE license = $licensenr";
+        
+	    $result = mysql_query($sql);
+	    if(!$result){
+		        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+	    }else{
+		        if(mysql_num_rows($result) == 0){ // no athlete was found
+			        $search_match = false;
+		        }else{ // search match
+                      if(mysql_num_rows($result) == 1) { 
+			            $row_athlete = mysql_fetch_assoc($result);
+			            $search_match = true;
+			            $lastname = $row_athlete['lastname'];
+			            $firstname = $row_athlete['firstname'];
+			            $athlete_id = $row_athlete['id_athlete'];
+			            $birth_date = $row_athlete['birth_date'];
+			            $nationality = $row_athlete['nationality'];
+			            $club = $row_athlete['account_code'];
+			            $club_name = '';
+			            $club2 = $row_athlete['second_account_code'];
+			            $club2_name = '';
+			            $clubinfo = $row_athlete['account_info'];
+			            $athletesex = $row_athlete['sex'];
+			            //
+			            // get club id from club code
+			            //
+			            $result = mysql_query("select xVerein, Name from verein where xCode = '".$club."'");
+			            if(mysql_errno() > 0){
+				            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			            }else{
+				            $rowClub1 = mysql_fetch_array($result);
+				            $club = $rowClub1[0];
+				            $club_name = $rowClub1[1];
+				            if(!empty($club2)){
+					            $result = mysql_query("select xVerein, Name from verein where xCode = '".$club2."'");
+					             if(mysql_errno() > 0){
+						         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+					             }else{
+						            $rowClub2 = mysql_fetch_array($result);
+						            $club2 = $rowClub2[0];
+						            $club2_name = $rowClub2[1];
+					             }
+				            }
+			            }
+			            mysql_free_result($result);
 			
-			//
-			// get category id
-			//
-			$result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."'");
-			if(mysql_errno() > 0){
-				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-			}else{
-				$rowCat = mysql_fetch_array($result);
-				$category = $rowCat[0];
-			}
-			mysql_free_result($result);
-		}
-	}
+			            //
+			            // get category id
+			            //
+			            $result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."'");
+			            if(mysql_errno() > 0){
+				        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			            }else{
+				            $rowCat = mysql_fetch_array($result);
+				            $category = $rowCat[0];
+			                }
+			            mysql_free_result($result);
+		              }
+	            }
+        }
+    }     
+    else                       // // search request for name
+        $searchparam = " WHERE (lastname like '%" . $_POST['searchfield'] . "%' OR firstname like '%" . $_POST['searchfield'] . "%')";        
+}
+
+ 
+// search request for club
+if($_POST['arg']=="change_athlete"){  
+        $licensenr = $athleteSearch;
+        $search_occurred = true;
+    
+        $sql = "SELECT * FROM base_athlete 
+            WHERE license = $licensenr";
+            $result = mysql_query($sql);
+            if(!$result){
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }else{
+                if(mysql_num_rows($result) == 0){ // no athlete was found
+                    $search_match = false;
+                }else{ // search match
+                        $row_athlete = mysql_fetch_assoc($result);
+                        $search_match = true;
+                        $lastname = $row_athlete['lastname'];
+                        $firstname = $row_athlete['firstname'];
+                        $athlete_id = $row_athlete['id_athlete'];
+                        $birth_date = $row_athlete['birth_date'];
+                        $nationality = $row_athlete['nationality'];
+                        $club = $row_athlete['account_code'];
+                        $club_name = '';
+                        $club2 = $row_athlete['second_account_code'];
+                        $club2_name = '';
+                        $clubinfo = $row_athlete['account_info'];
+                        $athletesex = $row_athlete['sex'];
+                        //
+                        // get club id from club code
+                        //
+                        $result = mysql_query("select xVerein, Name from verein where xCode = '".$club."'");
+                        if(mysql_errno() > 0){
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }else{
+                            $rowClub1 = mysql_fetch_array($result);
+                            $club = $rowClub1[0];
+                            $club_name = $rowClub1[1];
+                            if(!empty($club2)){
+                                $result = mysql_query("select xVerein, Name from verein where xCode = '".$club2."'");
+                                if(mysql_errno() > 0){
+                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                }else{
+                                    $rowClub2 = mysql_fetch_array($result);
+                                    $club2 = $rowClub2[0];
+                                    $club2_name = $rowClub2[1];
+                                }
+                            }
+                        }
+                        mysql_free_result($result);
+            
+                        //
+                        // get category id
+                        //
+                        $result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."'");
+                        if(mysql_errno() > 0){
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }else{
+                            $rowCat = mysql_fetch_array($result);
+                            $category = $rowCat[0];
+                        }
+                        mysql_free_result($result);
+                }
+            } 
 }
 
 //
@@ -282,7 +359,7 @@ if ($_POST['arg']=="cancel")
 // add athlete
 //
 if ($_POST['arg']=="add")
-{
+{   
 	$_POST['name'] = (isset($_POST['name'])) ? $_POST['name'] : $_POST['name_hidden'];
 	$_POST['first'] = (isset($_POST['first'])) ? $_POST['first'] : $_POST['firstname_hidden'];
 	$_POST['year'] = (isset($_POST['year'])) ? $_POST['year'] : $_POST['year_hidden'];
@@ -291,7 +368,7 @@ if ($_POST['arg']=="add")
 	$_POST['clubtext'] = (isset($_POST['clubtext'])) ? $_POST['clubtext'] : $_POST['clubtext_hidden'];
 	$_POST['countryselectbox'] = (isset($_POST['countryselectbox'])) ? $_POST['countryselectbox'] : $_POST['countryselectbox_hidden'];
 	$_POST['categoryselectbox'] = (isset($_POST['categoryselectbox'])) ? $_POST['categoryselectbox'] : $_POST['categoryselectbox_hidden'];
-	$_POST['sex'] = (isset($_POST['sex'])) ? $_POST['sex'] : (($_POST['sexm_hidden']==1) ? 'm' : 'w');
+	$_POST['sex'] = (isset($_POST['sex'])) ? $_POST['sex'] : (($_POST['sexm_hidden']==1 || empty($_POST['sexm_hidden']) ) ? 'm' : 'w');
 	
 	// check if user wants to create a new club
 	if($club == 0){
@@ -339,7 +416,7 @@ if ($_POST['arg']=="add")
 	}
 	// OK: try to add item
 	else
-	{
+	{   
 		// check on completly entered birthday
 		$birthday = "0000-00-00";
 		if(!empty($_POST['day']) && !empty($_POST['month']) && !empty($_POST['year'])){
@@ -353,18 +430,33 @@ if ($_POST['arg']=="add")
 				$_POST['year'] = AA_setYearOfBirth($_POST['year']);
 			}
 		}
-		// determine sex
-		if(empty($_POST['sex'])){
-			$res_c = mysql_query("select Code from kategorie where xKategorie = $category");
-			$row_c = mysql_fetch_array($res_c);
+		// determine sex        
+		//if(empty($_POST['sex'])){
+        
+            //  set gender belong to category 
+            $res_sex = mysql_query("SELECT if(Code = 'MAN_' OR substring(Code,4,1) = 'M', 'm', 'w') as sex, Code
+                            FROM `kategorie` WHERE xKategorie = $category"); 
+            $row_sex = mysql_fetch_array($res_sex);
+            if(mysql_num_rows($res_sex) != 0 && $row_sex[1] != ""){
+                    $sex = $row_sex[0];
+            }
+            else { 
+                $sex = $_POST['sex']; 
+            }
+        
+	/*		    
+            $res_c = mysql_query("select Code from kategorie where xKategorie = $category");
+			$row_c = mysql_fetch_array($res_c);                    
 			if(substr($row_c[0],0,1) == 'M' || substr($row_c[0],3,1) == 'M'){
 				$sex = "m";
 			}else{
 				$sex = "w";
 			}
-		}else{
-			$sex = $_POST['sex'];
-		}
+    */        
+        
+		//}else{
+		//	$sex = $_POST['sex'];
+		//}
 
 		mysql_query("LOCK TABLES disziplin READ, kategorie READ, meeting READ"
 					. ", runde READ, team READ, verein READ, wettkampf READ"
@@ -395,9 +487,9 @@ if ($_POST['arg']=="add")
 						AA_printErrorMsg($strTeam . $strErrNotValid);
 					}
 					else
-					{
-						$eventcheck = TRUE;
-						if(count($_POST['events']) > 0){
+					{   
+						$eventcheck = TRUE;       
+						if(count($_POST['events']) > 0){  
 							foreach($_POST['events'] as $event)
 							{
 								if(AA_checkReference("wettkampf", "xWettkampf", $event) == 0)	// Event does not exist (anymore)
@@ -470,12 +562,12 @@ if ($_POST['arg']=="add")
 							}
 							if($nbrcheck == TRUE)	// Valid startnbr available
 							{
-								if(AA_checkAge($category, $_POST['year']) == FALSE)
-								{
-									AA_printErrorMsg($strErrTooOld);
-								}
-								else
-								{
+								//if(AA_checkAge($category, $_POST['year']) == FALSE)
+								//{
+								//	AA_printErrorMsg($strErrTooOld);
+								//}
+								//else
+								//{
 									$xAthlet = 0;
 									$licnr = 0;
 									//
@@ -532,15 +624,17 @@ if ($_POST['arg']=="add")
 										$msg = mysql_errno() . ": " . mysql_error();
 									}
 									else if(mysql_num_rows($result) > 0)	// Athlete found
-									{
+									{  
 										$row = mysql_fetch_row($result);
 										$xAthlet = $row[0];
 										
-										if($licnr>0){
+										if($licnr>0){     
 											$sql = "UPDATE athlet 
 													   SET Lizenznummer = ".$licnr." 
+                                                       , Geschlecht = '" .$sex."' 
 													 WHERE xAthlet = ".$xAthlet."";
 											$query = mysql_query($sql);
+                                           
 										}
 										
 										// update available athlete (athlete could be entered during an old meeting with other data)
@@ -552,7 +646,7 @@ if ($_POST['arg']=="add")
 									// Athlete not found: Add basic data
 									//
 									else
-									{
+									{   
 										if($athlete_id > 0){ // add from base data
 											// transfer athlete data from base to table athlet
 											mysql_query("	INSERT IGNORE INTO athlet 
@@ -568,8 +662,7 @@ if ($_POST['arg']=="add")
 													FROM
 														base_athlete
 													WHERE
-														id_athlete = $athlete_id");
-														
+														id_athlete = $athlete_id");  
 										}else{ // add from manually entered data
 											// check athleticagen
 											$agen = 'y';
@@ -589,7 +682,7 @@ if ($_POST['arg']=="add")
 													, xRegion = ".$_POST['region']."
 													, Lizenztyp = ".$_POST['licensetype']."
 													, Lizenznummer = '".$_POST['licensenr']."'
-												");
+												"); 
 										}
 
 										if(mysql_errno() > 0) {
@@ -599,9 +692,7 @@ if ($_POST['arg']=="add")
 											$xAthlet = mysql_insert_id();	// get new ID
 										}
 									}
-
-									//echo $xAthlet;
-									
+                                         									
 									if($xAthlet > 0)	// valid athlete ID
 									{
 										$xAnmeldung = 0;
@@ -623,8 +714,7 @@ if ($_POST['arg']=="add")
 										else if(mysql_num_rows($result) > 0)	// Athlete found
 										{
 											$row = mysql_fetch_row($result);
-											$xAnmeldung = $row[0];
-											
+											$xAnmeldung = $row[0];   
 											// update available registration
 											// don't update start number
 											mysql_query("
@@ -648,8 +738,8 @@ if ($_POST['arg']=="add")
 										// Entry not found: Add basic data
 										//
 										else
-										{
-											mysql_query("
+										{  
+                                            mysql_query("
 												INSERT INTO anmeldung SET 
 													xAthlet = $xAthlet
 													, Startnummer='" . $startnbr . "'
@@ -851,7 +941,7 @@ if ($_POST['arg']=="add")
 									else {
 										AA_printErrorMsg($msg);
 									}		// ET xAthlet OK
-								}		// ET valid age for category
+								//}		// ET valid age for category
 							}		// ET Startnbr valid; add or change
 						}		// ET Event valid; add or change
 					}		// ET Team valid; add or change
@@ -1074,6 +1164,7 @@ function meeting_get_disciplines(){
 //
 // display page 
 //
+
 $page = new GUI_Page('meeting_entry_add');
 $page->startPage();
 $page->printPageTitle($strNewEntryFromBase);
@@ -1292,11 +1383,11 @@ $page->printPageTitle($strNewEntryFromBase);
 			if(res.getElementsByTagName("sex")[0].firstChild.nodeValue == 'm'){
 				document.getElementById('sexm').checked = true;
 				document.getElementById('sexm_hidden').value = 1;
-				document.getElementById('sexw_hidden').value = 0;
+				document.getElementById('sexw_hidden').value = 0;                  
 			}else if(res.getElementsByTagName("sex")[0].firstChild.nodeValue == 'w'){
 				document.getElementById('sexw').checked = true;
 				document.getElementById('sexm_hidden').value = 0;
-				document.getElementById('sexw_hidden').value = 1;
+				document.getElementById('sexw_hidden').value = 1;                     
 			}
 			//document.getElementById('sexm').disabled = true;
 			//document.getElementById('sexw').disabled = true;
@@ -1867,14 +1958,14 @@ if ($_POST['arg']=="add")
 	<?php
 }
 
-?>
+?>   
 
 <table>
 <tr>
-	<td class='forms'>
+	<td class='forms'> 
 		<?php echo $strSearchForLicense ?>
 	</td>
-	<td class='forms'>
+	<td class='forms' colspan="2">
 		<?php
 		$menu = new GUI_Menulist();
 		$menu->addSearchfield('meeting_entry_add.php', '_self', 'post', '', false);
@@ -1882,12 +1973,109 @@ if ($_POST['arg']=="add")
 		?>
 	</td>
 </tr>
+<tr>
+    <td>&nbsp;
+    </td>
+</tr>
+<tr>
+     <?php
+      if ( !(isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield'])) ) )  {  
+            ?>    
+            <th class='dialog'>
+            <?php echo $strSearchForClub ?>
+            </th>
+             
+            <td class='forms'>  
+            <form action='meeting_entry_add.php' method='post' name='clubSearch'> 
+            <input name='arg' type='hidden' value='change_clubSearch' />
+            <input name='clubTest' type='hidden' value='<?php echo $club; ?>' />  
+            <?php
+       
+            if ($_POST['arg']=="change_clubSearch")         
+                $dd = new GUI_ClubDropDown($club, true, 'document.clubSearch.submit()', false); 
+            else
+                $dd = new GUI_ClubDropDown(0, true, 'document.clubSearch.submit()', false);  
+            ?>
+       
+            </form> 
+            </td>   
+            <?php 
+       }   
+                                                 
+       if ( $_POST['arg']=="change_clubSearch")  {  
+            $sql_athlets="SELECT b.lastname, b.firstname, b.license,v.Name, v.xCode FROM base_athlete as b , verein as v WHERE b.account_code=v.xCode AND v.xVerein=" . $club . " ORDER BY b.lastname, b.firstname";                                                                                                         
+            $result_a=mysql_query($sql_athlets);
+            if(mysql_num_rows($result_a) > 0) {  
+                ?> <td>&nbsp;</td>
+                <th class='dialog'><?php echo $strAthlete ?></th> 
+                <?php 
+            }
+            ?> 
+            <td class='forms'>   
+            <form action='meeting_entry_add.php' method='post' name='athleteSearch'> 
+            <input name='arg' type='hidden' value='change_athlete' />  
+            <?php  
+        
+            $dropdown = new GUI_Select('athleteSearch', 1, "document.athleteSearch.submit()");
+             
+             if(mysql_num_rows($result_a) > 0)  {  
+                while( $row_athlets=mysql_fetch_row($result_a)) { 
+                      $name_athlete=$row_athlets[0] . " " . $row_athlets[1];
+                      $dropdown->addOption($name_athlete, $row_athlets[2]); 
+                }
+                $dropdown->selectOption($athleteSearch);
+                $dropdown->addOptionNone();
+                $dropdown->printList();  
+            }  
+            else
+                {$search_occurred=true;     
+                } 
+            ?>
+            </form>      
+            </td>  
+       <?php   
+     } 
+     
+     if ( (isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield'])) ) ) {  
+         ?> 
+         <th class="dialog"><?php echo $strAthlete ?></th> 
+         <td class="forms">   
+         <form action='meeting_entry_add.php' method='post' name='athleteSearch'> 
+         <input name='arg' type='hidden' value='change_athlete' />  
+         <?php  
+        
+         $dropdown = new GUI_Select('athleteSearch', 1, "document.athleteSearch.submit()");
+        
+         $sql_athlets = "SELECT lastname, firstname, license FROM base_athlete " . $searchparam; 
+                                                             
+         $result_a=mysql_query($sql_athlets);
+         if(mysql_num_rows($result_a) > 0)  {   
+               while( $row_athlets=mysql_fetch_row($result_a)) {
+                    $name_athlete=$row_athlets[0] . " " . $row_athlets[1];
+                    $dropdown->addOption($name_athlete, $row_athlets[2]); 
+                }
+                $dropdown->selectOption($athleteSearch);
+                $dropdown->addOptionNone();
+                $dropdown->printList();  
+         }
+         else
+              {$search_occurred=true;
+              $search_match;   
+              } 
+        ?>
+        </form>      
+        </td>  
+       <?php   
+     }  
+   ?>    
+</tr>  
 </table>
 <br>
 
-<?php
-if($search_occurred){
-	if($search_match){ // output information and ask to add athlet
+<?php   
+
+if($search_occurred){  
+	if($search_match){ // output information and ask to add athlet    
 		?>
 		
 <table>
@@ -1907,7 +2095,7 @@ if($search_occurred){
 	<tr>
 </table>
 <table class='dialog'>
-	<th class='dialog'>
+	<th class='dialog'>  
 		<?php echo $strName ?>
 	</th>
 	<td class='forms'>
@@ -1978,25 +2166,10 @@ if($nbr == 0) {			// start number not selected yet
 	</td>
 	<th class='dialog'>
 		<?php echo $strCategory ?>
-	</th>
-	<td class='forms'>
-		<?php
-			$sql = "SELECT DISTINCT
-					kategorie.xKategorie
-					, kategorie.Kurzname
-				FROM
-					
-					 kategorie
-				WHERE 
-					 xKategorie = ".$category."
-				ORDER BY
-					kategorie.Anzeige";
-			$result = mysql_query($sql);
-			while($row = mysql_fetch_assoc($result)){
-				echo $row['Kurzname'];
-			}
-		?>
-	</td>
+	</th>  	
+		<?php 
+        $dd = new GUI_CategoryDropDown($category, "check_category()", true); 
+		?>  
 </tr>
 <tr>
 	<th class='dialog'><?php echo $strTeam; ?></th>
@@ -2045,13 +2218,19 @@ if(!empty($club2) && false){ // not yet in use
 		<?php
 	}else{ // output message
 		?>
-		<p><?php echo $strNoSuchLicense ?></p>
+		<p><?php if ($_POST['arg']=='change_clubSearch') 
+                    echo $strNoAthletesToClub; 
+                 else 
+                    echo $strNoSuchLicense; 
+        ?></p>
 		<script type="text/javascript">
 		document.forms[0].search.focus();
 		</script>
 		<?php
 	}
 }else{ // else if search
+      if ( ($_POST['arg']!="change_clubSearch")  
+            && !( (isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield']) ) )  ) ) {
 ?>
 
 <?php $page->printPageTitle($strNewEntry); ?>
@@ -2265,6 +2444,7 @@ if(!empty($club2) && false){ // not yet in use
 
 <?php
 }// endif search occurred
+} // end if club searched
 
 if($athlete_id > 0){
 	?>

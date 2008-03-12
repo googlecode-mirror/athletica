@@ -415,8 +415,10 @@ else
 							// - or after two heats
 							// - or after each heat if relay
 							// - or page break per heat is selected
-							if(($b > 9) || ($h % 2 == 0) || ($layout == 3) || $_POST['heatpagebreak'] == "yes") {
-								$doc->insertPageBreak();
+                            
+                           
+							if(($b > 9) || ($h % 2 == 0) || ($layout == 3) || $_POST['heatpagebreak'] == "yes") {                                                        
+								    $doc->insertPageBreak();
 							}
 						}
 						
@@ -444,8 +446,8 @@ else
 					else if($b % 30 == 0)	// after 30 athletes in this heat
 					{
 						// insert page break an repeat heat info
-						$doc->printEndHeat();
-						$doc->insertPageBreak();
+						$doc->printEndHeat();                        
+                        $doc->insertPageBreak();
 						$doc->printHeatTitle("$heat $strCont", $row[5], $filmnr);
 						$doc->printStartHeat($svm);
 					}
@@ -536,8 +538,8 @@ else
 					if(($id != $row[3]) || ($h == 0))
 					{
 						if($h != 0)	{		// not first heat
-							$doc->printEndHeat();
-							$doc->insertPageBreak();
+							$doc->printEndHeat();                            
+                            $doc->insertPageBreak();
 						}
 
 						$b = 1;						// (re-)start with track one
@@ -560,12 +562,16 @@ else
 						$id = $row[3];
 					}
 					// new page after 8 athl. (tech) or 10 athl. (tech, no wind)
-					else if((($layout == 4) && ($b > 8))
-							|| ($b > 10))
+			
+              //      else if((($layout == 4) && ($b > 8)) 
+						//	|| ($b > 10))
+                     else if($b > 10)    
 					{
 						// insert page break an repeat heat info
 						$doc->printEndHeat();
-						$doc->insertPageBreak();
+                       
+                        $doc->insertPageBreak();  
+                        
 						$doc->printHeatTitle("$heat $strCont", $row[5]);
 						$b = 1;
 					}

@@ -153,12 +153,52 @@ $page->printPageTitle($strPrint);
 				$dd = new GUI_DisciplineDropDown();
 				?>
 			</tr>
-			<tr>
-				<td class='dialog'><?php echo $strClub; ?></td>
-				<?php
-				$dd = new GUI_ClubDropDown(0);
-				?>
-			</tr>
+            <tr>
+                <td class='dialog'><?php echo $strClub; ?></td>
+                <?php
+                $dd = new GUI_ClubDropDown(0);
+                ?>
+            </tr>
+            <tr>
+                <?php 
+                
+                $tage = 1;
+                $sql = "SELECT 
+                            DISTINCT(Datum) AS Datum 
+                        FROM 
+                            runde 
+                        LEFT JOIN wettkampf USING(xWettkampf) 
+                        WHERE xMeeting = ".$_COOKIE['meeting_id']." 
+                        ORDER BY Datum ASC;";
+                        
+                $query = mysql_query($sql);
+
+                $tage = mysql_num_rows($query);
+                if($tage>1){
+                    ?> 
+                 
+                    <td class='dialog'>
+                    <?php echo $strDay; ?></input>
+                    </td>
+                 
+                    <td class='forms'>
+                        <select name='date'>
+                        <option value="%">- <?=$strAll?> -</option>
+                    <?php
+                        while($row = mysql_fetch_assoc($query)){
+                    ?>
+                            <option value="<?=$row['Datum']?>"><?=date('d.m.Y', strtotime($row['Datum']))?></option>
+                    <?php
+                       }
+                    ?>
+                            </select>
+                    </td>
+                 </tr>
+                    
+                <?php
+                }   
+                ?> 
+                 
 		</table>
 	</td>
 </tr>

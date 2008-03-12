@@ -56,15 +56,18 @@ if($_GET['athletecat'] > 0) {		// category selected
 	$cat_clause = " AND a.xKategorie = " . $_GET['athletecat'];
 }
 if($_GET['discipline'] > 0) {		// discipline selected
-	$disc_clause = " AND w.xDisziplin = " . $_GET['discipline'];
+	$disc_clause = " AND w.xDisziplin = " . $_GET['discipline'];      
 }
 if($_GET['club'] > 0) {		// club selected
 	$club_clause = " AND v.xVerein = " . $_GET['club'];
 }
 if($_GET['category'] > 0){
-	$contestcat_clause = " AND w.xKategorie = " .$_GET['category'];
-}
-
+	$contestcat_clause = " AND w.xKategorie = " .$_GET['category']; 
+}  
+$date = '%';  
+if(isset($_GET['date']) && !empty($_GET['date'])) {     
+        $date_clause = " AND  r.Datum LIKE '" . $_GET['date'] ."'";
+}       
 
 $print = false;
 if($_GET['formaction'] == 'print') {		// page for printing 
@@ -145,14 +148,14 @@ else
 		$doc = new GUI_EntryPage($_COOKIE['meeting']);
 	}
 }
-
+   
 if($_GET['cover'] == 'cover' && !$export) { // print cover page
 	$doc->printCover("$strEntries $strAthletes");
 	printf("<p/>");
 }
-
+ 
 $result = mysql_query("
-	SELECT a.xAnmeldung
+	SELECT DISTINCT a.xAnmeldung
 		, a.Startnummer
 		, at.Name
 		, at.Vorname
@@ -183,6 +186,8 @@ $result = mysql_query("
 		, start AS s
 		, verein AS v
 		, wettkampf AS w
+    LEFT JOIN runde AS r 
+        ON (s.xWettkampf = r.xWettkampf) 
 	LEFT JOIN team AS t
 		ON a.xTeam = t.xTeam
 	LEFT JOIN region as re 
@@ -201,10 +206,12 @@ $result = mysql_query("
 	$disc_clause
 	$club_clause
 	$contestcat_clause
+    $date_clause
 	$limitNrSQL
 	ORDER BY
 		$argument
 ");
+
 
 if(mysql_errno() > 0)		// DB error
 {
