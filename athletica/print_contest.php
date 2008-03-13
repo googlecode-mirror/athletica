@@ -118,6 +118,7 @@ $result = mysql_query("SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 							. ", rt.Typ"
 							. ", d.Staffellaeufer"
 							. ", r.Gruppe"
+							. ", w.Zeitmessung"
 							. ", TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')"
 							. ", TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')"
 							. " FROM runde AS r"
@@ -172,11 +173,13 @@ else
 	
 	$layout = $row[7];			// sheet layout type
 	
+	$silent = ($row[13]==0);
+	
 	switch($layout) {
 		case($cfgDisciplineType[$strDiscTypeNone]):
 			$doc = new PRINT_Contest($_COOKIE['meeting']);
 		case($cfgDisciplineType[$strDiscTypeTrack]):
-			AA_timing_setStartInfo($round, false); // set timing
+			AA_timing_setStartInfo($round, $silent); // set timing
 			if($row[8] == 1) {
 				$doc = new PRINT_ContestTrack($_COOKIE['meeting']);
 			}
@@ -186,11 +189,11 @@ else
 			break;
 		case($cfgDisciplineType[$strDiscTypeTrackNoWind]):
 		case($cfgDisciplineType[$strDiscTypeDistance]):
-			AA_timing_setStartInfo($round, false); // set timing
+			AA_timing_setStartInfo($round, $silent); // set timing
 			$doc = new PRINT_ContestTrackNoWind($_COOKIE['meeting']);
 			break;
 		case($cfgDisciplineType[$strDiscTypeRelay]):
-			AA_timing_setStartInfo($round, false); // set timing
+			AA_timing_setStartInfo($round, $silent); // set timing
 			$doc = new PRINT_ContestRelay($_COOKIE['meeting']);
 			break;
 		case($cfgDisciplineType[$strDiscTypeJump]):
@@ -415,10 +418,10 @@ else
 							// - or after two heats
 							// - or after each heat if relay
 							// - or page break per heat is selected
-                            
-                           
+							
+						   
 							if(($b > 9) || ($h % 2 == 0) || ($layout == 3) || $_POST['heatpagebreak'] == "yes") {                                                        
-								    $doc->insertPageBreak();
+									$doc->insertPageBreak();
 							}
 						}
 						
@@ -447,7 +450,7 @@ else
 					{
 						// insert page break an repeat heat info
 						$doc->printEndHeat();                        
-                        $doc->insertPageBreak();
+						$doc->insertPageBreak();
 						$doc->printHeatTitle("$heat $strCont", $row[5], $filmnr);
 						$doc->printStartHeat($svm);
 					}
@@ -539,7 +542,7 @@ else
 					{
 						if($h != 0)	{		// not first heat
 							$doc->printEndHeat();                            
-                            $doc->insertPageBreak();
+							$doc->insertPageBreak();
 						}
 
 						$b = 1;						// (re-)start with track one
@@ -563,15 +566,15 @@ else
 					}
 					// new page after 8 athl. (tech) or 10 athl. (tech, no wind)
 			
-              //      else if((($layout == 4) && ($b > 8)) 
+			  //      else if((($layout == 4) && ($b > 8)) 
 						//	|| ($b > 10))
-                     else if($b > 10)    
+					 else if($b > 10)    
 					{
 						// insert page break an repeat heat info
 						$doc->printEndHeat();
-                       
-                        $doc->insertPageBreak();  
-                        
+					   
+						$doc->insertPageBreak();  
+						
 						$doc->printHeatTitle("$heat $strCont", $row[5]);
 						$b = 1;
 					}

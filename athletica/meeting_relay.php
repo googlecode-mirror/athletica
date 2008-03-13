@@ -36,7 +36,7 @@ if ($_POST['arg']=="add_new")
 	if(empty($_POST['item']) || empty($_POST['event'])
 		|| empty($_POST['athlete']))
 	{
- 		AA_printErrorMsg($strErrEmptyFields);
+		AA_printErrorMsg($strErrEmptyFields);
 	}
 	// OK
 	else
@@ -75,7 +75,7 @@ if ($_POST['arg']=="add_new")
 				mysql_free_result($result);
 			}
 			else if(mysql_errno() > 0) {
- 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			else {
 				$_POST['athlete'] = mysql_insert_id();	// get new ID
@@ -96,7 +96,7 @@ if ($_POST['arg']=="change_name")
 	// Error: Empty fields
 	if(empty($_POST['item']) || empty($_POST['name']))
 	{
- 		AA_printErrorMsg($strErrEmptyFields);
+		AA_printErrorMsg($strErrEmptyFields);
 	}
 	// OK
 	else
@@ -106,14 +106,14 @@ if ($_POST['arg']=="change_name")
 				staffel WRITE");
 
 		// relay data
- 		mysql_query("
+		mysql_query("
 			UPDATE staffel SET
 				Name=\"" . $_POST['name'] . "\"
 			WHERE xStaffel= " . $_POST['item']
 		);
 
 		if(mysql_errno() > 0) {
- 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		mysql_query("UNLOCK TABLES");
 	}
@@ -131,8 +131,8 @@ else if ($_POST['arg']=="change_perf")
 
 	if(AA_checkReference("start", "xStart", $_POST['start']) == 0)
 	{
- 		AA_printErrorMsg($strEntry . $strErrNotValid);
- 	}
+		AA_printErrorMsg($strEntry . $strErrNotValid);
+	}
 	else
 	{
 		$perf = 0;
@@ -145,14 +145,14 @@ else if ($_POST['arg']=="change_perf")
 			$perf = 0;
 		}
 
- 		mysql_query("
+		mysql_query("
 			UPDATE start SET
 				Bestleistung = $perf
 		 WHERE xStart = " . $_POST['start']
 		);
 
 		if(mysql_errno() > 0) {
- 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 	}
 	mysql_query("UNLOCK TABLES");
@@ -188,21 +188,21 @@ else if ($_POST['arg']=="change_team")
 	else if(mysql_num_rows($res) > 0) {	// Athletes assigned
 		AA_printErrorMsg($strErrTeamChange);
 	}
- 	else if((!empty($_POST['team'])) && (AA_checkReference("team", "xTeam", $_POST['team']) == 0))
+	else if((!empty($_POST['team'])) && (AA_checkReference("team", "xTeam", $_POST['team']) == 0))
 	{
- 		AA_printErrorMsg($strTeam . $strErrNotValid);
+		AA_printErrorMsg($strTeam . $strErrNotValid);
 	}
 	else
 	{
 		// relay data
- 		mysql_query("
+		mysql_query("
 			UPDATE staffel SET
 				xTeam = " . $_POST['team'] . "
 			 WHERE xStaffel = " . $_POST['item']
 		);
 
 		if(mysql_errno() > 0) {
- 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 	}
 	mysql_query("UNLOCK TABLES");
@@ -218,7 +218,7 @@ else if ($_POST['arg']=="change_pos")
 	if(empty($_POST['item']) || empty($_POST['relay'])
 		|| empty($_POST['athlete']) || empty($_POST['round']))
 	{
- 		AA_printErrorMsg($strErrEmptyFields);
+		AA_printErrorMsg($strErrEmptyFields);
 	}
 	// OK
 	else
@@ -231,7 +231,7 @@ else if ($_POST['arg']=="change_pos")
 					AND	xAthletenstart=" . $_POST['athlete']."
 					AND	xRunde = ".$_POST['round']);
 		if(mysql_errno() > 0) {
- 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}else{
 			
 			if(mysql_num_rows($resE) == 0){ // create staffelathlet
@@ -269,7 +269,7 @@ else if ($_POST['arg']=="change_pos")
 			AA_printErrorMsg($strAthlete . $strErrNotValid);
 		}
 		if(mysql_errno() > 0) {
- 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		mysql_query("UNLOCK TABLES");
 	}	// ET empty fields
@@ -284,7 +284,7 @@ else if ($_POST['arg']=="add_pos")
 	if(empty($_POST['item']) || empty($_POST['relay'])
 		|| empty($_POST['athlete']))
 	{
- 		AA_printErrorMsg($strErrEmptyFields);
+		AA_printErrorMsg($strErrEmptyFields);
 	}
 	// OK
 	else
@@ -309,7 +309,7 @@ else if ($_POST['arg']=="add_pos")
 					runde.xWettkampf = ".$_POST['event']."
 				AND	runde.xRundentyp = rundentyp.xRundentyp");
 		if(mysql_errno() > 0) {
- 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}else{
 			while($rowRound = mysql_fetch_array($result)){
 				if($_POST['position'] > 0)		// change
@@ -539,7 +539,7 @@ $result = mysql_query("
 	LEFT JOIN team AS t
 	ON s.xTeam = t.xTeam
 	WHERE s.xStaffel = " . $_POST['item'] . "
-  	AND s.xVerein = v.xVerein
+	AND s.xVerein = v.xVerein
 	AND s.xKategorie = k.xKategorie
 	AND s.xStaffel = st.xStaffel
 	AND st.xWettkampf = w.xWettkampf
@@ -625,7 +625,7 @@ else if (mysql_num_rows($result) > 0)
 			, at.Jahrgang
 			, a.Startnummer
 		FROM
-  			staffelathlet AS sa
+			staffelathlet AS sa
 			, anmeldung AS a
 			, athlet AS at
 			, start AS st
@@ -693,7 +693,7 @@ else if (mysql_num_rows($result) > 0)
 	<input name='position' type='hidden' value='' />
 		<?php	
 		// display list of athletes
-  		while ($ath_row = mysql_fetch_row($res))
+		while ($ath_row = mysql_fetch_row($res))
 		{
 ?>
 <tr>
@@ -789,7 +789,8 @@ else if (mysql_num_rows($result) > 0)
 		{
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
 		}
-		$dropdown->printList('forms', 4);
+		//$dropdown->printList('forms', 4);
+		$dropdown->printList();
 		?>
 	</td>
 	<td class='forms'><input name='position' class='nbr' type='text'
@@ -865,7 +866,8 @@ else if (mysql_num_rows($result) > 0)
 				mysql_free_result($r);
 			}
 			mysql_free_result($res);
-			$dropdown->printList('forms', 2);
+			//$dropdown->printList('forms', 2);
+			$dropdown->printList();
 			?>
 	</td>
 	<td class='forms'><input name='position' class='nbr' type='text'
@@ -949,7 +951,8 @@ else if (mysql_num_rows($result) > 0)
 				mysql_free_result($r);*/
 			}
 			mysql_free_result($res);
-			$dropdown->printList('forms', 2);
+			//$dropdown->printList('forms', 2);
+			$dropdown->printList(false);
 			?>
 	</td>
 	<td class='forms'><input name='position' class='nbr' type='text'
