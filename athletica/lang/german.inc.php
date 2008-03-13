@@ -620,6 +620,7 @@ $strYourVersion = 'Ihre Version';
 $strNewestVersion = 'Aktuellste Version';
 $strUpdateDownload = 'zum Download';
 $strVersionOK = 'Ihre Athletica-Version ist auf dem neusten Stand!';
+$strVersionCheck = 'Version prüfen';
 
 $strDay = 'Tag';
 $strAll = 'alle';

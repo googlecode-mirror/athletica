@@ -351,6 +351,7 @@ $strNewVersionDownload = 'A new version of athletica is ready for be downloaded.
 $strYourVersion = 'Your version';
 $strNewestVersion = 'Newest version';
 $strUpdateDownload = 'to the download';
+$strVersionCheck = 'Check Version';
 
 $strDay = 'Day';
 $strAll = 'all';
