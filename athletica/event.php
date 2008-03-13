@@ -152,7 +152,7 @@ if($_GET['arg'] == "export_timing"){
 //
 // get results from timing where auto timing is on
 //
-$res = mysql_query("
+/*$res = mysql_query("
 	SELECT xRunde, Status FROM
 		runde
 		LEFT JOIN wettkampf USING(xWettkampf)
@@ -161,6 +161,7 @@ $res = mysql_query("
 		AND Zeitmessung = 1
 		AND xMeeting = ".$_COOKIE['meeting_id']
 );
+
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
@@ -168,6 +169,27 @@ if(mysql_errno() > 0){
 		if($row[1]!=$cfgRoundStatus['results_done'] ){
 			AA_timing_getResultsAuto($row[0]);
 		}
+	}
+}*/
+
+// COMMENT ROH:
+// we check only rounds with heats_done and results_in_progress to improve performance
+$res = mysql_query("
+	SELECT xRunde FROM
+		runde
+		LEFT JOIN wettkampf USING(xWettkampf)
+	WHERE
+		ZeitmessungAuto = 1
+		AND Zeitmessung = 1
+		AND xMeeting = ".$_COOKIE['meeting_id']."
+		AND (Status = ".$cfgRoundStatus['heats_done']." OR Status = ".$cfgRoundStatus['results_in_progress'].")"
+);
+
+if(mysql_errno() > 0){
+	AA_printErrorMsg(mysql_errno().": ".mysql_error());
+}else{
+	while($row = mysql_fetch_array($res)){
+		AA_timing_getResultsAuto($row[0]);
 	}
 }
 
@@ -199,7 +221,7 @@ AA_timetable_display('monitor');
 		if(document.documentElement && document.documentElement.scrollTop)
 		{														//IE6 standards compliant mode
 			var scroll = document.documentElement.scrollTop;
-      }
+	  }
 		// scroll to the left
 		window.scrollTo(0, scroll);
 	}

@@ -102,10 +102,16 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 	
 	$relay = AA_checkRelay(0, $round);
 	
-	if($arg){
+	/*if($arg){
 		$sqladd = "AND r.Status = ".$cfgRoundStatus['heats_done'];
 	}else{
 		$sqladd = "";
+	}*/
+	if(!$arg){
+		// COMMENT ROH:
+		// existing results should not be updated automatically. Either we require the user to manually 
+		// delete existing results, or we have to ask for confirmation. 
+		// for the moment, no results are imported if results exist.
 	}
 	
 	mysql_query("
@@ -126,27 +132,43 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 			, wettkampf READ"
 	);
 	
-	$res_film = mysql_query("
+	/*$res_film = mysql_query("
 		SELECT s.Film, s.xSerie, r.xWettkampf FROM 
 			serie as s
 			LEFT JOIN runde as r USING(xRunde)
 		WHERE s.xRunde = $round
 		$sqladd"
+	);*/
+	// Fix during indoor SM: do not load if results exist for a serie
+	$res_film = mysql_query("
+		SELECT s.Film as film, s.xSerie as heat, r.xWettkampf as event, count(res.Leistung) as numResults FROM 
+			runde as r
+			LEFT JOIN serie AS s USING ( xRunde )
+			LEFT JOIN serienstart AS sst USING ( xSerie ) 
+			LEFT JOIN resultat AS res USING ( xserienstart )
+		WHERE s.xRunde = $round
+		GROUP BY sst.xSerie"
 	);
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}else{
 		
 		while($row_film = mysql_fetch_array($res_film)){
+			if ($row_film[3] == 0) { // check if results exist
 			
 			$nr = $row_film[0];
 			$event = $row_film[2];
 			
-			// for each heat get results
-			$results = $alge->import_heat_results($row_film[1]);
+			// COMMENT ROH:
+			// commented out the line below because results should only be inported if official
+			// the same line is inserted some lines below after the check
+			// $results = $alge->import_heat_results($row_film[1]);
 			$infos = $alge->import_heat_infos($row_film[1]);
 			
 			if($infos['Official']){
+				// COMMENT ROH:
+				// import results only if official
+				$results = $alge->import_heat_results($row_film[1]);
 				
 				$wind = $infos['RaceInfo']['Wind'];
 				if(empty($wind)){
@@ -180,6 +202,13 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 						
 						if($alge->typ=='OPTIc2'){
 							$perf = substr($val[9], 0, (strlen($val[9])-1));
+							
+							// COMMENT ROH:
+							// cutting digits is not according to competition rules
+							// $perf = substr($val[9], 0, (strlen($val[9])-1));
+							// alternative: round correctly 
+							// (ceil was not consistent with the official results when the 1/1000sec was xx0)
+							$perf = (floor($val[9] / 10) + 1);
 						} else {
 							$perf = $val[9];
 						}
@@ -226,9 +255,16 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 						 LEFT JOIN anmeldung as a ON st.xAnmeldung = a.xAnmeldung
 						 LEFT JOIN athlet USING(xAthlet)
 							 WHERE s.xRunde = $round
-						 	   AND s.Film = $nr
+							   AND s.Film = $nr
 							   AND a.Startnummer = ".$val[1]
 						);
+						
+						
+						// COMMENT ROH:
+						// ok, here is the test to check if results already exist
+						// however, something with this test did not work and results got imported multiple times
+						// please verify!!! 
+						// note: we check now before importing so that we never should get here if results already exist. 
 						
 						if(mysql_num_rows($res) == 0){
 							// insert result
@@ -245,7 +281,7 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 							
 							if(mysql_num_rows($res) == 0){
 								// no athlete with this registration id is started
-								//if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
+								// if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
 							}else{
 								
 								$row = mysql_fetch_array($res);
@@ -730,7 +766,7 @@ function AA_results_printMenu($round, $status)
 		<table><tr>
 		<?php
 		foreach($GLOBALS['cfgInvalidResult'] as $value)
-  		{
+		{
 			echo "<td>".$value['code']." = ".$value['long']."</td>";
 		}
 		?>
@@ -759,7 +795,7 @@ function AA_results_printMenu($round, $status)
 		<table><tr>
 		<?php
 		foreach($GLOBALS['cfgInvalidResult'] as $value)
-  		{
+		{
 			echo "<td>".$value['long']." = ".$value['code']."</td>";
 		}
 		?>
