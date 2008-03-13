@@ -155,212 +155,212 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 		
 		while($row_film = mysql_fetch_array($res_film)){
 			if ($row_film[3] == 0) { // check if results exist
-			
-			$nr = $row_film[0];
-			$event = $row_film[2];
-			
-			// COMMENT ROH:
-			// commented out the line below because results should only be inported if official
-			// the same line is inserted some lines below after the check
-			// $results = $alge->import_heat_results($row_film[1]);
-			$infos = $alge->import_heat_infos($row_film[1]);
-			
-			if($infos['Official']){
+				$nr = $row_film[0];
+				$event = $row_film[2];
+				
 				// COMMENT ROH:
-				// import results only if official
-				$results = $alge->import_heat_results($row_film[1]);
+				// commented out the line below because results should only be inported if official
+				// the same line is inserted some lines below after the check
+				// $results = $alge->import_heat_results($row_film[1]);
+				$infos = $alge->import_heat_infos($row_film[1]);
 				
-				$wind = $infos['RaceInfo']['Wind'];
-				if(empty($wind)){
-					$wind = "";
-				}elseif(substr($wind,0,1) == "+"){
-					$wind = substr($wind, 1, 3);
-				}elseif(substr($wind,0,1) == "-"){
-					$wind = substr($wind, 0, 4);
-				}
-				
-				mysql_query("UPDATE serie as s SET Wind = '".$wind."'
-						WHERE xRunde = $round AND Film = $nr");
-				
-				foreach($results as $val){
+				if($infos['Official']){
+					// COMMENT ROH:
+					// import results only if official
+					$results = $alge->import_heat_results($row_film[1]);
 					
-					switch($val[11]){
-						case 0:
-						$perf = $cfgInvalidResult['DNS']['code'];
-						$points = 0;
-						break;
-						case 1:
-						$perf = $cfgInvalidResult['DNF']['code'];
-						$points = 0;
-						break;
-						case 2:
-						$perf = $cfgInvalidResult['DSQ']['code'];
-						$points = 0;
-						break;
-						default:
-						$perf = 0;
+					$wind = $infos['RaceInfo']['Wind'];
+					if(empty($wind)){
+						$wind = "";
+					}elseif(substr($wind,0,1) == "+"){
+						$wind = substr($wind, 1, 3);
+					}elseif(substr($wind,0,1) == "-"){
+						$wind = substr($wind, 0, 4);
+					}
+					
+					mysql_query("UPDATE serie as s SET Wind = '".$wind."'
+							WHERE xRunde = $round AND Film = $nr");
+					
+					foreach($results as $val){
 						
-						if($alge->typ=='OPTIc2'){
-							$perf = substr($val[9], 0, (strlen($val[9])-1));
+						switch($val[11]){
+							case 0:
+							$perf = $cfgInvalidResult['DNS']['code'];
+							$points = 0;
+							break;
+							case 1:
+							$perf = $cfgInvalidResult['DNF']['code'];
+							$points = 0;
+							break;
+							case 2:
+							$perf = $cfgInvalidResult['DSQ']['code'];
+							$points = 0;
+							break;
+							default:
+							$perf = 0;
+							
+							if($alge->typ=='OPTIc2'){
+								$perf = substr($val[9], 0, (strlen($val[9])-1));
+								
+								// COMMENT ROH:
+								// cutting digits is not according to competition rules
+								// $perf = substr($val[9], 0, (strlen($val[9])-1));
+								// alternative: round correctly 
+								// (ceil was not consistent with the official results when the 1/1000sec was xx0)
+								$perf = (floor($val[9] / 10) + 1);
+							} else {
+								$perf = $val[9];
+							}
+							
+							$sex = 'M';
+							//if(!$relay){
+								/*$sql = "SELECT Geschlecht
+										  FROM serienstart AS sst
+									 LEFT JOIN serie AS s USING ( xSerie )
+									 LEFT JOIN START AS st ON sst.xStart = st.xStart
+									 LEFT JOIN anmeldung AS a ON st.xAnmeldung = a.xAnmeldung
+									 LEFT JOIN athlet USING ( xAthlet )
+										 WHERE s.xRunde = ".$round."
+										   AND s.Film = ".$nr."
+										   AND a.Startnummer = ".$val[1].";";*/
+								$sql_sex = "SELECT DISTINCT(Geschlecht) AS Geschlecht
+											  FROM kategorie 
+										 LEFT JOIN wettkampf USING(xKategorie) 
+										 LEFT JOIN start AS st USING(xWettkampf)
+										 LEFT JOIN serienstart AS sst  USING(xStart)
+										 LEFT JOIN serie AS s USING(xSerie)
+											 WHERE s.XRunde = ".$round." 
+											   AND s.Film = ".$nr.";";
+								$query = mysql_query($sql_sex);
+								
+								if($query && mysql_num_rows($query)==1){
+									$sex = mysql_result($query, 0, 'Geschlecht');
+								}
+							//}
+							
+							$points = AA_utils_calcPoints($event, $perf, 0, $sex);
+							//echo $GLOBALS['AA_ERROR'];
+						}
+						
+						if($relay == false){ // no relay event
+							
+							$res = mysql_query("
+								SELECT xResultat 
+									   , Geschlecht
+								  FROM resultat as res
+							 LEFT JOIN serienstart as sst USING(xSerienstart)
+							 LEFT JOIN serie as s USING (xSerie)
+							 LEFT JOIN start as st ON sst.xStart = st.xStart
+							 LEFT JOIN anmeldung as a ON st.xAnmeldung = a.xAnmeldung
+							 LEFT JOIN athlet USING(xAthlet)
+								 WHERE s.xRunde = $round
+								   AND s.Film = $nr
+								   AND a.Startnummer = ".$val[1]
+							);
+							
 							
 							// COMMENT ROH:
-							// cutting digits is not according to competition rules
-							// $perf = substr($val[9], 0, (strlen($val[9])-1));
-							// alternative: round correctly 
-							// (ceil was not consistent with the official results when the 1/1000sec was xx0)
-							$perf = (floor($val[9] / 10) + 1);
-						} else {
-							$perf = $val[9];
-						}
-						
-						$sex = 'M';
-						//if(!$relay){
-							/*$sql = "SELECT Geschlecht
-									  FROM serienstart AS sst
-								 LEFT JOIN serie AS s USING ( xSerie )
-								 LEFT JOIN START AS st ON sst.xStart = st.xStart
-								 LEFT JOIN anmeldung AS a ON st.xAnmeldung = a.xAnmeldung
-								 LEFT JOIN athlet USING ( xAthlet )
-									 WHERE s.xRunde = ".$round."
-									   AND s.Film = ".$nr."
-									   AND a.Startnummer = ".$val[1].";";*/
-							$sql_sex = "SELECT DISTINCT(Geschlecht) AS Geschlecht
-										  FROM kategorie 
-									 LEFT JOIN wettkampf USING(xKategorie) 
-									 LEFT JOIN start AS st USING(xWettkampf)
-									 LEFT JOIN serienstart AS sst  USING(xStart)
-									 LEFT JOIN serie AS s USING(xSerie)
-										 WHERE s.XRunde = ".$round." 
-										   AND s.Film = ".$nr.";";
-							$query = mysql_query($sql_sex);
+							// ok, here is the test to check if results already exist
+							// however, something with this test did not work and results got imported multiple times
+							// please verify!!! 
+							// note: we check now before importing so that we never should get here if results already exist. 
 							
-							if($query && mysql_num_rows($query)==1){
-								$sex = mysql_result($query, 0, 'Geschlecht');
+							if(mysql_num_rows($res) == 0){
+								// insert result
+								$res = mysql_query("
+									SELECT sst.xSerienstart FROM
+										serie as s
+										LEFT JOIN serienstart as sst USING(xSerie)
+										LEFT JOIN start as st USING(xStart)
+										LEFT JOIN anmeldung as a USING(xAnmeldung)
+									WHERE	a.Startnummer = ".$val[1]."
+									AND	s.Film = $nr
+									AND	s.xRunde = $round"
+								);
+								
+								if(mysql_num_rows($res) == 0){
+									// no athlete with this registration id is started
+									// if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
+								}else{
+									
+									$row = mysql_fetch_array($res);
+									mysql_query("
+										INSERT INTO resultat
+										SET 	Leistung = '$perf'
+											, Punkte = '$points'
+											, xSerienstart = ".$row[0]
+									);
+									
+								}
+							}else{
+								// update
+								$row = mysql_fetch_array($res);
+								mysql_query("UPDATE resultat as res SET Leistung = '$perf'
+										, Punkte = '$points'
+									WHERE xResultat = ".$row[0]);
+								
 							}
-						//}
-						
-						$points = AA_utils_calcPoints($event, $perf, 0, $sex);
-						//echo $GLOBALS['AA_ERROR'];
+									//
+						}else{ 			// relay event
+									//
+							$res = mysql_query("
+								SELECT xResultat FROM
+									resultat as res
+									LEFT JOIN serienstart as sst USING(xSerienstart)
+									LEFT JOIN serie as s USING (xSerie)
+									LEFT JOIN start as st ON sst.xStart = st.xStart
+									LEFT JOIN staffel as sf ON st.xStaffel = sf.xStaffel
+								WHERE s.xRunde = $round
+								AND s.Film = $nr
+								AND sf.Startnummer = ".$val[1]
+							);
+							
+							if(mysql_num_rows($res) == 0){
+								// insert result
+								$res = mysql_query("
+									SELECT sst.xSerienstart FROM
+										serie as s
+										LEFT JOIN serienstart as sst USING(xSerie)
+										LEFT JOIN start as st USING(xStart)
+										LEFT JOIN staffel as sf USING(xStaffel)
+									WHERE	sf.Startnummer = ".$val[1]."
+									AND	s.Film = $nr
+									AND	s.xRunde = $round"
+								);
+								
+								if(mysql_num_rows($res) == 0){
+									// no athlete with this registration id is started
+									//if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
+								}else{
+									
+									$row = mysql_fetch_array($res);
+									mysql_query("
+										INSERT INTO resultat
+										SET 	Leistung = '$perf'
+											, Punkte = '$points'
+											, xSerienstart = ".$row[0]
+									);
+									
+								}
+							}else{
+								// update
+								$row = mysql_fetch_array($res);
+								mysql_query("UPDATE resultat as res SET Leistung = '$perf'
+										, Punkte = '$points'
+									WHERE xResultat = ".$row[0]);
+								
+							}
+						}
 					}
 					
-					if($relay == false){ // no relay event
-						
-						$res = mysql_query("
-							SELECT xResultat 
-								   , Geschlecht
-							  FROM resultat as res
-						 LEFT JOIN serienstart as sst USING(xSerienstart)
-						 LEFT JOIN serie as s USING (xSerie)
-						 LEFT JOIN start as st ON sst.xStart = st.xStart
-						 LEFT JOIN anmeldung as a ON st.xAnmeldung = a.xAnmeldung
-						 LEFT JOIN athlet USING(xAthlet)
-							 WHERE s.xRunde = $round
-							   AND s.Film = $nr
-							   AND a.Startnummer = ".$val[1]
-						);
-						
-						
-						// COMMENT ROH:
-						// ok, here is the test to check if results already exist
-						// however, something with this test did not work and results got imported multiple times
-						// please verify!!! 
-						// note: we check now before importing so that we never should get here if results already exist. 
-						
-						if(mysql_num_rows($res) == 0){
-							// insert result
-							$res = mysql_query("
-								SELECT sst.xSerienstart FROM
-									serie as s
-									LEFT JOIN serienstart as sst USING(xSerie)
-									LEFT JOIN start as st USING(xStart)
-									LEFT JOIN anmeldung as a USING(xAnmeldung)
-								WHERE	a.Startnummer = ".$val[1]."
-								AND	s.Film = $nr
-								AND	s.xRunde = $round"
-							);
-							
-							if(mysql_num_rows($res) == 0){
-								// no athlete with this registration id is started
-								// if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
-							}else{
-								
-								$row = mysql_fetch_array($res);
-								mysql_query("
-									INSERT INTO resultat
-									SET 	Leistung = '$perf'
-										, Punkte = '$points'
-										, xSerienstart = ".$row[0]
-								);
-								
-							}
-						}else{
-							// update
-							$row = mysql_fetch_array($res);
-							mysql_query("UPDATE resultat as res SET Leistung = '$perf'
-									, Punkte = '$points'
-								WHERE xResultat = ".$row[0]);
-							
-						}
-								//
-					}else{ 			// relay event
-								//
-						$res = mysql_query("
-							SELECT xResultat FROM
-								resultat as res
-								LEFT JOIN serienstart as sst USING(xSerienstart)
-								LEFT JOIN serie as s USING (xSerie)
-								LEFT JOIN start as st ON sst.xStart = st.xStart
-								LEFT JOIN staffel as sf ON st.xStaffel = sf.xStaffel
-							WHERE s.xRunde = $round
-							AND s.Film = $nr
-							AND sf.Startnummer = ".$val[1]
-						);
-						
-						if(mysql_num_rows($res) == 0){
-							// insert result
-							$res = mysql_query("
-								SELECT sst.xSerienstart FROM
-									serie as s
-									LEFT JOIN serienstart as sst USING(xSerie)
-									LEFT JOIN start as st USING(xStart)
-									LEFT JOIN staffel as sf USING(xStaffel)
-								WHERE	sf.Startnummer = ".$val[1]."
-								AND	s.Film = $nr
-								AND	s.xRunde = $round"
-							);
-							
-							if(mysql_num_rows($res) == 0){
-								// no athlete with this registration id is started
-								//if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
-							}else{
-								
-								$row = mysql_fetch_array($res);
-								mysql_query("
-									INSERT INTO resultat
-									SET 	Leistung = '$perf'
-										, Punkte = '$points'
-										, xSerienstart = ".$row[0]
-								);
-								
-							}
-						}else{
-							// update
-							$row = mysql_fetch_array($res);
-							mysql_query("UPDATE resultat as res SET Leistung = '$perf'
-									, Punkte = '$points'
-								WHERE xResultat = ".$row[0]);
-							
-						}
+					// results updated, now set status for event time table
+					
+					mysql_query("UPDATE runde as r SET StatusZeitmessung = 1 WHERE xRunde = $round");
+					if(mysql_errno() > 0) {
+						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}
 				}
-				
-				// results updated, now set status for event time table
-				
-				mysql_query("UPDATE runde as r SET StatusZeitmessung = 1 WHERE xRunde = $round");
-				if(mysql_errno() > 0) {
-					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-				}
-			}
+			}  // check if results exist	
 			
 		}
 	}
