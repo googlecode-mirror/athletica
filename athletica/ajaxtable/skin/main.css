@@ -1,0 +1,50 @@
+/******************************************
+             JustAjax.com
+              - styles -
+               - main -
+*******************************************/
+
+/** main styles  */
+
+* {
+ margin:0px;
+ border:0px;
+ padding:0px;
+ font-family:'Trebuchet MS';
+ font-size:11px;
+}
+
+body, html {
+ color:#444;
+}
+
+.copy {
+  text-align:center;
+}
+
+.whitecopy {
+  text-align:center;
+  color:#222;
+}
+
+a {
+ color:#444;
+}
+
+.help a, .whitecopy a {
+ color:#444;
+}
+
+p.help {
+ color:#fff;
+ margin-left:50px;
+ text-align:left;
+}
+
+h1 {
+ font-size:18px;
+}
+
+h2 {
+ font-size:14px;
+}
