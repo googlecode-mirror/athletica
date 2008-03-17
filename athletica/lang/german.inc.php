@@ -620,7 +620,6 @@ $strYourVersion = 'Ihre Version';
 $strNewestVersion = 'Aktuellste Version';
 $strUpdateDownload = 'zum Download';
 $strVersionOK = 'Ihre Athletica-Version ist auf dem neusten Stand!';
-$strVersionCheck = 'Version prüfen';
 
 $strDay = 'Tag';
 $strAll = 'alle';
@@ -648,4 +647,5 @@ $strBaseMeetingAct = 'Heruntergeladene Informationen (Anmeldungen, Eventnr.) wer
 $strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten angemeldet sind.';
 $strSearchForClub = 'Über Verein anmelden';
 $strNoAthletesToClub= 'Keine Athleten in Stammdaten zu diesem Verein vorhanden';
+$strPerDiscipline = 'Nach Disziplinen';
 ?>

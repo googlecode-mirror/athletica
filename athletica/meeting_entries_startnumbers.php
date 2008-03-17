@@ -6,7 +6,7 @@
  *	--------------------------------
  *	
  */
-
+ 
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
@@ -19,7 +19,9 @@ if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 if(empty($_COOKIE['meeting_id'])) {
 	AA_printErrorMsg($GLOBALS['strNoMeetingSelected']);
 }
+?>
 
+<?php
 //
 // check if a heat is assigned
 //
@@ -42,38 +44,39 @@ if(mysql_errno() > 0){
 		$heats_done = "true";
 	}
 }
-
-
+      
 
 if($_GET['arg'] == 'assign')
 {
 	if ($_GET['sort']!="del")		// assign startnumbers
-	{
+	{    
 		// sort argument
 		if ($_GET['sort']=="name") {
-		  $argument="athlet.Name, athlet.Vorname";
+		  $argument="at.Name, at.Vorname";
 	  	} else if ($_GET['sort']=="nbr") {
-		  $argument="anmeldung.Startnummer";
-		} else if ($_GET['sort']=="cat") {
-		  $argument="kategorie.Anzeige, athlet.Name, athlet.Vorname";
+		  $argument="a.Startnummer";
+		} else if ($_GET['sort']=="cat" && !$_GET['assign']=="perdicipline") {
+		  $argument="k.Anzeige, at.Name, at.Vorname";
 		} else if ($_GET['sort']=="club") {
-		  $argument="verein.Sortierwert, athlet.Name, athlet.Vorname";
-		} else if ($_GET['sort']=="club_cat") {
-		  $argument="verein.Sortierwert, kategorie.Anzeige, athlet.Name, athlet.Vorname";
-		} else if ($_GET['sort']=="cat_club") {
-		  $argument="kategorie.Anzeige, verein.Sortierwert, athlet.Name, athlet.Vorname";
+		  $argument="v.Sortierwert, at.Name, at.Vorname";
+		} else if ($_GET['sort']=="club_cat" && !$_GET['assign']=="perdicipline") {
+		  $argument="v.Sortierwert, k.Anzeige, at.Name, at.Vorname";
+		} else if ($_GET['sort']=="cat_club" && !$_GET['assign']=="perdicipline") {
+		  $argument="k.Anzeige, v.Sortierwert, at.Name, at.Vorname";
+        } else if ($_GET['sort']=="discipline" && !$_GET['assign']=="percontestcat" && !$_GET['assign']=="percategory") {
+          $argument="w.xDisziplin, v.Sortierwert, at.Name, at.Vorname";
 		} else {
-		  $argument="athlet.Name, athlet.Vorname";
-		}
+		  $argument="at.Name, at.Vorname";
+		}                                         
 		
 		
 		// check on assign per category. if contest cat is choosen process in a special way
-		if(isset($_GET['percontestcat'])){
-			
+		       
+	   if($_GET['assign']=="percontestcat"){  
 			if(isset($_GET['persvmteam'])){
-				$argument = "team.Name, ".$argument;
+				$argument = "t.Name, ".$argument;
 			}
-			$argument = "wettkampf.xKategorie, ".$argument;
+			$argument = "w.xKategorie, ".$argument;
 			
 			if((!empty($_GET['teamgap'])) || ($_GET['teamgap'] == '0'))  {
 				$teamgap = $_GET['teamgap'];	// nbr gap between each team
@@ -88,15 +91,15 @@ if($_GET['arg'] == 'assign')
 			
 			mysql_query("
 				LOCK TABLES
-					athlet READ
-					, kategorie READ
-					, verein READ
-					, anmeldung wRITE
-					, wettkampf READ
-					, start READ
-					, team READ
+					athlet AS a READ
+					, kategorie AS k READ
+					, verein AS v READ
+					, anmeldung AS a wRITE
+					, wettkampf AS w READ
+					, start AS s READ
+					, team AS t READ
 			");
-			
+		/*	
 			$result = mysql_query("
 				SELECT
 					DISTINCT(anmeldung.xAnmeldung)
@@ -108,25 +111,46 @@ if($_GET['arg'] == 'assign')
 					, athlet
 					, kategorie
 					, verein
-					, start
+					, start as s
 					, wettkampf
 					LEFT JOIN team ON team.xTeam = anmeldung.xTeam
 				WHERE anmeldung.xMeeting = " . $_COOKIE['meeting_id'] . "
 				AND anmeldung.xAthlet = athlet.xAthlet
 				AND athlet.xVerein = verein.xVerein
-				AND start.xAnmeldung = anmeldung.xAnmeldung
-				AND wettkampf.xWettkampf = start.xWettkampf
+				AND s.xAnmeldung = anmeldung.xAnmeldung
+				AND wettkampf.xWettkampf = s.xWettkampf
 				AND kategorie.xKategorie = wettkampf.xKategorie
 				ORDER BY
 					$argument
 			");
 			
+       */ 
+            $result = mysql_query("
+                SELECT 
+                    DISTINCT (a.xAnmeldung) ,
+                    w.xKategorie , 
+                    at.xVerein , 
+                    a.xTeam 
+                FROM 
+                    anmeldung AS a
+                    LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet        
+                    INNER JOIN verein AS v ON at.xVerein = v.xVerein 
+                    INNER JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
+                    INNER JOIN wettkampf AS w USING (xWettkampf)
+                    INNER JOIN kategorie AS k ON k.xKategorie = w.xKategorie
+                    LEFT JOIN team AS t ON t.xTeam = a.xTeam 
+                WHERE 
+                    a.xMeeting = " . $_COOKIE['meeting_id'] . " 
+                    ORDER BY      
+                         $argument
+               ");    
+            
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			else if(mysql_num_rows($result) > 0)  // data found
-			{
+			{ 
 			  $k = 0;	// initialize current category
 			  $v = 0;	// initialize current club
 			  $t = 0;	// current team
@@ -154,7 +178,7 @@ if($_GET['arg'] == 'assign')
 						$limit = 0;
 					}
 				}
-					
+				
 				mysql_query("
 					UPDATE anmeldung SET
 						Startnummer='$nbr'
@@ -175,18 +199,140 @@ if($_GET['arg'] == 'assign')
 			}						// ET DB error
 			mysql_query("UNLOCK TABLES");
 			
-		}
-		
+		}   
+        //
+        // assign per disciplines
+        //          
+          elseif ($_GET['assign']=="perdiscipline"){  
+                if(isset($_GET['persvmteam'])){
+                   $argument = "t.Name, ".$argument;
+                }   
+            $argument = "w.xDisziplin, ".$argument;   
+            
+            // assignment rules
+            if(!empty($_GET['start'])) {
+              $nbr = $_GET['start'] - 1;        // first number
+            }
+            else {
+                $nbr = $cfgNbrStartWith - 1;    // default
+            }
+            
+            if((!empty($_GET['catgap'])) || ($_GET['catgap'] == '0')) {
+              $catgap = $_GET['catgap'];        // nbr gap between each category
+            }
+            else {
+                $catgap = $cfgNbrCategoryGap;    // default
+            }
+            
+            if((!empty($_GET['clubgap'])) || ($_GET['clubgap'] == '0'))  {
+              $clubgap = $_GET['clubgap'];    // nbr gap between each club
+            }
+            else {
+              $clubgap = $cfgNbrClubyGap;    // default
+            }
+            
+            if((!empty($_GET['teamgap'])) || ($_GET['teamgap'] == '0'))  {
+                $teamgap = $_GET['teamgap'];    // nbr gap between each team
+            }
+            else {
+                $teamgap = 10;    // default
+            }
+            
+            //
+            // Read athletes
+            //
+            
+            mysql_query("
+                LOCK TABLES
+                    athlet AS at READ
+                    , kategorie AS k READ
+                    , verein As v READ
+                    , anmeldung AS a WRITE
+                    , anmeldung AS a READ
+                    , team AS t READ
+            ");
+            
+            $result = mysql_query("
+                        SELECT 
+                            a.xAnmeldung
+                            , w.xDisziplin, at.xVerein , a.xTeam 
+                        FROM 
+                            anmeldung AS a
+                            LEFT  JOIN athlet AS at ON a.xAthlet = at.xAthlet
+                            INNER JOIN verein AS v ON at.xVerein = v.xVerein
+                            INNER  JOIN  START  AS s ON a.xAnmeldung = s.xAnmeldung
+                            INNER  JOIN wettkampf AS w USING ( xWettkampf )                         
+                            INNER  JOIN disziplin AS d USING ( xDisziplin )                        
+                            LEFT  JOIN team as t ON t.xTeam = a.xTeam
+                        WHERE 
+                            a.xMeeting = " . $_COOKIE['meeting_id'] . "                                  
+                            ORDER BY
+                                $argument
+                    ");    
+            
+            if(mysql_errno() > 0)        // DB error
+            {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+            else if(mysql_num_rows($result) > 0)  // data found
+            {
+              $d = 0;    // initialize current discipline
+              $v = 0;    // initialize current club
+              $t = 0;    // current team
+              $limit = 0;    // hold limit
+              
+              // Assign startnumbers
+              while ($row = mysql_fetch_row($result))
+              {  
+                    // set per discipline from, to
+                        
+                    if ($d != $row[1]){            // new discipline
+                        $nbr = $_GET["of_$row[1]"];
+                        $nbr==0?1:$nbr;
+                        $limit = $_GET["to_$row[1]"];
+                    }elseif($t != $row[3]            // new team
+                        && $teamgap > 0
+                        && $t > 0
+                        && isset($_GET['persvmteam']))
+                    {
+                        $nbr += $teamgap;
+                    }else{
+                        $nbr++;
+                        if(($limit > 0 && $nbr > $limit) || $limit == 0){
+                            $nbr = 0;
+                            $limit = 0;
+                        }
+                    }  
+                 
+                mysql_query("
+                    UPDATE anmeldung SET
+                        Startnummer='$nbr'
+                    WHERE xAnmeldung = $row[0]
+                ");
+                
+                if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }
+                
+                $d = $row[1];    // keep current discipline
+                $v = $row[2];    // keep current club
+                $t = $row[3];    // keep current team
+                
+            }
+            mysql_free_result($result);
+            }                        // ET DB error
+            mysql_query("UNLOCK TABLES");    
+        }  
+        
 		//
 		// assign per athletes category
 		//
-		else{
-			
-			if(isset($_GET['percategory'])){
+		else{ 
+            if($_GET['assign']=="percategory"){  
 				if(isset($_GET['persvmteam'])){
-					$argument = "team.Name, ".$argument;
+					$argument = "t.Name, ".$argument;
 				}
-				$argument = "kategorie.Anzeige, ".$argument;
+				$argument = "k.Anzeige, ".$argument; 
 			}
 			
 			// assignment rules
@@ -224,13 +370,13 @@ if($_GET['arg'] == 'assign')
 			
 			mysql_query("
 				LOCK TABLES
-					athlet READ
-					, kategorie READ
-					, verein READ
-					, anmeldung wRITE
-					, team READ
+					athlet AS a READ
+					, kategorie AS k READ
+					, verein AS v READ
+					, anmeldung AS a wRITE
+					, team AS t READ
 			");
-			
+			/*
 			$result = mysql_query("
 				SELECT
 					anmeldung.xAnmeldung
@@ -250,7 +396,25 @@ if($_GET['arg'] == 'assign')
 				ORDER BY
 					$argument
 			");
-			
+            
+            */
+            $result = mysql_query("
+                SELECT
+                    a.xAnmeldung
+                    , a.xKategorie
+                    , at.xVerein
+                    , a.xTeam
+                FROM
+                    anmeldung AS a
+                    LEFT JOIN athlet AS at USING (xAthlet)
+                    INNER JOIN kategorie AS k ON a.xKategorie = k.xKategorie
+                    INNER JOIN verein AS v  ON at.xVerein = v.xVerein 
+                    LEFT JOIN team AS t ON t.xTeam = a.xTeam
+                WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . " 
+                ORDER BY
+                    $argument
+           ");  
+            
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -264,33 +428,9 @@ if($_GET['arg'] == 'assign')
 			  
 			  // Assign startnumbers
 			  while ($row = mysql_fetch_row($result))
-			  {
-				if(empty($_GET['percategory'])){
-					
-					if (($v != $row[2])		// new club
-						&& ($clubgap > 0)		// gap between clubs
-						&& ($v > 0)				// not first row
-						&& (($_GET['sort']=="club_cat")	// gap after cat
-							|| ($_GET['sort']=="club")
-							|| ($_GET['sort']=="cat_club")))
-					{
-					  $nbr = $nbr + $clubgap;	// calculate next number
-					}
-					else if (($k != $row[1])		// new category
-						&& ($catgap > 0)				// gap between categories
-						&& ($k > 0)						// not first row
-						&& (($_GET['sort']=="club_cat")	// gap after cat
-						  || ($_GET['sort']=="cat")
-						  || ($_GET['sort']=="cat_club")))
-					{
-					  $nbr = $nbr + $catgap;				// calculate next number
-					}
-					else {
-						$nbr++;
-					}
-					
-				}else{ // set per category from, to
-					
+			  {   
+				 // set per category from, to
+					   
 					if ($k != $row[1]){			// new category
 						$nbr = $_GET["of_$row[1]"];
 						$nbr==0?1:$nbr;
@@ -307,9 +447,7 @@ if($_GET['arg'] == 'assign')
 							$nbr = 0;
 							$limit = 0;
 						}
-					}
-					
-				}
+					}   
 					
 				mysql_query("
 					UPDATE anmeldung SET
@@ -390,6 +528,15 @@ function select_PerCategory(){
 	
 }
 
+function select_PerDiscipline(){
+    
+    e = document.getElementById("perdiscipline");
+    if(!e.checked){
+        e.click();
+    }
+    
+}
+
 function select_PerContestCat(){
 	
 	e = document.getElementById("percontestcat");
@@ -408,19 +555,29 @@ function select_PerSvmTeam(arg){
 	
 }
 
-function select_CheckCat(o){
-	
-	if(o.checked){
-		if(o.name == "percontestcat"){
-			e = document.getElementById("percategory");
-			e.checked = false;
-		}else{
-			e = document.getElementById("percontestcat");
-			e.checked = false;
-		}
-	}
-	
+function select_CheckCat(){  
+     h = document.getElementById("discipline"); 
+     if (h.checked){
+          h.checked=false; 
+           i = document.getElementById("name"); 
+           i.checked=true;  
+     }  
 }
+
+function select_CheckDisc(){ 
+      e = document.getElementById("cat");
+      f = document.getElementById("club_cat");  
+      g = document.getElementById("cat_club");    
+      if (e.checked){ 
+            h = document.getElementById("discipline");        
+            h.checked=true; 
+      }
+      if (f.checked ||  g.checked){ 
+            h = document.getElementById("club");        
+            h.checked=true; 
+      }  
+} 
+    
 
 </script>
 
@@ -433,7 +590,7 @@ function select_CheckCat(o){
 </tr>
 <tr>
 	<td class='dialog'>
-		<input type='radio' name='sort' value='name' checked>
+		<input type='radio' name='sort' id='name' value='name' checked>
 			<?php echo $strName; ?></input>
 	</td>
 	<td class='dialog'>
@@ -445,7 +602,7 @@ function select_CheckCat(o){
 </tr>
 <tr>
 	<td class='dialog'>
-		<input type='radio' name='sort' value='cat'>
+		<input type='radio' name='sort' id='cat' value='cat'>
 			<?php echo $strCategory; ?></input>
 	</td>
 	<td colspan='2'>
@@ -454,7 +611,7 @@ function select_CheckCat(o){
 </tr>
 <tr>
 	<td class='dialog'>
-		<input type='radio' name='sort' value='club'>
+		<input type='radio' name='sort' id='club' value='club'>
 			<?php echo $strClub; ?></input>
 	</td>
 	<td class='dialog'>
@@ -466,7 +623,7 @@ function select_CheckCat(o){
 </tr>
 <tr>
 	<td class='dialog'>
-		<input type='radio' name='sort' value='club_cat'>
+		<input type='radio' name='sort' id='club_cat' value='club_cat'>
 			<?php echo $strClub . " & " . $strCategory; ?></input>
 	</td>
 	<td class='dialog'>
@@ -478,17 +635,23 @@ function select_CheckCat(o){
 </tr>
 <tr>
 	<td class='dialog' colspan="3">
-		<input type='radio' name='sort' value='cat_club'>
+		<input type='radio' name='sort' id='cat_club' value='cat_club'>
 			<?php echo $strCategory . " & " . $strClub; ?></input>
 	</td>
 </tr>
 <tr>
+    <td class='dialog' colspan="3">
+        <input type='radio' name='sort' id='discipline' value='discipline' >
+            <?php echo $strDiscipline  ?></input>
+    </td>
+</tr>
+<tr>
 	<td class='dialog' colspan="3">
-		<hr>
-		<input type="checkbox" name="percategory" id="percategory" value="percategory"
-			onchange="select_CheckCat(this)">
+		<hr>  
+         <input type="radio" name="assign" id="percategory" value="percategory" onchange="select_CheckCat()"
+            checked> </input>
 		<?php echo $strPerCategory; ?>
-	</th>
+	</th>      
 </tr>
 <?php
 
@@ -498,16 +661,15 @@ $res = mysql_query("	SELECT
 				, k.Kurzname
 			FROM
 				anmeldung as a
-				, kategorie as k
+				LEFT JOIN kategorie as k USING (xKategorie)
 			WHERE
-				a.xMeeting = ".$_COOKIE['meeting_id']."
-			AND	a.xKategorie = k.xKategorie
+				a.xMeeting = ".$_COOKIE['meeting_id']."   
 			ORDER BY
 				k.Anzeige");
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
-	while($row = mysql_Fetch_array($res)){
+	while($row = mysql_Fetch_array($res)){ 
 		?>
 <tr>
 	<td class='dialog'><?php echo $row[1] ?></td>
@@ -539,9 +701,8 @@ if(mysql_errno() > 0){
 
 <tr>
 	<td class='dialog' colspan="3">
-		<hr>
-		<input type="checkbox" name="percontestcat" id="percontestcat" value="percontestcat"
-			onchange="select_CheckCat(this)">
+		<hr>   
+        <input type="radio" name="assign" id="percontestcat" value="percontestcat" onchange="select_CheckCat()"> </input>
 		<?php echo $strPerContestCategory; ?>
 	</th>
 </tr>
@@ -590,8 +751,64 @@ if(mysql_errno() > 0){
 		<?php echo $strGap.":" ?>
 		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('2')">
 	</td>
-</tr>
+</tr> 
 
+<tr>
+    <td class='dialog' colspan="3">
+        <hr>  
+        <input type="radio" name="assign" id="perdiscipline" value="perdiscipline" onchange="select_CheckDisc()"> </input> 
+        <?php echo $strPerDiscipline; ?>
+    </th>      
+</tr>
+<?php
+
+// get all used disziplines in this meeting
+$res = mysql_query("    SELECT
+                DISTINCT (w.xDisziplin)  , d.Name
+            FROM
+               anmeldung as a
+                INNER JOIN start as s USING (xAnmeldung)
+                INNER JOIN wettkampf as w USING (xWettkampf)
+                INNER JOIN disziplin as d USING (xDisziplin)
+            WHERE
+                a.xMeeting = ".$_COOKIE['meeting_id']."
+            ORDER BY
+                d.Anzeige");
+                                                        
+      
+if(mysql_errno() > 0){
+    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+}else{
+    while($row = mysql_Fetch_array($res)){ 
+        ?>
+<tr>
+    <td class='dialog'><?php echo $row[1] ?></td>
+    <td class='forms'>
+        <?php echo $strOf ?>
+        <input type="text" size="3" value="0" name="of_<?php echo $row[0] ?>" onchange="select_PerDiscipline()">
+    </td>
+    <td class='forms'>
+        <?php echo $strTo ?>
+        <input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" onchange="select_PerDiscipline()">
+    </td>
+</tr>
+        <?php
+    }
+}
+
+?>
+
+<tr>
+    <td class='dialog' colspan="2">
+        <input type="checkbox" name="persvmteam" id="persvmteam3" value="persvmteam">
+        <?php echo $strPerSvmTeam; ?>
+    </th>
+    <td class='forms'>
+        <?php echo $strGap.":" ?>
+        <input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('3')">
+    </td>
+</tr> 
+ 
 <tr>
 	<td class='dialog' colspan = 3>
 		<hr>
@@ -615,6 +832,6 @@ if(mysql_errno() > 0){
 </table>
 
 </form>
-
+ 
 </body>
 </html>

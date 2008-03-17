@@ -10,9 +10,8 @@ if (!defined('AA_RANKINGLIST_COMBINED_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_COMBINED_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%')
-{
-
+function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disciplines)
+{   
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -27,16 +26,44 @@ if(AA_connectToDB() == FALSE)	{ // invalid DB connection
 if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
+  
+  $f=false; 
+  $contestcat=" AND ("; 
+  $k=0;
+  foreach ($disciplines as $key=>$value) {  
+           $f=true;  
+           if ($k==0)
+            $contestcat = $contestcat . " w.xKategorie = $key"; 
+           else 
+              $contestcat = $contestcat . " OR w.xKategorie = $key"; 
+           $k++;
+           $d=0;
+           $selecdisc[$key]=" AND (";  
+           foreach ($value as $test=>$discTest)  {  
+               if ($d==0)
+                    $selecdisc[$key] = $selecdisc[$key] . " w.xDisziplin = $discTest"; 
+               else 
+                    $selecdisc[$key] = $selecdisc[$key] . " OR w.xDisziplin = $discTest"; 
+               $d++; 
+           }
+            $selecdisc[$key] =  $selecdisc[$key] . ") ";   
+  }         
+  $contestcat = $contestcat  . ") ";  
 
-$selection = '';
-if(!empty($category)) {		// show every category
-	$selection = " AND a.xKategorie = $category";
-	$contestcat = " AND w.xKategorie = $category";
+if(!empty($category) ) {		
+	$contestcat = " AND w.xKategorie = $category";  
 }
+else { 
+     if ($f==false) {
+        $contestcat = "";  
+     }     
+}    
+
 
 // get athlete info per contest category
+/*
 $results = mysql_query("
-	SELECT
+	SELECT  
 		a.xAnmeldung
 		, at.Name
 		, at.Vorname
@@ -66,8 +93,8 @@ $results = mysql_query("
 	AND v.xVerein = at.xVerein
 	AND k.xKategorie = w.xKategorie
 	AND st.xAnmeldung = a.xAnmeldung
-	AND w.xWettkampf = st.xWettkampf
-	AND w.Mehrkampfcode = d.Code
+	AND w.xWettkampf = st.xWettkampf  
+	AND w.Mehrkampfcode = d.Code  
 	AND w.Mehrkampfcode > 0
 	AND ka.xKategorie = a.xKategorie 
 	GROUP BY
@@ -77,13 +104,49 @@ $results = mysql_query("
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 ");
-
+ */
+           
+   $results= mysql_query("SELECT  
+        a.xAnmeldung
+        , at.Name
+        , at.Vorname
+        , at.Jahrgang
+        , k.Name
+        , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
+        , IF(at.xRegion = 0, at.Land, re.Anzeige)
+        , w.Mehrkampfcode
+        , d.Name
+        , w.xKategorie
+        , ka.Code
+        , ka.Name
+        , ka.Alterslimite
+    FROM
+        anmeldung AS a
+        LEFT JOIN athlet AS at USING (xAthlet) 
+        LEFT JOIN verein AS v USING (xVerein)
+        LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+        LEFT JOIN kategorie AS ka ON (ka.xKategorie = a.xKategorie) 
+        LEFT JOIN start as st  ON (st.xAnmeldung = a.xAnmeldung)
+        LEFT JOIN wettkampf as w On (w.xWettkampf = st.xWettkampf)
+        LEFT JOIN disziplin as d ON (w.Mehrkampfcode = d.Code) 
+        LEFT JOIN region as re ON at.xRegion = re.xRegion
+    WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ." 
+     " . $contestcat . "   
+    AND w.Mehrkampfcode > 0 
+    GROUP BY
+        a.xAnmeldung
+    ORDER BY
+        w.xKategorie
+        , w.Mehrkampfcode
+        , ka.Alterslimite DESC
+        ");     
+               
+   
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else
-{
-
+{     
 	$cat = '';
 	$catEntry = '';
 	$catEntryLimit = "";
@@ -126,8 +189,7 @@ else
 	}
 	
 	while($row = mysql_fetch_row($results))
-	{
-		
+	{  
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
@@ -245,6 +307,13 @@ else
 				, ru.Datum
 				, ru.Startzeit
 		");*/
+       
+        if ($f==false){
+            $selecdisciplines="";  
+        }
+        else
+           $selecdisciplines=$selecdisc[$row[9]];
+        
 		$res = mysql_query("
 			SELECT
 				d.Kurzname
@@ -270,8 +339,8 @@ else
 			AND w.Mehrkampfcode = $row[7]
 			
 			AND w.xWettkampf = st.xWettkampf
-			AND d.xDisziplin = w.xDisziplin
-			
+			" . $selecdisciplines . "   
+            AND d.xDisziplin = w.xDisziplin
 			AND ru.xWettkampf = w.xWettkampf
 			AND ru.Datum LIKE '".$date."'
 			GROUP BY
@@ -282,11 +351,12 @@ else
 				, ru.Startzeit
 		");
 		
+       
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else
-		{
+		{ 
 			while($pt_row = mysql_fetch_row($res))
 			{
 				$lastTime = $pt_row[8];
@@ -328,7 +398,7 @@ else
 
 				// calculate points
 				$points = $points + $pt_row[4];	// accumulate points
-
+               
 				//if($pt_row[4] > 0) {					// any points for this event
 					$info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";
 					$sep = ", ";

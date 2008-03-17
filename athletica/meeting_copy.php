@@ -76,17 +76,33 @@ elseif($arg == "copy")
 		$data = mysql_fetch_assoc($resData);
 		
 		$sql = "";
-		while($f = mysql_fetch_assoc($resFields)){
-			
-			if($f['Key'] != "PRI" && $f['Field'] != "Name" && $f['Field'] != "Nummer"){ // exclude primary key and 2 fields
-				$sql .= ", ".$f['Field']." = '".$data[$f['Field']]."' ";
+        $dateDiff = "";   
+		while($f = mysql_fetch_assoc($resFields)){  
+            if ($f['Field'] == "DatumVon"){
+                    $dateFrom=$data[$f['Field']]; 
+                }
+            elseif ($f['Field'] == "DatumBis"){
+                    $dateTo=$data[$f['Field']];  
+                    $dateDiff=(str_replace("-","",$dateTo))-(str_replace("-","",$dateFrom));  // get meeting duration   
+                    } 
+            
+			if($f['Key'] != "PRI" && $f['Field'] != "Name" && $f['Field'] != "Nummer" && $f['Field'] != "DatumVon" && $f['Field'] != "DatumBis"){ // exclude primary key and 2 fields
+				$sql .= ", ".$f['Field']." = '".$data[$f['Field']]."' ";  
 			}
 			
-		}
-		
+		} 
+        // get date today and end date meeting
+		$dateFrom=date("Y.m.d");
+        $j = date('Y');
+        $m = date('m');
+        $d = date('d');
+        $dateTo = date('Y.m.d',mktime(0,0,0,$m,$d+$dateDiff,$j));   
+        
 		mysql_query("INSERT INTO meeting SET
 				Name = '$newname'
 				, Nummer = '$newnumber'
+                , DatumVon = '$dateFrom'
+                , DatumBis = '$dateTo' 
 				$sql
 		");
 		
