@@ -75,6 +75,7 @@ class omega{
 			if(!get_magic_quotes_gpc()){
 				$_POST['path'] = addslashes($_POST['path']);
 				$_POST['ftppath'] = addslashes($_POST['ftppath']);
+				$_POST['sponsor'] = addslashes($_POST['sponsor']);
 			}
 			if(mysql_num_rows($res) == 0){
 				mysql_query("
