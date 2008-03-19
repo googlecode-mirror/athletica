@@ -5,7 +5,7 @@ if (!defined('AA_CL_PRINT_PAGE_LIB_INCLUDED'))
 	define('AA_CL_PRINT_PAGE_LIB_INCLUDED', 1);
 
 
- 	require('./lib/cl_gui_page.lib.php');
+	require('./lib/cl_gui_page.lib.php');
 
 
 /********************************************
@@ -44,17 +44,17 @@ class PRINT_Page extends GUI_Page
 
 	/**
 	 * startPage
- 	 * ---------
- 	 * Sets up the basic HTML-page frame for printing.
- 	 */
+	 * ---------
+	 * Sets up the basic HTML-page frame for printing.
+	 */
 	function startPage()
 	{
 		global $cfgPageContentHeight;
-        
-        global $HTTP_USER_AGENT; 
-        if (ereg("Firefox",$HTTP_USER_AGENT))
-             $cfgPageContentHeight=252; 
-        
+		
+		global $HTTP_USER_AGENT; 
+		if (ereg("Firefox",$HTTP_USER_AGENT))
+			 $cfgPageContentHeight=252; 
+		
 		$this->lpp = $GLOBALS['cfgPrtLinesPerPage'];		// lines per page
 		?>
 <body onLoad="printPage()">
@@ -87,36 +87,37 @@ class PRINT_Page extends GUI_Page
 
 	function printCover($type, $timing=true)
 	{
-		$result = mysql_query("
-			SELECT m.Name
-				, m.Ort
-				, m.DatumVon
-				, m.DatumBis
-				, m.Nummer
-				, s.Name
-				, DATE_FORMAT(m.DatumVon, '". $GLOBALS['cfgDBdateFormat'] . "')
-				, DATE_FORMAT(m.DatumBis, '". $GLOBALS['cfgDBdateFormat'] . "')
-				, m.Organisator
-			FROM
-				meeting AS m
-				, stadion AS s
-			WHERE m.xMeeting = ". $_COOKIE['meeting_id'] ."
-			AND m.xStadion = s.xStadion
-		");
+		$sql = "SELECT m.Name, 
+					   m.Ort, 
+					   m.DatumVon, 
+					   m.DatumBis, 
+					   m.Nummer, 
+					   s.Name As StadionName, 
+					   DATE_FORMAT(m.DatumVon, '". $GLOBALS['cfgDBdateFormat'] . "') AS von, 
+					   DATE_FORMAT(m.DatumBis, '". $GLOBALS['cfgDBdateFormat'] . "') AS bis, 
+					   m.Organisator, 
+					   m.Zeitmessung, 
+					   z.OMEGA_Sponsor, 
+					   z.ALGE_Typ
+				  FROM meeting AS m 
+			 LEFT JOIN stadion AS s USING(xStadion) 
+			 LEFT JOIN zeitmessung AS z ON(m.xMeeting = z.xMeeting) 
+				 WHERE m.xMeeting = ".$_COOKIE['meeting_id'].";";
+		$result = mysql_query($sql);
 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else {
-			$row = mysql_fetch_row($result);
-			$date = $row[6];
-			if($row[2] != $row[3]) {		// more than one day
+			$row = mysql_fetch_assoc($result);
+			$date = $row['von'];
+			if($row['DatumVon'] != $row['DatumBis']) {		// more than one day
 				$date = $date . " " . $GLOBALS['strDateTo'] . " ". $row[7];
 			}
 ?>
 	<table>
 		<tr>
-			<td class='cover_title'><?php echo $row[0]; ?></td>
+			<td class='cover_title'><?php echo $row['Name']; ?></td>
 		</tr>
 		<tr>
 			<td class='cover_title'><?php echo $type; ?></td>
@@ -126,11 +127,11 @@ class PRINT_Page extends GUI_Page
 	<table>
 		<tr>
 			<td class='cover_param'><?php echo $GLOBALS['strStadium']; ?></td>
-			<td class='cover_value'><?php echo $row[5].", ".$row[1]; ?></td>
+			<td class='cover_value'><?php echo $row['StadionName'].", ".$row[1]; ?></td>
 		</tr>
 		<tr>
 			<td class='cover_param'><?php echo $GLOBALS['strOrganizer']; ?></td>
-			<td class='cover_value'><?php echo $row[8]; ?></td>
+			<td class='cover_value'><?php echo $row['Organisator']; ?></td>
 		</tr>
 		<tr>
 			<td class='cover_param'><?php echo $GLOBALS['strDate']; ?></td>
@@ -138,14 +139,20 @@ class PRINT_Page extends GUI_Page
 		</tr>
 		<tr>
 			<td class='cover_param'><?php echo $GLOBALS['strMeetingNbr']; ?></td>
-			<td class='cover_value'><?php echo $row[4]; ?></td>
+			<td class='cover_value'><?php echo $row['Nummer']; ?></td>
 		</tr>
 		<?php
 		if($timing){
+			$str = 'OMEGA';
+			if($row['Zeitmessung']=='alge'){
+				$str = 'ALGE '.$row['ALGE_Typ'];
+			} else {
+				$str = 'OMEGA ('.$row['OMEGA_Sponsor'].')';
+			}
 			?>
 			<tr>
 				<td class='cover_param'><?php echo $GLOBALS['strTiming']; ?></td>
-				<td class='cover_value'><?php echo $GLOBALS['cfgRankingTiming']; ?></td>
+				<td class='cover_value'><?=$str?></td>
 			</tr>
 			<?php
 		}
@@ -196,22 +203,22 @@ class PRINT_Page extends GUI_Page
 </html>
 <?php
 	}
-    
-    
-    /**
-     * insertPageBreak
-     * ---------------
-     * Terminates layout table and inserts a page break (printing).
-     */
-    function insertPageBreak()
-    {
-        global $cfgPageContentHeight;
-        
-        global $HTTP_USER_AGENT; 
-        if (ereg("Firefox",$HTTP_USER_AGENT))
-             $cfgPageContentHeight=252;                 // for browser firefox
+	
+	
+	/**
+	 * insertPageBreak
+	 * ---------------
+	 * Terminates layout table and inserts a page break (printing).
+	 */
+	function insertPageBreak()
+	{
+		global $cfgPageContentHeight;
+		
+		global $HTTP_USER_AGENT; 
+		if (ereg("Firefox",$HTTP_USER_AGENT))
+			 $cfgPageContentHeight=252;                 // for browser firefox
 ?>
-    </td>
+	</td>
 </tr>
 </table>
 </div>
@@ -221,14 +228,14 @@ class PRINT_Page extends GUI_Page
 <br style='page-break-after:always' />
 
 <?php $this->printPageHeader() ?>
-        
+		
 <div style="height:<?php echo $cfgPageContentHeight ?>mm;">
 <table class='frame'>
 <tr class='frame'>
-    <td class='frame'>
+	<td class='frame'>
 <?php
-        $this->linecnt = 0;
-    }
+		$this->linecnt = 0;
+	}
 
 	/**
 	 * printDocTitle
