@@ -619,6 +619,7 @@ $strNewVersionDownload = 'Eine neue Athletica-Version steht zum Download bereit.
 $strYourVersion = 'Ihre Version';
 $strNewestVersion = 'Aktuellste Version';
 $strUpdateDownload = 'zum Download';
+$strVersionCheck = 'Version prüfen';
 $strVersionOK = 'Ihre Athletica-Version ist auf dem neusten Stand!';
 
 $strDay = 'Tag';
