@@ -127,7 +127,7 @@ elseif($_POST['arg']=="change_formula"){
 // add a disciplin for a combined contest
 elseif($_POST['arg']=="new_discipline"){
 	
-	if(!empty($_POST['combtype'])){
+	if(!empty($_POST['combtype'])){  
 		$t = $_POST['combtype'];
 		
 		// get short name
@@ -423,11 +423,12 @@ else			// no DB error
 					Mehrkampfreihenfolge = $pos
 				WHERE
 					xWettkampf = ".$row[0]);
+           
 			
 		}
 		
 		if($k!=$row[1])	// first row: show category headerline
-		{
+		{   
 			//
 			//	Headerline category
 			//
@@ -443,6 +444,7 @@ else			// no DB error
 <?php
 			if($row[2] > $cfgEventType[$strEventTypeSingleCombined]
 				&& $row[2] != $cfgEventType[$strEventTypeTeamSM]) {		// not single event
+                
 ?>
 	<th class='dialog'><?php echo $strConversionTable; ?></th>
 <?php
@@ -526,12 +528,13 @@ else			// no DB error
 <?php
 			}	// ET single event
 			$k=$row[1];
+
 		}
 
 		// conversion formula drop down
 		if($row[2] > $cfgEventType[$strEventTypeSingleCombined] 
 			&& $row[2] != $cfgEventType[$strEventTypeTeamSM]) 		// not single event
-		{
+		{     
 			//
 			// Print disciplines
 			//
@@ -588,10 +591,12 @@ else			// no DB error
 		*/
 		// print information for extendend combined contest
 		// first print header for different comb-types
-		if($row[2] == $cfgEventType[$strEventTypeSingleCombined]){
-			if($comb != $row[7]){
+		if($row[2] == $cfgEventType[$strEventTypeSingleCombined]){     
+			if($comb != $row[7]){ 
+                $c=0;  
 				
 				if($comb != 0){ //show entry for add new disc and close disc table
+                      
 					?>
 		<tr>
 			<form action='meeting_definition_category.php' method='post' name='newdiscipline_<?php echo $comb ?>'>
@@ -641,7 +646,7 @@ else			// no DB error
 		</select>
 		
 	</td>
-	</form>
+	</form>  
 	<form method="POST" action="meeting_definition_category.php" name="comb_<?php echo $row[7] ?>">
 	<input name='conv_changed' type='hidden' value='yes' />
 	<input type="hidden" name="arg" value="change_formula">
@@ -794,21 +799,11 @@ else			// no DB error
                                           FROM 
                                                 disziplin");  
                     $val=$cfgCombinedWO[$tt][$c];
-                    while ($row_d = mysql_fetch_array($res_d)){                             
-                        $res_new = mysql_query("SELECT 
-                                                    xDisziplin
-                                                    , Name 
-                                                FROM 
-                                                    disziplin 
-                                                WHERE
-                                                    Code = $val");
-                                                    
-                        $row_new = mysql_fetch_array($res_new);
-                        $d_name = $row_new[1];                         
-                           
-                        if(!empty($_POST['combinedtype'])){
-                            if($row_d[2] == $cfgCombinedWO[$tt][$c]) {                                         
-                                $dropdown->selectOption($val);
+                    
+                    while ($row_d = mysql_fetch_array($res_d)){  
+                        if(!empty($_POST['combinedtype'])){  
+                             if($row_d[2] == $row[16]) {                                         
+                                $dropdown->selectOption($row[16]);
                             }
                         }                            
                         else {
@@ -816,10 +811,9 @@ else			// no DB error
                         }                           
                                     
                     $dropdown->addOption( $row_d[1],$row_d[2]);   
-                    }                                              
-                       
+                    }                 
                 $dropdown->printList();  
-                          
+                       
                 $c++;                                       // count of combined disciplines  
                 }
                  else {                    

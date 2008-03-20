@@ -58,18 +58,14 @@ if($_GET['arg'] == 'assign')
 		} else if ($_GET['sort']=="cat" && !$_GET['assign']=="perdicipline") {
 		  $argument="k.Anzeige, at.Name, at.Vorname";
 		} else if ($_GET['sort']=="club") {
-		  $argument="v.Sortierwert, at.Name, at.Vorname";
-		} else if ($_GET['sort']=="club_cat" && !$_GET['assign']=="perdicipline") {
-		  $argument="v.Sortierwert, k.Anzeige, at.Name, at.Vorname";
-		} else if ($_GET['sort']=="cat_club" && !$_GET['assign']=="perdicipline") {
-		  $argument="k.Anzeige, v.Sortierwert, at.Name, at.Vorname";
+		  $argument="v.Sortierwert, at.Name, at.Vorname"; 
         } else if ($_GET['sort']=="discipline" && !$_GET['assign']=="percontestcat" && !$_GET['assign']=="percategory") {
           $argument="w.xDisziplin, v.Sortierwert, at.Name, at.Vorname";
 		} else {
 		  $argument="at.Name, at.Vorname";
 		}                                         
 		
-		
+		                                   
 		// check on assign per category. if contest cat is choosen process in a special way
 		       
 	   if($_GET['assign']=="percontestcat"){  
@@ -334,7 +330,7 @@ if($_GET['arg'] == 'assign')
 				}
 				$argument = "k.Anzeige, ".$argument; 
 			}
-			
+			   
 			// assignment rules
 			if(!empty($_GET['start'])) {
 			  $nbr = $_GET['start'] - 1;		// first number
@@ -621,10 +617,13 @@ function select_CheckDisc(){
 		<input class='nbr' type='text' name='catgap' maxlength='4' value='<?php echo $cfgNbrCategoryGap; ?>'>
 	</td>
 </tr>
+
+
+
 <tr>
-	<td class='dialog'>
-		<input type='radio' name='sort' id='club_cat' value='club_cat'>
-			<?php echo $strClub . " & " . $strCategory; ?></input>
+	<td class='dialog'>  
+        <input type='radio' name='sort' id='discipline' value='discipline' >
+            <?php echo $strDiscipline  ?></input>
 	</td>
 	<td class='dialog'>
 		<?php echo $strClub; ?>
@@ -632,19 +631,7 @@ function select_CheckDisc(){
 	<td class='dialog'>
 		<input class='nbr' type='text' name='clubgap' maxlength='4' value='<?php echo $cfgNbrClubGap; ?>'>
 	</td>
-</tr>
-<tr>
-	<td class='dialog' colspan="3">
-		<input type='radio' name='sort' id='cat_club' value='cat_club'>
-			<?php echo $strCategory . " & " . $strClub; ?></input>
-	</td>
-</tr>
-<tr>
-    <td class='dialog' colspan="3">
-        <input type='radio' name='sort' id='discipline' value='discipline' >
-            <?php echo $strDiscipline  ?></input>
-    </td>
-</tr>
+</tr>  
 <tr>
 	<td class='dialog' colspan="3">
 		<hr>  

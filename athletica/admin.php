@@ -100,8 +100,6 @@ function removePassword(){
 										}
 										$dropdown->printList();
 										?>
-									</td>
-									<td class='forms'><input type="button" value="<?php echo $strVersionCheck; ?>" onclick="document.location.href = 'admin_version.php';"></td>
 								</tr>
 							</table>
 						</form>
@@ -110,8 +108,9 @@ function removePassword(){
 			</table><br/>
 			
 			<?php
-			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0){
-				?>
+			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 && ($_SESSION['meeting_infos']!='meetingNotChosen' &&  $_SESSION['meeting_infos']!='noMeeting')){
+			                                               	
+                ?>
 				<table class='dialog' width="475">
 					<tr>
 						<th class='insecure'><?=$strProtectMeeting?></th>
@@ -145,6 +144,13 @@ function removePassword(){
 						</td>
 					</tr>
 				</table><br/>
+                <?php  
+                          
+                }
+                
+                if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 &&  $_SESSION['meeting_infos']!='noMeeting'){                                                                            
+                                                                                            
+                ?>
 				<table class='dialog' width="475">			
 					<tr>
 						<th class='dialog'><?=$strDatabase?> - <?=$strBackup?></th>
@@ -173,7 +179,8 @@ function removePassword(){
 					</tr>
 				</table><br/>
 				<?php
-			}
+                }  
+			
 			?>
 			
 			<table class='dialog' width="475">			
@@ -309,8 +316,9 @@ function removePassword(){
 				</tr>
 			</table>
 			<?php
-			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0){
-				?>
+			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 && ($_SESSION['meeting_infos']!='meetingNotChosen' &&  $_SESSION['meeting_infos']!='noMeeting')){
+			           	
+                ?>
 				<br/><br/>
 				<table class='dialog' width="475">
 					<tr>
@@ -348,6 +356,84 @@ function removePassword(){
 						</td>
 					</tr>
 				</table><br/><br/>
+				<?php
+			}
+			
+			$newer = false;
+			
+			$http = new HTTP_data();
+			$webserverDomain = "slv.exigo.ch"; // domain of swiss-athletics webserver
+			
+			$result = $http->send_post($webserverDomain, '/meetings/athletica/version.php', '', 'ini');
+			$version = $result['version'];
+			$datum = $result['datum'];
+			
+			$act_version = $cfgApplicationVersion;
+			
+			$version_short = substr($version, 0, 3);
+			$act_version_short = substr($cfgApplicationVersion, 0, 3);
+			$version_sub = (strlen($version)>=5) ? substr($version, 4) : 0;
+			$act_version_sub = (strlen($act_version)>=5) ? substr($act_version, 4) : 0;
+			
+			if($version_short>$act_version_short){
+				$newer = true;
+			} elseif($version_short==$act_version_short){
+				if($version_sub>$act_version_sub){
+					$newer = true;
+				}
+			}
+			
+			if($newer){
+				$athletica_de = 'http://www.swiss-athletics.ch/index.php?option=com_content&task=view&id=140&Itemid=358&lang=de';
+				$athletica_fr = 'http://www.swiss-athletics.ch/index.php?option=com_content&task=view&id=140&Itemid=358&lang=fr';
+				$link = ($lang=='fr') ? $athletica_fr : $athletica_de;
+				?>			
+				<table class='dialog' width="475" border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<th width="26" class='updatebox'><img src="img/update.gif" width="22" height="22"/></th>
+						<th class='updatebox'><?=$strOldVersion?></th>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table class='admin'>
+								<tr class='odd'>
+									<td>
+										<?=$strNewVersionDownload?><br/><br/>
+										
+										<?=$strYourVersion?>: <?=$act_version?><br/>
+										<b><?=$strNewestVersion?>: <?=$version?> (<?=$datum?>)</b><br/><br/>
+									</td>
+								</tr>
+								<tr class='even'>
+									<td><input type="button" value="<?=$strUpdateDownload?> &raquo;" class="uploadbutton" onclick="window.open('<?=$link?>');"></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table><br/>
+				<?php
+			} else {
+				?>
+				<table class='dialog' width="475" border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<th width="26" class='updateboxok'><img src="img/update_ok.gif" width="22" height="22"/></th>
+						<th class='updateboxok'><?=$strVersionOK?></th>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<table class='admin'>
+								<tr class='odd'>
+									<td>
+										<?=$strVersionOK?><br/><br/>
+										
+										<?=$strYourVersion?>: <?=$act_version?><br/>
+										<b><?=$strNewestVersion?>: <?=$version?> (<?=$datum?>)</b><br/><br/>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table><br/>
 				<?php
 			}
 			?>
