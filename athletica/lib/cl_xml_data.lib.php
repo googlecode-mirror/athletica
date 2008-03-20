@@ -41,11 +41,13 @@ $bCombined = false;
 // type base
 $bAthlete = false;
 $bPerf = false;
+$biPerf = false;
 $bAccount = false;
 $bRelay = false;
 $bSvm = false;
 $athlete = array();
 $perf = array();
+$iperf = array();
 $account = array();
 $relay = array();
 $svm = array();
@@ -1339,7 +1341,7 @@ function XML_db_error($msg){
 
 /* handling base data ************************************************************************************************************/
 function XML_base_start($parser, $name, $attr){
-	global $bAthlete, $bPerf, $bAccount, $bRelay, $bSvm, $athlete, $perf, $account, $relay, $svm, $cName;
+	global $bAthlete, $bPerf, $biPerf, $bAccount, $bRelay, $bSvm, $athlete, $perf, $iperf, $account, $relay, $svm, $cName;
 	global $updateType;
 	$cName = $name;
 	
@@ -1347,40 +1349,73 @@ function XML_base_start($parser, $name, $attr){
 	switch ($name){
 		// setting xml attributes for each object
 		case "ATHLETES":
-		// insert update log
-		/*$glc = $attr['GOBALLASTCHANGE'];
-		$time = date('Y-d-m h:i:s');
-		mysql_query("INSERT INTO base_log (type, update_time, global_last_change) VALUES ('base_$updateType','$time','$glc')");
-		if(mysql_errno() > 0){
-			XML_db_error(mysql_errno().": ".mysql_error());
-		}*/
-		break;
+			// insert update log
+			/*$glc = $attr['GOBALLASTCHANGE'];
+			$time = date('Y-d-m h:i:s');
+			mysql_query("INSERT INTO base_log (type, update_time, global_last_change) VALUES ('base_$updateType','$time','$glc')");
+			if(mysql_errno() > 0){
+				XML_db_error(mysql_errno().": ".mysql_error());
+			}*/
+			break;
 		case "ATHLETE":
-		$bAthlete = true;
-		$athlete['LICENSE'] = $attr['LICENSE'];
-		$athlete['LICENSEPAID'] = $attr['LICENSEPAID'];
-		$athlete['LICENSECAT'] = $attr['LICENSECAT'];
-		break;
+			$bAthlete = true;
+			$athlete['LICENSE'] = $attr['LICENSE'];
+			$athlete['LICENSEPAID'] = $attr['LICENSEPAID'];
+			$athlete['LICENSECAT'] = $attr['LICENSECAT'];
+			break;
 		case "PERFORMANCE":
-		$bPerf = true;
-		$perf[count($perf)] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE'],'LICENSECATEGORY'=>$attr['LICENSECATEGORY']);
-		break;
+			$bPerf = true;
+			$perf[count($perf)] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE']);
+			break;
+		case "BESTEFFORT":
+			if ($bPerf){$season = "perf";}elseif($biPerf){$season="iperf";}
+			$$season[count($$season)-1]['BESTEFFORT_DATE'] = $attr['DATE'];
+			$$season[count($$season)-1]['BESTEFFORT_EVENT']= $attr['EVENT'];
+			break;
+		case "SEASONEFFORT":
+			if ($bPerf){$season = "perf";}elseif($biPerf){$season="iperf";}
+			$$season[count($$season)-1]['SEASONEFFORT_DATE'] = $attr['DATE'];
+			$$season[count($$season)-1]['SEASONEFFORT_EVENT']= $attr['EVENT'];
+			break;
+		case "NOTIFICATIONEFFORT":
+			if ($bPerf){$season = "perf";}elseif($biPerf){$season="iperf";}
+			$$season[count($$season)-1]['NOTIFICATIONEFFORT_DATE'] = $attr['DATE'];
+			$$season[count($$season)-1]['NOTIFICATIONEFFORT_EVENT']= $attr['EVENT'];
+			break;
+/*
+		case "BESTEFFORT":
+			$perf[count($perf)-1]['BESTEFFORT_DATE'] = $attr['DATE'];
+			$perf[count($perf)-1]['BESTEFFORT_EVENT']= $attr['EVENT'];
+			break;
+		case "SEASONEFFORT":
+			$perf[count($perf)-1]['SEASONEFFORT_DATE'] = $attr['DATE'];
+			$perf[count($perf)-1]['SEASONEFFORT_EVENT']= $attr['EVENT'];
+			break;
+		case "NOTIFICATIONEFFORT":
+			$perf[count($perf)-1]['NOTIFICATIONEFFORT_DATE'] = $attr['DATE'];
+			$perf[count($perf)-1]['NOTIFICATIONEFFORT_EVENT']= $attr['EVENT'];
+			break;
+		case "PERFORMANCEINDOOR":
+			$biPerf = true;
+			$iperf[count($iperf)] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE']);
+			break;
+*/
 		case "ACCOUNT":
-		$bAccount = true;
-		break;
-		case "RELAY":
-		$bRelay = true;
-		$relay[count($relay)] = array('ID'=>$attr['ID'], 'ISATHLETICAGENERATED'=>$attr['ISATHLETICAGENERATED']);
-		break;
+			$bAccount = true;
+			break;
+			case "RELAY":
+			$bRelay = true;
+			$relay[count($relay)] = array('ID'=>$attr['ID'], 'ISATHLETICAGENERATED'=>$attr['ISATHLETICAGENERATED']);
+			break;
 		case "SVM":
-		$bSvm = true;
-		$svm[count($svm)] = array('ID'=>$attr['ID'], 'ISATHLETICAGENERATED'=>$attr['ISATHLETICAGENERATED']);
-		break;
+			$bSvm = true;
+			$svm[count($svm)] = array('ID'=>$attr['ID'], 'ISATHLETICAGENERATED'=>$attr['ISATHLETICAGENERATED']);
+			break;
 	}
 }
 
 function XML_base_end($parser, $name){
-	global $bAthlete, $bPerf, $bAccount, $bRelay, $bSvm, $athlete, $perf, $account, $relay, $svm, $cName;
+	global $bAthlete, $bPerf, $biPerf, $bAccount, $bRelay, $bSvm, $athlete, $iperf, $perf, $account, $relay, $svm, $cName;
 	
 	// end tags
 	switch ($name){
@@ -1436,28 +1471,48 @@ function XML_base_end($parser, $name){
 				XML_db_error(mysql_errno().": ".mysql_error());
 			}else{
 				$xAthlete = mysql_insert_id();
-				foreach($perf as $row){
-					
-					// change license category from xxx_ to man_ oder wom_
-					if(substr($row['LICENSECATEGORY'],0,1) == 'M'){ $row['LICENSECATEGORY'] = 'MAN_'; }
-					if(substr($row['LICENSECATEGORY'],0,1) == 'W'){ $row['LICENSECATEGORY'] = 'WOM_'; }
-					
+				foreach($perf as $row){			
+					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
+					$sql = "	INSERT IGNORE INTO
+								base_performance (
+									id_athlete
+									, discipline
+									, best_effort
+									, season_effort
+									, notification_effort
+									, season)
+								VALUES (
+									'".$xAthlete."'
+									,'".$row['SPORTDISCIPLINE']."'
+									,'".trim($row['BESTEFFORT'])."'
+									,'".trim($row['SEASONEFFORT'])."'
+									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'O')";
+					mysql_query($sql);
+					if(mysql_errno() > 0){
+						XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
+					}else{
+						//ok
+					}
+				}			
+
+				foreach($iperf as $row){
 					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
 					mysql_query("	INSERT IGNORE INTO
 								base_performance (
 									id_athlete
 									, discipline
-									, category
 									, best_effort
 									, season_effort
-									, notification_effort)
+									, notification_effort
+									, season)
 								VALUES (
 									'".$xAthlete."'
 									,'".$row['SPORTDISCIPLINE']."'
-									,'".$row['LICENSECATEGORY']."'
 									,'".trim($row['BESTEFFORT'])."'
 									,'".trim($row['SEASONEFFORT'])."'
-									,'".trim($row['NOTIFICATIONEFFORT'])."')");
+									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'I')");
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
 					}else{
@@ -1491,26 +1546,36 @@ function XML_base_end($parser, $name){
 			if(mysql_errno() > 0){
 				XML_db_error(mysql_errno().": ".mysql_error());
 			}else{
-				
+
+echo "<pre>";
+print_r($perf);				
 				foreach($perf as $row){
 					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
-					mysql_query("	INSERT IGNORE INTO
+					$sql = "	INSERT IGNORE INTO
 								base_performance (
 									id_athlete
 									, discipline
-									, category
 									, best_effort
 									, season_effort
-									, notification_effort)
+									, notification_effort
+									, season)
 								VALUES (
 									'".$xAthlete."'
 									,'".$row['SPORTDISCIPLINE']."'
-									,'".$row['LICENSECATEGORY']."'
 									,'".trim($row['BESTEFFORT'])."'
 									,'".trim($row['SEASONEFFORT'])."'
-									,'".trim($row['NOTIFICATIONEFFORT'])."')");
+									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'O')";
+								
+								/* would be nice... unfortunately not supported in MySQL4 ...
+								ON DUPLICATE KEY UPDATE
+									best_effort = '".trim($row['BESTEFFORT'])."'
+									, season_effort = '".trim($row['SEASONEFFORT'])."'
+									, notification_effort = '".trim($row['NOTIFICATIONEFFORT']). "'"; */ 
+									
+					mysql_query($sql);
 					if(mysql_errno() > 0){
-						XML_db_error(mysql_errno().": ".mysql_error());
+						XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
 					}else{
 						//ok
 					}
@@ -1578,10 +1643,14 @@ function XML_base_end($parser, $name){
 		
 		$athlete = array();
 		$perf = array();
+		$iperf = array();
 		break;
 		
 		case "PERFORMANCE":
 		$bPerf = false;
+		break;
+		case "PERFORMANCEINDOOR":
+		$biPerf = false;
 		break;
 		case "ACCOUNT":
 		$bAccount = false;
@@ -1743,13 +1812,19 @@ function XML_base_end($parser, $name){
 }
 
 function XML_base_data($parser, $data){
-	global $bAthlete, $bPerf, $bAccount, $bRelay, $bSvm, $athlete, $perf, $account, $relay, $svm, $cName;
+	global $bAthlete, $bPerf, $biPerf, $bAccount, $bRelay, $bSvm, $athlete, $perf, $iperf, $account, $relay, $svm, $cName;
 	
 	if($bAthlete && !$bPerf){
 		$athlete[$cName] .= $data;
 	}
 	if($bAthlete && $bPerf){
 		$perf[(count($perf)-1)][$cName] .= $data;
+	}
+	if($bAthlete && !$biPerf){
+		$athlete[$cName] .= $data;
+	}
+	if($bAthlete && $biPerf){
+		$iperf[(count($perf)-1)][$cName] .= $data;
 	}
 	if($bAccount && !$bRelay && !$bSvm){
 		$account[$cName] .= $data;
