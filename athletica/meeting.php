@@ -114,7 +114,8 @@ if (isset($_POST['arg']) && $_POST['arg']=="add")
 					, DatumBis='" . $todate . "'
 					, Online = '$online'
 					, Organisator = '".$_POST['organisator']."'
-					, xStadion=" . $_POST['stadium']
+					, xStadion=" . $_POST['stadium'] . "
+					, Saison='" . $_POST['saison'] ."'"
 			);
 		}
 		// Check if any error returned from DB
@@ -206,6 +207,7 @@ if (isset($_GET['arg']) && $_GET['arg']=="name") {
 				<img src='<?php echo $img_date; ?>' border='0' />
 			</a></th>
 		<th class='dialog'><?php echo $strDateTo; ?></a></th>
+		<th class='dialog'><?php echo $strSaison; ?></a></th>
 	</tr>
 
 <?php
@@ -230,9 +232,10 @@ $sql = "SELECT
 			  m.xMeeting
 			, m.Name
 			, m.Ort
-			, DATE_FORMAT(m.DatumVon, '".$cfgDBdateFormat."')
-			, DATE_FORMAT(m.DatumBis, '".$cfgDBdateFormat."')
-			, s.Name
+			, DATE_FORMAT(m.DatumVon, '".$cfgDBdateFormat."') as DatumVon
+			, DATE_FORMAT(m.DatumBis, '".$cfgDBdateFormat."') as DatumBis
+			, s.Name as Stadion
+			, m.Saison
 		FROM
 			meeting AS m
 		LEFT JOIN
@@ -249,18 +252,19 @@ if(mysql_errno() > 0)
 
 // display list
 $i=0;
-while ($row = mysql_fetch_row($result))
+while ($row = mysql_fetch_array($result))
 {
 	$i++;
-	if($row[0] == $_COOKIE['meeting_id']) 	// selected meeting
+	if($row['xMeeting'] == $_COOKIE['meeting_id']) 	// selected meeting
 	{
 		?>
 	<tr class='active'>
-		<td><?php echo $row[1]; ?></td>
-		<td><?php echo $row[2]; ?></td>
-		<td><?php echo $row[5]; ?></td>
-		<td><?php echo $row[3]; ?></td>
-		<td><?php echo $row[4]; ?></td>
+		<td><?php echo $row['Name']; ?></td>
+		<td><?php echo $row['Ort']; ?></td>
+		<td><?php echo $row['Stadion']; ?></td>
+		<td><?php echo $row['DatumVon']; ?></td>
+		<td><?php echo $row['DatumBis']; ?></td>
+		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td>
 		<td>
 		<?php
 		$btn = new GUI_Button('meeting_delete.php', "$strDelete ...");
@@ -282,12 +286,13 @@ while ($row = mysql_fetch_row($result))
 		}
 		?>
 	<tr class='<?php echo $class; ?>'
-		onClick='selectMeeting(<?php echo $row[0]; ?>)'>
-		<td><?php echo $row[1]; ?></td>
-		<td><?php echo $row[2]; ?></td>
-		<td><?php echo $row[5]; ?></td>
-		<td><?php echo $row[3]; ?></td>
-		<td><?php echo $row[4]; ?></td>
+		onClick='selectMeeting(<?php echo $row['xMeeting']; ?>)'>
+		<td><?php echo $row['Name']; ?></td>
+		<td><?php echo $row['Ort']; ?></td>
+		<td><?php echo $row['Stadion']; ?></td>
+		<td><?php echo $row['DatumVon']; ?></td>
+		<td><?php echo $row['DatumBis']; ?></td>
+		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td>
 	</tr>
 		<?php
 	}		// ET meeting active	
@@ -317,6 +322,7 @@ $year=substr($date, 0, 4);
 			<th class='dialog'><?php echo $strPlace; ?></th>
 			<th class='dialog'><?php echo $strOrganizer; ?></th>
 			<th class='dialog'><?php echo $strStadium; ?></th>
+			<th class='dialog'><?php echo $strSaison; ?></th>
 		</tr>
 		<tr>
 			<td class='forms'>
@@ -332,6 +338,9 @@ $year=substr($date, 0, 4);
 			</td>
 			<?php
 				$dd = new GUI_StadiumDropDown();
+			?>
+			<?php
+				$dd = new GUI_SeasonDropDown();
 			?>
 		</tr>
 	</table>
