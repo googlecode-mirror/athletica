@@ -1211,6 +1211,50 @@ class GUI_RoundtypeSelect
 
 
 /********************************************
+ * CLASS GUI_SeasonSelect
+ * Prints a season drop down list by using the GUI_Select class.
+ *******************************************/
+
+class GUI_SeasonSelect
+{
+	var $select;
+	
+	/*	Constructor
+	 *	-----------
+	 */
+	function GUI_SeasonSelect()
+	{
+		$this->select = new GUI_Select('saison', 1, "check(\"saison\")");
+	}
+
+	/*	printList()
+	 *	-----------
+	 * Finally, print the <SELECT> list
+	 */
+	function printList($key=0)
+	{
+		require('./config.inc.php');
+
+		$this->select->addOption('-', '');
+		$this->select->addOption('Indoor', 'I');
+		$this->select->addOption('Outdoor','O');
+
+		if(!empty($GLOBALS['AA_ERROR']))
+		{
+			AA_printErrorMsg($GLOBALS['AA_ERROR']);
+		}
+		if($key == 0) {
+			$key = '-';
+		}
+		$this->select->selectOption($key);
+		$this->select->printList();
+	}
+} // END CLASS Gui_StadiumSelect
+
+
+
+
+/********************************************
  * CLASS GUI_StadiumSelect
  * Prints a stadium drop down list by using the GUI_Select class.
  *******************************************/

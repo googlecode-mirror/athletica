@@ -323,6 +323,27 @@ class GUI_RoundtypeDropDown
 } // END CLASS Gui_RoundtypeDropDown
 
 
+/********************************************
+ * CLASS GUI_SeasonDropDown
+ *******************************************/
+
+class GUI_SeasonDropDown
+{
+	/*	Constructor
+	 *	-----------
+	 *		key:	primary key of db table
+	 */
+	function GUI_SeasonDropDown($key=0)
+	{
+		$select = new GUI_SeasonSelect();
+		echo "<td class='forms'>";
+		$select->printList($key);
+		echo "</td>";
+	}
+
+} // END CLASS Gui_SeasonDropDown
+
+
 
 /********************************************
  * CLASS GUI_StadiumDropDown
