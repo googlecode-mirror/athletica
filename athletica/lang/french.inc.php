@@ -636,4 +636,6 @@ $strEmptyCacheDone = "Le cache a été vidé. Effectuez maintenant une mise à jour 
 $strEmptyCacheReference = 'Quelques athlètes et/ou sociétés ne sont pas encore référencés (inscriptions). Le cache ne peut pas être vidé.';
 $strSelectMeeting = 'Sélectionner meeting';
 $strBaseMeetingAct = 'Informations téléchargées (inscriptions, No d’event) sont importées dans le meeting Athletica suivant:';
+
+$strSaison = "Saison";
 ?>

@@ -649,4 +649,6 @@ $strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten a
 $strSearchForClub = 'Über Verein anmelden';
 $strNoAthletesToClub= 'Keine Athleten in Stammdaten zu diesem Verein vorhanden';
 $strPerDiscipline = 'Nach Disziplinen';
+
+$strSaison = "Saison";
 ?>
