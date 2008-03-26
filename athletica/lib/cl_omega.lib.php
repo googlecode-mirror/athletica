@@ -161,11 +161,6 @@ class omega{
 		}
 		
 		// get all relays
-		/*$sql = "SELECT staffel.Startnummer, staffel.Name, staffel.xVerein, kategorie.Code FROM 
-				staffel
-				LEFT JOIN kategorie ON staffel.xKategorie = kategorie.xKategorie
-			WHERE
-				staffel.xMeeting = ".$meeting;*/
 		$sql = "SELECT staffel.Startnummer, staffel.Name, staffel.xVerein, kategorie.Kurzname FROM 
 				staffel
 				LEFT JOIN kategorie ON staffel.xKategorie = kategorie.xKategorie
@@ -257,17 +252,21 @@ class omega{
 	* idLong; "Length"; Mlength; Relay
 	*/
 	function set_lstlong($meeting){
+		global $cfgRoundStatus;
+		
 		$tmp = 'idLong; "Length"; Mlength; Relay';
 		
 		mysql_query("LOCK TABLES d READ, w READ");
 		
 		//$sql = "SELECT * FROM disziplin ";
 		$sql = "SELECT DISTINCT d.xDisziplin, d.* FROM
-				wettkampf as w
+				runde as r 
+				LEFT JOIN wettkampf as w USING(xWettkampf)
 				LEFT JOIN disziplin as d USING(xDisziplin)
 			WHERE
 				w.xMeeting = $meeting
-			AND	d.Strecke > 0
+			AND	d.Strecke > 0 
+			AND r.Status != ".$cfgRoundStatus['results_done']."
 			ORDER BY
 				d.Anzeige";
 		$res = mysql_query($sql);
@@ -324,22 +323,12 @@ class omega{
 	* - $meeting		meeting id
 	*/
 	function set_lstrace($meeting){
+		global $cfgRoundStatus;
+		
 		$tmp = 'Event; Round; NbHeat; idLong; idStyle; "AbrevCat"; "Date"; "Time"; idJuge1; idJuge2';
 		
 		mysql_query("LOCK TABLES serie as s READ, runde as r READ, wettkampf as w READ, disziplin as d READ, omega_typ as o READ, kategorie as k READ");
 		
-		/*$sql = "SELECT s.Film, w.xWettkampf, r.xRunde, s.xSerie, d.xDisziplin, d.xOMEGA_Typ, k.Code, r.Datum, r.Startzeit FROM
-				serie as s
-				LEFT JOIN runde as r USING(xRunde)
-				LEFT JOIN wettkampf as w USING(xWettkampf)
-				LEFT JOIN disziplin as d USING(xDisziplin)
-				LEFT JOIN omega_typ as o USING(xOMEGA_Typ)
-				LEFT JOIN kategorie as k ON w.xKategorie = k.xKategorie
-			WHERE
-				w.Zeitmessung = 1
-			AND	w.xMeeting = ".$meeting."
-			ORDER BY s.Film ASC
-			";*/
 		$sql = "SELECT s.Film, w.xWettkampf, r.xRunde, s.xSerie, d.xDisziplin, d.xOMEGA_Typ, k.Kurzname, r.Datum, r.Startzeit FROM
 				serie as s
 				LEFT JOIN runde as r USING(xRunde)
@@ -349,7 +338,8 @@ class omega{
 				LEFT JOIN kategorie as k ON w.xKategorie = k.xKategorie
 			WHERE
 				w.Zeitmessung = 1
-			AND	w.xMeeting = ".$meeting."
+			AND	w.xMeeting = ".$meeting." 
+			AND r.Status != ".$cfgRoundStatus['results_done']."
 			ORDER BY s.Film ASC
 			"; // changed from category code to category short name
 		$res = mysql_query($sql);
@@ -382,6 +372,8 @@ class omega{
 	* - $meeting		meeting id
 	*/
 	function set_lsttitpr($meeting){
+		global $cfgRoundStatus;
+		
 		$tmp = 'Event; Round; "Title"; "Sponsor"';
 		
 		mysql_query("LOCK TABLES runde as r READ, wettkampf as w READ, serie as s, rundentyp as rt READ");
@@ -393,7 +385,8 @@ class omega{
 				LEFT JOIN rundentyp as rt ON rt.xRundentyp = r.xRundentyp
 			WHERE
 				w.Zeitmessung = 1
-			AND	w.xMeeting = ".$meeting;
+			AND	w.xMeeting = ".$meeting." 
+			AND r.Status != ".$cfgRoundStatus['results_done']."";
 		$res = mysql_query($sql);
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -433,10 +426,12 @@ class omega{
 	* - $meeting		meeting id
 	*/
 	function set_lststart($meeting){
+		global $cfgRoundStatus;
+		
 		$tmp = 'Event; Round; Heat; Lane; NRelay; idBib';
 		
 		mysql_query("LOCK TABLES serienstart as sst READ, start as st READ, serie as s READ, wettkampf as w READ, anmeldung as a READ
-					, staffel as sf READ");
+					, staffel as sf READ, runde AS r READ");
 		
 		$sql = "SELECT s.Film, w.xWettkampf, s.xRunde, s.xSerie, sst.Position, st.xStaffel, a.Startnummer, sf.Startnummer as Staffelnummer FROM
 				serienstart as sst
@@ -445,9 +440,11 @@ class omega{
 				LEFT JOIN wettkampf as w on w.xWettkampf = st.xWettkampf
 				LEFT JOIN anmeldung as a on st.xAnmeldung = a.xAnmeldung
 				LEFT JOIN staffel as sf on st.xStaffel = sf.xStaffel
+				LEFT JOIN runde as r on r.xWettkampf = w.xWettkampf
 			WHERE
 				w.Zeitmessung = 1
-			AND	w.xMeeting = ".$meeting;
+			AND	w.xMeeting = ".$meeting." 
+			AND r.Status != ".$cfgRoundStatus['results_done']."";
 		$res = mysql_query($sql);
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
