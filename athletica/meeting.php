@@ -104,6 +104,9 @@ if (isset($_POST['arg']) && $_POST['arg']=="add")
 		{
 			AA_printErrorMsg($strStadium . $strErrNotValid);
 		}
+		else if ($_POST['saison']==""){
+			AA_printErrorMsg($strSaison . $strErrNotValid);
+		} 
 		else if ($_POST['arg']=="add")
 		{
 			mysql_query("
