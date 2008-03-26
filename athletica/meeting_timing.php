@@ -68,7 +68,7 @@ $local = "checked";
 //	Display options for time measurement
 //
 
-$page = new GUI_Page('admin_timing');
+$page = new GUI_Page('meeting_timing');
 $page->startPage();
 $page->printPageTitle($strTiming);
 
@@ -86,7 +86,7 @@ if(!empty($GLOBALS['ERROR'])){
 ?>
 <p/>
 <table class='dialog'>
-<form name="system" action="admin_timing.php" method="post">
+<form name="system" action="meeting_timing.php" method="post">
 <input type="hidden" name="arg" value="change_system">
 <tr>
 	<th class='dialog'><?php echo $strTiming ?></th>
@@ -102,7 +102,7 @@ if(!empty($GLOBALS['ERROR'])){
 // display configuration for choosen system
 if($system == "omega"){
 	?>
-<form name="omega" action="admin_timing.php" method="post">
+<form name="omega" action="meeting_timing.php" method="post">
 <input type="hidden" name="arg" value="change">
 <input type="hidden" name="connection" value="local">
 <table class='dialog'>
@@ -150,7 +150,7 @@ if($system == "omega"){
 	$optic = ($optic=='' && $optic2=='') ? "checked" : $optic;
 	?>
 
-<form name="alge" action="admin_timing.php" method="post">
+<form name="alge" action="meeting_timing.php" method="post">
 <input type="hidden" name="arg" value="change">
 <input type="hidden" name="connection" value="local">
 <table class='dialog'>

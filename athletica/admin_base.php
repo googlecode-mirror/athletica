@@ -179,10 +179,10 @@ if($_POST['arg'] == "login"){
 		//$result = $http->send_get('slv.exigo.ch', '/downloads/verbandstagung_201104.ppt' , 'file', 'test.ppt', true);
 		$post = "clubnr=".urlencode($_POST['clubnr'])."&pass=".urlencode($_POST['pass'])
 			."&glc=".urlencode($glc)."&type=".urlencode($type);
-		//$result = $http->send_post($webserverDomain, '/meetings/athletica/login.php', $post, 'ini');
 		
+		$result = $http->send_post($webserverDomain, '/meetings/athletica/login.php', $post, 'ini');		
 		//TEST mit neuem XML aus Ordner basdata_test
-		$result = $http->send_post($webserverDomain, '/meetings/athletica/login_test.php', $post, 'ini');
+		//$result = $http->send_post($webserverDomain, '/meetings/athletica/login_test.php', $post, 'ini');
 		
 		if(!$result){
 			AA_printErrorMsg($strErrLogin);

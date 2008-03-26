@@ -2,7 +2,7 @@
 
 /********************
  *
- *	admin_page_layout.php
+ *	meeting_page_layout.php
  *	---------
  *	edit settings for page header and footer
  *	
@@ -122,7 +122,7 @@ if(mysql_errno() > 0){
 // display the 6 positions for page layout
 //
 
-$page = new GUI_Page('admin_page_layout');
+$page = new GUI_Page('meeting_page_layout');
 $page->startPage();
 $page->printPageTitle($strPageLayout);
 
@@ -133,7 +133,7 @@ $menu->printMenu();
 <p/>
 
 <table class='dialog'>
-<form name="layout" method="POST" action="admin_page_layout.php" enctype="multipart/form-data">
+<form name="layout" method="POST" action="meeting_page_layout.php" enctype="multipart/form-data">
 <input type="hidden" name="arg" value="save">
 <input type="hidden" name="item" value="<?php echo $row['xLayout'] ?>">
 <tr>

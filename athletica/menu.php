@@ -25,7 +25,7 @@ if($arg == "login"){
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
 <head>
@@ -53,25 +53,34 @@ if($arg == "login"){
 		case 'meeting_relays':
 		case 'meeting_teams':
 		case 'meeting_teamsms':
+		case 'meeting_timing':
+		case 'meeting_page_layout':
+
 			$meeting_class = 'main';
 			// submenus
 			$subitems= array(0 => 'meeting_definition'
 								, 1 => 'meeting_entries'
 								, 2 => 'meeting_relays'
 								, 3 => 'meeting_teams'
-								, 4 => 'meeting_teamsms');
+								, 4 => 'meeting_teamsms'
+								, 5 => 'meeting_timing'
+								, 6 => 'meeting_page_layout');
 			// submenu titles
 			$subtitles= array(0 => $strMeetingDefinition
 								, 1 => $strEntries
 								, 2 => $strRelays
 								, 3 => $strTeams
-								, 4 => $strTeamsTeamSM);
+								, 4 => $strTeamsTeamSM
+								, 5 => $strTiming
+								, 6 => $strPageLayoutShort);
 			// submenu style
 			$subitem_class= array(0 => 'subitem_inactive'
 								, 1 => 'subitem_inactive'
 								, 2 => 'subitem_inactive'
 								, 3 => 'subitem_inactive'
-								, 4 => 'subitem_inactive');
+								, 4 => 'subitem_inactive'
+								, 5 => 'subitem_inactive'
+								, 6 => 'subitem_inactive');
 			// highlight current submenu
 			switch($arg) {
 				case 'meeting_definition':
@@ -88,6 +97,12 @@ if($arg == "login"){
 					break;
 				case 'meeting_teamsms':
 					$subitem_class[4]='subitem';
+					break;
+				case 'meeting_timing':
+					$subitem_class[5]='subitem';
+					break;
+				case 'meeting_page_layout':
+					$subitem_class[6]='subitem';
 					break;
 			}
 			break;
@@ -188,9 +203,7 @@ if($arg == "login"){
 		case 'admin_athletes':
 		case 'admin_stadiums':
 		case 'admin_roundtypes':
-		case 'admin_timing':
 		case 'admin_region':
-		case 'admin_page_layout':
 			$admin_class = 'main';
 			// submenus
 			$subitems= array(0 => 'admin_categories'
@@ -200,9 +213,7 @@ if($arg == "login"){
 								, 4 => 'admin_region'
 								, 5 => 'admin_athletes'
 								, 6 => 'admin_stadiums'
-								, 7 => 'admin_roundtypes'
-								, 8 => 'admin_timing'
-								, 9 => 'admin_page_layout');
+								, 7 => 'admin_roundtypes');
 			// submenu titles
 			$subtitles= array(0 => $strCategories
 								, 1 => $strDisciplines
@@ -211,9 +222,7 @@ if($arg == "login"){
 								, 4 => $strRegion
 								, 5 => $strAthletes
 								, 6 => $strStadiums
-								, 7 => $strRoundtypes
-								, 8 => $strTiming
-								, 9 => $strPageLayoutShort);
+								, 7 => $strRoundtypes);
 			// submenu style
 			$subitem_class= array(0 => 'subitem_inactive'
 								, 1 => 'subitem_inactive'
@@ -222,9 +231,7 @@ if($arg == "login"){
 								, 4 => 'subitem_inactive'
 								, 5 => 'subitem_inactive'
 								, 6 => 'subitem_inactive'
-								, 7 => 'subitem_inactive'
-								, 8 => 'subitem_inactive'
-								, 9 => 'subitem_inactive');
+								, 7 => 'subitem_inactive');
 			// highlight current submenu
 			switch($arg) {
 				case 'admin_categories':
@@ -251,12 +258,6 @@ if($arg == "login"){
 				case 'admin_roundtypes':
 					$subitem_class[7]='subitem';
 					break;
-				case 'admin_timing':
-					$subitem_class[8]='subitem';
-					break;
-				case 'admin_page_layout':
-					$subitem_class[9]='subitem';
-					break;
 			}
 			break;
 			
@@ -267,8 +268,8 @@ if($arg == "login"){
 								, 4 => 'admin_athletes'
 								, 5 => 'admin_stadiums'
 								, 6 => 'admin_roundtypes'
-								, 7 => 'admin_timing'
-								, 8 => 'admin_page_layout');
+								, 7 => 'meeting_timing'
+								, 8 => 'meeting_page_layout');
 			// submenu titles
 			$subtitles= array(0 => $strCategories
 								, 1 => $strDisciplines
@@ -312,10 +313,10 @@ if($arg == "login"){
 				case 'admin_roundtypes':
 					$subitem_class[6]='subitem';
 					break;
-				case 'admin_timing':
+				case 'meeting_timing':
 					$subitem_class[7]='subitem';
 					break;
-				case 'admin_page_layout':
+				case 'meeting_page_layout':
 					$subitem_class[8]='subitem';
 					break;
 			}
@@ -328,22 +329,22 @@ if($arg == "login"){
 ?>
 <table width="100%">
   <tr> 
-    <td class="<?php echo $meeting_class; ?>" height="20">
-    	<a href="index.php" target="_parent">
+	<td class="<?php echo $meeting_class; ?>" height="20">
+		<a href="index.php" target="_parent">
 			<?php echo $strMeetingTitle; ?></a>
-    </td>
-    <td class="<?php echo $event_class; ?>" height="20">
-    	<a href="index.php?arg=event" target="_parent">
+	</td>
+	<td class="<?php echo $event_class; ?>" height="20">
+		<a href="index.php?arg=event" target="_parent">
 			<?php echo $strEvent; ?></a>
-    </td>
-    <td class="<?php echo $speaker_class; ?>" height="20">
-    	<a href="index.php?arg=speaker" target="_parent">
+	</td>
+	<td class="<?php echo $speaker_class; ?>" height="20">
+		<a href="index.php?arg=speaker" target="_parent">
 			<?php echo $strSpeaker; ?></a>
-    </td>
-    <td class="<?php echo $admin_class; ?>" height="20">
-    	<a href="index.php?arg=admin" target="_parent">
+	</td>
+	<td class="<?php echo $admin_class; ?>" height="20">
+		<a href="index.php?arg=admin" target="_parent">
 			<?php echo $strAdministration; ?></a>
-    </td>
+	</td>
   </tr>
 </table>
 
