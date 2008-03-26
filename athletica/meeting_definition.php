@@ -12,8 +12,8 @@
 	<frameset cols="250,*" frameborder="1" border="1" framespacing="1">
       <frame name="list" src="meeting_definition_eventlist.php" marginwidth="0"
 			marginheight="0" scrolling="auto" frameborder="0" noresize />
-   	<frame name="detail" marginwidth="0"
-			marginheight="0" scrolling="auto" frameborder="0" noresize />
+   	<frame src="UntitledFrame-5" name="detail" frameborder="0" scrolling="auto" noresize marginwidth="0"
+			marginheight="0" />
 	</frameset>
 </frameset>
 
