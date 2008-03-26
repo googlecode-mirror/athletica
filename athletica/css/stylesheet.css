@@ -99,8 +99,11 @@ input.perftime {
 input.perfheight {
 	overflow:visible; width:8mm;
 }
-input.nbr {
+inputnbr. {
 	overflow:visible; width:7mm;
+}
+input.currency {
+	overflow:visible; width:10mm;
 }
 input.text {
 	overflow:hidden; width:40mm;
@@ -189,15 +192,17 @@ td.disc {
 table.dialog {
 	background-color:#EEEEEE;
 	border-width:1px;
-   border-style:solid;
+	border-style:solid;
 	border-color:#888888;
 }
 th.dialog {
 	border-width:1px;
-   border-style:solid;
+	border-style:solid;
 	border-color:#888888;
+	height: 18px;
 }
 td.dialog {
+	height: 18px;
 }
 td.dialog-top {
 	vertical-align: top;
