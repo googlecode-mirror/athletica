@@ -74,6 +74,11 @@ $menu->printMenu();
 				document.change_def.submit();
 			}
 		}
+
+		if(item=='saison')
+		{
+			document.change_def.submit();
+		}
 	}
 
 
@@ -96,6 +101,7 @@ $result = mysql_query("
 		, Startgeld
 		, StartgeldReduktion
 		, Haftgeld
+		, Saison
 	FROM meeting
 	WHERE xMeeting=" . $_COOKIE['meeting_id']
 );
@@ -106,78 +112,118 @@ if(mysql_errno() > 0)	// DB error
 }
 else		// no DB error
 {
-	$row = mysql_fetch_row($result);
+	$row = mysql_fetch_array($result);
 ?>
+<br>
 <form action='meeting_definition_header.php' method='post' name='change_def'>
 <input name='arg' type='hidden' value='change' />
-<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
-<table>
-	<tr>
-		<th class='dialog'><?php echo $strName; ?></th>
-		<th class='dialog' colspan='3'><?php echo $strDateFrom; ?></th>
-		<th class='dialog' colspan='3'><?php echo $strDateTo; ?></th>
-		<th class='dialog'><?php echo $strPlace; ?></th>
-		<th class='dialog'><?php echo $strStadium; ?></th>
-		<th class='dialog'><?php echo $strMeetingNbr; ?></th>
-		<th class='dialog'><?php echo $strProgramMode; ?></th>
-	</tr>
-	<tr>
-		<td class='forms'><input class='text' name='name' type='text'
-			maxlength='60' value="<?php echo $row[1]; ?>"
-			onChange='document.change_def.submit()' /></td>
-		<?php AA_meeting_printDate('from', $row[3], TRUE); ?>
-		<?php AA_meeting_printDate('to', $row[4], TRUE); ?>
-		<td class='forms'><input class='text' name='place' type='text'
-			maxlength='20' value="<?php echo $row[2]; ?>"
-			onChange='document.change_def.submit()' /></td>
-		<?php
-			$dd = new GUI_StadiumDropDown($row[7]);
-		?>
-		<td class='forms'><input class='text' name='nbr' type='text'
-			maxlength='20' value="<?php echo $row[5]; ?>"
-			onChange='document.change_def.submit()' /></td>
-		<td class='forms'>
-<?php
+<input name='item' type='hidden' value='<?php echo $row['xMeeting']; ?>' />
+<table >
+  <tr>
+	<th class='dialog'><?php echo $strName; ?></th>
+	<td class='forms'>
+	  <input class='text' name='name' type='text'
+			maxlength='60' value="<?php echo $row['Name']; ?>"
+			onchange='document.change_def.submit()' />    </td>
+	<td width="15"></td>
+	<th class='dialog'><?php echo $strOrganizer ?></th>
+	<td class='forms'>
+	  <input style="width:98%;" type="text" name="organisator" value="<?php echo $row['Organisator'] ?>"
+			onchange='document.change_def.submit()' />    </td>
+	<td width="15" ></td>
+	<th class='dialog'>
+	  <?= $strDeposit;?>    </th>
+	<td class='forms'><input name="deposit" type="text" class="currency"
+			onchange='document.change_def.submit()' value="<?php echo ($row['Haftgeld']/100) ?>" size="10" /></td>
+  </tr>
+  <tr>
+	<th class='dialog'><?php echo $strPlace; ?></th>
+	<td class='forms'>
+	  <input class='text' name='place' type='text'
+			maxlength='20' value="<?php echo $row['Ort']; ?>"
+			onchange='document.change_def.submit()' />    </td>
+	<td></td>
+	<th class='dialog'><?php echo $strStadium; ?></th>
+	<?php if (1==0){ //damit wysiwig in dreamweaver funzt ?><td></td>
+	<?php } else {
+			$dd = new GUI_StadiumDropDown($row['xStadion']);
+		}?>	
+	<td></td>
+	<th class='dialog'>
+	  <?= $strFee;?>   
+	 </th>
+	<td class='forms'>
+	  <input name="fee" type="text"  class="currency"
+			onchange='document.change_def.submit()' value="<?php echo ($row['Startgeld']/100) ?>" size="10" />
+	</td>
+
+  </tr>
+  <tr>
+	<th class='dialog'><?php echo $strDateFrom; ?></th>
+	<td class='forms' align="left"><table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+		  <td class='forms'><?php AA_meeting_printDate('from', $row['DatumVon'], TRUE); ?></td>
+		</tr>
+	  </table></td>
+	<td></td>
+	<th class='dialog'><?php echo $strDateTo; ?></th>
+	<td class='forms' align="left"><table border="0" cellspacing="0" cellpadding="0">
+		<tr>
+		  <td class='forms'><?php AA_meeting_printDate('to', $row['DatumBis'], TRUE); ?></td>
+		</tr>
+	  </table>    </td>
+	<td></td>
+	<th  class="dialog">
+	  <?= $strFeeReduction;?>    </th>
+	<td class='forms'>
+	  <input name="feereduction" type="text"  class="currency"
+			onchange='document.change_def.submit()' value="<?php echo ($row['StartgeldReduktion']/100) ?>" size="10" />
+	</td>
+  </tr>
+  <tr>
+	<th class='dialog'><?php echo $strSaison; ?></th>
+	<?php if (1==0){ //damit wysiwig in dreamweaver funzt ?><td></td><?php } else {
+		 $dd = new GUI_SeasonDropDown($row['Saison']); 
+	}?>   
+	<td>&nbsp;</td>
+	<td></td>
+	<td>&nbsp;</td>
+	<td></td>
+	<th class='dialog'><?php echo $strMeetingWithUpload ?>:</th>
+	<td>
+	<?php
+		if($row['Online'] == 'y'){
+			$check = "checked";
+		}
+	?>
+	<input type="checkbox" value="yes" name="online"
+			onChange='document.change_def.submit()' <?php echo $check ?>>
+	  <?php echo $strYes ?></td>
+  </tr>
+  <tr>
+	<th class='dialog'><?php echo $strMeetingNbr; ?></th>
+	<td class='forms'><input class='text' name='nbr' type='text'
+			maxlength='20' value="<?php echo $row['Nummer']; ?>"
+			onchange='document.change_def.submit()' /></td>
+	<td></td>
+	<th class='dialog'><?php echo $strProgramMode; ?></th>
+	<td class='forms'><?php
 	$dropdown = new GUI_Select('mode', 1, "document.change_def.submit()");
 	foreach($cfgProgramMode as $key=>$value)
 	{
 		$dropdown->addOption($value['name'], $key);
-		if($row[6] == $key) {
+		if($row['ProgrammModus'] == $key) {
 			$dropdown->selectOption($key);
 		}
 	}
 	$dropdown->printList();
-	
-	if($row[8] == 'y'){
-		$check = "checked";
-	}
-?>		</td>
-	</tr>
-	<tr>
-	  <th class='dialog'><?php echo $strOrganizer ?></th>
-	  <td colspan='6' class='forms'>
-	    <input style="width:98%;" type="text" name="organisator" value="<?php echo $row[9] ?>"
-			onchange='document.change_def.submit()' />
-      </td>
-	  <th class='dialog'><?= $strFee;?></th>
-	  <td class='forms'><input name="fee" type="text"
-			onchange='document.change_def.submit()' value="<?php echo ($row[10]/100) ?>" size="10" /></td>
-	  <th class='dialog'><?= $strDeposit;?></th>
-	  <td class='forms'><input name="deposit" type="text"
-			onchange='document.change_def.submit()' value="<?php echo ($row[12]/100) ?>" size="10" /></td>
+	?></td>
+	<td></td>
+	<td class='forms'>&nbsp;</td>
+	<td class='forms'>&nbsp;</td>
+  </tr>
+  </table>
 
-    </tr>
-	<tr>
-		<th class='dialog' colspan='4'><?php echo $strMeetingWithUpload ?>:</th>
-		<th class='dialog'><input type="checkbox" value="yes" name="online"
-			onChange='document.change_def.submit()' <?php echo $check ?>><?php echo $strYes ?></th>
-			
-		<td colspan="2"></td>
-	  <th class='dialog'><?= $strFeeReduction;?></th>
-	  <td class='forms'><input name="feereduction" type="text"
-			onchange='document.change_def.submit()' value="<?php echo ($row[11]/100) ?>" size="10" /></td>
-	</tr>
-</table>
 </form>
 
 <?php
@@ -185,3 +231,4 @@ else		// no DB error
 }		// ET DB error
 
 $page->endPage();
+?>
