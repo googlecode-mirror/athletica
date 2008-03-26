@@ -1365,41 +1365,40 @@ function XML_base_start($parser, $name, $attr){
 			break;
 		case "PERFORMANCE":
 			$bPerf = true;
-			$perf[count($perf)] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE']);
+			$perf[] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE']);
 			break;
 		case "BESTEFFORT":
-			if ($bPerf){$season = "perf";}elseif($biPerf){$season="iperf";}
-			$$season[count($$season)-1]['BESTEFFORT_DATE'] = $attr['DATE'];
-			$$season[count($$season)-1]['BESTEFFORT_EVENT']= $attr['EVENT'];
+			if ($bPerf){	
+				$perf[count($perf)-1]['BESTEFFORT_DATE'] = substr($attr['DATE'],6,4)."-".substr($attr['DATE'],0,2)."-".substr($attr['DATE'],3,2);
+				$perf[count($perf)-1]['BESTEFFORT_EVENT'] = $attr['EVENT'];
+			}elseif($biPerf){
+				$iperf[count($iperf)-1]['BESTEFFORT_DATE'] = substr($attr['DATE'],6,4)."-".substr($attr['DATE'],0,2)."-".substr($attr['DATE'],3,2);
+				$iperf[count($iperf)-1]['BESTEFFORT_EVENT'] = $attr['EVENT'];
+			}
 			break;
 		case "SEASONEFFORT":
-			if ($bPerf){$season = "perf";}elseif($biPerf){$season="iperf";}
-			$$season[count($$season)-1]['SEASONEFFORT_DATE'] = $attr['DATE'];
-			$$season[count($$season)-1]['SEASONEFFORT_EVENT']= $attr['EVENT'];
+			if ($bPerf){	
+				$perf[count($perf)-1]['SEASONEFFORT_DATE'] = substr($attr['DATE'],6,4)."-".substr($attr['DATE'],0,2)."-".substr($attr['DATE'],3,2);
+				$perf[count($perf)-1]['SEASONEFFORT_EVENT'] = $attr['EVENT'];
+			}elseif($biPerf){
+				$iperf[count($iperf)-1]['SEASONEFFORT_DATE'] = substr($attr['DATE'],6,4)."-".substr($attr['DATE'],0,2)."-".substr($attr['DATE'],3,2);
+				$iperf[count($iperf)-1]['SEASONEFFORT_EVENT'] = $attr['EVENT'];
+			}
 			break;
 		case "NOTIFICATIONEFFORT":
-			if ($bPerf){$season = "perf";}elseif($biPerf){$season="iperf";}
-			$$season[count($$season)-1]['NOTIFICATIONEFFORT_DATE'] = $attr['DATE'];
-			$$season[count($$season)-1]['NOTIFICATIONEFFORT_EVENT']= $attr['EVENT'];
-			break;
-/*
-		case "BESTEFFORT":
-			$perf[count($perf)-1]['BESTEFFORT_DATE'] = $attr['DATE'];
-			$perf[count($perf)-1]['BESTEFFORT_EVENT']= $attr['EVENT'];
-			break;
-		case "SEASONEFFORT":
-			$perf[count($perf)-1]['SEASONEFFORT_DATE'] = $attr['DATE'];
-			$perf[count($perf)-1]['SEASONEFFORT_EVENT']= $attr['EVENT'];
-			break;
-		case "NOTIFICATIONEFFORT":
-			$perf[count($perf)-1]['NOTIFICATIONEFFORT_DATE'] = $attr['DATE'];
-			$perf[count($perf)-1]['NOTIFICATIONEFFORT_EVENT']= $attr['EVENT'];
+			if ($bPerf){	
+				$perf[count($perf)-1]['NOTIFICATIONEFFORT_DATE'] = substr($attr['DATE'],6,4)."-".substr($attr['DATE'],0,2)."-".substr($attr['DATE'],3,2);
+				$perf[count($perf)-1]['NOTIFICATIONEFFORT_EVENT'] = $attr['EVENT'];
+			}elseif($biPerf){
+				$iperf[count($iperf)-1]['NOTIFICATIONEFFORT_DATE'] = substr($attr['DATE'],6,4)."-".substr($attr['DATE'],0,2)."-".substr($attr['DATE'],3,2); 
+				$iperf[count($iperf)-1]['NOTIFICATIONEFFORT_EVENT'] = $attr['EVENT'];
+			}
 			break;
 		case "PERFORMANCEINDOOR":
 			$biPerf = true;
-			$iperf[count($iperf)] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE']);
+			$iperf[] = array('SPORTDISCIPLINE'=>$attr['SPORTDISCIPLINE']);
 			break;
-*/
+
 		case "ACCOUNT":
 			$bAccount = true;
 			break;
@@ -1436,8 +1435,8 @@ function XML_base_end($parser, $name){
 		if(substr($athlete['LICENSECAT'],0,1) == 'W'){ $athlete['LICENSECAT'] = 'WOM_'; }
 		
 		// check if entry exists
-		//$res = mysql_query("SELECT id_athlete FROM base_athlete WHERE license LIKE '".trim($athlete['LICENSE'])."%'");
-		$res = mysql_query("SELECT id_athlete FROM base_athlete WHERE license LIKE '".trim($athlete['LICENSE'])."';");
+		$sql = "SELECT id_athlete FROM base_athlete WHERE license = '".trim($athlete['LICENSE'])."';";
+		$res = mysql_query($sql);
 		
 		if(mysql_num_rows($res) == 0){
 			
@@ -1478,15 +1477,27 @@ function XML_base_end($parser, $name){
 									id_athlete
 									, discipline
 									, best_effort
+									, best_effort_date
+									, best_effort_event
 									, season_effort
+									, season_effort_date
+									, season_effort_event
 									, notification_effort
+									, notification_effort_date
+									, notification_effort_event
 									, season)
 								VALUES (
 									'".$xAthlete."'
 									,'".$row['SPORTDISCIPLINE']."'
 									,'".trim($row['BESTEFFORT'])."'
+									,'".trim($row['BESTEFFORT_DATE'])."'
+									,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
 									,'".trim($row['SEASONEFFORT'])."'
+									,'".trim($row['SEASONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
 									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
 									,'O')";
 					mysql_query($sql);
 					if(mysql_errno() > 0){
@@ -1503,15 +1514,27 @@ function XML_base_end($parser, $name){
 									id_athlete
 									, discipline
 									, best_effort
+									, best_effort_date
+									, best_effort_event
 									, season_effort
+									, season_effort_date
+									, season_effort_event
 									, notification_effort
+									, notification_effort_date
+									, notification_effort_event
 									, season)
 								VALUES (
 									'".$xAthlete."'
 									,'".$row['SPORTDISCIPLINE']."'
 									,'".trim($row['BESTEFFORT'])."'
+									,'".trim($row['BESTEFFORT_DATE'])."'
+									,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
 									,'".trim($row['SEASONEFFORT'])."'
+									,'".trim($row['SEASONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
 									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
 									,'I')");
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
@@ -1546,42 +1569,98 @@ function XML_base_end($parser, $name){
 			if(mysql_errno() > 0){
 				XML_db_error(mysql_errno().": ".mysql_error());
 			}else{
+				
+				mysql_query("DELETE FROM base_performance WHERE id_athlete = $xAthlete");
+				if(mysql_errno() > 0){
+					XML_db_error(mysql_errno().": ".mysql_error());
+				}else{
 
-echo "<pre>";
-print_r($perf);				
-				foreach($perf as $row){
-					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
-					$sql = "	INSERT IGNORE INTO
-								base_performance (
-									id_athlete
-									, discipline
-									, best_effort
-									, season_effort
-									, notification_effort
-									, season)
-								VALUES (
-									'".$xAthlete."'
-									,'".$row['SPORTDISCIPLINE']."'
-									,'".trim($row['BESTEFFORT'])."'
-									,'".trim($row['SEASONEFFORT'])."'
-									,'".trim($row['NOTIFICATIONEFFORT'])."'
-									,'O')";
-								
-								/* would be nice... unfortunately not supported in MySQL4 ...
-								ON DUPLICATE KEY UPDATE
-									best_effort = '".trim($row['BESTEFFORT'])."'
-									, season_effort = '".trim($row['SEASONEFFORT'])."'
-									, notification_effort = '".trim($row['NOTIFICATIONEFFORT']). "'"; */ 
+//echo "<pre> PERFORMANCE " . $athlete['LASTNAME']. " ".  $athlete['FIRSTNAME'] .":\n\n";
+//print_r($perf);				
+					foreach($perf as $row){
+						if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
+						$sql = "	INSERT IGNORE INTO
+									base_performance (
+										id_athlete
+										, discipline
+										, best_effort
+										, best_effort_date
+										, best_effort_event
+										, season_effort
+										, season_effort_date
+										, season_effort_event
+										, notification_effort
+										, notification_effort_date
+										, notification_effort_event
+										, season)
+									VALUES (
+										'".$xAthlete."'
+										,'".$row['SPORTDISCIPLINE']."'
+										,'".trim($row['BESTEFFORT'])."'
+										,'".trim($row['BESTEFFORT_DATE'])."'
+										,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
+										,'".trim($row['SEASONEFFORT'])."'
+										,'".trim($row['SEASONEFFORT_DATE'])."'
+										,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
+										,'".trim($row['NOTIFICATIONEFFORT'])."'
+										,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
+										,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
+										,'O')";
 									
-					mysql_query($sql);
-					if(mysql_errno() > 0){
-						XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
-					}else{
-						//ok
+									/* would be nice... unfortunately not supported in MySQL4 ... now deleting before insert
+									ON DUPLICATE KEY UPDATE
+										best_effort = '".trim($row['BESTEFFORT'])."'
+										, season_effort = '".trim($row['SEASONEFFORT'])."'
+										, notification_effort = '".trim($row['NOTIFICATIONEFFORT']). "'"; */ 
+										
+						mysql_query($sql);
+						if(mysql_errno() > 0){
+							XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
+						}else{
+							//ok
+						}
+					}
+//echo "<pre> PERFORMANCEINDOOR $athlete[LASTNAME]) $athlete[FIRSTNAME] :\n\n";
+//print_r($iperf);				
+					foreach($iperf as $row){
+						if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
+						$sql = "	INSERT IGNORE INTO
+									base_performance (
+										id_athlete
+										, discipline
+										, best_effort
+										, best_effort_date
+										, best_effort_event
+										, season_effort
+										, season_effort_date
+										, season_effort_event
+										, notification_effort
+										, notification_effort_date
+										, notification_effort_event
+										, season)
+									VALUES (
+										'".$xAthlete."'
+										,'".$row['SPORTDISCIPLINE']."'
+										,'".trim($row['BESTEFFORT'])."'
+										,'".trim($row['BESTEFFORT_DATE'])."'
+										,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
+										,'".trim($row['SEASONEFFORT'])."'
+										,'".trim($row['SEASONEFFORT_DATE'])."'
+										,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
+										,'".trim($row['NOTIFICATIONEFFORT'])."'
+										,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
+										,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
+										,'I')";
+																			
+						mysql_query($sql);
+						if(mysql_errno() > 0){
+							XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
+						}else{
+							//ok
+						}
 					}
 				}
 			}
-			
 		}
 		
 		$sql2 = "SELECT TRIM(lastname) AS lastname, 
@@ -1817,14 +1896,11 @@ function XML_base_data($parser, $data){
 	if($bAthlete && !$bPerf){
 		$athlete[$cName] .= $data;
 	}
-	if($bAthlete && $bPerf){
+	if($bAthlete && $bPerf && !$biPerf){
 		$perf[(count($perf)-1)][$cName] .= $data;
 	}
-	if($bAthlete && !$biPerf){
-		$athlete[$cName] .= $data;
-	}
-	if($bAthlete && $biPerf){
-		$iperf[(count($perf)-1)][$cName] .= $data;
+	if($bAthlete && !$bPerf && $biPerf){
+		$iperf[(count($iperf)-1)][$cName] .= $data;
 	}
 	if($bAccount && !$bRelay && !$bSvm){
 		$account[$cName] .= $data;

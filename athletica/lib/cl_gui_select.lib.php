@@ -1231,7 +1231,7 @@ class GUI_SeasonSelect
 	 *	-----------
 	 * Finally, print the <SELECT> list
 	 */
-	function printList($key=0)
+	function printList($key='')
 	{
 		require('./config.inc.php');
 
@@ -1243,9 +1243,7 @@ class GUI_SeasonSelect
 		{
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
 		}
-		if($key == 0) {
-			$key = '-';
-		}
+
 		$this->select->selectOption($key);
 		$this->select->printList();
 	}

@@ -333,7 +333,7 @@ class GUI_SeasonDropDown
 	 *	-----------
 	 *		key:	primary key of db table
 	 */
-	function GUI_SeasonDropDown($key=0)
+	function GUI_SeasonDropDown($key='')
 	{
 		$select = new GUI_SeasonSelect();
 		echo "<td class='forms'>";
