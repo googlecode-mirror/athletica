@@ -783,11 +783,11 @@ class GUI_EventSelect
 
 		if($this->category < 1)	{		// no selection
 			$cat_argument = "";
-			$displ = "CONCAT(kategorie.Kurzname, ', ', disziplin.Kurzname, ' (', wettkampf.Info, ')')";
+			$displ = "IF(LENGTH(wettkampf.Info)>0, CONCAT(kategorie.Kurzname, ', ', disziplin.Kurzname, ' (', wettkampf.Info, ')'), CONCAT(kategorie.Kurzname, ', ', disziplin.Kurzname))";
 		}
 		else {
 			$cat_argument = " AND wettkampf.xKategorie = " . $this->category;
-			$displ = "CONCAT(disziplin.Kurzname, ' (', wettkampf.Info, ')')";
+			$displ = "IF(LENGTH(wettkampf.Info)>0,  CONCAT(disziplin.Kurzname, ' (', wettkampf.Info, ')') , disziplin.Kurzname) as DiszName";
 		}
 
 		$where = '';
@@ -796,8 +796,23 @@ class GUI_EventSelect
 		}
 
 		// get items from DB
-		$this->select->addOptionsFromDB("
-			SELECT
+		$sql = "SELECT 
+					wettkampf.xWettkampf 
+					, $displ 
+				FROM 
+					wettkampf 
+				LEFT JOIN kategorie USING (xKategorie)
+				LEFT JOIN disziplin ON (wettkampf.xDisziplin = disziplin.xDisziplin)
+				WHERE 
+					wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
+				$cat_argument  
+				$where
+				ORDER BY 
+					kategorie.Anzeige 
+					, disziplin.Anzeige";
+		
+		
+			/*SELECT
 				wettkampf.xWettkampf
 				, $displ
 			FROM
@@ -811,8 +826,9 @@ class GUI_EventSelect
 			$where
 			ORDER BY
 				kategorie.Anzeige
-				, disziplin.Anzeige
-		");
+				, disziplin.Anzeige";*/
+				
+		$this->select->addOptionsFromDB($sql);
 
 		if(!empty($GLOBALS['AA_ERROR']))
 		{
