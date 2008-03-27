@@ -75,7 +75,7 @@ class GUI_Searchfield
 		</script>
 <table>
 	<tr>
-<form action='<?php echo $this->action; ?>' method='<?php echo $this->method; ?>' target='<?php echo $this->target; ?>' name='lookup'">
+<form action='<?php echo $this->action; ?>' method='<?php echo $this->method; ?>' target='<?php echo $this->target; ?>' name='lookup'>
 		<th class='dialog'><?php echo $GLOBALS['strSearch']; ?></th>
 		<td class='forms'>
 			<input name='arg' type='hidden' value='search' />

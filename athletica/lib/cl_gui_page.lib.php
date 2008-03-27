@@ -19,10 +19,11 @@ include("cl_protect.lib.php");
 class GUI_Page
 {
 	var $stylesheet;
+	var $additional_stylesheet;
 	var $title;
 	var $scroll;
 
-	function GUI_Page($title, $scroll=FALSE)
+	function GUI_Page($title, $scroll=FALSE, $additional_stylesheet="")
 	{
 		
 		// check on meeting password
@@ -38,15 +39,14 @@ class GUI_Page
 						parent.location.href = 'index.php?arg=admin';
 					</script>
 					<?php
-				}
-				
-			}
-			
+				}	
+			}	
 		}
 		
 		$this->title = $title;
 		$this->scroll = $scroll;
 		$this->stylesheet = "stylesheet.css";
+		$this->additional_stylesheet = $additional_stylesheet;
 		$this->printHTMLHeader();
 	}
 
@@ -60,8 +60,12 @@ class GUI_Page
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title><?php echo $this->title; ?></title>
-<link rel="stylesheet"
-	href="css/<?php echo $this->stylesheet; ?>" type="text/css">
+<link rel="stylesheet" href="css/<?php echo $this->stylesheet; ?>" type="text/css">
+<?php
+	if ($this->additional_stylesheet != "") {
+	?><link rel="stylesheet" href="css/<?php echo $this->additional_stylesheet; ?>" type="text/css"><?php
+	}
+?>
 </head>
 <?php
 	}

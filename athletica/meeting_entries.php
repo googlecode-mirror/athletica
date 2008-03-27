@@ -9,10 +9,12 @@
 <frameset rows="74,*" frameborder="NO" border="0" framespacing="0">
 	<frame name="header" src="meeting_entries_header.php" marginwidth="0"
 		marginheight="0" scrolling="no" frameborder="0" noresize />
-	<frameset cols="350,*" frameborder="1" border="1" framespacing="1">
-	  <frame name="list" src="meeting_entrylist.php" marginwidth="0"
+	<frameset id="frm_list" cols="350,7,*" frameborder="1" border="1" framespacing="1">
+		<frame name="list" src="meeting_entrylist.php" marginwidth="0"
 			marginheight="0" scrolling="auto" frameborder="0" noresize />
-	<frame name="detail" src="" marginwidth="0"
+		<frame name="list" src="resizer.php" marginwidth="0"
+			marginheight="0" scrolling="no" frameborder="0" noresize />
+		<frame name="detail" src="" marginwidth="0"
 			marginheight="0" scrolling="auto" frameborder="0" noresize />
 	</frameset>
 </frameset>

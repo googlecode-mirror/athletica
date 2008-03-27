@@ -921,7 +921,7 @@ if ($_POST['arg']=="firstheat")
 //	Display data
 // ------------
 
-$page = new GUI_Page('meeting_entry');
+$page = new GUI_Page('meeting_entry',false,'stylesheet_small-fonts.css');
 $page->startPage();
 $page->printPageTitle($strEntry);
 

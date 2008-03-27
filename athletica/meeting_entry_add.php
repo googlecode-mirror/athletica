@@ -1086,16 +1086,16 @@ function meeting_get_disciplines(){
 				$checked = (isset($combs_def[$row['xKategorie']."_".$comb])) ? ' checked="checked"' : '';
 				$val = (isset($combs_def[$row['xKategorie']."_".$comb])) ? $combs_def[$row['xKategorie']."_".$comb] : '';
 				?>
-				<td class='dialog-top' id="topperftd<?php echo $combCat.$comb ?>">
+				<td class='dialog-top' nowrap="nowrap" id="topperftd<?php echo $combCat.$comb ?>">
 					<input type="checkbox" value="<?php echo $row['xKategorie']."_".$comb ?>" name="combined[]" id="combinedCheck<?=$row[8]?>_<?=$comb?>" 
 						onclick="check_combined('<?php echo $row['xKategorie']."_".$comb ?>', this);
 							validate_discipline(<?php echo "'".$combCat.$comb."', '".$row['Geschlecht']."', ".$row['Alterslimite'] ?>);"<?=$checked?>>
 					<?php echo $comb_row['Name']; ?>
 				</td>
-				<td class='dialog-top'>
+				<td class='dialog-top' nowrap="nowrap">
 					<input type="text" name="topcomb_<?php echo $row['xKategorie']."_".$comb ?>" id="topcomb<?php echo $row['xKategorie']."_".$comb ?>" size="5" value="<?=$val?>">
 				</td>
-				<td class='dialog' id='td_<?php echo $row['xKategorie']."_".$comb ?>'>
+				<td class='dialog' nowrap="nowrap" id='td_<?php echo $row['xKategorie']."_".$comb ?>'>
 				<?php
 				echo( "<div id=\"div_".$row['xKategorie']."_".$comb."\" style=\"position:absolute; visibility:hidden;\">
 						<table>\n");
@@ -1113,12 +1113,12 @@ function meeting_get_disciplines(){
 			$effort = (isset($discs_def[$row['xWettkampf']]) && $effort=='') ? $discs_def[$row['xWettkampf']] : $effort;
 			
 			// create text nodes for adding with javascript
-			echo ("<tr><td class='dialog'>
+			echo ("<tr><td class='dialog' combinedCheck>
 					<input name='start_$row[xWettkampf]' type='checkbox' id='start$row[xWettkampf]'
 								value='$start_row[DiszKurzname]' checked/>
 								$row[DiszKurzname]
 				</td>
-				<td class='forms'>
+				<td class='forms'  nowrap=\"nowrap\">
 					<input type=\"hidden\" name=\"eventscombtemp[]\" value=\"$row[xWettkampf]\">
 					<input class='perf$class' type=\"text\" name=\"topperf_$row[xWettkampf]\" value='$effort'
 						id='topperf$row[xWettkampf]' >
@@ -1136,7 +1136,7 @@ function meeting_get_disciplines(){
 			
 			$info = (strlen($row['Info'])==0)?"":"(".$row['Info'].")";
 			
-			printf("<td class=\"dialog-top\" id='topperftd$row[xWettkampf]'>
+			printf("<td class=\"dialog-top\" nowrap=\"nowrap\" id='topperftd$row[xWettkampf]'>
 				<input name='start_$row[xWettkampf]' type='hidden' id='start$row[xWettkampf]'
 								value='$start_row[DiszKurzname]'/>
 				<input name='events[]' type='checkbox' value='"
@@ -1144,7 +1144,7 @@ function meeting_get_disciplines(){
 			
 			$effort = (isset($discs_def[$row['xWettkampf']]) && $effort=='' && $first!='') ? $discs_def[$row['xWettkampf']] : $effort;
 			
-			printf("<td class=\"dialog-top\">
+			printf("<td class=\"dialog-top\" nowrap=\"nowrap\">
 				<input name='type_$row[xWettkampf]' type='hidden' value='$class' />
 				<input class='perf$class' name='topperf_$row[xWettkampf]' type='text'
 				value='$effort' maxlength='12' id='topperf$row[xWettkampf]' /></td>");
@@ -1167,7 +1167,7 @@ function meeting_get_disciplines(){
 // display page 
 //
 
-$page = new GUI_Page('meeting_entry_add');
+$page = new GUI_Page('meeting_entry_add',false,'stylesheet_small-fonts.css');
 $page->startPage();
 $page->printPageTitle($strNewEntryFromBase);
 
@@ -1944,7 +1944,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	function IE_selectclear(){
 		clubsearch = "";
 	}
-	
+		
 	</script>
 
 <?php
@@ -1961,7 +1961,6 @@ if ($_POST['arg']=="add")
 }
 
 ?>   
-
 <table>
 <tr>
 	<td class='forms'> 
