@@ -329,19 +329,19 @@ if($arg == "login"){
 ?>
 <table width="100%">
   <tr> 
-	<td class="<?php echo $meeting_class; ?>" height="20">
+	<td class="<?php echo $meeting_class; ?>" height="20" width="25%">
 		<a href="index.php" target="_parent">
 			<?php echo $strMeetingTitle; ?></a>
 	</td>
-	<td class="<?php echo $event_class; ?>" height="20">
+	<td class="<?php echo $event_class; ?>" height="20" width="25%">
 		<a href="index.php?arg=event" target="_parent">
 			<?php echo $strEvent; ?></a>
 	</td>
-	<td class="<?php echo $speaker_class; ?>" height="20">
+	<td class="<?php echo $speaker_class; ?>" height="20" width="25%">
 		<a href="index.php?arg=speaker" target="_parent">
 			<?php echo $strSpeaker; ?></a>
 	</td>
-	<td class="<?php echo $admin_class; ?>" height="20">
+	<td class="<?php echo $admin_class; ?>" height="20" width="25%">
 		<a href="index.php?arg=admin" target="_parent">
 			<?php echo $strAdministration; ?></a>
 	</td>
@@ -359,11 +359,12 @@ if($arg == "login"){
 	$i=0;
 	if(is_array($subitems))
 	{
+		$percent_width = 100 / count($subitems);
 		foreach($subitems as $item)
 		{
-			printf("<td class='$subitem_class[$i]' height='20'>\n");
-			printf("<a href='index.php?arg=$item' target='_parent'>");
-			printf($subtitles[$i] . "</a></td>");
+			echo "<td nowrap=\"nowrap\" class=\"$subitem_class[$i]\" height=\"20\" width=\"$percent_width%\">\n";
+			echo "<a href=\"index.php?arg=$item\" target=\"_parent\">\n";
+			echo $subtitles[$i] . "</a></td>\n";
 			$i++;	
 		}
 	}
