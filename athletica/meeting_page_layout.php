@@ -127,7 +127,7 @@ $page->startPage();
 $page->printPageTitle($strPageLayout);
 
 $menu = new GUI_Menulist();
-$menu->addButton($cfgURLDocumentation . 'help/administration/index.html', $strHelp, '_blank');
+$menu->addButton($cfgURLDocumentation . 'help/meeting/print_layout.html', $strHelp, '_blank');
 $menu->printMenu();
 ?>
 <p/>

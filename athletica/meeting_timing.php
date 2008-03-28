@@ -73,7 +73,7 @@ $page->startPage();
 $page->printPageTitle($strTiming);
 
 $menu = new GUI_Menulist();
-$menu->addButton($cfgURLDocumentation . 'help/administration/index.html', $strHelp, '_blank');
+$menu->addButton($cfgURLDocumentation . 'help/meeting/timing.html', $strHelp, '_blank');
 $menu->addButton($cfgURLDocumentation . 'help/administration/dh_over_network.pdf', $strOmegaManual, '_blank');
 $menu->printMenu();
 

@@ -651,4 +651,6 @@ $strNoAthletesToClub= 'Keine Athleten in Stammdaten zu diesem Verein vorhanden';
 $strPerDiscipline = 'Nach Disziplinen';
 
 $strSaison = "Saison";
+$strSB = "SB";
+$strPB = "PB";
 ?>

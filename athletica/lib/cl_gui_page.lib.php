@@ -347,7 +347,7 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time='', $svm = false)
+		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false)
 	{
 		$this->relay = $relay;
 		$this->wind = $wind;
@@ -423,6 +423,15 @@ class GUI_RankingList extends GUI_ListPage
 		<th class='dialog'><?php echo $GLOBALS['strPoints']; ?></th>
 			<?php
 		}
+		
+		if($base_perf == TRUE)
+		{
+			?>
+		<th class='dialog'><?php echo $GLOBALS['strSB']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strPB']; ?></th>
+			<?php
+		}
+		
 		?>
 	</tr>
 <?php
@@ -442,7 +451,7 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $country)
+		, $wind, $points, $qual, $country, $sb="", $pb="")
 	{
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
@@ -472,14 +481,24 @@ class GUI_RankingList extends GUI_ListPage
 		<td class='forms_right'><?php echo $points; ?></th>
 			<?php
 		}
-		?>
 
-		<?php
 		if(!empty($qual)) {
 			?>
 		<td><?php echo $qual; ?></td>
 			<?php
 		}
+		
+		if(!empty($sb)){
+			?>
+		<td class='forms_right'><?php echo $sb; ?></td>
+			<?php	
+		}
+		
+		if(!empty($pb)){
+			?>
+		<td class='forms_right'><?php echo $pb; ?></td>
+			<?php	
+		}		
 		?>
 	</tr>
 <?php

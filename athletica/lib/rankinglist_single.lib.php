@@ -61,6 +61,7 @@ $results = mysql_query("
 		, r.Speakerstatus
 		, d.Staffellaeufer
 		, CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))
+		, w.xDisziplin
 	FROM
 		wettkampf AS w
 		, kategorie AS k
@@ -311,6 +312,7 @@ else {
 					, at.Jahrgang
 					, LPAD(s.Bezeichnung,5,'0') as heatid
 					, IF(at.xRegion = 0, at.Land, re.Anzeige) as Land
+					, at.xAthlet
 				FROM
 					serie AS s USE INDEX (Runde)
 					, serienstart AS ss
@@ -443,7 +445,11 @@ else {
 							$points= TRUE;
 						}
 						
-						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm);
+						if ($formaction == 'speaker'){
+							$base_perf = true;
+						}
+						
+						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf);
 
 						$heat = $row_res[5];		// keep heat description
 						$h++;						// increment if evaluation per heat
@@ -571,10 +577,82 @@ else {
 						$ioc = $row_res[13];
 					}
 					
+					//show performances from base
+					if($formaction == 'speaker'){
+						$sql = "SELECT 
+									season_effort
+									, DATE_FORMAT(season_effort_date, '%d.%m.%Y') AS sb_date
+									, season_effort_event
+									, best_effort
+									, DATE_FORMAT(best_effort_date, '%d.%m.%Y') AS pb_date
+									, best_effort_event
+									, season
+						FROM 
+							base_performance
+						LEFT JOIN 
+							base_athlete USING (id_athlete)
+						LEFT JOIN 
+							disziplin ON (discipline = Code)
+						LEFT JOIN 
+							athlet ON (license = Lizenznummer)
+						WHERE 
+							xAthlet = $row_res[14]
+							AND xDisziplin = $row[12]
+							AND season = 'I'";
+						$res_perf = mysql_query($sql);
+						//echo $sql;
+						if(mysql_errno() > 0) {		// DB error
+							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+						}else{
+							if ($res_perf){
+								$row_pref = mysql_fetch_array($res_perf);
+								
+								if(($row[3] == $cfgDisciplineType[$strDiscTypeJump])
+									|| ($row[3] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+									|| ($row[3] == $cfgDisciplineType[$strDiscTypeThrow])
+									|| ($row[3] == $cfgDisciplineType[$strDiscTypeHigh])) {
+									$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_pref['season_effort']));
+									$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_pref['best_effort']));
+									//highlight sb or pb if new performance is better
+									if ($perf>$sb_perf || $perf>$pb_perf){
+										$perf = "<b>$perf</b>";
+									}
+
+								} else {
+									if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack])
+									|| ($row[3] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
+										$sb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['season_effort']), true, true);
+										$pb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['best_effort']), true, true);
+									}else{
+										$sb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['season_effort']), true);
+										$pb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['best_effort']), true);
+									}										
+									//highlight sb or pb if new performance is better
+									if ($perf<$sb_perf || $perf<$pb_perf){
+										$perf = "<b>$perf</b>";
+									}
+								}
+								
+								if (!empty($row_pref['season_effort'])){
+									$sb = "<abbr class=\"info\">$sb_perf<span>$row_pref[sb_date]<br>$row_pref[season_effort_event]</span></abbr>";
+								} else {
+									$sb = "&nbsp;";
+								}
+								
+								if (!empty($row_pref['best_effort'])){
+									$pb = "<abbr class=\"info\">$pb_perf<span>$row_pref[pb_date]<br>$row_pref[best_effort_event]</span></abbr>";
+								} else {
+									$pb = "&nbsp;";
+								}
+							}		
+						}		
+					}
+					
+					
 					$list->printLine($rank, $name, $year, $row_res[8], $perf
-						, $wind, $points, $qual, $ioc);
+						, $wind, $points, $qual, $ioc, $sb, $pb);
 					if($secondResult){
-						$list->printLine("","","","",$perf2,$wind2,"","","");
+						$list->printLine("","","","",$perf2,$wind2,"","","","","");
 					}
 						
 					// 

@@ -17,7 +17,6 @@ else {		// default menu
 	$arg = 'meeting';
 }
 
-
 // change language
 if ($_GET['language']=="change")
 {

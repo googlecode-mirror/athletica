@@ -1765,14 +1765,13 @@ $page->printPageTitle($strNewEntryFromBase);
 	function check_combined(str, o){
 		var d = document.getElementById("div_"+str);
 		var t = document.getElementById("td_"+str);
-		
 		if(o.checked){
 			if(navigator.appName == "Microsoft Internet Explorer"){
 				t.appendChild(t);
 			}
-			
 			d.style.position = "relative";
 			d.style.visibility = "visible";
+			alert (d.style.visibility);
 		}else{
 			d.style.position = "absolute";
 			d.style.visibility = "hidden";

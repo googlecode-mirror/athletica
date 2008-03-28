@@ -45,9 +45,9 @@ class EXPORT_Page
 	
 	/**
 	 * startPage
- 	 * ---------
- 	 * set up headers for file output.
- 	 */
+	 * ---------
+	 * set up headers for file output.
+	 */
 	function startPage()
 	{
 		header("Content-type: ".$this->contenttype."");
