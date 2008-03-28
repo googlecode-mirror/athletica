@@ -29,7 +29,7 @@ set_time_limit(3600); // the script will break if this is not set
 $idstring = "# $cfgApplicationName $cfgApplicationVersion\n";
 
 $compatible = array("SLV_1.4", "SLV_1.5", "SLV_1.6", "SLV_1.7", "SLV_1.7.1", "SLV_1.7.2"
-		, "SLV_1.8", "SLV_1.8.1", "SLV_1.8.2", "SLV_1.9", "3.0", "3.0.1", "3.1", "3.1.1", "3.1.2", "3.2", "3.2.1", "3.2.2", "3.2.3");
+		, "SLV_1.8", "SLV_1.8.1", "SLV_1.8.2", "SLV_1.9", "3.0", "3.0.1", "3.1", "3.1.1", "3.1.2", "3.2", "3.2.1", "3.2.2", "3.2.3", "3.3");
 
 if($_GET['arg'] == 'backup')
 {

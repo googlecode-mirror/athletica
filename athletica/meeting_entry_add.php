@@ -1113,7 +1113,7 @@ function meeting_get_disciplines(){
 			$effort = (isset($discs_def[$row['xWettkampf']]) && $effort=='') ? $discs_def[$row['xWettkampf']] : $effort;
 			
 			// create text nodes for adding with javascript
-			echo ("<tr><td class='dialog' combinedCheck>
+			echo ("<tr><td class='dialog'>
 					<input name='start_$row[xWettkampf]' type='checkbox' id='start$row[xWettkampf]'
 								value='$start_row[DiszKurzname]' checked/>
 								$row[DiszKurzname]
