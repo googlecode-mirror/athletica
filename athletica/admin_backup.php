@@ -239,11 +239,6 @@ else if ($_POST['arg'] == 'restore')
 			$content = substr($content, $length+1);
 		}
 		
-		// output information about number of truncate and insert statements
-		echo "<tr><td class='dialog'>";
-		echo "Truncating ".count($sqlTruncate)." tables<br>";
-		echo "Inserting values of ".count($sqlInsert)." tables";
-		echo "</td></tr>";
 		
 		// to less tables to truncate -> not a valid backup
 		// this isn't relevant for version 1.9 and above ( because of the termination line)
@@ -285,17 +280,22 @@ else if ($_POST['arg'] == 'restore')
 				
 				for($i=0; $i < count($sqlInsert); $i++)
 				{
-					//echo substr($sqlInsert[$i], 0, strpos($sqlInsert[$i], " VALUES")) . " ... ";
-					mysql_query($sqlInsert[$i]);
-					if(mysql_errno() > 0)
-					{
-						$error = true;
-						echo mysql_errno() . ": " . mysql_error() . "<br>";
-						//echo $sqlInsert[$i];
-						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-						break;
+					// restoring of base tables fails in older versions then 3.3 (new unique indexes in 3.3)
+					if($shortVersion < 3.3 && substr($sqlInsert[$i],0, strlen("INSERT INTO base_")) == "INSERT INTO base_"){ 
+						$nbr_skipped_basetables = 6;
+					} else {
+						//echo substr($sqlInsert[$i], 0, strpos($sqlInsert[$i], " VALUES")) . " ... ";
+						mysql_query($sqlInsert[$i]);
+						if(mysql_errno() > 0)
+						{
+							$error = true;
+							echo mysql_errno() . ": " . mysql_error() . "<br>";
+							echo '<pre>'. $sqlInsert[$i].'</pre>';
+							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+							break;
+						}
+						//echo "OK<br><br>";
 					}
-					//echo "OK<br><br>";
 				}
 			//}	// ET invalid content
 			
@@ -728,6 +728,17 @@ else if ($_POST['arg'] == 'restore')
 			$query_st = mysql_query($sql_st);
 			
 		}
+		
+		
+		// output information about number of truncate and insert statements
+		echo "<tr><td class='dialog'>";
+		echo "Truncating ".count($sqlTruncate)." tables<br>";
+		echo "xxInserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
+		if ($nbr_skipped_basetables>0){
+			echo "<br>Base-tables skipped. Please run update process. ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
+		}
+		echo "</td></tr>";
+
 		
 		if(!$error){
 			echo "<tr><th class='dialog'>$strBackupSucceeded</th></tr>";
