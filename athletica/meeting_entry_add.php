@@ -2080,7 +2080,7 @@ if($search_occurred){
 		
 <table>
 <form action='meeting_entry_add.php' method='post' name='selectcat'>
-<input name='search' type='hidden' value='<?php echo $_POST['search']; ?>' />
+<input name='search' type='hidden' value='<?php echo $_POST['searchfield']; ?>' />
 </form>
 <form action='meeting_entry_add.php' method='post' name='entry'>
 	<tr>

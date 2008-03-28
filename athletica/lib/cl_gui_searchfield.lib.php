@@ -79,7 +79,7 @@ class GUI_Searchfield
 		<th class='dialog'><?php echo $GLOBALS['strSearch']; ?></th>
 		<td class='forms'>
 			<input name='arg' type='hidden' value='search' />
-			<input name='back' type='hidden' value='<?php echo $this->back; ?>asasdsad' />
+			<input name='back' type='hidden' value='<?php echo $this->back; ?>' />
 			<input class='text' name='searchfield' type='text' maxlength='25' value=''
 				onChange='doSuche(<?=(($this->hide) ? 'true' : 'false')?>);' />
 		</td>

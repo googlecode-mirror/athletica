@@ -51,11 +51,11 @@ if(mysql_errno() > 0){
 if($_POST['arg']=='search') {
 	$name = '';
 	$nbr = '';
-	if(is_numeric($_POST['search'])) {
-		$nbr = $_POST['search'];
+	if(is_numeric($_POST['searchfield'])) {
+		$nbr = $_POST['searchfield'];
 	}	
 	else {
-		$name = $_POST['search'];
+		$name = $_POST['searchfield'];
 	}
 }
 

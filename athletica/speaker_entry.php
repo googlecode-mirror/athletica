@@ -62,11 +62,11 @@ if($_POST['arg']=='search')
 {
 	$name = '';
 	$nbr = '';
-	if(is_numeric($_POST['search'])) {
-		$searchparam = " AND a.Startnummer = '" . $_POST['search'] . "'";
+	if(is_numeric($_POST['searchfield'])) {
+		$searchparam = " AND a.Startnummer = '" . $_POST['searchfield'] . "'";
 	}	
 	else {
-		$searchparam = " AND at.Name = '" . $_POST['search'] . "'";
+		$searchparam = " AND at.Name = '" . $_POST['searchfield'] . "'";
 	}
 
 	$result = mysql_query("
@@ -85,8 +85,8 @@ if($_POST['arg']=='search')
 		AND at.xAthlet = a.xAthlet
 		AND v.xVerein = at.xVerein "
 		. $searchparam . "
-	  	ORDER BY
-	  		at.Name
+		ORDER BY
+			at.Name
 			, at.Vorname"
 	);
 
@@ -189,7 +189,7 @@ if ($item > 0)
 			LEFT  JOIN rundentyp AS rt
 				ON ru.xRundentyp = rt.xRundentyp
 			WHERE a.xAnmeldung = $item
-		  	AND at.xAthlet = a.xAthlet
+			AND at.xAthlet = a.xAthlet
 			AND v.xVerein = at.xVerein
 			AND k.xKategorie = a.xKategorie
 			AND st.xAnmeldung = a.xAnmeldung
@@ -442,7 +442,7 @@ if ($item > 0)
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			else
-		  	{
+			{
 				?>
 	<tr>
 		<td/>
