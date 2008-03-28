@@ -34,6 +34,9 @@ else if(!empty($_POST['round'])) {
   
 $presets = AA_results_getPresets($round);
 
+$eventTypeCat = AA_getEventTypesCat();	
+
+
 // check discipline type of event if selected
 $dtype = "";
 if(!empty($presets['event'])){
@@ -43,7 +46,7 @@ if(!empty($presets['event'])){
 			LEFT JOIN disziplin as d USING(xDisziplin) 
 		WHERE w.xWettkampf = ".$presets['event']
 	);
-    
+	
 	if(mysql_errno() > 0){
 		
 	}else{
@@ -90,12 +93,12 @@ $menu->printMenu();
 		document.printdialog.formaction.value = 'exportdiplom';
 		document.printdialog.target = '';
 	}
-    
-    function checkDisc()
-    {   e = document.getElementById("combined"); 
-        e.checked=true; 
-    }
-    
+	
+	function checkDisc()
+	{   e = document.getElementById("combined"); 
+		e.checked=true; 
+	}
+	
    
 //-->
 </script>
@@ -121,7 +124,7 @@ if($presets['event'] > 0) {		// event selected
 <?php
 }
 ?>
-    
+	
 <form action='print_rankinglist.php' method='get' name='printdialog'>
 
 <input type='hidden' name='category' value='<?php echo $presets['category']; ?>'>
@@ -157,210 +160,216 @@ if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 if(empty($presets['event']))	// no event selected
 {
 ?>
+<?php if (isset($eventTypeCat['combined'])){?>
+
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='combined' id='combined' >
 			<?php echo $strCombinedEvent; ?> </input>
-        
+		
 	</th>
 </tr>
 
 <tr> 
-    <td class='dialog'>
-        &nbsp;&nbsp;  
-        <input type='checkbox' name='sepu23' value='yes'>
-            <?php echo $strSeparateU23; ?></input>
-    </td>
+	<td class='dialog'>
+		&nbsp;&nbsp;  
+		<input type='checkbox' name='sepu23' value='yes'>
+			<?php echo $strSeparateU23; ?></input>
+	</td>
 </tr>
 <?php 
-                      // show disciplines for combined events 
-                      
+					  // show disciplines for combined events 
+					  
    $selection="";
 if (!empty($presets['category'])){
-    $selection=" AND k.xKategorie = " . $presets['category'] . " ";
+	$selection=" AND k.xKategorie = " . $presets['category'] . " ";
 }  
    $newcat="";
-                 
+				 
   $c=0;
   /*
  $result_disc="SELECT   
-         Distinct (k.Name )          
-        , w.Mehrkampfcode
-        , d.Name
-        , w.xKategorie 
-        , k.Geschlecht  
-    FROM
-        anmeldung AS a
-        , athlet AS at
-        , verein AS v
-        , kategorie AS k
-        , kategorie AS ka
-        , start as st
-        , wettkampf as w
-        , disziplin as d
-        LEFT JOIN region as re ON at.xRegion = re.xRegion
-    WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."    
-    AND at.xAthlet = a.xAthlet
-    AND v.xVerein = at.xVerein
-    AND k.xKategorie = w.xKategorie
-    " . $selection . "
-    AND st.xAnmeldung = a.xAnmeldung
-    AND w.xWettkampf = st.xWettkampf
-    AND w.Mehrkampfcode = d.Code
-    AND w.Mehrkampfcode > 0
-    AND ka.xKategorie = a.xKategorie"; 
+		 Distinct (k.Name )          
+		, w.Mehrkampfcode
+		, d.Name
+		, w.xKategorie 
+		, k.Geschlecht  
+	FROM
+		anmeldung AS a
+		, athlet AS at
+		, verein AS v
+		, kategorie AS k
+		, kategorie AS ka
+		, start as st
+		, wettkampf as w
+		, disziplin as d
+		LEFT JOIN region as re ON at.xRegion = re.xRegion
+	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."    
+	AND at.xAthlet = a.xAthlet
+	AND v.xVerein = at.xVerein
+	AND k.xKategorie = w.xKategorie
+	" . $selection . "
+	AND st.xAnmeldung = a.xAnmeldung
+	AND w.xWettkampf = st.xWettkampf
+	AND w.Mehrkampfcode = d.Code
+	AND w.Mehrkampfcode > 0
+	AND ka.xKategorie = a.xKategorie"; 
    */ 
    $result_disc="SELECT   
-         Distinct (k.Name )          
-        , w.Mehrkampfcode
-        , d.Name
-        , w.xKategorie 
-        , k.Geschlecht 
-        
-    FROM
-        anmeldung AS a
-        LEFT JOIN athlet AS at USING (xAthlet)
-        LEFT JOIN verein AS v USING (xVerein)
-        LEFT JOIN kategorie AS k  ON (k.xKategorie = w.xKategorie )
-        LEFT JOIN kategorie AS ka  ON (ka.xKategorie = a.xKategorie ) 
-        LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung )
-        LEFT JOIN wettkampf as w  USING (xWettkampf)
-        LEFT JOIN disziplin as d ON (w.Mehrkampfcode = d.Code) 
-        LEFT JOIN region as re ON at.xRegion = re.xRegion
-    WHERE a.xMeeting =  " . $_COOKIE['meeting_id'] ."  
-        " . $selection . "   
-        AND w.Mehrkampfcode > 0
-    ORDER BY k.Anzeige";   
+		 Distinct (k.Name )          
+		, w.Mehrkampfcode
+		, d.Name
+		, w.xKategorie 
+		, k.Geschlecht 
+		
+	FROM
+		anmeldung AS a
+		LEFT JOIN athlet AS at USING (xAthlet)
+		LEFT JOIN verein AS v USING (xVerein)
+		LEFT JOIN kategorie AS k  ON (k.xKategorie = w.xKategorie )
+		LEFT JOIN kategorie AS ka  ON (ka.xKategorie = a.xKategorie ) 
+		LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung )
+		LEFT JOIN wettkampf as w  USING (xWettkampf)
+		LEFT JOIN disziplin as d ON (w.Mehrkampfcode = d.Code) 
+		LEFT JOIN region as re ON at.xRegion = re.xRegion
+	WHERE a.xMeeting =  " . $_COOKIE['meeting_id'] ."  
+		" . $selection . "   
+		AND w.Mehrkampfcode > 0
+	ORDER BY k.Anzeige";   
   
-    $res_disc=mysql_query($result_disc);  
-    
-    while ($row_disc=mysql_fetch_array($res_disc))
-        {                                 
-          $tmp = $row_disc[1];
-          if($tmp==394 && ($row_disc['Geschlecht']=='m' || $row_disc['Geschlecht']=='M')){
-                $tmp = 3942;
-          }
-               
-          if(isset($cfgCombinedDef[$tmp])){  
-                $tt = $cfgCombinedDef[$tmp];  
-                
-               foreach ($cfgCombinedWO[$tt] as $key => $wert){
-                   $res_comb = mysql_query("SELECT 
-                                                    xDisziplin
-                                                    , Name 
-                                                FROM 
-                                                    disziplin 
-                                                WHERE
-                                                    Code = $wert");
-                                                    
-                   $row_comb = mysql_fetch_array($res_comb);
-                  
-                   // show disciplines for combined event  
-                   if ($newcat!=$row_disc[3]){
-                        $c=0; 
-                        ?>
-                   
-                        <tr>
-                        <td class='dialog'>
-                        &nbsp;&nbsp;  <?php echo $row_disc[0] . " " . $row_disc[2];   ?>
-                     
-                        </td>
-                        </tr>
-                        <?php 
-                        $newcat=$row_disc[3];   
-                   } 
-                   ?>
-                   
-                   <tr>
-                    <td class='dialog'>
-                     &nbsp;&nbsp;
-                      <input type='checkbox' name='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' value='<?php echo $row_comb[0]; ?>' id='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' onchange="checkDisc()">
-                      <?php echo $row_comb[1];  ?></input>
-                      <input type='hidden' name='count_<?php echo $row_disc[3] ?>' value='<?php echo $c; ?>'> 
-                      </td>
-                    </tr>
+	$res_disc=mysql_query($result_disc);  
+	
+	while ($row_disc=mysql_fetch_array($res_disc))
+		{                                 
+		  $tmp = $row_disc[1];
+		  if($tmp==394 && ($row_disc['Geschlecht']=='m' || $row_disc['Geschlecht']=='M')){
+				$tmp = 3942;
+		  }
+			   
+		  if(isset($cfgCombinedDef[$tmp])){  
+				$tt = $cfgCombinedDef[$tmp];  
+				
+			   foreach ($cfgCombinedWO[$tt] as $key => $wert){
+				   $res_comb = mysql_query("SELECT 
+													xDisziplin
+													, Name 
+												FROM 
+													disziplin 
+												WHERE
+													Code = $wert");
+													
+				   $row_comb = mysql_fetch_array($res_comb);
+				  
+				   // show disciplines for combined event  
+				   if ($newcat!=$row_disc[3]){
+						$c=0; 
+						?>
+				   
+						<tr>
+						<td class='dialog'>
+						&nbsp;&nbsp;  <?php echo $row_disc[0] . " " . $row_disc[2];   ?>
+					 
+						</td>
+						</tr>
+						<?php 
+						$newcat=$row_disc[3];   
+				   } 
+				   ?>
+				   
+				   <tr>
+					<td class='dialog'>
+					 &nbsp;&nbsp;
+					  <input type='checkbox' name='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' value='<?php echo $row_comb[0]; ?>' id='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' onchange="checkDisc()">
+					  <?php echo $row_comb[1];  ?></input>
+					  <input type='hidden' name='count_<?php echo $row_disc[3] ?>' value='<?php echo $c; ?>'> 
+					  </td>
+					</tr>
 
-                     <?php   
-                      
-                      $c++;  
-                   
-               }                                 
-              
-          }
-          else {              // combined codes not defined in $cfgCombinedDef
-                $result_m="SELECT 
-                                 d.Code 
-                         FROM 
-                                wettkampf AS w
-                                LEFT JOIN kategorie AS k USING ( xKategorie )
-                                LEFT JOIN disziplin AS d ON ( w.xDisziplin = d.xDisziplin )
-                         WHERE w.xMeeting = 1 AND w.xKategorie = 1
-                         ORDER BY 
-                                w.Mehrkampfcode DESC 
-                                , w.Mehrkampfreihenfolge
-                                , d.Anzeige";   
-                      
-                $res_m = mysql_query($result_m);
-                  
-                while ($row_m=mysql_fetch_row($res_m)){   
-                        
-                       $res_comb_m = mysql_query("SELECT 
-                                                    xDisziplin
-                                                    , Name 
-                                                FROM 
-                                                    disziplin 
-                                                WHERE
-                                                    Code = $row_m[0]");
-                                                    
-                       $row_comb_m = mysql_fetch_array($res_comb_m);
-                        
-                        // show disciplines for combined event
-                        if ($newcat!=$row_disc[3]){
-                            $c=0; 
-                            ?>
-                   
-                            <tr>
-                                <td class='dialog'>
-                                &nbsp;&nbsp;  <?php echo $row_disc[0] . " " . $row_disc[2];   ?>
-                     
-                                </td>
-                            </tr>
-                            <?php 
-                            $newcat=$row_disc[3];   
-                         } 
-                         ?>
-                   
-                        <tr>
-                            <td class='dialog'>
-                            &nbsp;&nbsp;
-                            <input type='checkbox' name='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' value='<?php echo $row_comb_m[0]; ?>' id='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' onchange="checkDisc()">
-                            <?php echo $row_comb_m[1]; ?></input>
-                            <input type='hidden' name='count_<?php echo $row_disc[3] ?>' value='<?php echo $c; ?>'> 
-                            </td>
-                        </tr> 
-                        <?php  
-                       $c++;  
-                  }  
-          } 
-    } 
+					 <?php   
+					  
+					  $c++;  
+				   
+			   }                                 
+			  
+		  }
+		  else {              // combined codes not defined in $cfgCombinedDef
+				$result_m="SELECT 
+								 d.Code 
+						 FROM 
+								wettkampf AS w
+								LEFT JOIN kategorie AS k USING ( xKategorie )
+								LEFT JOIN disziplin AS d ON ( w.xDisziplin = d.xDisziplin )
+						 WHERE w.xMeeting = 1 AND w.xKategorie = 1
+						 ORDER BY 
+								w.Mehrkampfcode DESC 
+								, w.Mehrkampfreihenfolge
+								, d.Anzeige";   
+					  
+				$res_m = mysql_query($result_m);
+				  
+				while ($row_m=mysql_fetch_row($res_m)){   
+						
+					   $res_comb_m = mysql_query("SELECT 
+													xDisziplin
+													, Name 
+												FROM 
+													disziplin 
+												WHERE
+													Code = $row_m[0]");
+													
+					   $row_comb_m = mysql_fetch_array($res_comb_m);
+						
+						// show disciplines for combined event
+						if ($newcat!=$row_disc[3]){
+							$c=0; 
+							?>
+				   
+							<tr>
+								<td class='dialog'>
+								&nbsp;&nbsp;  <?php echo $row_disc[0] . " " . $row_disc[2];   ?>
+					 
+								</td>
+							</tr>
+							<?php 
+							$newcat=$row_disc[3];   
+						 } 
+						 ?>
+				   
+						<tr>
+							<td class='dialog'>
+							&nbsp;&nbsp;
+							<input type='checkbox' name='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' value='<?php echo $row_comb_m[0]; ?>' id='comb_<?php echo $row_disc[3] ?>_<?php echo $c ?>' onchange="checkDisc()">
+							<?php echo $row_comb_m[1]; ?></input>
+							<input type='hidden' name='count_<?php echo $row_disc[3] ?>' value='<?php echo $c; ?>'> 
+							</td>
+						</tr> 
+						<?php  
+					   $c++;  
+				  }  
+		  } 
+	} 
+
+} //END IF  isset($eventTypeCat['combined']))
 
 ?>   
 
-<tr>
-	<th class='dialog'>
-		<input type='radio' name='type' value='team'>
-			<?php echo $strClubRanking; ?></input>
-	</td>
-</tr>
+<?php if (isset($eventTypeCat['club'])){?>
+	<tr>
+		<th class='dialog'>
+			<input type='radio' name='type' value='team'>
+				<?php echo $strClubRanking; ?></input>
+		</td>
+	</tr>
 
-<tr>
-	<th class='dialog'>
-		<input type='radio' name='type' value='sheets'>
-			<?php echo $strClubSheets; ?></input>
-	</td>
-</tr>
+	<tr>
+		<th class='dialog'>
+			<input type='radio' name='type' value='sheets'>
+				<?php echo $strClubSheets; ?></input>
+		</td>
+	</tr>
 
-<?php
+	<?php
+	}
 }
 
 if(empty($round)){	// team sm ranking minimum is discipline

@@ -10,7 +10,7 @@ if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_SINGLE_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%')
+function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none')
 {
 
 require('./lib/cl_gui_page.lib.php');
@@ -236,6 +236,7 @@ else {
 							. $row[5] . " $strQualifyTop, "
 							. $row[6] . " $strQualifyPerformance";
 				$list->printInfoLine($info);
+				$qual_mode = TRUE;
 			}
 
 			// print qualification descriptions if required 
@@ -248,6 +249,7 @@ else {
 							. $qt['text'] . "&nbsp;&nbsp;&nbsp;";
 				}
 				$list->printInfoLine($info);
+				$qual_mode = TRUE;
 			}
 			$evnt = $row[4];	// keep event ID
 		} // ET new event
@@ -444,12 +446,12 @@ else {
 						if($row[7] != '0') {
 							$points= TRUE;
 						}
-						
-						if ($formaction == 'speaker'){
+
+						if ($show_efforts == 'sb_pb'){
 							$base_perf = true;
 						}
 						
-						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf);
+						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode);
 
 						$heat = $row_res[5];		// keep heat description
 						$h++;						// increment if evaluation per heat
@@ -578,7 +580,7 @@ else {
 					}
 					
 					//show performances from base
-					if($formaction == 'speaker'){
+					if($show_efforts == 'sb_pb'){
 						$sql = "SELECT 
 									season_effort
 									, DATE_FORMAT(season_effort_date, '%d.%m.%Y') AS sb_date
@@ -650,9 +652,9 @@ else {
 					
 					
 					$list->printLine($rank, $name, $year, $row_res[8], $perf
-						, $wind, $points, $qual, $ioc, $sb, $pb);
+						, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode);
 					if($secondResult){
-						$list->printLine("","","","",$perf2,$wind2,"","","","","");
+						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);
 					}
 						
 					// 

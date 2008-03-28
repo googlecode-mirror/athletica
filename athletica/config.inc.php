@@ -72,7 +72,7 @@ $cfgEvalType = array($strEvalTypeHeat=>0
 /**
  *	Event type
  */
-$cfgEventType = array(					$strEventTypeSingle=>0
+$cfgEventType = array(		$strEventTypeSingle=>0
 							, $strEventTypeSingleCombined=>1
 							, $strEventTypeTeamSM=>30
 							, $strEventTypeSVMNL=>12

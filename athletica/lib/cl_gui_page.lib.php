@@ -347,7 +347,7 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false)
+		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false, $qual_mode = false)
 	{
 		$this->relay = $relay;
 		$this->wind = $wind;
@@ -361,6 +361,15 @@ class GUI_RankingList extends GUI_ListPage
 			$span--;
 		}
 		if($wind == TRUE) {
+			$span++;
+		}
+		
+		if($base_perf == TRUE){
+			$span++;
+			$span++;
+		}
+
+		if($qual_mode == TRUE){
 			$span++;
 		}
 
@@ -424,6 +433,10 @@ class GUI_RankingList extends GUI_ListPage
 			<?php
 		}
 		
+		if($qual_mode == TRUE){
+			echo '<th class="dialog">&nbsp;</th>';
+		}
+		
 		if($base_perf == TRUE)
 		{
 			?>
@@ -451,7 +464,7 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $country, $sb="", $pb="")
+		, $wind, $points, $qual, $country, $sb="", $pb="", $qual_mode=false)
 	{
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
@@ -486,6 +499,10 @@ class GUI_RankingList extends GUI_ListPage
 			?>
 		<td><?php echo $qual; ?></td>
 			<?php
+		} else {
+			if ($qual_mode == TRUE){		
+				echo "<td>&nbsp;</td>";
+			}
 		}
 		
 		if(!empty($sb)){

@@ -72,6 +72,9 @@ if($presets['event'] > 0) {		// event selected
 // Rankginglists for club and combined-events
 if(empty($presets['event']))	// no event selected
 {
+	
+$eventTypeCat = AA_getEventTypesCat();	
+	
 ?>
 <table class='dialog'>
 <tr>
@@ -81,12 +84,16 @@ if(empty($presets['event']))	// no event selected
 	</th>
 </tr>
 
+<?php if (isset($eventTypeCat['combined'])){?>
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='combined'>
 			<?php echo $strCombinedEvent; ?></input>
 	</th>
 </tr>
+<?php } ?>
+
+<?php if (isset($eventTypeCat['club'])){?>
 
 <tr>
 	<th class='dialog'>
@@ -108,6 +115,7 @@ if(empty($presets['event']))	// no event selected
 			<?php echo $strClubSheets; ?></input>
 	</td>
 </tr>
+<?php  } ?>
 </table>
 
 <?php
@@ -121,7 +129,7 @@ if(empty($presets['event']))	// no event selected
 	<td>
 		<button type='submit'>
 			<?php echo $strShow; ?>
-	  	</button>
+		</button>
 	</td>
 
 </tr>

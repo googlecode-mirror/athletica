@@ -653,4 +653,6 @@ $strPerDiscipline = 'Nach Disziplinen';
 $strSaison = "Saison";
 $strSB = "SB";
 $strPB = "PB";
+$strRankingListEfforts = "Rangliste mit Bestleistungen";
+
 ?>
