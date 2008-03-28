@@ -291,7 +291,7 @@ else if ($_POST['arg'] == 'restore')
 					{
 						$error = true;
 						echo mysql_errno() . ": " . mysql_error() . "<br>";
-						echo $sqlInsert[$i];
+						//echo $sqlInsert[$i];
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						break;
 					}
