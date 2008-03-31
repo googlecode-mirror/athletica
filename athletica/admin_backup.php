@@ -733,7 +733,7 @@ else if ($_POST['arg'] == 'restore')
 		// output information about number of truncate and insert statements
 		echo "<tr><td class='dialog'>";
 		echo "Truncating ".count($sqlTruncate)." tables<br>";
-		echo "xxInserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
+		echo "Inserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
 		if ($nbr_skipped_basetables>0){
 			echo "<br>Base-tables skipped. Please run update process. ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
 		}
