@@ -660,5 +660,6 @@ $strSaison = "Saison";
 $strSB = "SB";
 $strPB = "PB";
 $strRankingListEfforts = "Rangliste mit Bestleistungen";
-
+$strEfforts = "Bestleistungen";
+$strEffortsWarning = "ACHTUNG:<br>Bei vielen Resultaten kann die Ausgabezeit mehrere Minuten dauern";
 ?>

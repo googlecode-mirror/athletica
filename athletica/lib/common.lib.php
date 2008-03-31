@@ -123,8 +123,7 @@ require('./config.inc.php');
 		}
 				  
 		$sql_m= "SELECT * 
-				  FROM meeting 
-				 WHERE xMeeting ";
+				  FROM meeting";
 		$query_m = mysql_query($sql_m);   
 		
 		$sql = "SELECT * 
@@ -143,7 +142,7 @@ require('./config.inc.php');
 			 else
 				if  ($query_m){
 					$_SESSION['meeting_infos'] = "noMeeting";      // no data in table meeting   
-				} 
+			} 
 		}
 		
 	}
@@ -1521,7 +1520,10 @@ if(mysql_errno() > 0) {		// DB error
 					|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubCombined']]
 					|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMixedTeam']]){
 			$eventTypeCat['club'] = true;
+		} else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeTeamSM']]){
+			$eventTypeCat['teamsm'] = true;			
 		}
+			
 	}
 	return $eventTypeCat;
 }

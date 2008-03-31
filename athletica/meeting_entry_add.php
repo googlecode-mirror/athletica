@@ -1039,31 +1039,28 @@ function meeting_get_disciplines(){
 		//
 		$effort = 0;
 		if($athlete_id > 0){
-			$resMeeting = mysql_query("SELECT Saison FROM meeting WHERE xMeeting = " . $_COOKIE['meeting_id']);
-
+			$saison = $_SESSION['meeting_infos']['Saison'];
+			if ($saison == ''){
+				$saison = "O"; //if no saison is set take outdoor
+			}
+		
+			$sql = "
+				SELECT 
+					notification_effort 
+				FROM
+					base_performance
+				WHERE	id_athlete = $athlete_id
+				AND	discipline = ".$row['DiszCode'] . "
+				AND season = '$saison'";
+			$res = mysql_query($sql);
+;
+				//AND	category = '".$row[7]."'");
 			if(mysql_errno() > 0){
-				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-			} else {
-				$rowMeeting = mysql_fetch_array($resMeeting);
-
-				$sql = "
-					SELECT 
-						notification_effort 
-					FROM
-						base_performance
-					WHERE	id_athlete = $athlete_id
-					AND	discipline = ".$row['DiszCode'] . "
-					AND season = '". $rowMeeting['Saison'] ."'";
-				$res = mysql_query($sql);
-	;
-					//AND	category = '".$row[7]."'");
-				if(mysql_errno() > 0){
-					AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
-					echo $sql;
-				}else{
-					$rowPerf = mysql_fetch_array($res);
-					$effort = $rowPerf['notification_effort'];
-				}
+				AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
+				echo $sql;
+			}else{
+				$rowPerf = mysql_fetch_array($res);
+				$effort = $rowPerf['notification_effort'];
 			}
 		}
 		$effort = ltrim($effort, "0:");

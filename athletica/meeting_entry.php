@@ -374,25 +374,25 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 							
 							$rowCodes = mysql_fetch_array($res);
 							
-							$res = mysql_query("SELECT Saison FROM meeting WHERE xMeeting = " . $_COOKIE['meeting_id']);
-							if(mysql_errno() > 0){
-								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-							} else {
-							
-								$rowMeeting = mysql_fetch_array($res);
-
-								$sql = "
-									SELECT
-										notification_effort
-									FROM
-										base_performance
-										, base_athlete
-									WHERE	base_athlete.license = ".$_POST['license']."
-									AND	base_performance.id_athlete = base_athlete.id_athlete
-									AND	base_performance.discipline = ".$rowCodes['DiszCode'] ."
-									AND season = '". $rowMeeting['Saison'] ."'";
-								$res = mysql_query($sql); 
+							$saison = $_SESSION['meeting_infos']['Saison'];
+							if ($saison == ''){
+								$saison = "O"; //if no saison is set take outdoor
 							}
+							
+							$rowMeeting = mysql_fetch_array($res);
+
+							$sql = "
+								SELECT
+									notification_effort
+								FROM
+									base_performance
+									, base_athlete
+								WHERE	base_athlete.license = ".$_POST['license']."
+								AND	base_performance.id_athlete = base_athlete.id_athlete
+								AND	base_performance.discipline = ".$rowCodes['DiszCode'] ."
+								AND season = '$saison'";
+							$res = mysql_query($sql); 
+
 						}
 						//echo $sql;
 						if(mysql_errno() > 0){

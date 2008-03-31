@@ -100,6 +100,13 @@ class GUI_TrackResultTable extends GUI_ResultTable
 		<th class='dialog' colspan='2'><?php echo $GLOBALS['strFilm'] . " " . $film; ?></th>
 		<?php
 		// track discipline with wind
+		
+		if($this->status >= $GLOBALS['cfgRoundStatus']['results_in_progress']){
+			$span_announced = -1;
+		} else {
+			$span_announced = 0;
+		}
+		
 		if($this->layout == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
 		{
 			?>
@@ -111,7 +118,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
 		else	// no wind
 		{
 			?>
-		<th class='dialog' colspan='<?php echo 2+$this->spanincr; ?>' />
+		<th class='dialog' colspan='<?php echo 2+$this->spanincr + $span_announced; ?>' />
 			<?php
 		}	// ET track discipline with wind
 
@@ -404,7 +411,7 @@ class GUI_TechResultTable extends GUI_ResultTable
 	{
 		?>
 	<tr>
-		<th class='dialog' colspan='<?php echo 5 + $this->spanincr; ?>'>
+		<th class='dialog' colspan='<?php echo 6 + $this->spanincr; ?>'>
 			<a name='heat_<?php echo $scroll; ?>' /><?php echo $title; ?></a>
 		</th>
 		<?php

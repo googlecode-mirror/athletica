@@ -63,15 +63,15 @@ class Action_saveResult extends Action_default
 		// track disciplines, with or without wind
 		if(($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeNone']])
 			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
-  			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])
-  			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']])
-  			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]))
+			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])
+			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']])
+			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]))
 		{
 			$result = new TrackResult($_POST['round'], $_POST['start'], $_POST['item']);
 			
 			// if this is a track (wind / nowind) format results in seconds e.g. 80,123 secs
 			if(($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
-  			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])){
+			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])){
 				$this->reply = $result->save($_POST['perf'], '', true);
 			}else{
 				$this->reply = $result->save($_POST['perf']);
@@ -176,9 +176,9 @@ class Action_saveResult extends Action_default
 			// track disciplines, with or without wind
 			if(($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeNone']])
 				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
-  				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])
-  				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']])
-  				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]))
+				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])
+				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']])
+				|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]))
 			{
 				$perf = AA_formatResultTime($this->reply->getPerformance());
 			}

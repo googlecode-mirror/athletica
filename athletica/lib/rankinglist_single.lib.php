@@ -123,6 +123,10 @@ else {
 	$cat = '';
 	$evnt = 0;
 	
+	if (mysql_num_rows($results) == 0) {
+		echo "<br><br><b><blockquote>$strErrNoResults</blockquote></b>";
+	}
+	
 	while($row = mysql_fetch_row($results))
 	{
 		// for a combined event, the rounds are merged, so jump until the next event
@@ -581,6 +585,12 @@ else {
 					
 					//show performances from base
 					if($show_efforts == 'sb_pb'){
+						
+						$saison = $_SESSION['meeting_infos']['Saison'];
+						if ($saison == ''){
+							$saison = "O";
+						}
+						
 						$sql = "SELECT 
 									season_effort
 									, DATE_FORMAT(season_effort_date, '%d.%m.%Y') AS sb_date
@@ -600,49 +610,82 @@ else {
 						WHERE 
 							xAthlet = $row_res[14]
 							AND xDisziplin = $row[12]
-							AND season = 'I'";
+							AND season = '$saison'";
 						$res_perf = mysql_query($sql);
 						//echo $sql;
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}else{
 							if ($res_perf){
-								$row_pref = mysql_fetch_array($res_perf);
-								
+								$row_perf = mysql_fetch_array($res_perf);
+							
 								if(($row[3] == $cfgDisciplineType[$strDiscTypeJump])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeThrow])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeHigh])) {
-									$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_pref['season_effort']));
-									$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_pref['best_effort']));
+									$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['season_effort']));
+									$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['best_effort']));
 									//highlight sb or pb if new performance is better
-									if ($perf>$sb_perf || $perf>$pb_perf){
-										$perf = "<b>$perf</b>";
+									if ($formaction!='print'){
+										if ($perf>$pb_perf){
+											$perf = "<b>PB $perf</b> ";
+										} else {
+											if ($perf>$sb_perf){
+												$perf = "<b>SB $perf</b>";
+											}
+										}										
+									} else {
+										if ($perf>$pb_perf){
+											$perf = "<b>PB</b> $perf";
+										} else {
+											if ($perf>$sb_perf){
+												$perf = "<b>SB</b> $perf";
+											}
+										}										
 									}
 
 								} else {
+									//convert performance-time to milliseconds
+									$timepices = explode(":", $row_perf['season_effort']);
+									$season_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) +($timepices[2] *  1000) + ($timepices[3]);
+									$timepices = explode(":", $row_perf['best_effort']);
+									$best_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) +($timepices[2] *  1000) + ($timepices[3]);									
 									if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
-										$sb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['season_effort']), true, true);
-										$pb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['best_effort']), true, true);
+										$sb_perf = AA_formatResultTime($season_effort, true, true);
+										$pb_perf = AA_formatResultTime($best_effort, true, true);
 									}else{
-										$sb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['season_effort']), true);
-										$pb_perf = AA_formatResultTime(str_replace(":", "", $row_pref['best_effort']), true);
+										$sb_perf = AA_formatResultTime($season_effort, true);
+										$pb_perf = AA_formatResultTime($best_effort, true);
 									}										
-									//highlight sb or pb if new performance is better
-									if ($perf<$sb_perf || $perf<$pb_perf){
-										$perf = "<b>$perf</b>";
+									if ($formaction!='print'){
+										//highlight sb or pb if new performance is better
+										if ($perf<$pb_perf){
+											$perf = "<b>PB $perf</b>";
+										} else {
+											if ($perf<$sb_perf){
+												$perf = "<b>SB $perf</b>";
+											}
+										}
+									} else {
+										if ($perf<$pb_perf){
+											$perf = "<b>PB</b> $perf";
+										} else {
+											if ($perf<$sb_perf){
+												$perf = "<b>SB</b> $perf";
+											}
+										}
 									}
 								}
 								
-								if (!empty($row_pref['season_effort'])){
-									$sb = "<abbr class=\"info\">$sb_perf<span>$row_pref[sb_date]<br>$row_pref[season_effort_event]</span></abbr>";
+								if (!empty($row_perf['season_effort'])){
+									$sb = "<abbr class=\"info\">$sb_perf<span>$row_perf[sb_date]<br>$row_perf[season_effort_event]</span></abbr>";
 								} else {
 									$sb = "&nbsp;";
 								}
 								
-								if (!empty($row_pref['best_effort'])){
-									$pb = "<abbr class=\"info\">$pb_perf<span>$row_pref[pb_date]<br>$row_pref[best_effort_event]</span></abbr>";
+								if (!empty($row_perf['best_effort'])){
+									$pb = "<abbr class=\"info\">$pb_perf<span>$row_perf[pb_date]<br>$row_perf[best_effort_event]</span></abbr>";
 								} else {
 									$pb = "&nbsp;";
 								}

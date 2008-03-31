@@ -372,7 +372,7 @@ if (!empty($presets['category'])){
 	}
 }
 
-if(empty($round)){	// team sm ranking minimum is discipline
+if(empty($round) && isset($eventTypeCat['teamsm'])){	// team sm ranking minimum is discipline and at least one eventtype must be team-sm
 ?>
 <tr>
 	<th class='dialog'>
@@ -466,7 +466,18 @@ if($tage>1){
 			<?php echo $strTiming; ?></input>
 	</td>
 </tr>
-
+<?php
+//if($presets['event'] > 0) {	// event selected
+//	$efforts_text = $strEfforts;
+//} else {
+	$efforts_text = "<abbr class=\"info\">$strEfforts<span>$strEffortsWarning</span></abbr>"; //show anyway
+//}?>	
+<tr>
+	<th class='dialog'>
+		<input type='checkbox' name='show_efforts' value='sb_pb'>
+			<?php echo $efforts_text ; ?></input>
+	</th>
+</tr>
 </table>
 
 <p />

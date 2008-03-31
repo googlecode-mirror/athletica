@@ -64,6 +64,8 @@ class Result
 			return;
 		}
 
+		$performance = trim($performance);
+		
 		// Delete result (no performance entered)
 		if($performance == '')
 		{

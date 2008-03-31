@@ -120,7 +120,7 @@ function AA_speaker_Tech($event, $round, $layout)
 					if($status == $cfgRoundStatus['results_done']) {
 						$c++;		// increment colspan to include ranking
 					}
-					$resTable->printHeatTitle($row[2], $row[3], $title, $row[5]);
+					$resTable->printHeatTitle($row[2], $row[3], $title , $row[5]);
 					$resTable->printAthleteHeader();
 				}		// ET new heat
 
