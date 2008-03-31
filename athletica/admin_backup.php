@@ -141,6 +141,8 @@ else if ($_POST['arg'] == 'restore')
 <table class="dialog">
 	<?php
 	
+	$timing_errors = 0;
+	
 	// get uploaded SQL file and read its content
 	$fd = fopen($_FILES['bkupfile']['tmp_name'], 'rb');
 	$content = fread($fd, filesize($_FILES['bkupfile']['tmp_name']));
@@ -727,6 +729,60 @@ else if ($_POST['arg'] == 'restore')
 						  SET Halle = 'n';";
 			$query_st = mysql_query($sql_st);
 			
+			
+			// Zeitmessungspfade prüfen
+			$sql_zd = "DELETE zeitmessung.* 
+						 FROM zeitmessung 
+					LEFT JOIN meeting USING(xMeeting) 
+						WHERE Name = '' 
+						   OR Name IS NULL;";
+			$query_zd = mysql_query($sql_zd);
+			
+			$sql_z = "SELECT xZeitmessung, 
+							 OMEGA_Pfad, 
+							 ALGE_Pfad 
+						FROM zeitmessung;";
+			$query_z = mysql_query($sql_z);
+			
+			while($zeitmessung = mysql_fetch_assoc($query_z)){
+				$err_this = false;
+				$omega = $zeitmessung['OMEGA_Pfad'];
+				$alge = $zeitmessung['ALGE_Pfad'];
+				
+				if($zeitmessung['OMEGA_Pfad']!=''){
+					$path = stripslashes($zeitmessung['OMEGA_Pfad']);
+					
+					if(!@is_dir($path)){
+						$error = true;
+						$err_this = true;
+						$timing_errors++;
+						$omega = '';
+						
+						AA_printErrorMsg($strOmegaNoPathBackup);
+					}
+				}
+				if($zeitmessung['ALGE_Pfad']!=''){
+					$path = stripslashes($zeitmessung['ALGE_Pfad']);
+					
+					if(!@is_dir($path)){
+						$error = true;
+						$err_this = true;
+						$timing_errors++;
+						$alge = '';
+						
+						AA_printErrorMsg($strAlgeNoPathBackup);
+					}
+				}
+				
+				if($err_this){
+					$sql_zu = "UPDATE zeitmessung 
+								  SET OMEGA_Pfad = '".$omega."', 
+									  ALGE_Pfad = '".$alge."' 
+								WHERE xZeitmessung = ".$zeitmessung['xZeitmessung'].";";
+					$query_zu = mysql_query($sql_zu);
+				}
+			}
+			
 		}
 		
 		
@@ -735,7 +791,10 @@ else if ($_POST['arg'] == 'restore')
 		echo "Truncating ".count($sqlTruncate)." tables<br>";
 		echo "Inserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
 		if ($nbr_skipped_basetables>0){
-			echo "<br>Base-tables skipped. Please run update process. ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
+			echo "<br><br><br>".$strBackupBaseTablesSkipped." ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
+		}
+		if ($timing_errors>0){
+			echo '<br><br><br><b style="color: #FF0000">'.$strBackupTimingReset.'</b>';
 		}
 		echo "</td></tr>";
 

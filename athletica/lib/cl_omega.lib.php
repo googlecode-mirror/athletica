@@ -53,11 +53,9 @@ class omega{
 	}
 	
 	function set_configuration($meeting){
-		global $strOmegaPathWriteFailed;
+		global $strOmegaPathWriteFailed, $strOmegaNoPath;
 		
-		mysql_query("LOCK TABLES zeitmessung WRITE");
-		
-		if($_POST['connection'] == 'local'){
+		if(@is_dir($_POST['path'])){
 			// test local path for writing
 			$fp = @fopen($_POST['path']."/test.txt",'w');
 			if(!$fp){
@@ -66,45 +64,49 @@ class omega{
 				fclose($fp);
 				unlink($_POST['path']."/test.txt");
 			}
-		}
+			
+			mysql_query("LOCK TABLES zeitmessung WRITE");
 		
-		$res = mysql_query("SELECT * FROM zeitmessung WHERE xMeeting = $meeting");
-		if(mysql_errno() > 0){
-			AA_printErrorMsg(mysql_errno().": ".mysql_error());
-		}else{
-			if(!get_magic_quotes_gpc()){
-				$_POST['path'] = addslashes($_POST['path']);
-				$_POST['ftppath'] = addslashes($_POST['ftppath']);
-				$_POST['sponsor'] = addslashes($_POST['sponsor']);
-			}
-			if(mysql_num_rows($res) == 0){
-				mysql_query("
-					INSERT INTO zeitmessung
-					SET	OMEGA_Verbindung = '".$_POST['connection']."'
-						, OMEGA_Pfad = '".$_POST['path']."'
-						, OMEGA_Server = '".$_POST['host']."'
-						, OMEGA_Benutzer = '".$_POST['user']."'
-						, OMEGA_Passwort = '".$_POST['pass']."'
-						, OMEGA_Ftppfad = '".$_POST['ftppath']."'
-						, OMEGA_Sponsor = '".$_POST['sponsor']."'
-						, xMeeting = $meeting
-					");
+			$res = mysql_query("SELECT * FROM zeitmessung WHERE xMeeting = $meeting");
+			if(mysql_errno() > 0){
+				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}else{
-				mysql_query("
-					UPDATE zeitmessung
-					SET	OMEGA_Verbindung = '".$_POST['connection']."'
-						, OMEGA_Pfad = '".$_POST['path']."'
-						, OMEGA_Server = '".$_POST['host']."'
-						, OMEGA_Benutzer = '".$_POST['user']."'
-						, OMEGA_Passwort = '".$_POST['pass']."'
-						, OMEGA_Ftppfad = '".$_POST['ftppath']."'
-						, OMEGA_Sponsor = '".$_POST['sponsor']."'
-					WHERE	xMeeting = $meeting
-					");
+				if(!get_magic_quotes_gpc()){
+					$_POST['path'] = addslashes($_POST['path']);
+					$_POST['ftppath'] = addslashes($_POST['ftppath']);
+					$_POST['sponsor'] = addslashes($_POST['sponsor']);
+				}
+				if(mysql_num_rows($res) == 0){
+					mysql_query("
+						INSERT INTO zeitmessung
+						SET	OMEGA_Verbindung = '".$_POST['connection']."'
+							, OMEGA_Pfad = '".$_POST['path']."'
+							, OMEGA_Server = '".$_POST['host']."'
+							, OMEGA_Benutzer = '".$_POST['user']."'
+							, OMEGA_Passwort = '".$_POST['pass']."'
+							, OMEGA_Ftppfad = '".$_POST['ftppath']."'
+							, OMEGA_Sponsor = '".$_POST['sponsor']."'
+							, xMeeting = $meeting
+						");
+				}else{
+					mysql_query("
+						UPDATE zeitmessung
+						SET	OMEGA_Verbindung = '".$_POST['connection']."'
+							, OMEGA_Pfad = '".$_POST['path']."'
+							, OMEGA_Server = '".$_POST['host']."'
+							, OMEGA_Benutzer = '".$_POST['user']."'
+							, OMEGA_Passwort = '".$_POST['pass']."'
+							, OMEGA_Ftppfad = '".$_POST['ftppath']."'
+							, OMEGA_Sponsor = '".$_POST['sponsor']."'
+						WHERE	xMeeting = $meeting
+						");
+				}
 			}
+			
+			mysql_query("UNLOCK TABLES");
+		} else {
+			$GLOBALS['ERROR'] = $strOmegaNoPath;
 		}
-		
-		mysql_query("UNLOCK TABLES");
 	}
 	
 	/**

@@ -39,11 +39,9 @@ class alge{
 	}
 	
 	function set_configuration($meeting){
-		global $strOmegaPathWriteFailed;
+		global $strOmegaPathWriteFailed, $strAlgeNoPath;
 		
-		mysql_query("LOCK TABLES zeitmessung WRITE");
-		
-		if($_POST['connection'] == 'local'){
+		if(@is_dir($_POST['path'])){
 			// test local path for writing
 			$fp = @fopen($_POST['path']."/test.txt",'w');
 			if(!$fp){
@@ -52,44 +50,48 @@ class alge{
 				fclose($fp);
 				unlink($_POST['path']."/test.txt");
 			}
-		}
+			
+			mysql_query("LOCK TABLES zeitmessung WRITE");
 		
-		$res = mysql_query("SELECT * FROM zeitmessung WHERE xMeeting = $meeting");
-		if(mysql_errno() > 0){
-			AA_printErrorMsg(mysql_errno().": ".mysql_error());
-		}else{
-			if(!get_magic_quotes_gpc()){
-				$_POST['path'] = addslashes($_POST['path']);
-				$_POST['ftppath'] = addslashes($_POST['ftppath']);
-			}
-			if(mysql_num_rows($res) == 0){
-				mysql_query("
-					INSERT INTO zeitmessung
-					SET	ALGE_Typ = '".$_POST['typ']."'
-						, ALGE_Verbindung = '".$_POST['connection']."'
-						, ALGE_Pfad = '".$_POST['path']."'
-						, ALGE_Server = '".$_POST['host']."'
-						, ALGE_Benutzer = '".$_POST['user']."'
-						, ALGE_Passwort = '".$_POST['pass']."'
-						, ALGE_Ftppfad = '".$_POST['ftppath']."'
-						, xMeeting = $meeting
-					");
+			$res = mysql_query("SELECT * FROM zeitmessung WHERE xMeeting = $meeting");
+			if(mysql_errno() > 0){
+				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}else{
-				mysql_query("
-					UPDATE zeitmessung
-					SET	ALGE_Typ = '".$_POST['typ']."'
-						, ALGE_Verbindung = '".$_POST['connection']."'
-						, ALGE_Pfad = '".$_POST['path']."'
-						, ALGE_Server = '".$_POST['host']."'
-						, ALGE_Benutzer = '".$_POST['user']."'
-						, ALGE_Passwort = '".$_POST['pass']."'
-						, ALGE_Ftppfad = '".$_POST['ftppath']."'
-					WHERE	xMeeting = $meeting
-					");
+				if(!get_magic_quotes_gpc()){
+					$_POST['path'] = addslashes($_POST['path']);
+					$_POST['ftppath'] = addslashes($_POST['ftppath']);
+				}
+				if(mysql_num_rows($res) == 0){
+					mysql_query("
+						INSERT INTO zeitmessung
+						SET	ALGE_Typ = '".$_POST['typ']."'
+							, ALGE_Verbindung = '".$_POST['connection']."'
+							, ALGE_Pfad = '".$_POST['path']."'
+							, ALGE_Server = '".$_POST['host']."'
+							, ALGE_Benutzer = '".$_POST['user']."'
+							, ALGE_Passwort = '".$_POST['pass']."'
+							, ALGE_Ftppfad = '".$_POST['ftppath']."'
+							, xMeeting = $meeting
+						");
+				}else{
+					mysql_query("
+						UPDATE zeitmessung
+						SET	ALGE_Typ = '".$_POST['typ']."'
+							, ALGE_Verbindung = '".$_POST['connection']."'
+							, ALGE_Pfad = '".$_POST['path']."'
+							, ALGE_Server = '".$_POST['host']."'
+							, ALGE_Benutzer = '".$_POST['user']."'
+							, ALGE_Passwort = '".$_POST['pass']."'
+							, ALGE_Ftppfad = '".$_POST['ftppath']."'
+						WHERE	xMeeting = $meeting
+						");
+				}
 			}
+			
+			mysql_query("UNLOCK TABLES");
+		} else {
+			$GLOBALS['ERROR'] = $strAlgeNoPath;
 		}
-		
-		mysql_query("UNLOCK TABLES");
 	}
 	
 	function get_configuration($meeting){
