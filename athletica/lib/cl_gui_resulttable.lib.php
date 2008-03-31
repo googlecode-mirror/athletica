@@ -111,7 +111,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
 		else	// no wind
 		{
 			?>
-		<th class='dialog' colspan='<?php echo 1+$this->spanincr; ?>' />
+		<th class='dialog' colspan='<?php echo 2+$this->spanincr; ?>' />
 			<?php
 		}	// ET track discipline with wind
 
@@ -368,7 +368,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
 			?>
 		<tr class='<?php echo $this->rowclass[0]; ?>'>
 			<td class='forms_right'><?php echo $position; ?></td>
-			<td colspan='<?php echo $span; ?>'><?php echo $GLOBALS['strEmpty']; ?>
+			<td colspan='<?php echo $span+1; ?>'><?php echo $GLOBALS['strEmpty']; ?>
 				</td>
 		</tr>
 			<?php
