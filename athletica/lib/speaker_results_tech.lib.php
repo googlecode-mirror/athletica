@@ -35,7 +35,7 @@ function AA_speaker_Tech($event, $round, $layout)
 	else if($status >= $cfgRoundStatus['heats_done'])
 	{
 		// show link to rankinglist if results done
-		if($status = $cfgRoundStatus['results_done'])
+		if($status == $cfgRoundStatus['results_done'])
 		{
 			$menu = new GUI_Menulist();
 			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker", $GLOBALS['strRankingList']);
