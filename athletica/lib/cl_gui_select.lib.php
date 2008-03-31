@@ -292,6 +292,7 @@ class GUI_ClubSelect
 			SELECT
 				xVerein
 				, Sortierwert
+				, Name
 			FROM
 				verein
 			ORDER BY
@@ -303,6 +304,7 @@ class GUI_ClubSelect
 		}
 		else										// no DB error
 		{
+			$options = array();
 			while ($row = mysql_fetch_row($res))
 			{
 				// select list of clubs
@@ -377,20 +379,40 @@ class GUI_ClubSelect
 				// club takes part in this meeting
 				if($ok == true)		
 				{
-					$this->select->addOption($row[1], $row[0]);
+					$str = ($row[1]!='' && $row[1]!="\n") ? $row[1] : $row[2];
+					//$this->select->addOption($str, $row[0]);
+					$options[] = array(
+						'sort' => strtoupper($str), 
+						'name' => $str, 
+						'key' => $row[0]
+					);
 				}
 
 				if($row[0] == $key) {
 					$this->select->selectOption($key);
 				}
 			}	// END while
+			
+			$sort = array();
+			$name = array();
+			$key = array();
+			foreach($options as $k => $row) {
+				$sort[$k]  = $row['sort'];
+				$name[$k]  = $row['name'];
+				$key[$k] = $row['key'];
+			}
+			array_multisort($sort, SORT_ASC, $name, SORT_ASC, $key, SORT_ASC, $options);
+			
+			foreach($options as $option){
+				$this->select->addOption($option['name'], $option['key']);
+			}
 
 			if($this->all == true) {				// item to add new club
 				$this->select->addOptionNew();	// 'new' item
 			}
 			mysql_free_result($res);
 		}						// ET DB error
-
+		
 		$this->select->printList($dis);
 	}
 } // END CLASS Gui_ClubSelect
