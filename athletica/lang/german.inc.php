@@ -665,4 +665,8 @@ $strEffortsWarning = "ACHTUNG:<br>Bei vielen Resultaten kann die Ausgabezeit meh
 $strBasdataIncluded = "Auch die Stammdaten sichern";
 $strAllMeetings = "[Alle Meetings]";
 $strNoFile = "Keine Datei ausgewählt / hochgeladen";
+
+$strSB_long = "Saison-Bestleistung";
+$strPB_long = "Persönliche Bestleistuung";
+
 ?>

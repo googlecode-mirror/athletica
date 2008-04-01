@@ -172,6 +172,7 @@ if ($item > 0)
 				, r.Info
 				, rt.Typ
 				, s.Wind
+				, at.xAthlet
 			FROM
 				anmeldung AS a
 				, athlet AS at
@@ -272,6 +273,7 @@ if ($item > 0)
 			{
 				if($i == 0)
 				{
+					$xAthlet = $row[13];
 					?>
 <table class='dialog'>
 	<tr>
@@ -468,7 +470,127 @@ if ($item > 0)
 		}
 		?>
 </table>
-		<?php
+	<br><br>		
+	<table class='dialog'>
+	
+	<?php 
+	$sql = "SELECT
+				disziplin.Name as DiszName
+				, disziplin.Typ
+				, best_effort
+				, DATE_FORMAT(best_effort_date, '%d.%m.%Y') AS pb_date
+				, best_effort_event
+				, season_effort
+				, DATE_FORMAT(season_effort_date, '%d.%m.%Y') AS sb_date
+				, season_effort_event
+				, season
+			FROM
+				athletica.base_athlete
+				INNER JOIN athletica.base_performance 
+					ON (base_athlete.id_athlete = base_performance.id_athlete)
+				INNER JOIN athletica.athlet 
+					ON (athlet.Lizenznummer = base_athlete.license)
+				INNER JOIN athletica.disziplin 
+					ON (disziplin.Code = base_performance.discipline)
+			WHERE (athlet.xAthlet =$xAthlet)
+			ORDER BY base_performance.season, disziplin.Code";
+		echo $sql;
+		$res = mysql_query($sql);
+		
+		if(mysql_num_rows($res)==0){
+			?>
+			<tr>
+				<td class='dialog' colspan = "7"><?php echo $strErrNoResults; ?></th>
+			</tr>
+			<?php
+		}
+		
+		while($row_perf=mysql_fetch_array($res)){
+			if ($row_perf[8]!=$lastseason){
+				if ($row_perf[8]=="I"){
+					$txtSaison = "Indoor";
+				} else if ($row_perf[8]=="O") {
+					$txtSaison = "Outdoor";					
+				}
+				$lastseason=$row_perf[8];
+				?>
+				<tr>
+					<th class='dialog' colspan="7"><?=$txtSaison;?></th>
+				</tr>
+				<tr>
+					<td class='dialog'>&nbsp;</td>
+					<th class='dialog' colspan="3"><?= $strPB_long; ?></th>
+					<th class='dialog' colspan="3"><?= $strSB_long; ?></th>
+				</tr>
+
+				<?php
+			}
+			
+				
+			if(($row_perf['Typ'] == $cfgDisciplineType[$strDiscTypeJump])
+				|| ($row_perf['Typ'] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+				|| ($row_perf['Typ'] == $cfgDisciplineType[$strDiscTypeThrow])
+				|| ($row_perf['Typ'] == $cfgDisciplineType[$strDiscTypeHigh])) {
+				if (strlen($row_perf['season_effort'])>0){
+					$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['season_effort']));
+				}else {
+					$sb_perf = '';
+				}
+				
+				if (strlen($row_perf['best_effort'])>0){
+					$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['best_effort']));
+				}else {
+					$pb_perf = '';
+				}
+
+			} else {
+				//convert performance-time to milliseconds
+				$timepices = explode(":", $row_perf['season_effort']);
+				$season_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) + ($timepices[2] *  1000) + ($timepices[3]);
+				$timepices = explode(":", $row_perf['best_effort']);
+				$best_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) + ($timepices[2] *  1000) + ($timepices[3]);									
+				if(($row_perf['Typ'] == $cfgDisciplineType[$strDiscTypeTrack])
+				|| ($row_perf['Typ'] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
+					if($season_effort!=0){
+						$sb_perf = AA_formatResultTime($season_effort, true, true);
+					} else {
+						$sb_perf = '';
+					}
+					if($best_effort!=0){
+						$pb_perf = AA_formatResultTime($best_effort, true, true);
+					} else {
+						$pb_perf = '';
+					}
+				}else{
+					if($season_effort!=0){
+						$sb_perf = AA_formatResultTime($season_effort, true);
+					} else {
+						$sb_perf = '';
+					}
+					if($best_effort!=0){
+						$pb_perf = AA_formatResultTime($best_effort, true);
+					} else {
+						$pb_perf = '';
+					}
+				}
+			}	
+				
+			
+			?>
+			<tr>
+				<th class='dialog'><?php echo $row_perf['DiszName']; ?></th>
+				<td class='forms_right'><?php echo $pb_perf; ?></td>
+				<td class='dialog'><?php echo ($row_perf['pb_date']=="00.00.0000")?"":$row_perf['pb_date']; ?></td>
+				<td class='dialog'><?php echo $row_perf['best_effort_event']; ?></td>
+				<td class='forms_right'><?php echo $sb_perf; ?></td>
+				<td class='dialog'><?php echo ($row_perf['sb_date']=="00.00.0000")?"":$row_perf['sb_date'];  ?></td>
+				<td class='dialog'><?php echo $row_perf['season_effort_event']; ?></td>
+			</tr>
+			<?php
+		}
+		?></table><?php
+		
+		
 	}
 
 }
