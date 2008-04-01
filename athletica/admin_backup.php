@@ -91,10 +91,11 @@ if($_GET['arg'] == 'backup')
 			echo "#\n\n";
 			echo "TRUNCATE TABLE $row[0];\n";
 			
+			
 			$fieldArray = array();
 			if(mysql_num_rows($res) > 0)	// any content
 			{
-				echo "INSERT INTO $row[0] \n";
+				$sqlInsert = "INSERT INTO $row[0] \n";
 				
 				$fields = mysql_query("SHOW COLUMNS FROM $row[0]");
 				$tmpf = "(";
@@ -102,39 +103,39 @@ if($_GET['arg'] == 'backup')
 					$tmpf .= "`".$f['Field']."`, ";
 					$fieldArray[] = $f;
 				}
-				echo substr($tmpf,0,-2).") VALUES\n";
+				$sqlInsert .= substr($tmpf,0,-2).") VALUES\n";
+				echo $sqlInsert;
 				
 			}
 
 			unset($values);
+			$n = 0;
 			while($tabrow = mysql_fetch_assoc($res))
 			{
-				if(!empty($values)) {	// print previous row
+				$n++;
+				if(!empty($values) && !$skip_nextline) {	// print previous row
 					echo "$values),\n";
 				}
 
 				$values = "(";
 				$cma = "";
-				/*$fields = mysql_list_fields($cfgDBname, $row[0]);
-				$columns = mysql_num_fields($fields);
-				for ($i = 0; $i < $columns; $i++) {
-					if(mysql_field_type($res, $i) == 'int') {	
-						$values = $values . $cma . $tabrow[$i];
-					}
-					else {
-						$values = $values . $cma . "'" . addslashes($tabrow[$i]) . "'";
-					}
-					$cma = ", ";
-				}*/
 				foreach($fieldArray as $f){
 					if(substr($f['Type'],0,3) == 'int') {	
 						$values = $values . $cma . $tabrow[$f['Field']];
-					}
-					else {
+					} else {
 						$values = $values . $cma . "'" . addslashes($tabrow[$f['Field']]) . "'";
 					}
 					$cma = ", ";
 				}
+				
+				if ($n==1000){
+					$n=0;
+					echo "$values);#*\n $sqlInsert";
+					$skip_nextline = true;
+				} else {
+					$skip_nextline = false;
+				}
+				
 			}		// End while every table row
 
 			if(mysql_num_rows($res) > 0)	// any content
@@ -179,7 +180,13 @@ else if ($_POST['arg'] == 'restore')
 	// so they can by restored in later versions
 	
 	if ($content == false){
-		print_r($_FILES);
+		if($_FILES['bkupfile']['error'] == 4){
+			echo $strNoFile ."<br><br>";
+		} else {
+			echo "<pre>";
+			print_r($_FILES);
+			echo "</pre>";
+		}
 	}
 	
 	$validBackup = false;
@@ -284,7 +291,7 @@ else if ($_POST['arg'] == 'restore')
 			// set max_allowed_packet for inserting very big queries
 			mysql_pconnect( $GLOBALS['cfgDBhost'].':'.$GLOBALS['cfgDBport'], "root", "");
 			mysql_select_db($GLOBALS['cfgDBname']);
-			mysql_query("SET @@global.max_allowed_packet=10000000");
+			mysql_query("SET @@global.max_allowed_packet=16777216");
 			if(mysql_errno() > 0){
 				$error = true;
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -820,8 +827,8 @@ else if ($_POST['arg'] == 'restore')
 		
 		// output information about number of truncate and insert statements
 		echo "<tr><td class='dialog'>";
-		echo "Truncating ".count($sqlTruncate)." tables<br>";
-		echo "Inserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
+		//echo "Truncating ".count($sqlTruncate)." tables<br>";
+		//echo "Inserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
 		if ($nbr_skipped_basetables>0){
 			echo "<br><br><br>".$strBackupBaseTablesSkipped." ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
 		}

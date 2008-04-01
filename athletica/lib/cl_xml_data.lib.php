@@ -1832,6 +1832,7 @@ function XML_base_end($parser, $name){
 				foreach($relay as $row){
 					if(empty($row['ID'])){ continue; } //prevent from empty entrys
 					if($row['ISATHLETICAGENERATED'] == 0){ $row['ISATHLETICAGENERATED']='n'; }else{ $row['ISATHLETICAGENERATED']='y'; }
+					$row['RELAYNAME'] = str_replace(array("\r\n", "\n", "\r"), "", $row['RELAYNAME']);
 					mysql_query("	INSERT IGNORE INTO
 								base_relay (
 									id_relay
