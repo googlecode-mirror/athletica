@@ -159,10 +159,24 @@ function removePassword(){
 									enctype='multipart/form-data'>
 									<input type='hidden' name='arg' value='backup'/>
 								<tr>
-									<td width="70" rowspan="2" style="text-align: center;">
-										<img src="img/db_save.gif" border="0" alt="<?=$strRestore?>" title="<?=$strRestore?>"/>
+									<td width="70" rowspan="4" style="text-align: center;">
+										<img src="img/db_save.gif" border="0" alt="<?=$strBackupOK?>" title="<?=$strBackupOK?>"/>
 									</td>
 									<td><?=$strBackupInfo?></tr>
+								</tr>
+								<tr>
+									<td>								
+									<?php
+									$dropdown = new GUI_Select('xMeeting', 1, '');
+									$dropdown->addOption( $strAllMeetings, "-");
+									$dropdown->addOptionsFromDB("select xMeeting, Name from meeting order by DatumVon, DatumBis");
+									$dropdown->selectOption("-");
+									$dropdown->printList();
+									?>
+									</td>
+								</tr>
+								<tr>
+									<td><input type="checkbox" value="included"  name="base" checked="checked" /><?=$strBasdataIncluded?></tr>
 								</tr>
 								<tr class="even">
 									<td>
@@ -195,8 +209,8 @@ function removePassword(){
 									<input type='hidden' name='arg' value='restore'/>
 										<?=$strBackupFile?>:&nbsp;
 									</input>
-									<input type="hidden" name="MAX_FILE_SIZE" value="6194304" />
-									<input name='bkupfile' type='file' accept='text/sql' maxlength="6194304">
+									<input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
+									<input name='bkupfile' type='file' accept='text/sql' maxlength="619430400">
 								</td>
 							</tr>
 							<tr class="even">

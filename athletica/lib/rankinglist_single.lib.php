@@ -588,7 +588,7 @@ else {
 						
 						$saison = $_SESSION['meeting_infos']['Saison'];
 						if ($saison == ''){
-							$saison = "O";
+							$saison = "O"; //if no saison is set take outdoor
 						}
 						
 						$sql = "SELECT 

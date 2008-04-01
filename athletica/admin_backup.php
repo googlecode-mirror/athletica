@@ -33,7 +33,18 @@ $compatible = array("SLV_1.4", "SLV_1.5", "SLV_1.6", "SLV_1.7", "SLV_1.7.1", "SL
 
 if($_GET['arg'] == 'backup')
 {
-   $result = mysql_list_tables($cfgDBname);
+	if ($_GET['xMeeting']=="-"){
+		$result = mysql_list_tables($cfgDBname);
+		$filename = 'athletica_'. date('Y-m-d H.i') .'.sql';
+	} else {
+		$result = mysql_query('SELECT Tabelle, SelectSQL FROM sys_backuptabellen');
+		$xMeeting = $_GET['xMeeting'];
+		
+		$res = mysql_query("SELECT Name FROM meeting WHERE xMeeting = $xMeeting");
+		$row = mysql_fetch_array($res);
+		
+		$filename = 'athletica_'. date('Y-m-d H.i')  .' ' . strToNTFSFilename($row['Name']) .'.sql';
+	}
 	
 	if(mysql_errno() > 0)
 	{
@@ -44,9 +55,9 @@ if($_GET['arg'] == 'backup')
 		if(mysql_num_rows($result) > 0)	// any table
 		{
 			// print http header
-			header("Content-type: application/octetstream");
-			header("Content-Disposition: inline; filename=athletica.sql");
-		  header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			header('Content-type: application/octetstream');
+			header('Content-Disposition: inline; filename="'. $filename . '"');
+			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: public');
 
 			echo "$idstring";
@@ -56,7 +67,23 @@ if($_GET['arg'] == 'backup')
 		}
 	while ($row = mysql_fetch_row($result))
 		{
-			$res = mysql_query("SELECT * FROM $row[0]");
+			//ignore base-tables
+			if (!isset($_GET['base'])){ 
+				if (substr($row[0],0,5)== "base_"){
+					continue;
+				}
+			}
+	
+			//ignore sys-tables
+				if (substr($row[0],0,4)== "sys_"){
+					continue;
+				}
+	
+			if ($_GET['xMeeting']=="-"){
+				$res = mysql_query("SELECT * FROM $row[0]");
+			} else {
+				$res = mysql_query(sprintf($row[1], $xMeeting));
+			}
 			
 			// truncate in each case!
 			echo "\n#\n";
@@ -150,6 +177,11 @@ else if ($_POST['arg'] == 'restore')
 	
 	// since version 1.4 the include statements contain the table fields,
 	// so they can by restored in later versions
+	
+	if ($content == false){
+		print_r($_FILES);
+	}
+	
 	$validBackup = false;
 	$backupVersion = "";
 	foreach($compatible as $v){
@@ -847,5 +879,11 @@ else if ($_POST['arg'] == 'restore')
 	
 	$page->endPage();
 
+}
+
+function strToNTFSFilename($string)
+{
+  $reserved = preg_quote('\/:*?"<>', '/');
+  return preg_replace("/([\\x00-\\x1f{$forbidden}])/e", "_", $string);
 }
 ?>
