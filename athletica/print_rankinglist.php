@@ -21,7 +21,7 @@ if(AA_connectToDB() == FALSE)	{ // invalid DB connection
 if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
-       
+	   
 
 // get presets
 // -----------
@@ -85,14 +85,18 @@ if($_GET['sepu23'] == "yes"){
 
 $disc_nr = 99;
 if(!empty($_GET['disc_nr'])){
-    $disc_nr = $_GET['disc_nr'];
+	$disc_nr = $_GET['disc_nr'];
 }                  
 
+$show_efforts = 'none';
+if(!empty($_GET['show_efforts'])){
+	$show_efforts = $_GET['show_efforts'];
+}
 
 // Ranking list single event
 if($type == 'single')
 {  
-	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date);
+	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts);
 }
 
 // Ranking list combined events

@@ -39,6 +39,7 @@ function AA_speaker_Tech($event, $round, $layout)
 		{
 			$menu = new GUI_Menulist();
 			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker", $GLOBALS['strRankingList']);
+			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker&show_efforts=sb_pb", $GLOBALS['strRankingListEfforts']);
 			$menu->printMenu();
 			echo "<p/>";
 		}
@@ -163,6 +164,8 @@ function AA_speaker_Tech($event, $round, $layout)
 					mysql_free_result($res);
 				}
 
+				print_r($row);
+				
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
 					, AA_formatYearOfBirth($row[12]), $row[13], $perfs, $rank);
 			}

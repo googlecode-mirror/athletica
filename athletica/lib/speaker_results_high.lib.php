@@ -40,6 +40,7 @@ function AA_speaker_High($event, $round, $layout)
 		{
 			$menu = new GUI_Menulist();
 			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker", $GLOBALS['strRankingList']);
+			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker&show_efforts=sb_pb", $GLOBALS['strRankingListEfforts']);
 			$menu->printMenu();
 			echo "<p/>";
 		}

@@ -34,6 +34,8 @@ else if(!empty($_POST['round'])) {
   
 $presets = AA_results_getPresets($round);
 
+$eventTypeCat = AA_getEventTypesCat();	
+
 // check discipline type of event if selected
 $dtype = "";
 if(!empty($presets['event'])){
@@ -43,7 +45,7 @@ if(!empty($presets['event'])){
 			LEFT JOIN disziplin as d USING(xDisziplin) 
 		WHERE w.xWettkampf = ".$presets['event']
 	);
-    
+	
 	if(mysql_errno() > 0){
 		
 	}else{
@@ -90,13 +92,13 @@ $menu->printMenu();
 		document.printdialog.formaction.value = 'exportdiplom';
 		document.printdialog.target = '';
 	}
-    
-    function checkDisc() 
-    {  
-       e = document.getElementById("combined"); 
-       e.checked=true; 
-    }
-    
+	
+	function checkDisc() 
+	{  
+	   e = document.getElementById("combined"); 
+	   e.checked=true; 
+	}
+	
    
 //-->
 </script>
@@ -122,7 +124,7 @@ if($presets['event'] > 0) {		// event selected
 <?php
 }
 ?>
-    
+	
 <form action='print_rankinglist.php' method='get' name='printdialog'>
 
 <input type='hidden' name='category' value='<?php echo $presets['category']; ?>'>
@@ -157,37 +159,40 @@ if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 // Rankginglists for club and combined-events
 if(empty($presets['event']))	// no event selected
 {
-?>
+if (isset($eventTypeCat['combined'])){?>
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='combined' id='combined' >
 			<?php echo $strCombinedEvent; ?> </input>
-        
+		
 	</th>
 </tr>
 
 <tr> 
-    <td class='dialog'>
-        &nbsp;&nbsp;  
-        <input type='checkbox' name='sepu23' value='yes'>
-            <?php echo $strSeparateU23; ?></input>
-    </td>
+	<td class='dialog'>
+		&nbsp;&nbsp;  
+		<input type='checkbox' name='sepu23' value='yes'>
+			<?php echo $strSeparateU23; ?></input>
+	</td>
 </tr>
-                            
+							
 <tr> 
-    <td class='dialog'>&nbsp;&nbsp;&nbsp;&nbsp;Disziplin: 1 bis   
-            <select name='disc_nr' onchange='checkDisc()'>
-                <option value="99">99</option>
-                <?php
-                for ($i=1;$i<=99;$i++){
-                    ?>
-                    <option value="<?=$i?>"><?=$i?></option>
-                    <?php
-                }
-                ?>
-            </select>
-        </td>
-</tr>  
+	<td class='dialog'>&nbsp;&nbsp;&nbsp;&nbsp;Disziplin: 1 bis   
+			<select name='disc_nr' onchange='checkDisc()'>
+				<option value="99">99</option>
+				<?php
+				for ($i=1;$i<=99;$i++){
+					?>
+					<option value="<?=$i?>"><?=$i?></option>
+					<?php
+				}
+				?>
+			</select>
+		</td>
+</tr><?php
+} //END IF  isset($eventTypeCat['combined']))
+
+if (isset($eventTypeCat['club'])){?>
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='team'>
@@ -204,9 +209,8 @@ if(empty($presets['event']))	// no event selected
 
 <?php
 }
-
-if(empty($round)){	// team sm ranking minimum is discipline
-?>
+}
+if(empty($round) && isset($eventTypeCat['teamsm'])){	// team sm ranking minimum is discipline and at least one eventtype must be team-sm?>
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='teamsm'>
@@ -299,7 +303,18 @@ if($tage>1){
 			<?php echo $strTiming; ?></input>
 	</td>
 </tr>
-
+<?php
+//if($presets['event'] > 0) {	// event selected
+//	$efforts_text = $strEfforts;
+//} else {
+	$efforts_text = "<abbr class=\"info\">$strEfforts<span>$strEffortsWarning</span></abbr>"; //show anyway
+//}?>	
+<tr>
+	<th class='dialog'>
+		<input type='checkbox' name='show_efforts' value='sb_pb'>
+			<?php echo $efforts_text ; ?></input>
+	</th>
+</tr>
 </table>
 
 <p />

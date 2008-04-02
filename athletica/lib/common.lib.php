@@ -121,31 +121,30 @@ require('./config.inc.php');
 		if(isset($_SESSION['meeting_infos'])){
 			unset($_SESSION['meeting_infos']);
 		}
-		          
-        $sql_m= "SELECT * 
-                  FROM meeting 
-                 WHERE xMeeting ";
-        $query_m = mysql_query($sql_m);   
-        
+				  
+		$sql_m= "SELECT * 
+				  FROM meeting";
+		$query_m = mysql_query($sql_m);   
+		
 		$sql = "SELECT * 
-                  FROM meeting 
-                 WHERE xMeeting = ".$_COOKIE['meeting_id'].";";
-        $query = mysql_query($sql); 
-        
+				  FROM meeting 
+				 WHERE xMeeting = ".$_COOKIE['meeting_id'].";";
+		$query = mysql_query($sql); 
+		
 		if($query && mysql_num_rows($query)==1){ 
 			$row = mysql_fetch_assoc($query);
 			$_SESSION['meeting_infos'] = $row; 
 		}
-        else {
-             if($query_m && mysql_num_rows($query_m)>0){
-                $_SESSION['meeting_infos'] = "meetingNotChosen";       // meeting exist but is not chosen 
-             }
-             else
-                if  ($query_m){
-                    $_SESSION['meeting_infos'] = "noMeeting";      // no data in table meeting   
-                } 
-        }
-        
+		else {
+			 if($query_m && mysql_num_rows($query_m)>0){
+				$_SESSION['meeting_infos'] = "meetingNotChosen";       // meeting exist but is not chosen 
+			 }
+			 else
+				if  ($query_m){
+					$_SESSION['meeting_infos'] = "noMeeting";      // no data in table meeting   
+				} 
+		}
+		
 	}
 	
 	/**
@@ -1316,98 +1315,133 @@ require('./config.inc.php');
 <?php
 	}
 
-    /**
-     * get the best result from previous day for disciplines 
-     * -----------------------------------------------------
-     */  
-                         
+	/**
+	 * get the best result from previous day for disciplines 
+	 * -----------------------------------------------------
+	 */  
+						 
 function AA_getBestPrevious($disciplin, $enrolement, $order)
 {   
-    $best = 0; 
-       
-    $query="SELECT 
-                    a.xAthlet
-             FROM
-                    anmeldung AS a
-             WHERE
-                    a.xAnmeldung = " . $enrolement;
-    $res_a = mysql_query($query);   
-      
-    if(mysql_errno() > 0){
-        AA_printErrorPage(mysql_errno().": ".mysql_error());
-    }else{ 
-            $row_a=mysql_fetch_row($res_a);    
+	$best = 0; 
+	   
+	$query="SELECT 
+					a.xAthlet
+			 FROM
+					anmeldung AS a
+			 WHERE
+					a.xAnmeldung = " . $enrolement;
+	$res_a = mysql_query($query);   
+	  
+	if(mysql_errno() > 0){
+		AA_printErrorPage(mysql_errno().": ".mysql_error());
+	}else{ 
+			$row_a=mysql_fetch_row($res_a);    
  
-            $sql="SELECT                    
-                        ss.xSerienstart 
-                        , a.xAthlet 
-                        , rs.Leistung  
-                 FROM 
-                        runde AS r
-                        , serie AS s
-                        , serienstart AS ss
-                        , start AS st
-                        , anmeldung AS a
-                        , athlet AS at
-                        LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)
-                        LEFT JOIN wettkampf AS w ON (st.xWettkampf = w.xWettkampf)  
-                        , verein AS v
-                        LEFT JOIN rundentyp AS rt
-                            ON rt.xRundentyp = r.xRundentyp  
-                        INNER JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart                                  
-                 WHERE 
-                        a.xAnmeldung = " . $enrolement ."
-                        AND d.xDisziplin = " . $disciplin ."  
-                        AND w.xMeeting = ". $_COOKIE['meeting_id'] . "
-                        AND s.xRunde = r.xRunde
-                        AND ss.xSerie = s.xSerie
-                        AND st.xStart = ss.xStart
-                        AND a.xAnmeldung = st.xAnmeldung
-                        AND at.xAthlet = " . $row_a[0] ."  
-                        AND v.xVerein = at.xVerein
-                 ORDER BY rs.Leistung " . $order;  
-                                          
-            $result = mysql_query($sql);  
-               
-            if(mysql_errno() > 0){
-                    AA_printErrorPage(mysql_errno().": ".mysql_error());
-            }else{ 
-                if (mysql_num_rows($result) > 0) {  
-                    $row=mysql_fetch_row($result);  
-                    $best=$row[2];                  
-                }
-            }  
-    }
+			$sql="SELECT                    
+						ss.xSerienstart 
+						, a.xAthlet 
+						, rs.Leistung  
+				 FROM 
+						runde AS r
+						, serie AS s
+						, serienstart AS ss
+						, start AS st
+						, anmeldung AS a
+						, athlet AS at
+						LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)
+						LEFT JOIN wettkampf AS w ON (st.xWettkampf = w.xWettkampf)  
+						, verein AS v
+						LEFT JOIN rundentyp AS rt
+							ON rt.xRundentyp = r.xRundentyp  
+						INNER JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart                                  
+				 WHERE 
+						a.xAnmeldung = " . $enrolement ."
+						AND d.xDisziplin = " . $disciplin ."  
+						AND w.xMeeting = ". $_COOKIE['meeting_id'] . "
+						AND s.xRunde = r.xRunde
+						AND ss.xSerie = s.xSerie
+						AND st.xStart = ss.xStart
+						AND a.xAnmeldung = st.xAnmeldung
+						AND at.xAthlet = " . $row_a[0] ."  
+						AND v.xVerein = at.xVerein
+				 ORDER BY rs.Leistung " . $order;  
+										  
+			$result = mysql_query($sql);  
+			   
+			if(mysql_errno() > 0){
+					AA_printErrorPage(mysql_errno().": ".mysql_error());
+			}else{ 
+				if (mysql_num_rows($result) > 0) {  
+					$row=mysql_fetch_row($result);  
+					$best=$row[2];                  
+				}
+			}  
+	}
    return $best;   
 }
  
    /**
-     * get reduction of fee
-     * --------------------
-     */     
+	 * get reduction of fee
+	 * --------------------
+	 */     
 
 function AA_getReduction() {
-    $reduction=0;
-    
-    $sql="SELECT
-            StartgeldReduktion  
-        FROM
-            meeting
-        WHERE
-            xMeeting = " .  $_COOKIE['meeting_id'];
-            
+	$reduction=0;
+	
+	$sql="SELECT
+			StartgeldReduktion  
+		FROM
+			meeting
+		WHERE
+			xMeeting = " .  $_COOKIE['meeting_id'];
+			
   $result = mysql_query($sql); 
-     
+	 
    if(mysql_errno() > 0){
-            AA_printErrorPage(mysql_errno().": ".mysql_error());
-     }else{ 
-           if (mysql_num_rows($result) > 0) {  
-                $row=mysql_fetch_row($result);  
-                $reduction=$row[0];
-        }  
-     }   
+			AA_printErrorPage(mysql_errno().": ".mysql_error());
+	 }else{ 
+		   if (mysql_num_rows($result) > 0) {  
+				$row=mysql_fetch_row($result);  
+				$reduction=$row[0];
+		}  
+	 }   
  return $reduction;
 } 
-    
+
+
+function AA_getEventTypesCat(){
+// get event-types categories (single, combined, club (svm))
+	$res = mysql_query('SELECT Typ FROM Wettkampf WHERE xMeeting = ' .$_COOKIE['meeting_id']  . ' GROUP BY Typ ORDER BY Typ');
+	if(mysql_errno() > 0) {		// DB error
+		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+	} else {
+		$cfgEventType = $GLOBALS['cfgEventType'];
+		while($row=mysql_fetch_array($res)){
+			if ( $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSingle']]){
+				$eventTypeCat['single'] = true;	
+			}else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSingleCombined']]){
+				$eventTypeCat['combined']=true;
+				$show_combined = true;
+			} else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSVMNL']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMA']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMB']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMC']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFA']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFB']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubBasic']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubAdvanced']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubTeam']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubCombined']]
+						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMixedTeam']]){
+				$eventTypeCat['club'] = true;
+			} else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeTeamSM']]){
+				$eventTypeCat['teamsm'] = true;			
+			}
+				
+		}
+		return $eventTypeCat;
+	}
+}
+	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

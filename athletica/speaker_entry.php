@@ -493,6 +493,7 @@ if ($item > 0)
 				INNER JOIN athletica.disziplin 
 					ON (disziplin.Code = base_performance.discipline)
 			WHERE (athlet.xAthlet =$xAthlet)
+			AND NOT (best_effort = '' AND season_effort = '')
 			ORDER BY base_performance.season, disziplin.Code";
 		//echo $sql;
 		$res = mysql_query($sql);

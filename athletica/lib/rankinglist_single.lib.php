@@ -626,22 +626,24 @@ else {
 									$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['season_effort']));
 									$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['best_effort']));
 									//highlight sb or pb if new performance is better
-									if ($formaction!='print'){
-										if ($perf>$pb_perf){
-											$perf = "<b>PB $perf</b> ";
+									if (is_numeric($perf)){ //prevent special-codes (disq, n.a. usw)
+										if ($formaction!='print'){
+											if ($perf>$pb_perf){
+												$perf = "<b>PB $perf</b> ";
+											} else {
+												if ($perf>$sb_perf){
+													$perf = "<b>SB $perf</b>";
+												}
+											}										
 										} else {
-											if ($perf>$sb_perf){
-												$perf = "<b>SB $perf</b>";
-											}
-										}										
-									} else {
-										if ($perf>$pb_perf){
-											$perf = "<b>PB</b> $perf";
-										} else {
-											if ($perf>$sb_perf){
-												$perf = "<b>SB</b> $perf";
-											}
-										}										
+											if ($perf>$pb_perf){
+												$perf = "<b>PB</b> $perf";
+											} else {
+												if ($perf>$sb_perf){
+													$perf = "<b>SB</b> $perf";
+												}
+											}										
+										}
 									}
 
 								} else {
