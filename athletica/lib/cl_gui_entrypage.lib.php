@@ -29,6 +29,7 @@ class GUI_EntryPage extends GUI_ListPage
 		<th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strDisciplines']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strFee']; ?></th>  
 		<?php
 		if(isset($_GET['payment']) && isset($_GET['discgroup'])){
 			?>
@@ -41,8 +42,8 @@ class GUI_EntryPage extends GUI_ListPage
 	}
 
 
-	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid = '')
-	{
+	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid = '',$fee='')
+	{  
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
@@ -51,7 +52,8 @@ class GUI_EntryPage extends GUI_ListPage
 		<td><?php echo $cat; ?></td>
 		<td><?php echo $club; ?></td>
 		<td><?php echo $disc; ?></td>
-		<?php
+        <td class='forms_right'><?php echo $fee; ?></td>   
+		<?php 
 		if(isset($_GET['payment']) && isset($_GET['discgroup'])){
 			?>
 		<td><?php echo $paid ?></td>
