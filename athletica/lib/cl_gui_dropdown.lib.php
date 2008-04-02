@@ -26,10 +26,11 @@ class GUI_CategoryDropDown
 	/*
 	 *	Constructor
 	 *	-----------
+     *    optNone:  set false if you want no option '-' to the <SELECT> list
 	 */
-	function GUI_CategoryDropDown($key, $action = '', $bAll = false, $bAthleteCat = false, $dis = false)
-	{
-		$select = new GUI_CategorySelect($action);
+	function GUI_CategoryDropDown($key, $action = '', $bAll = false, $bAthleteCat = false, $dis = false,$optNone=true)
+	{    
+		$select = new GUI_CategorySelect($action,$optNone);
 		echo "<td class='forms'>";
 		$select->printList($key, $bAll, $bAthleteCat, $dis);
 		echo "</td>";
@@ -50,10 +51,12 @@ class GUI_ClubDropDown
 	 *		all:		set to true if you want print all clubs, not only those in
 	 *          	the current meeting.
 	 *    action:	if 'all' is set to true, provide also an action item
+     *    optNone:  set false if you want no option '-' to the <SELECT> list
+     *              
 	 */
-	function GUI_ClubDropDown($key, $all = false, $action='', $dis = false)
-	{
-		$select = new GUI_ClubSelect($all, $action);
+	function GUI_ClubDropDown($key, $all = false, $action='', $dis = false,$optNone=true)
+	{  
+		$select = new GUI_ClubSelect($all, $action, $optNone);
 		echo "<td class='forms'>";
 		$select->printList($key, $dis);
 		echo "</td>";
