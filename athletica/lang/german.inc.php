@@ -654,19 +654,20 @@ $strBaseMeetingAct = 'Heruntergeladene Informationen (Anmeldungen, Eventnr.) wer
 $strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten angemeldet sind.';
 $strSearchForClub = 'Über Verein anmelden';
 $strNoAthletesToClub= 'Keine Athleten in Stammdaten zu diesem Verein vorhanden';
-$strPerDiscipline = 'Nach Disziplinen';
-
+$strPerDiscipline = 'Nach Disziplinen';    
 $strSaison = "Saison";
 $strSB = "SB";
-$strPB = "PB";
+$strPB = "PB";  
+$strTrack = "Läufe";
+$strTech = "Techn.";   
 $strRankingListEfforts = "Rangliste mit Bestleistungen";
 $strEfforts = "Bestleistungen";
 $strEffortsWarning = "ACHTUNG:<br>Bei vielen Resultaten kann die Ausgabezeit mehrere Minuten dauern";
 $strBasdataIncluded = "Auch die Stammdaten sichern";
 $strAllMeetings = "[Alle Meetings]";
-$strNoFile = "Keine Datei ausgewählt / hochgeladen";
-
+$strNoFile = "Keine Datei ausgewählt / hochgeladen"; 
 $strSB_long = "Saison-Bestleistung";
 $strPB_long = "Persönliche Bestleistuung";
+
 
 ?>
