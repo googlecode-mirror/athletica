@@ -307,6 +307,12 @@ else if ($_POST['arg'] == 'restore')
 				// process every SQL statement
 				for($i=0; $i < count($sqlTruncate); $i++)
 				{
+					
+					//skip tables
+					if(substr($sqlTruncate[$i], 0, strlen("TRUNCATE TABLE kategorie_svm")) == "TRUNCATE TABLE kategorie_svm"){ 
+						continue;
+					}
+					
 					//echo "$sqlTruncate[$i] ";
 					mysql_query($sqlTruncate[$i]);
 					if(mysql_errno() > 0)
