@@ -72,6 +72,7 @@ if($_GET['arg'] == 'backup')
 				if (substr($row[0],0,5)== "base_" ||
 					substr($row[0],0,4)== "sys_" ||
 					$row[0] == "kategorie_svm" ||
+					$row[0] == "faq" ||
 					$row[0] == "land") 
 				{
 					continue;
@@ -309,7 +310,8 @@ else if ($_POST['arg'] == 'restore')
 				{
 					
 					//skip tables
-					if(substr($sqlTruncate[$i], 0, strlen("TRUNCATE TABLE kategorie_svm")) == "TRUNCATE TABLE kategorie_svm"){ 
+					if(substr($sqlTruncate[$i], 0, strlen("TRUNCATE TABLE kategorie_svm")) == "TRUNCATE TABLE kategorie_svm" ||
+					   substr($sqlTruncate[$i], 0, strlen("TRUNCATE TABLE faq")) == "TRUNCATE TABLE faq"){ 
 						continue;
 					}
 					
@@ -334,7 +336,8 @@ else if ($_POST['arg'] == 'restore')
 					}
 					
 					//skip tables
-					if(substr($sqlInsert[$i], 0, strlen("INSERT INTO kategorie_svm")) == "INSERT INTO kategorie_svm"){ 
+					if(substr($sqlInsert[$i], 0, strlen("INSERT INTO kategorie_svm")) == "INSERT INTO kategorie_svm" || 
+					   substr($sqlInsert[$i], 0, strlen("INSERT INTO faq")) == "INSERT INTO faq"){ 
 						continue;
 					}
 					
