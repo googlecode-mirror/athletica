@@ -883,7 +883,7 @@ if ($_POST['arg']=="add")
 																		. ", runde AS r"
 																		. ", wettkampf AS w"
 																		. " WHERE r.xWettkampf=" . $event
-																		. " AND r.Status > 0"
+																		. " AND (r.Status = 1 OR r.Status = 2 OR r.Status = 3 OR r.Status = 4 OR r.Status = 6) "
 																		. " AND w.xWettkampf = " . $event
 																		. " AND d.xDisziplin = w.xDisziplin");
 		
@@ -894,7 +894,7 @@ if ($_POST['arg']=="add")
 															else {
 																if (mysql_num_rows($res) > 0) {
 																	$row = mysql_fetch_row($res);
-																	$eventlist = $eventlist . $sep . $row[0];
+																	$eventlist = $eventlist . $sep . $row[0];   
 																	$sep = ", ";
 																}
 		
@@ -909,7 +909,7 @@ if ($_POST['arg']=="add")
 												}
 											} // end if some events are selected
 											// print event warning if required
-											if(strlen($eventlist) > 0) {
+											if(strlen($eventlist) > 0 ) {
 												AA_printErrorMsg($strWarningEventInProgress . $eventlist);
 											}
 										}				// xAnmeldung not OK
@@ -1039,28 +1039,30 @@ function meeting_get_disciplines(){
 		//
 		$effort = 0;
 		if($athlete_id > 0){
-			$saison = $_SESSION['meeting_infos']['Saison'];
-			if ($saison == ''){
-				$saison = "O"; //if no saison is set take outdoor
-			}
-		
-			$sql = "
-				SELECT 
-					notification_effort 
-				FROM
-					base_performance
-				WHERE	id_athlete = $athlete_id
-				AND	discipline = ".$row['DiszCode'] . "
-				AND season = '$saison'";
-			$res = mysql_query($sql);
-;
-				//AND	category = '".$row[7]."'");
+			$resMeeting = mysql_query("SELECT Saison FROM meeting WHERE xMeeting = " . $_COOKIE['meeting_id']);
+
 			if(mysql_errno() > 0){
-				AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
-				echo $sql;
-			}else{
-				$rowPerf = mysql_fetch_array($res);
-				$effort = $rowPerf['notification_effort'];
+				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			} else {
+				$rowMeeting = mysql_fetch_array($resMeeting);
+
+				$sql = "
+					SELECT 
+						notification_effort 
+					FROM
+						base_performance
+					WHERE	id_athlete = $athlete_id
+					AND	discipline = ".$row['DiszCode'] . "
+					AND season = '". $rowMeeting['Saison'] ."'";
+				$res = mysql_query($sql);
+	;
+					//AND	category = '".$row[7]."'");
+				if(mysql_errno() > 0){
+					AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());  
+				}else{
+					$rowPerf = mysql_fetch_array($res);
+					$effort = $rowPerf['notification_effort'];
+				}
 			}
 		}
 		$effort = ltrim($effort, "0:");
@@ -1989,9 +1991,9 @@ if ($_POST['arg']=="add")
 			<?php
 	   
 			if ($_POST['arg']=="change_clubSearch")         
-				$dd = new GUI_ClubDropDown($club, true, 'document.clubSearch.submit()', false); 
+				$dd = new GUI_ClubDropDown($club, false, 'document.clubSearch.submit()', false); 
 			else
-				$dd = new GUI_ClubDropDown(0, true, 'document.clubSearch.submit()', false);  
+				$dd = new GUI_ClubDropDown(0, false, 'document.clubSearch.submit()', false);  
 			?>
 	   
 			</form> 
