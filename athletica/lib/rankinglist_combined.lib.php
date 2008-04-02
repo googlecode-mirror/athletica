@@ -5,13 +5,13 @@
  *	rankinglist combined events
  *	
  */
-
+   
 if (!defined('AA_RANKINGLIST_COMBINED_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_COMBINED_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disciplines)
-{   
+function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disc_nr)
+{       
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -27,37 +27,7 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
   
-  $f=false; 
-  $contestcat=" AND ("; 
-  $k=0;
-  foreach ($disciplines as $key=>$value) {  
-           $f=true;  
-           if ($k==0)
-            $contestcat = $contestcat . " w.xKategorie = $key"; 
-           else 
-              $contestcat = $contestcat . " OR w.xKategorie = $key"; 
-           $k++;
-           $d=0;
-           $selecdisc[$key]=" AND (";  
-           foreach ($value as $test=>$discTest)  {  
-               if ($d==0)
-                    $selecdisc[$key] = $selecdisc[$key] . " w.xDisziplin = $discTest"; 
-               else 
-                    $selecdisc[$key] = $selecdisc[$key] . " OR w.xDisziplin = $discTest"; 
-               $d++; 
-           }
-            $selecdisc[$key] =  $selecdisc[$key] . ") ";   
-  }         
-  $contestcat = $contestcat  . ") ";  
-
-if(!empty($category) ) {		
-	$contestcat = " AND w.xKategorie = $category";  
-}
-else { 
-     if ($f==false) {
-        $contestcat = "";  
-     }     
-}    
+  
 
 
 // get athlete info per contest category
@@ -307,12 +277,7 @@ else
 				, ru.Datum
 				, ru.Startzeit
 		");*/
-       
-        if ($f==false){
-            $selecdisciplines="";  
-        }
-        else
-           $selecdisciplines=$selecdisc[$row[9]];
+        
         
 		$res = mysql_query("
 			SELECT
@@ -336,10 +301,8 @@ else
 				
 			WHERE st.xAnmeldung = $row[0]
 			AND w.xKategorie = $row[9]
-			AND w.Mehrkampfcode = $row[7]
-			
-			AND w.xWettkampf = st.xWettkampf
-			" . $selecdisciplines . "   
+			AND w.Mehrkampfcode = $row[7]   
+			AND w.xWettkampf = st.xWettkampf   
             AND d.xDisziplin = w.xDisziplin
 			AND ru.xWettkampf = w.xWettkampf
 			AND ru.Datum LIKE '".$date."'
@@ -349,16 +312,16 @@ else
 				w.Mehrkampfreihenfolge ASC
 				, ru.Datum
 				, ru.Startzeit
-		");
-		
+		");   
        
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else
-		{ 
+		{   $count_disc=0;
 			while($pt_row = mysql_fetch_row($res))
-			{
+			{    
+          
 				$lastTime = $pt_row[8];
 				
 				if($pt_row[1] == $cfgDisciplineType[$strDiscTypeJump]){
@@ -395,18 +358,22 @@ else
 				else {
 					$perf = AA_formatResultTime($pt_row[2], true);
 				}
-
-				// calculate points
-				$points = $points + $pt_row[4];	// accumulate points
-               
-				//if($pt_row[4] > 0) {					// any points for this event
-					$info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";
-					$sep = ", ";
-				/*}else{
-					//if($perf == null){ $perf = '0'; }
-					$info = $info . $sep . $pt_row[0] . "&nbsp;(" . "0, 0)";
-					$sep = ", ";
-				}*/
+             
+				 // show only points for number of choosed disciplines if the diszipline is done			 
+                $count_disc++;    
+                   if ($count_disc<=$disc_nr)  {
+                       if($pt_row[4] > 0) {       // any points for this event 
+                           $points = $points + $pt_row[4];      // calculate points   
+					        $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+					        $sep = ", ";
+                       }
+                       else{ 
+                         $count_disc--; 
+                         //if($perf == null){ $perf = '0'; }
+                            //$info = $info . $sep . $pt_row[0] . "&nbsp;(" . "0, 0)";
+                            //$sep = ", ";  
+                       } 
+                   }   
 			}	// END WHILE combined events
 			mysql_free_result($res);
 		}
@@ -455,8 +422,8 @@ else
 			if($p != $val) {	// not same points as previous athlete
 				$rank = $r;		// next rank
 			}
-			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);
-			$list->printInfo($info_arr[$key]);
+			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]); 			
+            $list->printInfo($info_arr[$key]);
 			$p = $val;			// keep current points
 			// insert points into combined top performance of entry
 			mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);
