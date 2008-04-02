@@ -6,7 +6,7 @@
  *	-----------------
  *	
  */
-   
+      
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -407,11 +407,11 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 								|| ($rowCodes['Typ'] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
 								|| ($rowCodes['Typ'] == $cfgDisciplineType[$strDiscTypeRelay])
 								|| ($rowCodes['Typ'] == $cfgDisciplineType[$strDiscTypeDistance]))
-								{
+								{                                             // disciplines track
 								$pt = new PerformanceTime(trim($perf));
 								$perf = $pt->getPerformance();
-								
-							   $best=AA_getBestPreviousTrack($event,$rowCodes['xDisziplin'], $_POST['item'] );  
+								$order="ASC";
+							    $best=AA_getBestPrevious($rowCodes['xDisziplin'], $_POST['item'] ,$order);  
 							   
 								if ($best!=0) {         // previous best exist
 									if ($perf==0){
@@ -421,9 +421,9 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 										$perf=$best;                                             
 								}                                 
 							}
-							else {
-								  
-								$best=AA_getBestPreviousTech($event, $rowCodes['xDisziplin'], $_POST['item']);
+							else {                                        // disciplines tech
+                                $order="DESC";    
+								$best=AA_getBestPrevious($rowCodes['xDisziplin'], $_POST['item'],$order);
 																		  
 								$perf = (ltrim($perf,"0"))*100;                                  
 								
@@ -610,11 +610,47 @@ else if ($_POST['arg']=="change_team")
 //
 // Process change_club-request if required
 //
-else if ($_POST['arg']=="change_club")
-{
-	mysql_query("LOCK TABLES verein READ, athlet WRITE");
+else if ($_POST['arg']=="change_club" && $_POST['club']!='new')
+{   
 
-	if((!empty($_POST['team']))
+      mysql_query("LOCK TABLES verein READ, verein WRITE, athlet WRITE");  
+    
+    if ($_POST['newClub']=='newClub') {    
+        
+        mysql_query("INSERT INTO verein SET Name = '".$_POST['clubNewText']."' 
+                    , Sortierwert = '".$_POST['clubNewText']."'");
+                    
+        if(mysql_errno() > 0)
+        {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        } 
+      
+       //mysql_query("SELECT MAX(xVerein) FROM verein GROUP BY xVerein");
+        $res_id=mysql_query($sql="SELECT MAX(xVerein) FROM verein");
+        if(mysql_errno() > 0)
+        {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        $row_id = mysql_fetch_array($res_id);
+        
+        mysql_query("    UPDATE athlet SET
+                                xVerein = " . $row_id[0] . "
+                            WHERE xAthlet = " . $_POST['xathlete']
+                        );
+                        
+        $_POST['xVerein']=$row_id[0];
+        
+        if(mysql_errno() > 0)
+        {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        } 
+         
+    
+    }
+    else {
+	
+    
+	if((!empty($_POST['team'])) 
 		&& (AA_checkReference("verein", "xVerein", $_POST['club']) == 0))
 	{
 		AA_printErrorMsg($strClub . $strErrNotValid);
@@ -630,9 +666,13 @@ else if ($_POST['arg']=="change_club")
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 	}	// ET team found
-	mysql_query("UNLOCK TABLES");
-}
+	
 
+    
+    }
+    mysql_query("UNLOCK TABLES");  
+    
+}    
 
 //
 // Process change_clubinfo-request if required
@@ -941,7 +981,7 @@ else
 	</script>
 	<?php
 }
-
+ 
 // read entry
 $result = mysql_query("
 	SELECT
@@ -975,21 +1015,21 @@ $result = mysql_query("
 		anmeldung AS a
 		, athlet AS at
 		, kategorie AS k
-		, verein AS v
+		LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
 	LEFT JOIN team AS t
 	ON a.xTeam = t.xTeam
 	WHERE a.xAnmeldung = " . $_POST['item'] . "
 	AND a.xAthlet = at.xAthlet
 	AND a.xKategorie = k.xKategorie
-	AND at.xVerein = v.xVerein
+	
 ");
 
-if(mysql_errno() > 0)		// DB error
+ if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else if(mysql_num_rows($result) > 0)  // data found
-{
+{   
 	$row = mysql_fetch_row($result);
 
 	//
@@ -1009,7 +1049,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 ?>
 
 <script type="text/javascript">
-
+         
 function check_rounds(){
 	
 	// check always
@@ -1142,8 +1182,8 @@ $btn->printButton();
 	</form>
 </tr>
 
-<?php
-//$dis = ($row[13]!='') ? ' disabled="disabled"' : '';
+<?php   
+//$dis = ($row[13]!='') ? ' disabled="disabled"' : '';  
 $dis = '';
 $dis2 = false;
 ?>
@@ -1237,7 +1277,7 @@ $dis2 = false;
 		<input name='club' type='hidden' value='<?php echo $club; ?>' />
 		<input name='old_cat' type='hidden' value='<?php echo $row[1]; ?>' />
 <?php
-			$dd = new GUI_CategoryDropDown($row[1], 'document.data_cat.submit()', true, false, $dis2);
+			$dd = new GUI_CategoryDropDown($row[1], 'document.data_cat.submit()', true, false, '' ,false);
 ?>
 	</form>
 	<td colspan='2'></td>
@@ -1250,7 +1290,8 @@ $dis2 = false;
 		<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
 		<input name='xathlete' type='hidden' value='<?php echo $row[3]; ?>' />
 <?php
-			$dd = new GUI_CountryDropDown($row[18], 'document.data_country.submit()', $dis2);
+			
+          $dd = new GUI_CountryDropDown($row[18], 'document.data_country.submit()', $dis2); 
 ?>
 	</form>
 	
@@ -1272,7 +1313,21 @@ $dis2 = false;
 		<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
 		<input name='xathlete' type='hidden' value='<?php echo $row[3]; ?>' />
 <?php
-			$dd = new GUI_ClubDropDown($row[9], true, 'document.data_club.submit()', $dis2);
+		if ($_POST['club']=="new") {
+            ?>
+           <td class='forms'> <input class='text' name='clubNewText' type='text'
+            maxlength='25' value=''
+            onChange='document.data_club.submit()'<?=$dis?>/> </td>
+            <input name='newClub' type='hidden' value='newClub' />  
+        <?php 
+        }
+        else
+            {$clubSelected=$row[9];
+            if (!empty($_POST['clubNewText'])) {      
+                $clubSelected=$_POST['xVerein'];
+            }  
+        	$dd = new GUI_ClubDropDown($clubSelected, true, 'document.data_club.submit()', $dis2, false);
+        }
 ?>
 	</form>
 	
