@@ -1,5 +1,4 @@
-DROP TABLE base_performance;
-
+DROP TABLE IF EXISTS base_performance;
 CREATE TABLE `base_performance` (
 	`id_performance` int(11) NOT NULL auto_increment,
 	`id_athlete` int(11) NOT NULL default '0',
@@ -36,7 +35,7 @@ CREATE TABLE `sys_backuptabellen` (
   PRIMARY KEY  (`xBackup`)
 ) TYPE=MyISAM;
 
-insert  into `sys_backuptabellen`(`xBackup`,`Tabelle`,`SelectSQL`) values 
+INSERT INTO `sys_backuptabellen`(`xBackup`,`Tabelle`,`SelectSQL`) VALUES 
 (1,'anlage','SELECT * FROM anlage'),
 (2,'anmeldung','SELECT * FROM anmeldung WHERE xMeeting = \'%d\''),
 (3,'athlet','SELECT * FROM athlet'),
@@ -49,8 +48,6 @@ insert  into `sys_backuptabellen`(`xBackup`,`Tabelle`,`SelectSQL`) values
 (11,'disziplin','SELECT * FROM disziplin'),
 (12,'faq','SELECT * FROM faq'),
 (13,'kategorie','SELECT * FROM kategorie'),
-(14,'kategorie_svm','SELECT * FROM kategorie_svm'),
-(15,'land','SELECT * FROM land'),
 (16,'layout','SELECT * FROM layout WHERE xMeeting = \'%d\''),
 (17,'meeting','SELECT * FROM meeting WHERE xMeeting=\'%d\''),
 (18,'omega_typ','SELECT * FROM omega_typ'),
@@ -74,3 +71,51 @@ insert  into `sys_backuptabellen`(`xBackup`,`Tabelle`,`SelectSQL`) values
 (36,'wertungstabelle_punkte','SELECT * FROM wertungstabelle_punkte'),
 (37,'wettkampf','SELECT * FROM wettkampf WHERE xMeeting = \'%d\''),
 (38,'zeitmessung','SELECT * FROM zeitmessung WHERE xMeeting = \'%d\'');
+
+DROP TABLE IF EXISTS kategorie_svm;
+CREATE TABLE kategorie_svm (
+  xKategorie_svm int(11) NOT NULL auto_increment,
+  Name varchar(100) NOT NULL default '',
+  Code varchar(5) NOT NULL default '',
+  PRIMARY KEY  (xKategorie_svm),
+  KEY Code (Code)
+) TYPE=MyISAM AUTO_INCREMENT=36;
+
+INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+(1, '20.11 Männer Nat. A', '20_11'),
+(2, '21.11 Männer Nat. B', '21_11'),
+(3, '22.10 Männer Nat. C', '22_10'),
+(4, '23.11 Männer 1.Liga', '23_11'),
+(5, '26.1 Männer 2.Liga', '26_01'),
+(6, '26.2 Männer 3.Liga', '26_02'),
+(7, '26.3 Männer 4.Liga', '26_03'),
+(8, '26.4 M30 u. älter', '26_04'),
+(9, '24.11 U20M 1, Einzel', '24_11'),
+(10, '26.5 U20M 2, Einzel', '26_05'),
+(11, '26.6 U18M Einzel', '26_06'),
+(12, '26.7 U18M Mehrkampf', '26_07'),
+(13, '26.8 U16M Einzel', '26_08'),
+(14, '26.9 U16M Mehrkampf', '26_09'),
+(15, '26.10 U14M Einzel', '26_10'),
+(16, '26.11 U14M Mannschaftswettkampf', '26_11'),
+(17, '26.12 U12M Mannschaftswettkampf', '26_12'),
+(18, '20.11 Frauen Nat. A', '20_12'),
+(19, '21.11 Frauen Nat. B', '21_12'),
+(20, '23.11 Frauen 1.Liga', '23_12'),
+(21, '27.1 2. Liga Frauen', '27_01'),
+(22, '27.2 W30 u. älter', '27_02'),
+(23, '24.11 U20W Einzel', '24_12'),
+(24, '27.3 U18W Einzel', '27_03'),
+(25, '27.4 U18W Mehrkampf', '27_04'),
+(26, '27.5 U16W Einzel', '27_05'),
+(27, '27.6 U16W Mehrkampf', '27_06'),
+(28, '27.7 U14W Einzel', '27_07'),
+(29, '27.8 U14W Mannschaftswettkampf', '27_08'),
+(30, '27.9 U12W Mannschaftswettkampf', '27_09'),
+(31, '27.10 U12M/U12W Mixed-Team', '27_10'),
+(32, '28.1 Schulen U21M ohne Lizenz', '28_01'),
+(33, '28.2 Schulen U21W ohne Lizenz', '28_02'),
+(34, '29.1 Männer ohne Lizenz', '29_01'),
+(35, '29.2 Frauen ohne Lizenz', '29_02');
+
+TRUNCATE TABLE faq;
