@@ -494,7 +494,7 @@ if ($item > 0)
 					ON (disziplin.Code = base_performance.discipline)
 			WHERE (athlet.xAthlet =$xAthlet)
 			ORDER BY base_performance.season, disziplin.Code";
-		echo $sql;
+		//echo $sql;
 		$res = mysql_query($sql);
 		
 		if(mysql_num_rows($res)==0){
