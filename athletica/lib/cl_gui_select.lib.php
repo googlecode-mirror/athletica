@@ -166,15 +166,18 @@ class GUI_Select
 class GUI_CategorySelect
 {
 	var $select;
+    var $optNone;   
 	
 	/*
 	 *	Constructor
 	 *	-----------
 	 */
-	function GUI_CategorySelect($action = '')
-	{
+	function GUI_CategorySelect($action = '',$optNone=true)
+	{    
 		$this->select = new GUI_Select('category', 1, $action);
-		$this->select->addOptionNone();				// empty item
+        $this->optNone = $optNone;
+        if ($this->optNone)
+		    $this->select->addOptionNone();				// empty item
 	}
 
 	/*	printList()
@@ -256,18 +259,22 @@ class GUI_ClubSelect
 {
 	var $select;
 	var $all;
+    var $optNone; 
 	
 	/*	Constructor
 	 *	-----------
-	 *		all:		set to true if you want print all clubs, not only those in
+	 *		all:	set to true if you want print all clubs, not only those in
 	 *          	the current meeting.
 	 *    action:	if 'all' is set to true, provide also an action item
 	 */
-	function GUI_ClubSelect($all = false, $action='')
-	{
+	function GUI_ClubSelect($all = false, $action='',$optNone=true)
+	{    
 		$this->all = $all;
-		$this->select = new GUI_Select('club', 1, $action);
-		$this->select->addOptionNone();				// empty item
+        $this->optNone = $optNone;
+		$this->select = new GUI_Select('club', 1, $action);  
+         
+		if ($this->optNone)  
+            $this->select->addOptionNone();				// empty item
 	}
 
 	/*	printList()
@@ -378,7 +385,7 @@ class GUI_ClubSelect
 
 				// club takes part in this meeting
 				if($ok == true)		
-				{
+				{    
 					$str = ($row[1]!='' && $row[1]!="\n") ? $row[1] : $row[2];
 					//$this->select->addOption($str, $row[0]);
 					$options[] = array(
