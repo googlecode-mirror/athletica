@@ -8,6 +8,8 @@ $strAdd = "Ajouter";
 $strAdministration = "Administration"; 
 $strAdministration = "Administration"; 
 $strAgelimit = "Limite d’âge"; 
+$strAlgeNoPath = 'Le chemin indiqué pour le chronométrage n’existe pas. Les changements n’ont pas été enregistrés.';
+$strAlgeNoPathBackup = 'Le chemin du chronométrage ALGE n’existe pas. La configuration du chronométrage a été remise à zéro.';
 $strAssignInstallationToEveryHeat = "Attribuer les installations à toutes les séries";  
 $strAssign = "Attribuer"; 
 $strAssignBy = "Attribuer selon"; 
@@ -21,8 +23,10 @@ $strAttempts = "Essais";
 
 $strBack = "Retour"; 
 $strBackup = "Sauvegarder des données"; 
+$strBackupBaseTablesSkipped = 'Les données de base n’ont pas été enregistrées.<br/>Veuillez effectuer une mise à jour des données de base.';
 $strBackupInfo = 'Cette fonction vous permet d’actualiser les données initiales (athlètes, meilleures performances, relais, sociétés).';
 $strBackupRestoreInfo = 'Sélectionnez une protection Athletica existante pour entrer les données et pour mettre Athletica au niveau de la donnée de protection.';
+$strBackupTimingReset = 'Un ou plusieurs chemins de chronométrage n’ont pas été trouvés et ont été remis à zéro.<br/>Veuillez contrôler les réglages sur Meeting > Chronométrage.';
 $strBackupOK = 'Sicherung anlegen';
 $strBackupFile = "Fichier de sauvegarde"; 
 $strBeginningWith = "Commençant par";  
@@ -222,6 +226,8 @@ $strNoEntries = "Aucune inscription.";
 $strNoMeetingSelected = "Aucun meeting sélectionné."; 
 $strNoPageBreak = "Sans de saut de page";  
 
+$strOmegaNoPath = 'Le chemin indiqué pour le chronométrage n’existe pas. Les changements n’ont pas été enregistrés.';
+$strOmegaNoPathBackup = 'Le chemin du chronométrage OMEGA n’existe pas. La configuration du chronométrage a été remise à zéro.';
 $strOK = "OK"; 
 $strOKDelete = "Entrée dans banque de données supprimée"; 
 $strOKInsert = "Nouvelle entrée dans banque de données"; 
@@ -638,4 +644,7 @@ $strSelectMeeting = 'Sélectionner meeting';
 $strBaseMeetingAct = 'Informations téléchargées (inscriptions, No d’event) sont importées dans le meeting Athletica suivant:';
 
 $strSaison = "Saison";
+
+$strEfforts = 'Meilleures performances';
+$strEffortsWarning = 'ATTENTION:<br/>Le temps de sortie peut durer plusieurs minutes pour beaucoup de résultats.';
 ?>
