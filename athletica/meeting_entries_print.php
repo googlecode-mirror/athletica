@@ -6,7 +6,7 @@
  *	-------------------------
  *	
  */
-
+ 
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -156,7 +156,8 @@ $page->printPageTitle($strPrint);
             <tr>
                 <td class='dialog'><?php echo $strClub; ?></td>
                 <?php
-                $dd = new GUI_ClubDropDown(0);
+               $dd = new GUI_ClubDropDown(0);
+                
                 ?>
             </tr>
             <tr>
@@ -198,7 +199,44 @@ $page->printPageTitle($strPrint);
                 <?php
                 }   
                 ?> 
-                 
+                   
+         <td class="dialog"><?php echo $strAthlete ?></td> 
+         <td class="forms">   
+         <form action='meeting_entry_add.php' method='post' name='athleteSearch'> 
+         <input name='arg' type='hidden' value='change_athlete' />  
+         <?php  
+        
+         $dropdown = new GUI_Select('athleteSearch', 1, "document.athleteSearch.submit()");    
+                                                                                                    
+         $sql_athlets = "SELECT    
+                                at.Vorname, 
+                                at.Name, 
+                                a.xAnmeldung 
+                         FROM 
+                                anmeldung AS a
+                                LEFT JOIN athlet AS at USING (xAthlet)
+                         WHERE 
+                                xMeeting = ".$_COOKIE['meeting_id'] . "
+                         ORDER BY at.Name, at.Vorname";  
+                                
+                                                             
+         $result_a=mysql_query($sql_athlets);
+         if(mysql_num_rows($result_a) > 0)  {   
+               while( $row_athlets=mysql_fetch_row($result_a)) {
+                    $name_athlete=$row_athlets[1] . " " . $row_athlets[0];
+                    $dropdown->addOption($name_athlete, $row_athlets[2]); 
+                }
+                $dropdown->selectOption($athleteSearch);
+                $dropdown->addOptionNone();
+                $dropdown->printList();  
+         }
+         else
+              {$search_occurred=true;
+              $search_match;   
+              } 
+        ?>
+        </form>      
+        </td> 
 		</table>
 	</td>
 </tr>
