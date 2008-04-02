@@ -67,17 +67,17 @@ if($_GET['arg'] == 'backup')
 		}
 	while ($row = mysql_fetch_row($result))
 		{
-			//ignore base-tables
+			//ignore base-tables, sys-tables and other tables with non user customizing possibilities
 			if (!isset($_GET['base'])){ 
-				if (substr($row[0],0,5)== "base_"){
+				if (substr($row[0],0,5)== "base_" ||
+					substr($row[0],0,4)== "sys_" ||
+					$row[0] == "kategorie_svm" ||
+					$row[0] == "land") 
+				{
 					continue;
 				}
 			}
-	
-			//ignore sys-tables
-				if (substr($row[0],0,4)== "sys_"){
-					continue;
-				}
+
 	
 			if ($_GET['xMeeting']=="-"){
 				$res = mysql_query("SELECT * FROM $row[0]");
@@ -291,7 +291,7 @@ else if ($_POST['arg'] == 'restore')
 			// set max_allowed_packet for inserting very big queries
 			mysql_pconnect( $GLOBALS['cfgDBhost'].':'.$GLOBALS['cfgDBport'], "root", "");
 			mysql_select_db($GLOBALS['cfgDBname']);
-			mysql_query("SET @@global.max_allowed_packet=16777216");
+			mysql_query("SET @@global.max_allowed_packet=16777216"); //16 MB
 			if(mysql_errno() > 0){
 				$error = true;
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -323,20 +323,27 @@ else if ($_POST['arg'] == 'restore')
 				{
 					// restoring of base tables fails in older versions then 3.3 (new unique indexes in 3.3)
 					if($shortVersion < 3.3 && substr($sqlInsert[$i],0, strlen("INSERT INTO base_")) == "INSERT INTO base_"){ 
-						$nbr_skipped_basetables = 6;
-					} else {
-						//echo substr($sqlInsert[$i], 0, strpos($sqlInsert[$i], " VALUES")) . " ... ";
-						mysql_query($sqlInsert[$i]);
-						if(mysql_errno() > 0)
-						{
-							$error = true;
-							echo mysql_errno() . ": " . mysql_error() . "<br>";
-							echo '<pre>'. $sqlInsert[$i].'</pre>';
-							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-							break;
-						}
-						//echo "OK<br><br>";
+						$skipped_basetables = true;
+						continue;
 					}
+					
+					//skip tables
+					if(substr($sqlInsert[$i], 0, strlen("INSERT INTO kategorie_svm")) == "INSERT INTO kategorie_svm"){ 
+						continue;
+					}
+					
+					
+					//echo substr($sqlInsert[$i], 0, strpos($sqlInsert[$i], " VALUES")) . " ... ";
+					mysql_query($sqlInsert[$i]);
+					if(mysql_errno() > 0)
+					{
+						$error = true;
+						echo mysql_errno() . ": " . mysql_error() . "<br>";
+						echo '<pre>'. $sqlInsert[$i].'</pre>';
+						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+						break;
+					}
+					//echo "OK<br><br>";
 				}
 			//}	// ET invalid content
 			
@@ -827,9 +834,7 @@ else if ($_POST['arg'] == 'restore')
 		
 		// output information about number of truncate and insert statements
 		echo "<tr><td class='dialog'>";
-		//echo "Truncating ".count($sqlTruncate)." tables<br>";
-		//echo "Inserting values of ".(count($sqlInsert)-$nbr_skipped_basetables)." tables";
-		if ($nbr_skipped_basetables>0){
+		if ($skipped_basetables == true){
 			echo "<br><br><br>".$strBackupBaseTablesSkipped." ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
 		}
 		if ($timing_errors>0){
