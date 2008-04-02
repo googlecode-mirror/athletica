@@ -6,7 +6,7 @@
  *	-------------------------
  *	
  */
-
+    
 require('./lib/cl_gui_entrypage.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
 require('./lib/cl_export_entrypage.lib.php');
@@ -29,6 +29,7 @@ $cat_clause="";
 $disc_clause="";
 $club_clause="";
 $contestcat_clause="";
+$athlete_clause="";
 
 // basic sort argument (default: sort by name)
 if ($_GET['sort'] == "nbr") {
@@ -67,7 +68,10 @@ if($_GET['category'] > 0){
 $date = '%';  
 if(isset($_GET['date']) && !empty($_GET['date'])) {     
         $date_clause = " AND  r.Datum LIKE '" . $_GET['date'] ."'";
-}       
+}  
+ if($_GET['athleteSearch'] > 0) {        // athlete selected
+    $athlete_clause = " AND a.xAnmeldung = " . $_GET['athleteSearch'];
+} 
 
 $print = false;
 if($_GET['formaction'] == 'print') {		// page for printing 
@@ -136,9 +140,8 @@ else if ($_GET['catgroup'] == "yes" || $_GET['contestcatgroup'] == "yes")
 	}
 	else {
 		$doc = new GUI_CatEntryPage($_COOKIE['meeting']);
-	}
-
-}
+	}  
+}   
 else
 {
 	if($print == true) {
@@ -153,6 +156,9 @@ if($_GET['cover'] == 'cover' && !$export) { // print cover page
 	$doc->printCover("$strEntries $strAthletes");
 	printf("<p/>");
 }
+ 
+ $reduction=AA_getReduction();
+
  
 $result = mysql_query("
 	SELECT DISTINCT a.xAnmeldung
@@ -177,6 +183,7 @@ $result = mysql_query("
 		, d2.Name
 		, v.Sortierwert
 		, k.Anzeige
+        , w.Startgeld    
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -207,12 +214,13 @@ $result = mysql_query("
 	$club_clause
 	$contestcat_clause
     $date_clause
+    $athlete_clause
 	$limitNrSQL
 	ORDER BY
 		$argument
-");
-
-
+    
+");     
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -228,38 +236,38 @@ else if(mysql_num_rows($result) > 0)  // data found
 	
 	// full list, sorted by name or start nbr
 	while ($row = mysql_fetch_row($result))
-	{
+	{   
 		// print previous athlete, if any
 		if($a != $row[0] && $a > 0)
-		{
+		{  
 			if((is_a($doc, "PRINT_CatEntryPage"))
 				|| (is_a($doc, "GUI_CatEntryPage")))
-		  	{
+		  	{  
 				$doc->printLine($nbr, $name, $year, $club, $disc, $ioc);
 			}
 			else if((is_a($doc, "PRINT_ClubEntryPage"))
 				|| (is_a($doc, "GUI_ClubEntryPage")))
-		  	{
+		  	{     
 				$doc->printLine($nbr, $name, $year, $cat, $disc, $ioc);
 			}
 			else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_CatDiscEntryPage")))
-		  	{
+		  	{   
 				$doc->printLine($nbr, $name, $year, $club, $perf, $ioc);
 			}
 			else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatEntryPage")))
-		  	{
+		  	{     
 				$doc->printLine($nbr, $name, $year, $disc, $ioc);
 			}
 			else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatDiscEntryPage")))
-		  	{
+		  	{    
 				$doc->printLine($nbr, $name, $year, $perf, $ioc);
 			}
 			else
-			{
-				$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid);
+			{  
+				$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $fee);
 			}
 			
 			$nbr = "";
@@ -345,7 +353,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		}
 		
 		if($a != $row[0])		// new athlete
-		{
+		{   $fee=0;
 			$nbr = $row[1];
 			$name = $row[2] . " " . $row[3];		// assemble name field
 			$year = AA_formatYearOfBirth($row[4]);
@@ -390,7 +398,13 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$perf = "-";
 			}
 		}
-		
+        if ($fee==0) {
+		    $fee+=$row[22];   
+        }
+        else {
+            $fee+=($row[22] - ($reduction/100));  
+        }    
+         
 		$mehrkampf = ($row[18]!='') ? $row[19] : '';
 		$mehrkampfInfo = ($mehrkampf!='' && $row[17]!='' && $mehrkampf!=$row[17]) ? ' ('.$row[17].')' : '';
 		$disc = ($mehrkampf!='') ? $mehrkampf . $mehrkampfInfo : $disc;
@@ -408,11 +422,13 @@ else if(mysql_num_rows($result) > 0)  // data found
 		
 		$l++;			// increment line count
 		$a = $row[0];
+        
 	}
 	
 	// print last athlete, if any
 	if($a > 0)
-	{
+	{   
+    
 		if((is_a($doc, "PRINT_CatEntryPage"))
 			|| (is_a($doc, "GUI_CatEntryPage")))
 		{
@@ -439,8 +455,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 			$doc->printLine($nbr, $name, $year, $perf, $ioc);
 		}
 		else
-		{
-			$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid);
+		{  
+			$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $fee);   
 		}
 	}
 	
