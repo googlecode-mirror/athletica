@@ -131,14 +131,14 @@ function AA_speaker_Tech($event, $round, $layout)
 				$rank = '';
 				$perfs = array();
 
-				$res = mysql_query("
-					SELECT
+				$sql = "SELECT
 						r.Leistung
 						, r.Info
 					FROM
 						resultat AS r
-					WHERE r.xSerienstart = $row[6]
-				");
+					WHERE r.xSerienstart = $row[6]";
+				$res = mysql_query($sql);
+				//echo $sql;
 
 				if(mysql_errno() > 0) {		// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -164,7 +164,7 @@ function AA_speaker_Tech($event, $round, $layout)
 					mysql_free_result($res);
 				}
 
-				print_r($row);
+				//print_r($perfs);
 				
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
 					, AA_formatYearOfBirth($row[12]), $row[13], $perfs, $rank);
