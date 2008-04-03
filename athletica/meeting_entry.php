@@ -311,6 +311,7 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 		}
 	}
 	
+	
 	mysql_query("LOCK TABLES anmeldung READ, disziplin READ, runde READ,"
 		. " kategorie READ, base_athlete READ, base_performance READ, wettkampf READ, start READ, start WRITE");
 	
@@ -355,6 +356,21 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 					$perf = 0;
 					if($_POST['license'] != ''){    
 						// need codes of category and discipline        // meine 3 zugefügt
+						/*$res = mysql_query("
+							SELECT disziplin.Code as DiszCode, 
+								kategorie.Code as KatCode, 
+								disziplin.Typ as Typ, 
+								disziplin.xDisziplin, 
+								kategorie.xKategorie,
+								wettkampf.xMeeting  
+							FROM
+								disziplin
+								, kategorie
+								, wettkampf
+							WHERE	wettkampf.xWettkampf = ".$event."
+							AND	wettkampf.xDisziplin = disziplin.xDisziplin
+							AND	wettkampf.xKategorie = kategorie.xKategorie");*/
+							
 						$sql = "SELECT disziplin.Code AS DiszCode, 
 									   kategorie.Code AS KatCode, 
 									   disziplin.Typ AS Typ, 
@@ -378,6 +394,16 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 							
 							$rowMeeting = mysql_fetch_array($res);
 
+							/*$sql = "
+								SELECT
+									notification_effort
+								FROM
+									base_performance
+									, base_athlete
+								WHERE	base_athlete.license = ".$_POST['license']."
+								AND	base_performance.id_athlete = base_athlete.id_athlete
+								AND	base_performance.discipline = ".$rowCodes['DiszCode'] ."
+								AND season = '$saison'";*/
 							$sql = "SELECT notification_effort 
 									  FROM base_performance 
 								 LEFT JOIN base_athlete USING(id_athlete) 
@@ -730,12 +756,17 @@ else if ($_POST['arg']=="change_top")
 	");
 
 	// check if any starts
-	$sql = "SELECT d.Typ 
-			  FROM disziplin AS d 
-		 LEFT JOIN wettkampf AS w USING(xDisziplin) 
-		 LEFT JOIN start AS s USING(xWettkampf) 
-			 WHERE s.xStart = ".$_POST['event'].";";
-	$result = mysql_query($sql);
+	$result = mysql_query("
+		SELECT
+			d.Typ
+		FROM
+			disziplin AS d
+			, start AS s
+			, wettkampf AS w
+		WHERE s.xStart = " . $_POST['event'] . "
+		AND w.xWettkampf = s.xWettkampf
+		AND d.xDisziplin = w.xDisziplin
+	");
 
 	if(mysql_errno() > 0)
 	{
@@ -971,40 +1002,46 @@ else
 }
  
 // read entry
-$sql = "SELECT a.xAnmeldung, 
-			   a.xKategorie, 
-			   a.Startnummer, 
-			   at.xAthlet, 
-			   at.Name, 
-			   at.Vorname, 
-			   at.Vorname, 
-			   at.Jahrgang, 
-			   k.Kurzname, 
-			   v.Name, 
-			   v.xVerein, 
-			   t.Name, 
-			   t.xTeam, 
-			   a.Erstserie, 
-			   at.Lizenznummer, 
-			   k.Alterslimite, 
-			   k.Code, 
-			   SUBSTRING(at.Geburtstag, 9, 2), 
-			   SUBSTRING(at.Geburtstag, 6, 2), 
-			   at.Land, 
-			   at.Geschlecht, 
-			   a.Gruppe, 
-			   a.BestleistungMK, 
-			   at.xRegion, 
-			   at.Lizenztyp, 
-			   at.Athleticagen, 
-			   a.Vereinsinfo 
-		  FROM anmeldung AS a 
-	 LEFT JOIN athlet AS at USING(xAthlet) 
-	 LEFT JOIN kategorie AS k ON(a.xKategorie = k.xKategorie) 
-	 LEFT JOIN verein AS v ON(at.xVerein = v.xVerein) 
-	 LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-		 WHERE a.xAnmeldung = ".$_POST['item'].";";
-$result = mysql_query($sql);
+$result = mysql_query("
+	SELECT
+		a.xAnmeldung
+		, a.xKategorie
+		, a.Startnummer
+		, at.xAthlet
+		, at.Name
+		, at.Vorname
+		, at.Jahrgang
+		, k.Kurzname
+		, v.Name
+		, v.xVerein
+		, t.Name
+		, t.xTeam
+		, a.Erstserie
+		, at.Lizenznummer
+		, k.Alterslimite
+		, k.Code
+		, substring(at.Geburtstag, 9,2)
+		, substring(at.Geburtstag, 6,2)
+		, at.Land
+		, at.Geschlecht
+		, a.Gruppe
+		, a.BestleistungMK
+		, at.xRegion
+		, at.Lizenztyp
+		, at.Athleticagen
+		, a.Vereinsinfo
+	FROM
+		anmeldung AS a
+		, athlet AS at
+		, kategorie AS k
+		LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
+	LEFT JOIN team AS t
+	ON a.xTeam = t.xTeam
+	WHERE a.xAnmeldung = " . $_POST['item'] . "
+	AND a.xAthlet = at.xAthlet
+	AND a.xKategorie = k.xKategorie
+	
+");
 
  if(mysql_errno() > 0)		// DB error
 {
@@ -1021,6 +1058,11 @@ else if(mysql_num_rows($result) > 0)  // data found
 	$agelimit = $row[14];
 	$catcode = $row[15];
 	$sex = '';
+	/*if(substr($catcode,0,1) == 'M' || substr($catcode,3,1) == 'M'){
+		$sex = "M";
+	}else{
+		$sex = "W";
+	}*/
 	$sex = trim($row[19]);
 	
 ?>
@@ -1109,15 +1151,19 @@ $btn->printButton();
 		// check on firstheat
 		// athlete can be a "first heat runner" on max 2 disciplines
 		// flag is set on start for event
-		$sql = "SELECT s.xStart, 
-					   s.Erstserie, 
-					   d.Kurzname, 
-					   w.Info 
-				  FROM start AS s 
-			 LEFT JOIN wettkampf AS w USING(xWettkampf) 
-			 LEFT JOIN disziplin AS d USING(xDisziplin) 
-				 WHERE s.xAnmeldung = ".$row[0].";";
-		$resFh = mysql_query($sql);
+		$resFh = mysql_query("SELECT 
+						s.xStart
+						, s.Erstserie
+						, d.Kurzname
+						, w.Info
+					FROM
+						start as s
+						, wettkampf as w
+						, disziplin as d
+					WHERE
+						s.xAnmeldung = $row[0]
+					AND	w.xWettkampf = s.xWettkampf
+					AND	d.xDisziplin = w.xDisziplin");
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
 		}else{
@@ -1344,27 +1390,32 @@ $dis2 = false;
 	//
 	//	Show disciplines
 	//
-	$sql = "SELECT w.xWettkampf, 
-				   d.Kurzname, 
-				   d.Typ, 
-				   k.Kurzname, 
-				   k.Name, 
-				   k.Alterslimite, 
-				   k.Code, 
-				   w.Info, 
-				   k.xKategorie, 
-				   w.Mehrkampfcode, 
-				   w.Typ, 
-				   k.Geschlecht, 
-				   d.xDisziplin 
-			  FROM wettkampf AS w 
-		 LEFT JOIN disziplin AS d USING(xDisziplin) 
-		 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
-			 WHERE w.xMeeting = ".$_COOKIE['meeting_id']." 
-		  ORDER BY k.Kurzname ASC, 
-				   w.Mehrkampfcode ASC, 
-				   d.Anzeige ASC;";
-	$res = mysql_query($sql);
+	$res = mysql_query("
+		SELECT
+			w.xWettkampf
+			, d.Kurzname
+			, d.Typ
+			, k.Kurzname
+			, k.Name
+			, k.Alterslimite
+			, k.Code
+			, w.Info
+			, k.xKategorie
+			, w.Mehrkampfcode
+			, w.Typ
+			, k.Geschlecht
+			, d.xDisziplin
+		FROM
+			wettkampf as w
+			, disziplin AS d
+			, kategorie as k
+		WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
+		"/*AND w.xKategorie = $row[1]*/
+		."AND w.xDisziplin = d.xDisziplin
+		AND w.xKategorie = k.xKategorie
+		ORDER BY
+			k.Kurzname, w.Mehrkampfcode, d.Anzeige
+	");
 								
 	if(mysql_errno() > 0)			// DB error
 	{
@@ -1468,7 +1519,7 @@ $dis2 = false;
 				WHERE xWettkampf = $event_row[0]
 				AND xAnmeldung = $row[0]
 			");   
-
+					 
 			if(mysql_errno() > 0)		// DB error
 			{
 			  AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1515,13 +1566,14 @@ $dis2 = false;
 					
 					// check if one of the combined events is selected
 					$start_comb = false;
-					$sql = "SELECT * 
-							  FROM start AS w 
-						 LEFT JOIN wettkampf AS w USING(xWettkampf) 
-							 WHERE w.xKategorie = ".$event_row[8]." 
-							   AND w.Mehrkampfcode = ".$event_row[9]." 
-							   AND s.xAnmeldung = ".$row[0].";";
-					$resStartComb = mysql_query($sql);
+					$resStartComb = mysql_query("SELECT * FROM
+									start as s
+									, wettkampf as w
+								WHERE
+									w.xKategorie = $event_row[8]
+								AND	w.Mehrkampfcode = $event_row[9]
+								AND	s.xWettkampf = w.xWettkampf
+								AND	s.xAnmeldung = $row[0]");
 					if(mysql_num_rows($resStartComb) > 0){
 						$start_comb = true;
 					}
@@ -1577,13 +1629,11 @@ $dis2 = false;
 							$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $combClosed");
 							$comb_row = mysql_Fetch_array($comb_res);
 							?>
-							<tr>
 							<td class='dialog-top' colspan='6'>
 								<input type="checkbox" value="<?php echo $event_row[8]."_".$combClosed ?>" name="combined[]"
 									onclick="updateStarts('add_combined', '<?php echo $event_row[8]."_".$combClosed ?>','')">
 								<?php echo $comb_row[0]; ?>
 							</td>
-							</tr>
 							<?php
 						}
 					}
@@ -1621,6 +1671,34 @@ $dis2 = false;
 		</table>
 		<?php
 	}	// ET DB error	/ disciplines present (disciplines)
+
+	// show if athlete starts also in other category (e.g. relays)
+	// (only delete possible!)
+	/*$res = mysql_query("
+		SELECT
+			d.Kurzname
+			, k.Kurzname
+			, s.xStart
+		FROM
+			disziplin AS d
+			, kategorie AS k
+			, start AS s
+			, wettkampf AS w
+		WHERE s.xAnmeldung = $row[0]
+		AND s.xWettkampf = w.xWettkampf
+		AND w.xDisziplin = d.xDisziplin
+		AND w.xKategorie = k.xKategorie
+		AND w.xKategorie != $row[1]
+		ORDER BY
+			d.Anzeige
+	");
+							
+	if(mysql_errno() > 0)			// DB error
+	{
+		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+	}
+	else if(mysql_num_rows($res) > 0)
+	{*/
 ?>
 		<br/>
 		<table>
@@ -1638,6 +1716,30 @@ $dis2 = false;
 		<input name='club' type='hidden' value='<?php echo $club; ?>' />
 		<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
 		<input name='event' type='hidden' value='' />
+
+		<?php
+		/*$d=0;
+
+		// display list of events
+		while ($event_row = mysql_fetch_row($res))
+		{
+			if( $d % 3 == 0 ) {		// new row after seven events
+				if ( $d != 0 ) {
+					printf("</tr>");	// terminate previous row
+				}
+				printf("<tr>");
+			}
+
+			printf("<td><input name='events[]' type='checkbox'"
+			. " onclick='delStarts($event_row[2])'"
+			. " value='$event_row[2]' checked/>$event_row[0] ($event_row[1])</td>\n");
+			$d++;
+		}					// next event
+		mysql_free_result($res);
+		if($d!=0) {				// any row -> terminate last one
+			printf("</tr>\n");
+		}*/
+		?>
 		</form>
 		</table>
 		<?php
