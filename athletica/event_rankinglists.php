@@ -157,8 +157,8 @@ if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 }
 
 // Rankginglists for club and combined-events
-if(empty($presets['event']))	// no event selected
-{
+//if(empty($presets['event'])){// no event selected
+
 if (isset($eventTypeCat['combined'])){?>
 <tr>
 	<th class='dialog'>
@@ -209,7 +209,7 @@ if (isset($eventTypeCat['club'])){?>
 
 <?php
 }
-}
+//}
 if(empty($round) && isset($eventTypeCat['teamsm'])){	// team sm ranking minimum is discipline and at least one eventtype must be team-sm?>
 <tr>
 	<th class='dialog'>

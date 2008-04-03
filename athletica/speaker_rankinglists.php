@@ -161,13 +161,9 @@ $eventTypeCat = AA_getEventTypesCat();
 		<button type="submit">
 			<?php echo $strShow; ?>
 		</button>
-		<?php
-		if($presets['event'] > 0) {		// event selected
-		?>
 		<button type="submit" name="show_efforts" value="sb_pb">
 			<?php echo $strRankingListEfforts; ?>
 		</button>
-		<?php } ?>
 	</td>
 
 </tr>
