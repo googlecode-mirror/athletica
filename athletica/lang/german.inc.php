@@ -659,6 +659,7 @@ $strAllMeetings = "[Alle Meetings]";
 $strNoFile = "Keine Datei ausgewählt / hochgeladen"; 
 $strSB_long = "Saison-Bestleistung";
 $strPB_long = "Persönliche Bestleistuung blabla bla";
+$strTest ="bbbbbbbbbbb";
 
 $testtttttt = "hallo";
 ?>
