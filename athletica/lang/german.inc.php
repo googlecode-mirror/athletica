@@ -662,4 +662,5 @@ $strPB_long = "Persönliche Bestleistuung blabla bla";
 $strTest ="bbbbbbbbbbb";
 
 $testtttttt = "hallo";
+$test=22;
 ?>
