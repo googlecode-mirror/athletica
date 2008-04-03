@@ -1629,11 +1629,13 @@ $dis2 = false;
 							$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $combClosed");
 							$comb_row = mysql_Fetch_array($comb_res);
 							?>
-							<td class='dialog-top' colspan='6'>
-								<input type="checkbox" value="<?php echo $event_row[8]."_".$combClosed ?>" name="combined[]"
-									onclick="updateStarts('add_combined', '<?php echo $event_row[8]."_".$combClosed ?>','')">
-								<?php echo $comb_row[0]; ?>
-							</td>
+							<tr>
+								<td class='dialog-top' colspan='6'>
+									<input type="checkbox" value="<?php echo $event_row[8]."_".$combClosed ?>" name="combined[]"
+										onclick="updateStarts('add_combined', '<?php echo $event_row[8]."_".$combClosed ?>','')">
+									<?php echo $comb_row[0]; ?>
+								</td>
+							</tr>
 							<?php
 						}
 					}
