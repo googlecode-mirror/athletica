@@ -660,5 +660,5 @@ $strNoFile = "Keine Datei ausgewählt / hochgeladen";
 $strSB_long = "Saison-Bestleistung";
 $strPB_long = "Persönliche Bestleistuung blabla bla";
 
-
+$testtttttt = "hallo";
 ?>
