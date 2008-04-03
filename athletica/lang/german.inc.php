@@ -658,9 +658,6 @@ $strBasdataIncluded = "Auch die Stammdaten sichern";
 $strAllMeetings = "[Alle Meetings]";
 $strNoFile = "Keine Datei ausgewählt / hochgeladen"; 
 $strSB_long = "Saison-Bestleistung";
-$strPB_long = "Persönliche Bestleistuung blabla bla";
-$strTest ="bbbbbbbbbbb";
+$strPB_long = "Persönliche Bestleistuung";
 
-$testtttttt = "hallo";
-$test=22;
 ?>
