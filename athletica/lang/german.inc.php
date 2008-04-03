@@ -658,6 +658,6 @@ $strBasdataIncluded = "Auch die Stammdaten sichern";
 $strAllMeetings = "[Alle Meetings]";
 $strNoFile = "Keine Datei ausgewählt / hochgeladen"; 
 $strSB_long = "Saison-Bestleistung";
-$strPB_long = "Persönliche Bestleistuung";
+$strPB_long = "Persönliche Bestleistung";
 
 ?>
