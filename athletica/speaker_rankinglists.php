@@ -28,6 +28,20 @@ $menu = new GUI_Menulist();
 $menu->addButton($cfgURLDocumentation . 'help/speaker/rankinglists.html', $strHelp, '_blank');
 $menu->printMenu();
 
+?>
+<script type="text/javascript">
+<!--   
+    
+    function checkDisc() 
+    {  
+       e = document.getElementById("combined"); 
+       e.checked=true; 
+    }
+    
+   
+//-->
+</script>
+<?php
 
 // get presets
 $round = 0;
@@ -87,10 +101,27 @@ $eventTypeCat = AA_getEventTypesCat();
 <?php if (isset($eventTypeCat['combined'])){?>
 <tr>
 	<th class='dialog'>
-		<input type='radio' name='type' value='combined'>
+		<input type='radio' name='type' value='combined' id='combined'>
 			<?php echo $strCombinedEvent; ?></input>
 	</th>
 </tr>
+<tr> 
+    <td class='dialog'>&nbsp;&nbsp;&nbsp;&nbsp;Disziplin: 1 bis   
+            <select name='disc_nr' onchange='checkDisc()'>
+                <option value="99">99</option>
+                <?php
+                for ($i=1;$i<=99;$i++){
+                    ?>
+                    <option value="<?=$i?>"><?=$i?></option>
+                    <?php
+                }
+                ?>
+            </select>
+        </td>
+</tr>
+
+
+
 <?php } ?>
 
 <?php if (isset($eventTypeCat['club'])){?>
