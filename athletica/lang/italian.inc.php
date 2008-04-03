@@ -451,14 +451,6 @@ $strResetDone = "I dati base sono stati modificate. Desiderate un aggiornamento.
 $strSeparateU23 = "Categoria U23 separata";
 $strSex = "Sesso";
 $strTo = "Fino a";
-$strVideowall = "Schermo";
-$strVideowallAdd = "Aggiungere lo schermo";
-$strVideowallPreview = "Schermo previsto";
-$strVideowallGeneral = "Impostazione dello schermo";
-$strVideowallResolution = "Risoluzione dello schermo (beamer)";
-$strVideowallRefresh = "Cambio del tipo di schermo";
-$strVideowallStatus = "Dati dello schermo";
-$strVideowallNoScreen = "Dovete dapprima collegare uno schermo!";
 
 $strContestCategory = "Categoria  di gara";
 $strCreatedBy = "Creato con";

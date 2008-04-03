@@ -46,7 +46,6 @@ INSERT INTO `sys_backuptabellen`(`xBackup`,`Tabelle`,`SelectSQL`) VALUES
 (9,'base_relay','SELECT * FROM base_relay'),
 (10,'base_svm','SELECT * FROM base_svm'),
 (11,'disziplin','SELECT * FROM disziplin'),
-(12,'faq','SELECT * FROM faq'),
 (13,'kategorie','SELECT * FROM kategorie'),
 (16,'layout','SELECT * FROM layout WHERE xMeeting = \'%d\''),
 (17,'meeting','SELECT * FROM meeting WHERE xMeeting=\'%d\''),

@@ -323,8 +323,6 @@ $cfgOpenPages = array(	"speaker"
 			, "speaker_entry"
 			, "speaker_rankinglists"
 			, "speaker_results"
-			, "speaker_videowall"
-			, "speaker_videowall_show"
 			, "meeting"
 			, $_COOKIE['meeting']
 			, "login");

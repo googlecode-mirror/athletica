@@ -18,12 +18,19 @@ class GUI_Faq{
 	function showFaq($title){
 		
 		// get faq from database an print
-		$res = mysql_query("SELECT * FROM faq WHERE Zeigen = 'y' AND Seite = '$title' AND Sprache = '".$_COOKIE['language']."'");
+		$sql = "SELECT * 
+				  FROM faq 
+				 WHERE Zeigen = 'y' 
+				   AND (Seite LIKE '".$title."' 
+					OR Seite LIKE '".$title.",%' 
+					OR Seite LIKE '%,".$title."' 
+					OR Seite LIKE '%,".$title.",%') 
+				   AND Sprache = '".$_COOKIE['language']."';";
+		$res = mysql_query($sql);
 		if(mysql_errno() > 0){
 			
 		}else{
 			while($row = mysql_fetch_assoc($res)){
-				
 				$this->generateFaq($row);
 				
 			}
@@ -39,22 +46,13 @@ class GUI_Faq{
 		$width = ($faq['width']>0) ? $faq['width'] : 400;
 		$width2 = $width-18;
 		
-		/*if($faq['height']>0){
-			?>
-			<iframe style="position:absolute; top:<?php echo $faq['PosTop'] ?>px; left:<?php echo $faq['PosLeft'] ?>px; width:<?=($width-10)?>px;<?=$height2?> z-index: 900;" id="faqifrm<?php echo $faq['xFaq'] ?>">
-			</iframe>
-			<?php
-		} else {
-			?>
-			<iframe style="position:absolute; top:<?php echo $faq['PosTop'] ?>px; left:<?php echo $faq['PosLeft'] ?>px; width:<?=($width-10)?>px; height: 5px" z-index: 900;" id="faqifrm<?php echo $faq['xFaq'] ?>">
-			</iframe>
-			<?php
-		}*/
+		$farbetitel = $faq['FarbeTitel'];
+		$farbehg = $faq['FarbeHG'];
 		?>
 		<div style="position:absolute; top:<?php echo $faq['PosTop'] ?>px; left:<?php echo $faq['PosLeft'] ?>px; width: <?=$width?>px; z-index: 1000;" id="faqdiv<?php echo $faq['xFaq'] ?>">
-			<div class="faq">
+			<div class="faq" style="background-color: #<?=$farbehg?>;">
 				<table>
-					<tr><th class="faq"><?php echo $faq['Frage'] ?></th></tr>
+					<tr><th class="faq" style="background-color: #<?=$farbetitel?>;"><?php echo $faq['Frage'] ?></th></tr>
 					<tr><td><?php echo $faq['Antwort'] ?></td></tr>
 					<tr><td height="5px"></td></tr>
 					<tr><td><?php echo $strDontShowAgain; ?> <input style="padding:0px; margin:0px;" type="checkbox" name="faq" id="faq<?php echo $faq['xFaq'] ?>" value="" checked></td></tr>

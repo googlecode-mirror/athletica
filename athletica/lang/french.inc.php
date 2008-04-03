@@ -489,14 +489,6 @@ $strResetDone = "Les données initiales ont été remis à l'état initial. Exécutez 
 $strSeparateU23 = "U23 séparé";
 $strSex = "Sexe";
 $strTo = "Jusqu’à";
-$strVideowall = "Paroi vidéo";
-$strVideowallAdd = "Ajouter écran";
-$strVideowallPreview = "Aperçu";
-$strVideowallGeneral = "Réglages généraux";
-$strVideowallResolution = "Résolution paroi vidéo";
-$strVideowallRefresh = "Changement d’image";
-$strVideowallStatus = "Etat";
-$strVideowallNoScreen = "Vous devez d’abord ajouter un écran!";
 
 $strContestCategory = "Catégorie de compétition";
 $strCreatedBy = "Créé avec";

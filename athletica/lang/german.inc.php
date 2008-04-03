@@ -584,15 +584,6 @@ $strMonths = array("", "Januar", "Februar", "März", "April", "Mai", "Juni", "Jul
 
 $strUnassignedAthletes = "( nicht zugeteilte Athleten )";
 
-$strVideowall = "Videowand";
-$strVideowallAdd = "Bildschirm hinzufügen";
-$strVideowallPreview = "Vorschau";
-$strVideowallGeneral = "Generelle Einstellungen";
-$strVideowallResolution = "Auflösung Videowand (Beamer)";
-$strVideowallRefresh = "Bildwechsel";
-$strVideowallStatus = "Status";
-$strVideowallNoScreen = "Sie müssen zuerst einen Bildschirm hinzufügen!";
-
 $strWarningEventInProgress= "Achtung! Wettkampf bereits eingeteilt."
 						. " Bitte Serien- oder Resultatlisten entsprechend anpassen: ";
 $strWarningDeleteMeeting= "Achtung! Alle Daten zu diesem Meeting werden"

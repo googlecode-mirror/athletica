@@ -156,23 +156,19 @@ if($arg == "login"){
 		case 'speaker_entries':
 		case 'speaker_results':
 		case 'speaker_rankinglists':
-		case 'speaker_videowall':
 			$speaker_class = 'main';
 			// submenus
 			$subitems= array(0 => 'speaker_entries'
 								, 1 => 'speaker_results'
-								, 2 => 'speaker_rankinglists'
-								/*, 3 => 'speaker_videowall'*/);
+								, 2 => 'speaker_rankinglists');
 			// submenu titles
 			$subtitles= array(0 => $strEntries
 								, 1 => "$strHeats & $strResults"
-								, 2 => $strRankingLists
-								/*, 3 => $strVideowall*/);
+								, 2 => $strRankingLists);
 			// submenu style
 			$subitem_class= array(0 => 'subitem_inactive'
 								, 1 => 'subitem_inactive'
-								, 2 => 'subitem_inactive'
-								/*, 3 => 'subitem_inactive'*/);
+								, 2 => 'subitem_inactive');
 			// highlight current submenu
 			switch($arg) {
 				case 'speaker_entries':
@@ -183,9 +179,6 @@ if($arg == "login"){
 					break;
 				case 'speaker_rankinglists':
 					$subitem_class[2]='subitem';
-					break;
-				case 'speaker_videowall':
-					$subitem_class[3]='subitem';
 					break;
 			}
 			break;
