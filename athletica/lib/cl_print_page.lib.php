@@ -334,7 +334,7 @@ class PRINT_Page extends GUI_Page
 				$this->stdFooterLeft = "created by $cfgApplicationName $cfgApplicationVersion";
 				$this->stdFooterCenter = $this->orga;
 				$this->stdFooterRight = "$strPage !pn! ".strtolower($strOf)." <span id=\"totalpages_!pn!\">XY</span>";
-				$this->picHeaderCenter = "<img src=\"tmp/athletica-logo.png\" alt=\"\" height=\"30\" >";
+				$this->picHeaderCenter = "<img src=\"layout/athletica-logo.png\" alt=\"\" height=\"30\" >";
 				
 			}else{					// layout defined
 				
@@ -379,7 +379,7 @@ class PRINT_Page extends GUI_Page
 				break;
 		}
 		if(!empty($picture)){
-			$pic = "<img src=\"tmp/$picture\" alt=\"\" height=\"30\" >";
+			$pic = "<img src=\"layout/$picture\" alt=\"\" height=\"30\" >";
 		}
 	}
 	

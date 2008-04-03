@@ -29,7 +29,7 @@ if(isset($_POST['arg'])){
 	$arg = $_GET['arg'];
 }
 
-$tempdir = "tmp/";
+$tempdir = "layout/";
 
 if($arg == "save"){
 	// copy pictures
@@ -118,6 +118,61 @@ if(mysql_errno() > 0){
 	}
 }
 
+// Bilder die nicht mehr gebraucht werden löschen
+$dir = dir('layout/');
+while(($entry = $dir->read())!==false){
+	if(eregi('(bmp|gif|jpg|jpeg|png)$', $entry)){
+		if(!eregi('(^athletica100.jpg$|^athletica-logo.png$)', $entry)){
+			$sql = "SELECT COUNT(xLayout) AS total
+					  FROM layout 
+					 WHERE BildTL = '".$entry."' 
+						OR BildTC = '".$entry."' 
+						OR BildTr = '".$entry."' 
+						OR BildBL = '".$entry."' 
+						OR BildBC = '".$entry."' 
+						OR BildBR = '".$entry."';";
+			$query = mysql_query($sql);
+			if($query && mysql_num_rows($query)==1){
+				$row_t = mysql_fetch_assoc($query);
+				if($row_t['total']<=0){
+					@unlink('layout/'.$entry);
+				}
+			}
+		}
+	}
+}
+$dir->close();
+
+// Bilder im falschen Verzeichnis (tmp) ins Verzeichnis layout kopieren
+$dir = dir('tmp/');
+while(($entry = $dir->read())!==false){
+	if(eregi('(bmp|gif|jpg|jpeg|png)$', $entry)){
+		if(eregi('(^athletica100.jpg$|^athletica-logo.png$)', $entry)){
+			@unlink('tmp/'.$entry);
+		} else {
+			$sql = "SELECT COUNT(xLayout) AS total
+					  FROM layout 
+					 WHERE BildTL = '".$entry."' 
+						OR BildTC = '".$entry."' 
+						OR BildTr = '".$entry."' 
+						OR BildBL = '".$entry."' 
+						OR BildBC = '".$entry."' 
+						OR BildBR = '".$entry."';";
+			$query = mysql_query($sql);
+			if($query && mysql_num_rows($query)==1){
+				$row_t = mysql_fetch_assoc($query);
+				if($row_t['total']>0){
+					if(!file_exists('layout/'.$entry)){
+						@copy('tmp/'.$entry, 'layout/'.$entry);
+					}
+					@unlink('tmp/'.$entry);
+				}
+			}
+		}
+	}
+}
+$dir->close();
+
 //
 // display the 6 positions for page layout
 //
@@ -159,7 +214,7 @@ $menu->printMenu();
 		<?php
 		if(!empty($row['BildTL'])){
 			?>
-		<img src="tmp/<?php echo $row['BildTL'] ?>" height="30px" alt="">
+		<img src="layout/<?php echo $row['BildTL'] ?>" height="30px" alt="">
 		<input type="hidden" name="cpic_tl" value="<?php echo $row['BildTL'] ?>">
 			<?php
 		}
@@ -194,7 +249,7 @@ $menu->printMenu();
 		<?php
 		if(!empty($row['BildTC'])){
 			?>
-		<img src="tmp/<?php echo $row['BildTC'] ?>" height="30px" alt="">
+		<img src="layout/<?php echo $row['BildTC'] ?>" height="30px" alt="">
 		<input type="hidden" name="cpic_tc" value="<?php echo $row['BildTC'] ?>">
 			<?php
 		}
@@ -229,7 +284,7 @@ $menu->printMenu();
 		<?php
 		if(!empty($row['BildTR'])){
 			?>
-		<img src="tmp/<?php echo $row['BildTR'] ?>" height="30px" alt="">
+		<img src="layout/<?php echo $row['BildTR'] ?>" height="30px" alt="">
 		<input type="hidden" name="cpic_tr" value="<?php echo $row['BildTR'] ?>">
 			<?php
 		}
@@ -264,7 +319,7 @@ $menu->printMenu();
 		<?php
 		if(!empty($row['BildBL'])){
 			?>
-		<img src="tmp/<?php echo $row['BildBL'] ?>" height="30px" alt="">
+		<img src="layout/<?php echo $row['BildBL'] ?>" height="30px" alt="">
 		<input type="hidden" name="cpic_bl" value="<?php echo $row['BildBL'] ?>">
 			<?php
 		}
@@ -299,7 +354,7 @@ $menu->printMenu();
 		<?php
 		if(!empty($row['BildBC'])){
 			?>
-		<img src="tmp/<?php echo $row['BildBC'] ?>" height="30px" alt="">
+		<img src="layout/<?php echo $row['BildBC'] ?>" height="30px" alt="">
 		<input type="hidden" name="cpic_bc" value="<?php echo $row['BildBC'] ?>">
 			<?php
 		}
@@ -334,7 +389,7 @@ $menu->printMenu();
 		<?php
 		if(!empty($row['BildBR'])){
 			?>
-		<img src="tmp/<?php echo $row['BildBR'] ?>" height="30px" alt="">
+		<img src="layout/<?php echo $row['BildBR'] ?>" height="30px" alt="">
 		<input type="hidden" name="cpic_br" value="<?php echo $row['BildBR'] ?>">
 			<?php
 		}
