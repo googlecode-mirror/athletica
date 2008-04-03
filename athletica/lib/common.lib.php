@@ -108,43 +108,46 @@ require('./config.inc.php');
 	{
 		global $noMeetingCheck;
 		
+		$ret = TRUE;
+		
 		if(!$noMeetingCheck){
-			$ret = TRUE;
 			if(empty($_COOKIE['meeting_id']))
 			{
 				AA_printErrorPage($GLOBALS['strNoMeetingSelected']);
 				$ret = FALSE;
 			}
-			return $ret;
 		}
 		
-		if(isset($_SESSION['meeting_infos'])){
-			unset($_SESSION['meeting_infos']);
+
+		if(isset($_COOKIE['meeting_id'])){
+			if(isset($_SESSION['meeting_infos'])){
+				unset($_SESSION['meeting_infos']);
+			}
+					  
+			$sql_m= "SELECT * 
+					  FROM meeting";
+			$query_m = mysql_query($sql_m);   
+			
+			$sql = "SELECT * 
+					  FROM meeting 
+					 WHERE xMeeting = ".$_COOKIE['meeting_id'].";";
+			$query = mysql_query($sql); 
+			
+			if($query && mysql_num_rows($query)==1){ 
+				$row = mysql_fetch_assoc($query);
+				$_SESSION['meeting_infos'] = $row; 
+			}
+			else {
+				 if($query_m && mysql_num_rows($query_m)>0){
+					$_SESSION['meeting_infos'] = "meetingNotChosen";       // meeting exist but is not chosen 
+				 }
+				 else
+					if  ($query_m){
+						$_SESSION['meeting_infos'] = "noMeeting";      // no data in table meeting   
+					} 
+			}
 		}
-				  
-		$sql_m= "SELECT * 
-				  FROM meeting";
-		$query_m = mysql_query($sql_m);   
-		
-		$sql = "SELECT * 
-				  FROM meeting 
-				 WHERE xMeeting = ".$_COOKIE['meeting_id'].";";
-		$query = mysql_query($sql); 
-		
-		if($query && mysql_num_rows($query)==1){ 
-			$row = mysql_fetch_assoc($query);
-			$_SESSION['meeting_infos'] = $row; 
-		}
-		else {
-			 if($query_m && mysql_num_rows($query_m)>0){
-				$_SESSION['meeting_infos'] = "meetingNotChosen";       // meeting exist but is not chosen 
-			 }
-			 else
-				if  ($query_m){
-					$_SESSION['meeting_infos'] = "noMeeting";      // no data in table meeting   
-				} 
-		}
-		
+		return $ret;
 	}
 	
 	/**
