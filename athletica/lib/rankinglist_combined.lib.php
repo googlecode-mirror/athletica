@@ -31,7 +31,7 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 
 
 // get athlete info per contest category
-/*
+
 $results = mysql_query("
 	SELECT  
 		a.xAnmeldung
@@ -74,8 +74,8 @@ $results = mysql_query("
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 ");
- */
-           
+ 
+/*           
    $results= mysql_query("SELECT  
         a.xAnmeldung
         , at.Name
@@ -110,7 +110,7 @@ $results = mysql_query("
         , w.Mehrkampfcode
         , ka.Alterslimite DESC
         ");     
-               
+*/               
    
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -240,8 +240,8 @@ else
 		$comb = $row[7];
 		$combName = $row[8];
 		
-		// events
-		/*$res = mysql_query("
+		// events         
+		$res = mysql_query("
 			SELECT
 				d.Kurzname
 				, d.Typ
@@ -276,9 +276,9 @@ else
 				w.Mehrkampfreihenfolge ASC
 				, ru.Datum
 				, ru.Startzeit
-		");*/
+		");
         
-        
+     /*   
 		$res = mysql_query("
 			SELECT
 				d.Kurzname
@@ -303,7 +303,7 @@ else
 			AND w.xKategorie = $row[9]
 			AND w.Mehrkampfcode = $row[7]   
 			AND w.xWettkampf = st.xWettkampf   
-            AND d.xDisziplin = w.xDisziplin
+            AND d.xDisziplin = w.xDisziplin  
 			AND ru.xWettkampf = w.xWettkampf
 			AND ru.Datum LIKE '".$date."'
 			GROUP BY
@@ -313,7 +313,7 @@ else
 				, ru.Datum
 				, ru.Startzeit
 		");   
-       
+      */ 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
