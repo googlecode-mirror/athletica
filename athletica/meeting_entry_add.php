@@ -1767,10 +1767,10 @@ $page->printPageTitle($strNewEntryFromBase);
 			}
 			d.style.position = "relative";
 			d.style.visibility = "visible";
-			alert (d.style.visibility);
+			// alert (d.style.visibility);
 		}else{
 			d.style.position = "absolute";
-			d.style.visibility = "hidden";
+			// d.style.visibility = "hidden";
 		}
 	}
 	
