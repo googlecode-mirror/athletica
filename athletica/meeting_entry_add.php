@@ -1083,7 +1083,7 @@ function meeting_get_disciplines(){
 				$val = (isset($combs_def[$row['xKategorie']."_".$comb])) ? $combs_def[$row['xKategorie']."_".$comb] : '';
 				?>
 				<td class='dialog-top' nowrap="nowrap" id="topperftd<?php echo $combCat.$comb ?>">
-					<input type="checkbox" value="<?php echo $row['xKategorie']."_".$comb ?>" name="combined[]" id="combinedCheck<?=$row[8]?>_<?=$comb?>" 
+					<input type="checkbox" value="<?php echo $row['xKategorie']."_".$comb ?>" name="combined[]" id="combinedCheck<?=$row['xKategorie']?>_<?=$comb?>" 
 						onclick="check_combined('<?php echo $row['xKategorie']."_".$comb ?>', this);
 							validate_discipline(<?php echo "'".$combCat.$comb."', '".$row['Geschlecht']."', ".$row['Alterslimite'] ?>);"<?=$checked?>>
 					<?php echo $comb_row['Name']; ?>
@@ -1092,18 +1092,19 @@ function meeting_get_disciplines(){
 					<input type="text" name="topcomb_<?php echo $row['xKategorie']."_".$comb ?>" id="topcomb<?php echo $row['xKategorie']."_".$comb ?>" size="5" value="<?=$val?>">
 				</td>
 				<td class='dialog' nowrap="nowrap" id='td_<?php echo $row['xKategorie']."_".$comb ?>'>
-				<?php
-				echo( "<div id=\"div_".$row['xKategorie']."_".$comb."\" style=\"position:absolute; visibility:hidden;\">
-						<table>\n");
-						
-				if($checked==' checked="checked"'){
-					?>
-					<script type="text/javascript">
-						check_combined('<?=$row['xKategorie']?>_<?=$comb?>', document.getElementById('combinedCheck<?=$row['xKategorie']?>_<?=$comb?>'));
-						validate_discipline('<?=$combCat?><?=$comb?>', '<?=$row['Geschlecht']?>', <?=$row['Alterslimite']?>);
-					</script>
-					<?php
-				}
+					<div id="div_<?=$row['xKategorie']?>_<?=$comb?>" style="position: relative; display: none;">
+						<?php
+						if($checked==' checked="checked"'){
+							?>
+							<script type="text/javascript">
+								check_combined('<?=$row['xKategorie']?>_<?=$comb?>', document.getElementById('combinedCheck<?=$row['xKategorie']?>_<?=$comb?>'));
+								validate_discipline('<?=$combCat?><?=$comb?>', '<?=$row['Geschlecht']?>', <?=$row['Alterslimite']?>);
+							</script>
+							<?php
+						}
+						?>
+						<table>
+						<?php
 			}
 			
 			$effort = (isset($discs_def[$row['xWettkampf']]) && $effort=='') ? $discs_def[$row['xWettkampf']] : $effort;
@@ -1763,12 +1764,13 @@ $page->printPageTitle($strNewEntryFromBase);
 		var t = document.getElementById("td_"+str);
 		if(o.checked){
 			if(navigator.appName == "Microsoft Internet Explorer"){
-				t.appendChild(t);
+				//t.appendChild(t);
 			}
-			d.style.position = "relative";
-			d.style.visibility = "visible";
+			d.style.display = '';
+			//d.style.position = "relative";
 		}else{
-			d.style.position = "absolute";
+			d.style.display = 'none';
+			//d.style.position = "absolute";
 		}
 	}
 	
