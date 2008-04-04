@@ -74,6 +74,7 @@ $results = mysql_query("
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 ");
+     
  
 /*           
    $results= mysql_query("SELECT  
@@ -245,9 +246,9 @@ else
 			SELECT
 				d.Kurzname
 				, d.Typ
-				, MAX(r.Leistung)
+				 , MAX(IF (r.Info='-',r.Leistung=0,r.Leistung))  
 				, r.Info
-				, MAX(r.Punkte) AS pts
+				 , MAX(IF (r.Info='-',r.Punkte=0,r.Punkte)) AS pts
 				, s.Wind
 				, w.Windmessung
 				, st.xStart
@@ -276,8 +277,8 @@ else
 				w.Mehrkampfreihenfolge ASC
 				, ru.Datum
 				, ru.Startzeit
-		");
-        
+		");  
+   
      /*   
 		$res = mysql_query("
 			SELECT
@@ -365,7 +366,7 @@ else
                        if($pt_row[4] > 0) {       // any points for this event 
                            $points = $points + $pt_row[4];      // calculate points   
 					        $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
-					        $sep = ", ";
+					        $sep = ", ";   
                        }
                        else{ 
                          $count_disc--; 

@@ -11,8 +11,7 @@ if (!defined('AA_RESULTS_HIGH_LIB_INCLUDED'))
 	define('AA_RESULTS_HIGH_LIB_INCLUDED', 1);
 
 function AA_results_High($round, $layout)
-{
-
+{      
 require('./lib/cl_gui_button.lib.php');
 
 require('./config.inc.php');
@@ -114,8 +113,14 @@ if($_POST['arg'] == 'save_res')
 						 WHERE xSerienstart = ".$_POST['start'].";";
 			$query_sex = mysql_query($sql_sex);
 			
-			$points = AA_utils_calcPoints($presets['event'], $performance, 0, mysql_result($query_sex, 0, 'Geschlecht'));
-		}
+			if($_POST['attempts']== '-' ){
+                $points=0;
+            }
+            else{
+                $points = AA_utils_calcPoints($presets['event'], $performance, 0, mysql_result($query_sex, 0, 'Geschlecht'));
+		    }
+           
+        }
 
 		AA_results_update($performance, $info, $points);
 	}	// ET Athlete valid
@@ -655,7 +660,7 @@ if($round > 0)
 	<tr class='active'>
 <?php
 					}
-					else {
+					else {   
 ?>
 	<tr class='<?php echo $rowclass; ?>'
 		onClick='selectAthlete(<?php echo $i; ?>)'>
@@ -722,7 +727,7 @@ if($round > 0)
 ?>
 		<form action='event_results.php' method='post'
 			name='perf'>
-		<td nowrap colspan='2'>
+		<td nowrap colspan='2'> 
 			<input type='hidden' name='arg' value='save_res' />
 			<input type='hidden' name='round' value='<?php echo $round; ?>' />
 			<input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
