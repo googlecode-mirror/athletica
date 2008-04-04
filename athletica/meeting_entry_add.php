@@ -1091,7 +1091,7 @@ function meeting_get_disciplines(){
 				<td class='dialog-top' nowrap="nowrap">
 					<input type="text" name="topcomb_<?php echo $row['xKategorie']."_".$comb ?>" id="topcomb<?php echo $row['xKategorie']."_".$comb ?>" size="5" value="<?=$val?>">
 				</td>
-				<td class='dialog' nowrap="nowrap" id='td_<?php echo $row['xKategorie']."_".$comb ?>'>
+				<td class='dialog' nowrap="nowrap" colspan="4" id='td_<?php echo $row['xKategorie']."_".$comb ?>'>
 					<div id="div_<?=$row['xKategorie']?>_<?=$comb?>" style="position: relative; display: none;">
 						<?php
 						if($checked==' checked="checked"'){
