@@ -5,7 +5,7 @@
  *	-------------------------------
  *	
  */
- 
+     
 require('./convtables.inc.php');
 
 require('./lib/cl_gui_button.lib.php');
@@ -74,17 +74,37 @@ else if($_POST['arg']=="change_combtype"){
 		}else{
 			if(mysql_num_rows($res) > 0){
 				AA_printErrorMsg($strDoubleCombinedEvent);
-			}else{
-				mysql_query("
-					UPDATE wettkampf
-						SET Mehrkampfcode = ".$_POST['combinedtype']."
-					WHERE xKategorie = ".$_POST['cat']."
-					AND Mehrkampfcode = ".$_POST['comb']."
-					AND xMeeting = ".$_COOKIE['meeting_id']."
-					");
+			}else{  
+               
+                  mysql_query("LOCK TABLES kategorie READ, disziplin READ"
+                    . ", wettkampf WRITE");
+                    
+			//	mysql_query("
+			//		UPDATE wettkampf
+			//			SET Mehrkampfcode = ".$_POST['combinedtype']."
+			//		WHERE xKategorie = ".$_POST['cat']."
+			//		AND Mehrkampfcode = ".$_POST['comb']."
+			//		AND xMeeting = ".$_COOKIE['meeting_id']."
+			//		");
+            
+                // delete combined event
+                
+                mysql_query("DELETE FROM wettkampf                                     
+                             WHERE xKategorie = ".$_POST['cat']."
+                    AND Mehrkampfcode = ".$_POST['comb']."
+                    AND xMeeting = ".$_COOKIE['meeting_id']."
+                    ");
+            
+            
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
+                else {  
+                         // add new combined event
+                        AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);                                                                                                  
+                }
+                
+             mysql_query("UNLOCK TABLES");    
 			}
 		}
 		
@@ -596,7 +616,7 @@ else			// no DB error
                 $c=0;  
 				
 				if($comb != 0){ //show entry for add new disc and close disc table
-                      
+                              
 					?>
 		<tr>
 			<form action='meeting_definition_category.php' method='post' name='newdiscipline_<?php echo $comb ?>'>
