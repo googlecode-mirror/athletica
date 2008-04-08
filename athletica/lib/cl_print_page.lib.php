@@ -2,7 +2,7 @@
 
 if (!defined('AA_CL_PRINT_PAGE_LIB_INCLUDED'))
 {
-	define('AA_CL_PRINT_PAGE_LIB_INCLUDED', 1);
+	define('AA_CL_PRINT_PAGE_LIB_INCLUDED', 1);           
 
 
 	require('./lib/cl_gui_page.lib.php');
@@ -49,13 +49,7 @@ class PRINT_Page extends GUI_Page
 	 */
 	function startPage()
 	{
-		global $cfgPageContentHeight;     
-         
-		if (ereg("Firefox",$_SERVER['HTTP_USER_AGENT'])){
-			 $cfgPageContentHeight=252;     
-        } 
-         else
-             $cfgPageContentHeight=265;         // for browser IE 
+		global $cfgPageContentHeight;    
 		
 		$this->lpp = $GLOBALS['cfgPrtLinesPerPage'];		// lines per page
 		?>
@@ -214,14 +208,7 @@ class PRINT_Page extends GUI_Page
 	 */
 	function insertPageBreak()
 	{
-		global $cfgPageContentHeight;   
-        
-		if (ereg("Firefox",$HTTP_USER_AGENT)){
-			 $cfgPageContentHeight=252;                 // for browser firefox   
-        }
-         else
-             $cfgPageContentHeight=265;         // for browser IE
-        
+		global $cfgPageContentHeight;           
 ?>
 	</td>
 </tr>
