@@ -159,10 +159,94 @@ td.entry_cat { vertical-align:top; padding-left:0px; padding-right:5px;
 td.entry_club { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
 td.entry_disc { vertical-align:top; padding-left:0px; padding-right:5px;
-				padding-top:0px; padding-bottom:2px; }
+				padding-top:0px; padding-bottom:2px; }  
 td.entry_perf { vertical-align:top; text-align:right;
 				padding-left:0px; padding-right:10px;
 				padding-top:0px; padding-bottom:2px; }
+
+
+/*
+ * Receipt athlete
+ * ---------------
+ */
+ table.receipt { table-layout:auto; border-collapse:collapse;}
+    
+/* list header line */
+
+th.receipt {  padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:30px; font-weight: bold; 
+                 }
+th.receipt_name { width:80px; padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                 }
+th.receipt_year { width:50px; padding-left:0px; padding-right:2px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                } 
+th.receipt_cat { padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold;
+                  }
+th.receipt_club { width:80px; padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+               font-size:16px; font-weight: bold;
+                 }
+th.receipt_disc { width:180px; padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+               font-size:16px; font-weight: bold;
+                 }
+th.receipt_fee {  padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+               font-size:16px; font-weight: bold; 
+               }
+th.receipt_date {  padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                }
+th.receipt_place { padding-left:0px; padding-right:2px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold;
+                  }
+th.receipt_subscribe {  padding-left:16px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                 }
+
+/* list item */  
+td.receipt_name {  width:440px; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                 font-size:14px;
+                   }
+td.receipt_year { width:50px; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                 font-size:14px; 
+                  } 
+td.receipt_cat {  vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                 font-size:14px;
+                  }
+td.receipt_club {    vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                 font-size:14px;
+                  }
+td.receipt_disc {  width:440px; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                 font-size:14px; 
+                  }
+td.receipt_fee {  vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                 font-size:14px;
+                  }   
+td.receipt_date {  vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                 font-size:14px;
+                  }
+td.receipt_place {  vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                 font-size:14px; 
+                  }
 
 
 /*
@@ -536,7 +620,7 @@ td.contest_track_relay	{ width: 278px; font-size:12px;
 /* technical disciplines: athlete */
 th.contest_tech_nbr	{ width: 50px; font-size:12px; text-align:center;
 							border-width:0px; padding:6px; }
-th.contest_tech_name	{ width: 300px; font-size:12px;
+th.contest_tech_name	{ width: 200px; font-size:12px;
 							border-width:0px; padding:6px; }
 th.contest_tech_year	{ width: 50px; font-size:12px; text-align:center;
 							border-width:0px; padding:6px; }

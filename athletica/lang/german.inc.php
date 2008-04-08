@@ -659,5 +659,9 @@ $strAllMeetings = "[Alle Meetings]";
 $strNoFile = "Keine Datei ausgewählt / hochgeladen"; 
 $strSB_long = "Saison-Bestleistung";
 $strPB_long = "Persönliche Bestleistung";
+$strReceipt = "Quittung";
+$strSelection = "Auswahl";
+$strCHF = "CHF"; 
+$strSubscribe = "Stempel / Unterschrift"
 
 ?>

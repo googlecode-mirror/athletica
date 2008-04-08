@@ -5,7 +5,7 @@ if (!defined('AA_CL_PRINT_ENTRYPAGE_LIB_INCLUDED'))
 	define('AA_CL_PRINT_ENTRYPAGE_LIB_INCLUDED', 1);
 
 
- 	include('./lib/cl_print_page.lib.php');
+ 	include('./lib/cl_print_page.lib.php');   
 
 
 /********************************************
@@ -20,7 +20,7 @@ if (!defined('AA_CL_PRINT_ENTRYPAGE_LIB_INCLUDED'))
 class PRINT_EntryPage extends PRINT_Page
 {
 	function printHeaderLine()
-	{
+	{   
 		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
 			printf("</table>");
@@ -35,7 +35,7 @@ class PRINT_EntryPage extends PRINT_Page
 		<th class='entry_ioc'><?php echo $GLOBALS['strCountry']; ?></th>
 		<th class='entry_cat'><?php echo $GLOBALS['strCategoryShort']; ?></th>
 		<th class='entry_club'><?php echo $GLOBALS['strClub']; ?></th>
-		<th class='entry_disc'><?php echo $GLOBALS['strDisciplines']; ?></th>
+		<th class='entry_disc'><?php echo $GLOBALS['strDisciplines']; ?></th> 
 		<?php
 		if(isset($_GET['payment']) && isset($_GET['discgroup'])){
 			?>
@@ -50,7 +50,7 @@ class PRINT_EntryPage extends PRINT_Page
 
 
 	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid='')
-	{
+	{   
 		if(($this->lpp - $this->linecnt) < 2)		// page break check
 		{
 			printf("</table>");
@@ -67,7 +67,7 @@ class PRINT_EntryPage extends PRINT_Page
 		<td class='entry_ioc'><?php echo $ioc; ?></td>
 		<td class='entry_cat'><?php echo $cat; ?></td>
 		<td class='entry_club'><?php echo $club; ?></td>
-		<td class='entry_disc'><?php echo $disc; ?></td>
+		<td class='entry_disc'><?php echo $disc; ?></td> 
 		<?php
 		if(isset($_GET['payment']) && isset($_GET['discgroup'])){
 			?>
@@ -86,8 +86,7 @@ class PRINT_EntryPage extends PRINT_Page
 			$this->linecnt++;
 		}
 	}
-
-
+ 
 	function printSubTitle($title)
 	{
 		if(($this->lpp - $this->linecnt) < 7)		// page break check
@@ -99,6 +98,7 @@ class PRINT_EntryPage extends PRINT_Page
 		$this->linecnt = $this->linecnt + 3;	// needs 3 lines (see style sheet)
 ?>
 		<div class='hdr2'><?php echo $title; ?></div>
+        
 <?php
 	}
 
@@ -491,8 +491,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 		?>
 		<th class='enrolmt_top'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 	</tr>
-<?php
-
+<?php 
 		}
 		else
 		{
@@ -569,6 +568,213 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 
 } // end PRINT_EnrolementPage
 
+/********************************************
+ *
+ * PRINT_ReceiptEntryPage
+ *
+ *    Class to print receipt entry lists
+ *
+ *******************************************/
+
+
+class PRINT_ReceiptEntryPage extends PRINT_Page
+{
+    function printHeaderLine()
+    {   
+        if(($this->lpp - $this->linecnt) < 6)        // page break check
+        {    
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+        }
+?>
+    <tr>
+        <th class='receipt'><?php echo $GLOBALS['strReceipt']; ?></th>  
+         <br>&nbsp;
+         <br>    
+    </tr>
+    <tr>
+        <td>&nbsp;
+        </td>
+    <tr>
+    
+<?php
+        $this->linecnt+=7;  
+    }     
+
+    function printLine1($nbr, $name, $year)
+    {  
+        if(($this->lpp - $this->linecnt) < 4)        // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+            $this->printHeaderLine();
+        }  
+?>
+    <tr>
+        <th class='receipt_name'><?php echo $GLOBALS['strName']. ":  " ?></th>
+        <td class='receipt_name'><?php echo $name; ?></td>
+         <td  class='receipt_name'>&nbsp;</td>  
+         <th class='receipt_year'><?php echo $GLOBALS['strYear']. ":  " ?></th>  
+        <td class='receipt_year'><?php echo $year; ?></td> 
+    </tr>
+<?php
+       
+      $this->linecnt++;  
+    }
+    
+    function printLine2($club,$cat)
+    {  
+        if(($this->lpp - $this->linecnt) < 4)        // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+            $this->printHeaderLine();
+        }
+          ?>
+    <tr>
+        <th class='receipt_club'><?php echo $GLOBALS['strClub']. ":  " ?></th>
+        <td class='receipt_club'><?php echo $club; ?></td>
+        <td  class='receipt_name'>&nbsp;</td>
+         <th class='receipt_cat'><?php echo $GLOBALS['strCategory']. ":  " ?></th>  
+        <td class='receipt_cat'><?php echo $cat; ?></td> 
+    </tr>
+<?php
+       $this->linecnt++;   
+    }  
+    
+     function printLine3($disc)
+    {      
+?>
+        <tr>
+        <th class='receipt_disc'><?php echo $GLOBALS['strDisciplines']. ":  " ?></th>
+        <?php    
+         // print seperate lines per discipline 
+         
+         $disc_arr = split(",",$disc);  
+         $i=0;    
+         
+         foreach ($disc_arr as $key)
+            { 
+              if(($this->lpp - $this->linecnt) < 4)        // page break check
+                {
+                printf("</table>");
+                $this->insertPageBreak();
+                printf("<table>");
+                $this->printHeaderLine();
+            }  
+             $this->linecnt++;
+            
+             if ($i==0) {     
+             ?>                  
+                    <td colspan='2' class='receipt_disc'><?php echo $key; ?></td>  
+                    </tr>   
+             <?php 
+             }
+             else
+                {
+               ?>   
+                    <tr>
+                    <td>&nbsp;</td>  
+                    <td colspan='2' class='receipt_disc'><?php echo $key; ?></td>  
+                    </tr>  
+             <?php 
+             } 
+             $i++;
+         }  
+    }  
+    
+  function printLine4($fee='')
+    {   
+        if(($this->lpp - $this->linecnt) < 4)        // page break check
+            {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table border='1'>");
+            $this->printHeaderLine();
+        }  
+?>
+    <tr>
+     
+        <th class='receipt_fee' ><?php  echo  $GLOBALS['strTotal'] . " " . $GLOBALS['strFee']. ":  " ?></th> 
+        <?php
+        if ($fee>0){?>
+            <td class='receipt_fee'><?php echo $GLOBALS['strCHF'] . " &nbsp;&nbsp;" . $fee. ".00" ?></td>    
+        <?php
+        }
+        ?>
+    </tr>
+<?php            
+        $this->linecnt++;  
+    }
+    
+     function printLine5($date, $place)
+    {  
+        if(($this->lpp - $this->linecnt) < 4)        // page break check
+            {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table border='1'>");
+            $this->printHeaderLine();
+        }   
+?>
+    <tr>
+     
+        <th class='receipt_date' ><?php  echo  $GLOBALS['strDate']. ":  "  ?></th> 
+        <td class='receipt_date'><?php  echo $date; ?></td> 
+        <td  class='receipt_name'>&nbsp;</td>
+         <th class='receipt_place' ><?php  echo  $GLOBALS['strPlace']. ":  "  ?></th> 
+        <td class='receipt_place'><?php  echo $place; ?></td>     
+       
+    </tr>
+<?php             
+      $this->linecnt++;  
+    }
+
+    function printLine6()
+    {  
+        if(($this->lpp - $this->linecnt) < 4)        // page break check
+            {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table border='1'>");
+            $this->printHeaderLine();
+        }
+        
+?>
+    <tr>   
+        <th colspan='2' class='receipt_subscribe' ><?php  echo  $GLOBALS['strSubscribe']. ":  "  ?></th>         
+    </tr>
+<?php        
+          
+     $this->linecnt++;  
+    } 
+    
+   
+     function  printLineBreak($count)
+    {                                  
+        if(($this->lpp - $this->linecnt) < 4)        // page break check
+            {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+        }  
+         
+       for ($i=0;$i<$count;$i++){ 
+            $this->linecnt++;  
+?>    
+        <tr>
+        <td>&nbsp;
+        </td>
+        <tr>  
+<?php
+       }
+    }
+        
+
+} // end PRINT_EntryPage
 
 } // end AA_CL_PRINT_ENTRYPAGE_LIB_INCLUDED
 ?>
