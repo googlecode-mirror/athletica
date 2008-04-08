@@ -52,12 +52,14 @@ if($_GET['formaction'] == 'print') {		// page for printing
 		$doc = new PRINT_ReceiptEntryPage($_COOKIE['meeting']);  
     }    
 
- $reduction=AA_getReduction(); 
+  if((!empty($_GET['club']))  ||    (!empty($_GET['athleteSearch'])))  { 
+    
+    $reduction=AA_getReduction(); 
   
- $date=date("d.m.Y"); 
+    $date=date("d.m.Y"); 
 
  
-$result = mysql_query("
+    $result = mysql_query("
 	SELECT DISTINCT a.xAnmeldung
 		, a.Startnummer
 		, at.Name
@@ -131,17 +133,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	{          
 		// print previous athlete, if any
 		if($a != $row[0] && $a > 0)
-		{    
-            $name = "";
-            $year = "";
-            $cat = "";
-            $club = "";
-            $disc = "";  
-            $sep = "";   
-            $place = "";
-            $fee = "";
-            $date = "";  
-            
+		{               
             $doc->printHeaderLine();
             $doc->printLineBreak(2);     
             $doc->printLine1($nbr, $name, $year );   
@@ -220,7 +212,7 @@ else if(mysql_num_rows($result) > 0)  // data found
     }
 	
 	if($a > 0)
-	    {       
+	    {  
             $doc->printHeaderLine();
             $doc->printLineBreak(2);     
 			$doc->printLine1($nbr, $name, $year );   
@@ -240,5 +232,5 @@ else if(mysql_num_rows($result) > 0)  // data found
 
 
 $doc->endPage();		// end HTML page for printing
-
+}
 ?>
