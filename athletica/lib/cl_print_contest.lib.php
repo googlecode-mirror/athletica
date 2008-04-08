@@ -128,9 +128,11 @@ class PRINT_Contest extends PRINT_Page
     {     
         global $cfgPageContentHeight;
         
-        global $HTTP_USER_AGENT; 
-        if (ereg("Firefox",$HTTP_USER_AGENT))
-             $cfgPageContentHeight=252;         // for browser firefox
+       if (ereg("Firefox",$HTTP_USER_AGENT)){
+             $cfgPageContentHeight=252;                 // for browser firefox   
+        }
+         else
+             $cfgPageContentHeight=265;         // for browser IE
         
 ?>
     </td>

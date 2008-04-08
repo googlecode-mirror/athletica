@@ -49,11 +49,13 @@ class PRINT_Page extends GUI_Page
 	 */
 	function startPage()
 	{
-		global $cfgPageContentHeight;
-		
-		global $HTTP_USER_AGENT; 
-		if (ereg("Firefox",$HTTP_USER_AGENT))
-			 $cfgPageContentHeight=252; 
+		global $cfgPageContentHeight;     
+         
+		if (ereg("Firefox",$_SERVER['HTTP_USER_AGENT'])){
+			 $cfgPageContentHeight=252;     
+        } 
+         else
+             $cfgPageContentHeight=265;         // for browser IE 
 		
 		$this->lpp = $GLOBALS['cfgPrtLinesPerPage'];		// lines per page
 		?>
@@ -178,7 +180,7 @@ class PRINT_Page extends GUI_Page
 	 * Terminates the basic HTML-page frame.
 	 */
 	function endPage()
-	{
+	{  
 ?>
 	</td>
 </tr>
@@ -212,11 +214,14 @@ class PRINT_Page extends GUI_Page
 	 */
 	function insertPageBreak()
 	{
-		global $cfgPageContentHeight;
-		
-		global $HTTP_USER_AGENT; 
-		if (ereg("Firefox",$HTTP_USER_AGENT))
-			 $cfgPageContentHeight=252;                 // for browser firefox
+		global $cfgPageContentHeight;   
+        
+		if (ereg("Firefox",$HTTP_USER_AGENT)){
+			 $cfgPageContentHeight=252;                 // for browser firefox   
+        }
+         else
+             $cfgPageContentHeight=265;         // for browser IE
+        
 ?>
 	</td>
 </tr>
@@ -243,7 +248,7 @@ class PRINT_Page extends GUI_Page
 	 * Print the document title.
 	 */
 	function printPageTitle($title)
-	{
+	{   
 		$this->linecnt = $this->linecnt + 2;	// needs 2 lines (see style sheet)
 ?>
 		<div class='hdr1'><?php echo $title; ?></div>
