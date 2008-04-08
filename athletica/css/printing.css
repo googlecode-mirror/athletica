@@ -193,7 +193,7 @@ th.receipt_club { width:80px; padding-left:16px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                font-size:16px; font-weight: bold;
                  }
-th.receipt_disc { width:180px; padding-left:16px; padding-right:5px;
+th.receipt_disc { width:80px; padding-left:16px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                font-size:16px; font-weight: bold;
                  }
@@ -215,37 +215,37 @@ th.receipt_subscribe {  padding-left:16px; padding-right:5px;
                  }
 
 /* list item */  
-td.receipt_name {  width:440px; vertical-align:top; padding-left:0px; padding-right:5px;
+td.receipt_name {  width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px; 
-                 font-size:14px;
+                 font-size:16px;
                    }
 td.receipt_year { width:50px; vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
-                 font-size:14px; 
+                 font-size:16px; 
                   } 
 td.receipt_cat {  vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px; 
-                 font-size:14px;
+                 font-size:16px;
                   }
 td.receipt_club {    vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px; 
-                 font-size:14px;
+                 font-size:16px;
                   }
-td.receipt_disc {  width:440px; vertical-align:top; padding-left:0px; padding-right:5px;
+td.receipt_disc {  width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
-                 font-size:14px; 
+                 font-size:16px; 
                   }
 td.receipt_fee {  vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px; 
-                 font-size:14px;
+                padding-top:0px; padding-bottom:2px; font-weight: bold; 
+                 font-size:16px;
                   }   
 td.receipt_date {  vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px; 
-                 font-size:14px;
+                 font-size:16px;
                   }
 td.receipt_place {  vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
-                 font-size:14px; 
+                 font-size:16px; 
                   }
 
 
