@@ -29,7 +29,7 @@ $page->printPageTitle($strReceipt);
 <script type="text/javascript">
 <!--
 	function setPrint()
-	{
+	{     
 		document.printdialog.formaction.value = 'print'
 		document.printdialog.target = '_blank';
 	}
@@ -93,8 +93,7 @@ $page->printPageTitle($strReceipt);
               {$search_occurred=true;
               $search_match;   
               } 
-        ?>
-        </form>      
+        ?>  
         </td> 
 		</table>
 	</td>
