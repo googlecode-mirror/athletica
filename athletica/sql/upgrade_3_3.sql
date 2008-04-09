@@ -117,7 +117,23 @@ INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES
 (34, '29.01 Männer offene Klasse', '29_01'),
 (35, '29.02 Frauen offene Klasse', '29_02');
 
-TRUNCATE TABLE faq;
+DROP TABLE faq;
+CREATE TABLE `faq` (
+  `xFaq` int(11) NOT NULL auto_increment,
+  `Frage` varchar(255) NOT NULL default '',
+  `Antwort` text NOT NULL,
+  `Zeigen` enum('y','n') NOT NULL default 'y',
+  `PosTop` int(11) NOT NULL default '0',
+  `PosLeft` int(11) NOT NULL default '0',
+  `height` int(11) NOT NULL default '0',
+  `width` int(11) NOT NULL default '0',
+  `Seite` varchar(255) NOT NULL default '',
+  `Sprache` char(2) NOT NULL default '',
+  `FarbeTitel` varchar(6) NOT NULL default 'FFAA00',
+  `FarbeHG` varchar(6) NOT NULL default 'FFCC00',
+  PRIMARY KEY  (`xFaq`)
+) TYPE=MyISAM;
+
 INSERT INTO `faq` (`xFaq`, `Frage`, `Antwort`, `Zeigen`, `PosTop`, `PosLeft`, `height`, `width`, `Seite`, `Sprache`, `FarbeTitel`, `FarbeHG`) VALUES 
 (1, 'Dynamische Navigation', '<b>[alle Browser]</b><br/>\r\ndie Liste der Anmeldungen kann durch Doppelklick auf den grauen Balken ein- oder ausgeblendet werden.<br/><br/>\r\n\r\n<b>[Internet Explorer]</b><br/>\r\ndie Liste der Anmeldungen kann durch klicken und ziehen des grauen Balkens dynamisch angepasst werden.<br/>', 'y', 10, 10, 0, 300, 'meeting_entrylist', 'de', 'FFAA00', 'FFCC00'),
 (2, 'Datensicherung', 'Neu können auch einzelne Meetings gesichert werden.<br/>\r\n<b>ACHTUNG</b>: Beim zurückspielen einer Sicherung mit einelnem Meeting werden trotzdem alle vorherigen Daten gelöscht.<br/><br/>\r\n\r\n<b>Stammdaten sichern</b><br/>\r\nDie Stammdaten sollten nur gesichert werden, wenn das Meeting zu Hause erfasst, und später am Meeting mit fehlender Internetverbindung geladen wird.<br/>\r\nDie Dateigrösse der Sicherung nimmt bei der Sicherung <b>mit</b> Stammdaten wesentlich zu.', 'y', 200, 50, 0, 0, 'admin', 'de', 'FFAA00', 'FFCC00'),
