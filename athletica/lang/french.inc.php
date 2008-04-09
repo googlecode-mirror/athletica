@@ -634,9 +634,23 @@ $strEmptyCacheDone = "Le cache a été vidé. Effectuez maintenant une mise à jour 
 $strEmptyCacheReference = 'Quelques athlètes et/ou sociétés ne sont pas encore référencés (inscriptions). Le cache ne peut pas être vidé.';
 $strSelectMeeting = 'Sélectionner meeting';
 $strBaseMeetingAct = 'Informations téléchargées (inscriptions, No d’event) sont importées dans le meeting Athletica suivant:';
-
+$strErrDiscCombChange = 'Changement de discipline pas possible, car des athlètes sont déjà inscrits.';
+$strSearchForClub = 'Inscrire via société';
+$strNoAthletesToClub = 'Pas d’athlètes dans les données de base de cette société.';
+$strPerDiscipline = 'Selon les disciplines';
 $strSaison = "Saison";
-
+$strTrack = 'Courses';
+$strTech = 'Techn.';
+$strRankingListEfforts = 'Liste de résultats avec meilleures performances';
 $strEfforts = 'Meilleures performances';
 $strEffortsWarning = 'ATTENTION:<br/>Le temps de sortie peut durer plusieurs minutes pour beaucoup de résultats.';
+$strBasdataIncluded = 'Sauvegarder également les données de base';
+$strAllMeetings = 'Tous les meetings';
+$strNoFile = 'Pas de fichier sélectionné / téléchargé';
+$strSB_long = 'Meilleure performance de la saison';
+$strPB_long = 'Meilleure performance personnelle';
+$strReceipt = 'Quittance';
+$strSelection = "Sélection";
+$strCHF = "CHF"; 
+$strSubscribe = "Timbre / Signature";
 ?>

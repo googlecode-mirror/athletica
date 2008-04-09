@@ -14,7 +14,7 @@
 			marginheight="0" scrolling="auto" frameborder="0" noresize />
 		<frame name="list" src="resizer.php" marginwidth="0"
 			marginheight="0" scrolling="no" frameborder="0" noresize />
-		<frame name="detail" src="" marginwidth="0"
+		<frame name="detail" src="meeting_entries_start.php" marginwidth="0"
 			marginheight="0" scrolling="auto" frameborder="0" noresize />
 	</frameset>
 </frameset>
