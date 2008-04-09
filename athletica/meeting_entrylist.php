@@ -97,7 +97,7 @@ if ($arg=="nbr") {
 // read all entries
 $result = mysql_query("
 	SELECT
-  		a.xAnmeldung
+		a.xAnmeldung
 		, a.Startnummer
 		, at.Name
 		, at.Vorname
@@ -107,10 +107,10 @@ $result = mysql_query("
 		, athlet AS at
 		LEFT JOIN verein AS v USING(xVerein)
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-  	AND a.xAthlet = at.xAthlet
+	AND a.xAthlet = at.xAthlet
 	
 	ORDER BY
-  		$argument
+		$argument
 	");
 
 if(mysql_errno() > 0)		// DB error
@@ -137,10 +137,10 @@ else if(mysql_num_rows($result) > 0)  // data found
 
 		?>
 <tr class='<?php echo $rowclass; ?>'
-	onClick='selectAthlete(<?php echo $row[0]; ?>)'>
+	onClick='selectAthlete(<?php echo $row[0]; ?>)' style="cursor: pointer;">
 
 	<td class='forms_right'>
-		<a name='item<?php echo $row[0]; ?>' />
+		<a name='item<?php echo $row[0]; ?>'></a>
 		<?php echo $row[1]; ?>
 	</td>
 	<td nowrap><?php echo $row[2]. " ".$row[3]; ?></td>

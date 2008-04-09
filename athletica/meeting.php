@@ -289,7 +289,7 @@ while ($row = mysql_fetch_array($result))
 		}
 		?>
 	<tr class='<?php echo $class; ?>'
-		onClick='selectMeeting(<?php echo $row['xMeeting']; ?>)'>
+		onClick='selectMeeting(<?php echo $row['xMeeting']; ?>)' style="cursor: pointer;">
 		<td><?php echo $row['Name']; ?></td>
 		<td><?php echo $row['Ort']; ?></td>
 		<td><?php echo $row['Stadion']; ?></td>

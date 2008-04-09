@@ -139,12 +139,12 @@ else				// no DB error
 
 		?>
 <tr class='<?php echo $rowclass; ?>'
-	onClick='selectRelay(<?php echo $row[0]; ?>)'>
+	onClick='selectRelay(<?php echo $row[0]; ?>)' style="cursor: pointer;">
 	<td>
 		<?php echo $row[4] ?>
 	</td>
 	<td>
-		<a name="item<?php echo $row[0]; ?>" />
+		<a name="item<?php echo $row[0]; ?>" ></a>
 		<?php echo $row[1]; ?>
 	</td>
 	<td><?php echo $row[2]; ?></td>

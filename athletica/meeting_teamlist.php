@@ -83,7 +83,7 @@ $result = mysql_query("
 	WHERE t.xMeeting = " . $_COOKIE['meeting_id'] . "
 	AND k.xKategorie = t.xKategorie
 	ORDER BY
-  		$argument
+		$argument
 ");
 
 if(mysql_errno() > 0)		// DB error
@@ -109,10 +109,10 @@ else				// no DB error
 		}
 		?>
 	<tr class='<?php echo $rowclass; ?>'
-		onClick='selectTeam(<?php echo $row[0]; ?>)'>
+		onClick='selectTeam(<?php echo $row[0]; ?>)' style="cursor: pointer;">
 
 		<td>
-			<a name="item<?php echo $row[0]; ?>" />
+			<a name="item<?php echo $row[0]; ?>"></a>
 			<?php echo $row[2]; ?>
 		</td>
 		<td><?php echo $row[1]; ?></td>

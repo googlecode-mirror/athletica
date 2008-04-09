@@ -121,7 +121,7 @@ if($_POST['arg']=='search')
 				$rowclass = "odd";
 			}
 			?>
-	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[0]; ?>", "_self")'>
+	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[0]; ?>", "_self")' style="cursor: pointer;">
 		<td class='forms_right'><?php echo $row[1]; ?></td>
 		<td><?php echo "$row[2] $row[3]"; ?></td>
 		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[4]); ?></td>

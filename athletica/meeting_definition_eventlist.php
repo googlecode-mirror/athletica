@@ -102,8 +102,8 @@ else			// no DB error
 <?php
 	$d=0;
 
-  	while($row = mysql_fetch_row($result))
-  	{
+	while($row = mysql_fetch_row($result))
+	{
 		if( $d % 3 == 0 ) {		// new row after three events
 			if ( $d != 0 ) {
 				printf("</td></tr>");	// terminate previous row
@@ -113,7 +113,7 @@ else			// no DB error
 		$btn = new GUI_Button("meeting_definition_eventlist.php?cat=$row[0]", $row[1]);
 		$btn->printButton();
 		$d++;
-  	}
+	}
 		
 ?>
 </table>
@@ -189,16 +189,16 @@ else			// no DB error
 
 ?>
 	<tr class='<?php echo $rowclass; ?>'
-		onClick='selectEvent(<?php echo $row[0]; ?>)'>
+		onClick='selectEvent(<?php echo $row[0]; ?>)' style="cursor: pointer;">
 		<td class='dialog' colspan='2'>
-			<a name='item<?php echo $row[0]; ?>' />
+			<a name='item<?php echo $row[0]; ?>'></a>
 			<?php 
-                if(strlen($row[4])!=0){
-                    echo $row[3]." (".$row[4].")"; 
-                }else{
-                    echo $row[3];
-                }
-            ?>
+				if(strlen($row[4])!=0){
+					echo $row[3]." (".$row[4].")"; 
+				}else{
+					echo $row[3];
+				}
+			?>
 		</td>
 	</tr>
 <?php

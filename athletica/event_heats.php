@@ -559,7 +559,7 @@ if($round > 0)
 			<input class='nbr' type='text' name='id' maxlength='2'
 				value='<?php echo $row[4]; ?>'
 				onChange='document.heat_id_<?php echo $h;?>.submit()' />
-				<a name='heat_<?php echo $row[4]; ?>' />
+				<a name='heat_<?php echo $row[4]; ?>'></a>
 		</th>
 		</form>
 

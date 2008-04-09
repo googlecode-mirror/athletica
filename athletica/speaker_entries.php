@@ -212,7 +212,7 @@ if($round > 0)
 
 			// print row: onClick show athlete- or relay-details
 			?>
-	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[0]; ?>&relay=<?php echo $relay; ?>&round=<?php echo $round; ?>", "_self")'>
+	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[0]; ?>&relay=<?php echo $relay; ?>&round=<?php echo $round; ?>", "_self")' style="cursor: pointer;">
 			<?php
 			if($relay == FALSE)			// single event
 			{
