@@ -2016,7 +2016,8 @@ function XML_reg_start($parser, $name, $attr){
 		if(isset($cfgCombinedDef[$discode])){
 			$bCombined = true;
 			// check if this combined event exists
-			$res = mysql_query("	SELECT * FROM
+			$res = mysql_query("	
+						SELECT * FROM
 							wettkampf as w
 							, kategorie as k
 							, disziplin as d
@@ -2030,7 +2031,8 @@ function XML_reg_start($parser, $name, $attr){
 			// check if this discipline exists
 			//	important: Mehrkampfcode has to be 0, else the query will also select 
 			//		the already defined combined events (if the same discipline)
-			$res = mysql_query("	SELECT * FROM
+			$res = mysql_query("	
+						SELECT * FROM
 							wettkampf as w
 							, kategorie as k
 							, disziplin as d
@@ -2063,7 +2065,8 @@ function XML_reg_start($parser, $name, $attr){
 					}
 					
 					// select again to get all generated xWettkampf ids
-					$res = mysql_query("	SELECT w.xWettkampf FROM
+					$res = mysql_query("	
+								SELECT w.xWettkampf FROM
 									wettkampf as w
 									, kategorie as k
 									, disziplin as d
@@ -2299,7 +2302,8 @@ function XML_reg_start($parser, $name, $attr){
 				}else{
 					if(mysql_num_rows($result) == 0){ // not yet registered
 						// get license category from base data
-						$result = mysql_query("	SELECT k.xKategorie FROM
+						$result = mysql_query("	
+									SELECT k.xKategorie FROM
 										kategorie as k
 										, base_athlete as b
 									WHERE b.license = $license
@@ -2344,17 +2348,20 @@ function XML_reg_start($parser, $name, $attr){
 					
 					if($bCombined){
 						// effort are points, saved on registration
-						$res_effort = mysql_query("
-								SELECT * FROM base_performance
-								WHERE	id_athlete = $athlete_id
-								AND	discipline = $discode
-								AND	category = '$catcode'");
+						$sql = "
+								SELECT notification_effort 
+								FROM base_performance
+								WHERE id_athlete = $athlete_id
+								AND	discipline = $discode";
+						//		AND	category = '$catcode'";
+						//echo $sql;
+						$res_effort = mysql_query($sql);
 						if(mysql_errno() > 0){
 							XML_db_error("12-".mysql_errno().": ".mysql_error());
 						}else{
 							if(mysql_num_rows($res_effort) > 0){
 								$row_effort = mysql_fetch_assoc($res_effort);
-								$effort = $row_effort['season_effort'];
+								$effort = $row_effort['notification_effort'];
 								
 								mysql_query("UPDATE anmeldung SET
 										BestleistungMK = '$effort'
@@ -2381,7 +2388,8 @@ function XML_reg_start($parser, $name, $attr){
 							}else{
 								$row_distype = mysql_fetch_Array($res_distype);
 								$distype = $row_distype[0];
-								$discode = $row_distype[1];
+								$temp_discode = $row_distype[1];
+								
 							}
 							
 							$result = mysql_query("SELECT xStart FROM start WHERE xAnmeldung = $xReg and xWettkampf = $xDis1");
@@ -2390,19 +2398,42 @@ function XML_reg_start($parser, $name, $attr){
 							}else{
 								if(mysql_num_rows($result) == 0){ // not yet starting, add start
 									
-									// check on season effort. if it exists an effort for this discipline,
-									// do not take the notification effort
-									$res_effort = mysql_query("
-											SELECT * FROM base_performance
-											WHERE	id_athlete = $athlete_id
-											AND	discipline = $discode
-											AND	category = '$catcode'");
+									$saison = $_SESSION['meeting_infos']['Saison'];
+									if ($saison == ''){
+										$saison = "O"; //if no saison is set take outdoor
+									}
+									
+									if(!$bCombined){
+										// check on notification effort. 
+										$res_effort = mysql_query("
+												SELECT * FROM base_performance
+												WHERE	id_athlete = $athlete_id
+												AND	discipline = $temp_discode
+												AND	category = '$catcode'");
+									} else {
+										$sql = "SELECT
+												base_performance.notification_effort
+											FROM
+												athletica.base_performance
+												INNER JOIN athletica.disziplin 
+													ON (base_performance.discipline = disziplin.Code)
+												INNER JOIN athletica.wettkampf 
+													ON (disziplin.xDisziplin = wettkampf.xDisziplin)
+											WHERE (base_performance.id_athlete =$athlete_id
+												AND wettkampf.xWettkampf =$xDis1
+												AND wettkampf.xMeeting =".$_COOKIE['meeting_id']."
+												AND base_performance.season ='I')";
+										//echo $sql;
+										$res_effort = mysql_query($sql);	
+									}	
+									
+									
 									if(mysql_errno() > 0){
 										XML_db_error("15-".mysql_errno().": ".mysql_error());
 									}else{
 										if(mysql_num_rows($res_effort) > 0){
 											$row_effort = mysql_fetch_assoc($res_effort);
-											$effort = $row_effort['season_effort'];
+											$effort = $row_effort['notification_effort'];
 										}
 										//
 										// convert effort

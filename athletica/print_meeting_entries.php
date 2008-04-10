@@ -6,7 +6,7 @@
  *	-------------------------
  *	
  */          
-              
+			  
 require('./lib/cl_gui_entrypage.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
 require('./lib/cl_export_entrypage.lib.php');
@@ -36,7 +36,7 @@ if ($_GET['sort'] == "nbr") {
 	$argument = "a.Startnummer, d.Anzeige";
 } else {
 	//$argument = "at.Name, at.Vorname, d.Anzeige";
-    $argument = "at.Name, at.Vorname, d2.Name, d.Anzeige";   
+	$argument = "at.Name, at.Vorname, d2.Name, d.Anzeige";   
 }
 
 // sort according to "group by" arguments
@@ -68,7 +68,7 @@ if($_GET['category'] > 0){
 }  
 $date = '%';  
 if(isset($_GET['date']) && !empty($_GET['date'])) {     
-        $date_clause = " AND  r.Datum LIKE '" . $_GET['date'] ."'";
+		$date_clause = " AND  r.Datum LIKE '" . $_GET['date'] ."'";
 }   
 
 $print = false;
@@ -181,7 +181,7 @@ $result = mysql_query("
 		, d2.Name
 		, v.Sortierwert
 		, k.Anzeige
-        , w.Startgeld    
+		, w.Startgeld    
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -191,8 +191,8 @@ $result = mysql_query("
 		, start AS s
 		, verein AS v
 		, wettkampf AS w
-    LEFT JOIN runde AS r 
-        ON (s.xWettkampf = r.xWettkampf) 
+	LEFT JOIN runde AS r 
+		ON (s.xWettkampf = r.xWettkampf) 
 	LEFT JOIN team AS t
 		ON a.xTeam = t.xTeam
 	LEFT JOIN region as re 
@@ -211,12 +211,12 @@ $result = mysql_query("
 	$disc_clause
 	$club_clause
 	$contestcat_clause
-    $date_clause
-    $athlete_clause
+	$date_clause
+	$athlete_clause
 	$limitNrSQL
 	ORDER BY
 		$argument
-    
+	
 ");     
  
 if(mysql_errno() > 0)		// DB error
@@ -240,27 +240,27 @@ else if(mysql_num_rows($result) > 0)  // data found
 		{     
 			if((is_a($doc, "PRINT_CatEntryPage"))
 				|| (is_a($doc, "GUI_CatEntryPage")))
-		  	{  
+			{  
 				$doc->printLine($nbr, $name, $year, $club, $disc, $ioc);
 			}
 			else if((is_a($doc, "PRINT_ClubEntryPage"))
 				|| (is_a($doc, "GUI_ClubEntryPage")))
-		  	{     
+			{     
 				$doc->printLine($nbr, $name, $year, $cat, $disc, $ioc);
 			}
 			else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_CatDiscEntryPage")))
-		  	{   
+			{   
 				$doc->printLine($nbr, $name, $year, $club, $perf, $ioc);
 			}
 			else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatEntryPage")))
-		  	{     
+			{     
 				$doc->printLine($nbr, $name, $year, $disc, $ioc);
 			}
 			else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatDiscEntryPage")))
-		  	{    
+			{    
 				$doc->printLine($nbr, $name, $year, $perf, $ioc);
 			}
 			else
@@ -310,27 +310,27 @@ else if(mysql_num_rows($result) > 0)  // data found
 			
 			if((is_a($doc, "PRINT_CatEntryPage"))
 				|| (is_a($doc, "GUI_CatEntryPage")))
-		  	{
+			{
 				$doc->printSubTitle($catName);
 			}
 			else if((is_a($doc, "PRINT_ClubEntryPage"))
 				|| (is_a($doc, "GUI_ClubEntryPage")))
-		  	{
+			{
 				$doc->printSubTitle($row[7]);
 			}
 			else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_CatDiscEntryPage")))
-		  	{
+			{
 				$doc->printSubTitle($catName . " " . $row[10]);
 			}
 			else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatEntryPage")))
-		  	{
+			{
 				$doc->printSubTitle($row[7] . " " . $catName);
 			}
 			else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatDiscEntryPage")))
-		  	{
+			{
 				$doc->printSubTitle($row[7] . " " . $catName . " " . $row[10]);
 			}
 			// "group by discipline" only, which is rather senseless ...
@@ -342,9 +342,9 @@ else if(mysql_num_rows($result) > 0)  // data found
 			$k = $row[5];		// keep current category
 			$v = $row[7];		// keep current club
 			$d = $row[9];		// keep current discipline
-            $m = $row[19];      // keep current combined
+			$m = $row[19];      // keep current combined
 			$ck = $row[14];
-            
+			
 		}
 		
 		if($l == 0) {					// new page, print header line
@@ -385,18 +385,18 @@ else if(mysql_num_rows($result) > 0)  // data found
 		{
 			if($perf == 0){  
 				//$Info = ($row[17]!="") ? ' ('.$row[17].')' : '';  
-                $Info = ($row[18]!="") ? ' ('.$row[18].')' : '';    
-                $noFee=false;  
-                if  ($row[18]!="" && $m != $row[19]) { 
-                    $disc = $disc . $sep . $row[19] . $Info;    // add combined   
-                }
-                else 
-                     if  ($row[18]!="" && $m == $row[19]) { 
-                          $noFee=true;                        // the same combined
-                     }
-                     else  
-				        $disc = $disc . $sep . $row[9] . $Info;	// add discipline
-                      
+				$Info = ($row[18]!="") ? ' ('.$row[18].')' : '';    
+				$noFee=false;  
+				if  ($row[18]!="" && $m != $row[19]) { 
+					$disc = $disc . $sep . $row[19] . $Info;    // add combined   
+				}
+				else 
+					 if  ($row[18]!="" && $m == $row[19]) { 
+						  $noFee=true;                        // the same combined
+					 }
+					 else  
+						$disc = $disc . $sep . $row[9] . $Info;	// add discipline
+					  
 			}else{   
 				$Info = ($row[17]!="") ? $row[17] .', ' : '';
 				$disc = $disc . $sep . $row[9] . " (".$Info . $perf.")";	// add discipline
@@ -409,19 +409,19 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$perf = "-";
 			}
 		}
-      //  if (!$noFee) {
-      //      if ($fee==0) {
+	  //  if (!$noFee) {
+	  //      if ($fee==0) {
 		//     $fee+=$row[22];  
-      //       }
-      //       else {
-       //      $fee+=($row[22] - ($reduction/100));  
-      //       }   
-      //  }  
-      
+	  //       }
+	  //       else {
+	   //      $fee+=($row[22] - ($reduction/100));  
+	  //       }   
+	  //  }  
+	  
 	//	$mehrkampf = ($row[18]!='') ? $row[19] : '';
 	//	$mehrkampfInfo = ($mehrkampf!='' && $row[17]!='' && $mehrkampf!=$row[17]) ? ' ('.$row[17].')' : '';   
    //   $disc = ($mehrkampf!='') ? $mehrkampf . $mehrkampfInfo : $disc;   
-     
+	 
 		// show payment status
 		if(isset($_GET['discgroup'])){
 			if(isset($_GET['payment'])){
@@ -435,13 +435,13 @@ else if(mysql_num_rows($result) > 0)  // data found
 		
 		$l++;			// increment line count
 		$a = $row[0];
-        $m = $row[19];    // keep combined
+		$m = $row[19];    // keep combined
 	}
 	
 	// print last athlete, if any
 	if($a > 0)
 	{   
-    
+	
 		if((is_a($doc, "PRINT_CatEntryPage"))
 			|| (is_a($doc, "GUI_CatEntryPage")))
 		{
@@ -470,12 +470,15 @@ else if(mysql_num_rows($result) > 0)  // data found
 		else
 		{  
 			$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid); 
-            
+			
 		}
 	}
 	
 	if(!$export){ printf("</table>\n"); }
 	mysql_free_result($result);
+}else if(mysql_num_rows($result) == 0)  // data found
+{
+	echo $strNoData;
 }						// ET DB error
 
 $doc->endPage();		// end HTML page for printing

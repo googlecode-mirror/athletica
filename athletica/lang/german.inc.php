@@ -662,6 +662,7 @@ $strPB_long = "Persönliche Bestleistung";
 $strReceipt = "Quittung";
 $strSelection = "Auswahl";
 $strCHF = "CHF"; 
-$strSubscribe = "Stempel / Unterschrift"
+$strSubscribe = "Stempel / Unterschrift";
 
+$strNoData = "Es konnten keine Anmeldungen gefunden werden";
 ?>

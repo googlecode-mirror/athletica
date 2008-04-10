@@ -294,15 +294,29 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 		}
 		
 		// get combined top perf
-		$res = mysql_query("
+		
+		$saison = $_SESSION['meeting_infos']['Saison'];
+		if ($saison == ''){
+			$saison = "O"; //if no saison is set take outdoor
+		}
+		/*$res = mysql_query("
 			SELECT
-				base_performance.season_effort
+				base_performance.notification_effort
 			FROM
 				base_performance
 				, base_athlete
 			WHERE	base_athlete.license = ".$_POST['license']."
 			AND	base_performance.id_athlete = base_athlete.id_athlete
-			AND	base_performance.discipline = ".$cCode);
+			AND	base_performance.discipline = ".$cCode);*/
+		$res = mysql_query("SELECT 
+					notification_effort 
+				FROM 
+					base_performance 
+				LEFT JOIN base_athlete USING(id_athlete) 
+				WHERE base_athlete.license = ".$_POST['license']." 
+				AND base_performance.discipline = ".$cCode." 
+				AND season = '".$saison."';");
+		
 		if(mysql_num_rows($res) > 0){
 			$row = mysql_fetch_array($res);
 			mysql_query("UPDATE anmeldung SET BestleistungMK = '".$row[0]."' WHERE xAnmeldung = ".$_POST['item']);
@@ -356,7 +370,7 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 					$perf = 0;
 					if($_POST['license'] != ''){    
 						// need codes of category and discipline        // meine 3 zugefügt
-						/*$res = mysql_query("
+						/*$sql ="
 							SELECT disziplin.Code as DiszCode, 
 								kategorie.Code as KatCode, 
 								disziplin.Typ as Typ, 
@@ -369,7 +383,7 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 								, wettkampf
 							WHERE	wettkampf.xWettkampf = ".$event."
 							AND	wettkampf.xDisziplin = disziplin.xDisziplin
-							AND	wettkampf.xKategorie = kategorie.xKategorie");*/
+							AND	wettkampf.xKategorie = kategorie.xKategorie";*/
 							
 						$sql = "SELECT disziplin.Code AS DiszCode, 
 									   kategorie.Code AS KatCode, 
@@ -378,13 +392,12 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 									   kategorie.xKategorie, 
 									   wettkampf.xMeeting 
 								  FROM disziplin 
-							 LEFT JOIN kategorie USING(xKategorie) 
-							 LEFT JOIN wettkampf ON(wettkampf.xDisziplin = disziplin.xDisziplin) 
+									LEFT JOIN wettkampf ON(wettkampf.xDisziplin = disziplin.xDisziplin) 
+									LEFT JOIN kategorie USING(xKategorie) 
 								 WHERE wettkampf.xWettkampf = ".$event.";";
 						$res = mysql_query($sql);
 						
-						if($res){
-							
+						if($res){						
 							$rowCodes = mysql_fetch_array($res);
 							
 							$saison = $_SESSION['meeting_infos']['Saison'];

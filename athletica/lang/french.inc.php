@@ -653,4 +653,6 @@ $strReceipt = 'Quittance';
 $strSelection = "Sélection";
 $strCHF = "CHF"; 
 $strSubscribe = "Timbre / Signature";
+
+$strNoData = "Aucune inscription trouvé"; //überprüfen
 ?>

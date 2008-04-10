@@ -1081,6 +1081,31 @@ function meeting_get_disciplines(){
 				
 				$checked = (isset($combs_def[$row['xKategorie']."_".$comb])) ? ' checked="checked"' : '';
 				$val = (isset($combs_def[$row['xKategorie']."_".$comb])) ? $combs_def[$row['xKategorie']."_".$comb] : '';
+				
+				//get performance from base -----------------------------------------------------------------------
+				if ($val == '') { //dont overwrite value ... no guess what can be stored in $val before.. ***SBA***
+					$sql = "
+						SELECT 
+							notification_effort 
+						FROM
+							base_performance
+						WHERE	id_athlete = $athlete_id
+						AND	discipline = ".$comb . "
+						AND season = '$saison'";
+					$res_perf_comb = mysql_query($sql);
+		
+					if(mysql_errno() > 0){
+						AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
+						echo $sql;
+					}else{
+						$row_perf_comb = mysql_fetch_array($res_perf_comb);
+						$val = $row_perf_comb['notification_effort'];
+						$val = ltrim($val,"0:");
+						$val = (substr($val,-2)==".0")?substr($val,0,-2):$val;
+					}	
+				}
+				//--------------------------------------------------------------------------------------------------
+				
 				?>
 				<td class='dialog-top' nowrap="nowrap" id="topperftd<?php echo $combCat.$comb ?>">
 					<input type="checkbox" value="<?php echo $row['xKategorie']."_".$comb ?>" name="combined[]" id="combinedCheck<?=$row['xKategorie']?>_<?=$comb?>" 
@@ -1992,19 +2017,19 @@ if ($_POST['arg']=="add")
 			else
 				$dd = new GUI_ClubDropDown(0, false, 'document.clubSearch.submit()', false);  
 			?>
-              
+			  
 			</form>  
 			</td>   
 			<?php 
 	   } 
-        									 
+											 
 	   if ( $_POST['arg']=="change_clubSearch")  {   
 			$sql_athlets="SELECT b.lastname, b.firstname, b.license,v.Name, v.xCode FROM base_athlete as b , verein as v WHERE b.account_code=v.xCode AND v.xVerein=" . $club . " ORDER BY b.lastname, b.firstname";                                                                                                         
 			$result_a=mysql_query($sql_athlets);  
 			if(mysql_num_rows($result_a) > 0) {  
-                ?> <td>&nbsp;</td>                  
+				?> <td>&nbsp;</td>                  
 				<th class='dialog'><?php echo $strAthlete ?></th> 
-                <?php 
+				<?php 
 			}
 			?> 
 			<td class='forms'>    

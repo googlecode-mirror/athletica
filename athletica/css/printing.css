@@ -9,7 +9,7 @@ input,select,textarea
 	 { font-family: Arial, Helvetica,sans-serif; font-size:12px; }
 
 body { background-color:#FFFFFF; color:#000000;
-	margin:10px;
+	margin:0px;
 	scrollbar-face-color:#999999; scrollbar-highlight-color:#FFFFFF;
 	scrollbar-3dlight-color:#000000; scrollbar-darkshadow-color:#222222;
 	scrollbar-shadow-color:#999999; scrollbar-arrow-color:#000000;
@@ -170,83 +170,83 @@ td.entry_perf { vertical-align:top; text-align:right;
  * ---------------
  */
  table.receipt { table-layout:auto; border-collapse:collapse;}
-    
+	
 /* list header line */
 
 th.receipt {  padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:30px; font-weight: bold; 
-                 }
+				padding-top:0px; padding-bottom:2px;
+				font-size:30px; font-weight: bold; 
+				 }
 th.receipt_name { width:80px; padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:16px; font-weight: bold; 
-                 }
+				padding-top:0px; padding-bottom:2px;
+				font-size:16px; font-weight: bold; 
+				 }
 th.receipt_year { width:50px; padding-left:0px; padding-right:2px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:16px; font-weight: bold; 
-                } 
+				padding-top:0px; padding-bottom:2px;
+				font-size:16px; font-weight: bold; 
+				} 
 th.receipt_cat { padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:16px; font-weight: bold;
-                  }
+				padding-top:0px; padding-bottom:2px;
+				font-size:16px; font-weight: bold;
+				  }
 th.receipt_club { width:80px; padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-               font-size:16px; font-weight: bold;
-                 }
+				padding-top:0px; padding-bottom:2px;
+			   font-size:16px; font-weight: bold;
+				 }
 th.receipt_disc { width:80px; padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-               font-size:16px; font-weight: bold;
-                 }
+				padding-top:0px; padding-bottom:2px;
+			   font-size:16px; font-weight: bold;
+				 }
 th.receipt_fee {  padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-               font-size:16px; font-weight: bold; 
-               }
+				padding-top:0px; padding-bottom:2px;
+			   font-size:16px; font-weight: bold; 
+			   }
 th.receipt_date {  padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:16px; font-weight: bold; 
-                }
+				padding-top:0px; padding-bottom:2px;
+				font-size:16px; font-weight: bold; 
+				}
 th.receipt_place { padding-left:0px; padding-right:2px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:16px; font-weight: bold;
-                  }
+				padding-top:0px; padding-bottom:2px;
+				font-size:16px; font-weight: bold;
+				  }
 th.receipt_subscribe {  padding-left:16px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                font-size:16px; font-weight: bold; 
-                 }
+				padding-top:0px; padding-bottom:2px;
+				font-size:16px; font-weight: bold; 
+				 }
 
 /* list item */  
 td.receipt_name {  width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px; 
-                 font-size:16px;
-                   }
+				padding-top:0px; padding-bottom:2px; 
+				 font-size:16px;
+				   }
 td.receipt_year { width:50px; vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                 font-size:16px; 
-                  } 
+				padding-top:0px; padding-bottom:2px;
+				 font-size:16px; 
+				  } 
 td.receipt_cat {  vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px; 
-                 font-size:16px;
-                  }
+				padding-top:0px; padding-bottom:2px; 
+				 font-size:16px;
+				  }
 td.receipt_club {    vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px; 
-                 font-size:16px;
-                  }
+				padding-top:0px; padding-bottom:2px; 
+				 font-size:16px;
+				  }
 td.receipt_disc {  width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                 font-size:16px; 
-                  }
+				padding-top:0px; padding-bottom:2px;
+				 font-size:16px; 
+				  }
 td.receipt_fee {  vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px; font-weight: bold; 
-                 font-size:16px;
-                  }   
+				padding-top:0px; padding-bottom:2px; font-weight: bold; 
+				 font-size:16px;
+				  }   
 td.receipt_date {  vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px; 
-                 font-size:16px;
-                  }
+				padding-top:0px; padding-bottom:2px; 
+				 font-size:16px;
+				  }
 td.receipt_place {  vertical-align:top; padding-left:0px; padding-right:5px;
-                padding-top:0px; padding-bottom:2px;
-                 font-size:16px; 
-                  }
+				padding-top:0px; padding-bottom:2px;
+				 font-size:16px; 
+				  }
 
 
 /*
