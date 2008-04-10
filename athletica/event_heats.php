@@ -674,7 +674,7 @@ if($round > 0)
 				}	
 ?>
 	<tr class='<?php echo $rowclass; ?>'
-		onClick='clickTrack(this, <?php echo $row[6].", ".$h.", \"".$hn."\", ".$row[7];?>)'>
+		onClick='clickTrack(this, <?php echo $row[6].", ".$h.", \"".$hn."\", ".$row[7];?>)' style="cursor: pointer;">
 		<td>
 			<?php echo $row[7]; ?>
 		</td>
