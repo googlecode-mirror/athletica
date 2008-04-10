@@ -241,45 +241,47 @@ else
 		$comb = $row[7];
 		$combName = $row[8];
 		
-		// events         
-		$res = mysql_query("
-			SELECT
-				d.Kurzname
-				, d.Typ
-				 , MAX(IF (r.Info='-',r.Leistung=0,r.Leistung))  
-				, r.Info
-				 , MAX(IF (r.Info='-',r.Punkte=0,r.Punkte)) AS pts
-				, s.Wind
-				, w.Windmessung
-				, st.xStart
-				, CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
-			FROM
-				start AS st USE INDEX (Anmeldung)
-				, serienstart AS ss 
-				, resultat AS r 
-				, serie AS s 
-				, runde AS ru 
-				, wettkampf AS w
-				, disziplin AS d 
-			WHERE st.xAnmeldung = $row[0]
-			AND ss.xStart = st.xStart
-			AND r.xSerienstart = ss.xSerienstart
-			AND s.xSerie = ss.xSerie
-			AND ru.xRunde = s.xRunde
-			AND w.xWettkampf = st.xWettkampf
-			AND d.xDisziplin = w.xDisziplin
-			AND r.Info != '" . $cfgResultsHighOut . "'
-			AND w.xKategorie = $row[9]
-			AND w.Mehrkampfcode = $row[7]
-			GROUP BY
-				st.xStart
-			ORDER BY
-				w.Mehrkampfreihenfolge ASC
-				, ru.Datum
-				, ru.Startzeit
-		");  
-   
-     /*   
+		// events   
+         
+        $res = mysql_query("
+            SELECT
+                d.Kurzname
+                , d.Typ
+                , MAX(IF ((r.Info='-') && (d.Typ = 6),r.Leistung=0,r.Leistung))  
+                , r.Info
+                , MAX(IF ((r.Info='-') && (d.Typ = 6),r.Punkte=0,r.Punkte)) AS pts  
+                , s.Wind
+                , w.Windmessung
+                , st.xStart
+                , CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
+                , w.Mehrkampfreihenfolge
+            FROM
+                start AS st USE INDEX (Anmeldung)
+                , serienstart AS ss 
+                , resultat AS r 
+                , serie AS s 
+                , runde AS ru 
+                , wettkampf AS w
+                , disziplin AS d 
+            WHERE st.xAnmeldung = $row[0]
+            AND ss.xStart = st.xStart
+            AND r.xSerienstart = ss.xSerienstart
+            AND s.xSerie = ss.xSerie
+            AND ru.xRunde = s.xRunde
+            AND w.xWettkampf = st.xWettkampf
+            AND d.xDisziplin = w.xDisziplin
+            AND r.Info != '" . $cfgResultsHighOut . "'
+            AND w.xKategorie = $row[9]
+            AND w.Mehrkampfcode = $row[7]
+            GROUP BY
+                st.xStart
+            ORDER BY
+                w.Mehrkampfreihenfolge ASC
+                , ru.Datum
+                , ru.Startzeit
+        ");   
+     
+      /*  
 		$res = mysql_query("
 			SELECT
 				d.Kurzname
@@ -314,7 +316,9 @@ else
 				, ru.Datum
 				, ru.Startzeit
 		");   
-      */ 
+      */  
+       
+           
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
