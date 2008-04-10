@@ -5,7 +5,7 @@
  *	meeting_entry_add.php
  *	---------------------
  *	
- */     
+ */        
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -1956,9 +1956,9 @@ if ($_POST['arg']=="add")
 }
 
 ?>   
-<table>
-<tr>
-	<td class='forms'> 
+<table >
+<tr>                   
+	<td class='forms'>
 		<?php echo $strSearchForLicense ?>
 	</td>
 	<td class='forms' colspan="2">
@@ -1967,15 +1967,15 @@ if ($_POST['arg']=="add")
 		$menu->addSearchfield('meeting_entry_add.php', '_self', 'post', '', false);
 		$menu->printMenu();
 		?>
-	</td>
+	</td>    
 </tr>
 <tr>
 	<td>&nbsp;
 	</td>
 </tr>
-<tr>
+<tr> 
 	 <?php
-	  if ( !(isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield'])) ) )  {  
+	  if ( !(isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield'])) ) )  {    
 			?>    
 			<th class='dialog'>
 			<?php echo $strSearchForClub ?>
@@ -1988,31 +1988,31 @@ if ($_POST['arg']=="add")
 			<?php
 	   
 			if ($_POST['arg']=="change_clubSearch")         
-				$dd = new GUI_ClubDropDown($club, false, 'document.clubSearch.submit()', false); 
+				$dd = new GUI_ClubDropDown($club, false, 'document.clubSearch.submit()', false);  
 			else
 				$dd = new GUI_ClubDropDown(0, false, 'document.clubSearch.submit()', false);  
 			?>
-	   
-			</form> 
+              
+			</form>  
 			</td>   
 			<?php 
-	   }   
-												 
-	   if ( $_POST['arg']=="change_clubSearch")  {  
+	   } 
+        									 
+	   if ( $_POST['arg']=="change_clubSearch")  {   
 			$sql_athlets="SELECT b.lastname, b.firstname, b.license,v.Name, v.xCode FROM base_athlete as b , verein as v WHERE b.account_code=v.xCode AND v.xVerein=" . $club . " ORDER BY b.lastname, b.firstname";                                                                                                         
-			$result_a=mysql_query($sql_athlets);
+			$result_a=mysql_query($sql_athlets);  
 			if(mysql_num_rows($result_a) > 0) {  
-				?> <td>&nbsp;</td>
+                ?> <td>&nbsp;</td>                  
 				<th class='dialog'><?php echo $strAthlete ?></th> 
-				<?php 
+                <?php 
 			}
 			?> 
-			<td class='forms'>   
-			<form action='meeting_entry_add.php' method='post' name='athleteSearch'> 
-			<input name='arg' type='hidden' value='change_athlete' />  
+			<td class='forms'>    
+			<form action='meeting_entry_add.php' method='post' name='athleteSearch'>   
+			<input name='arg' type='hidden' value='change_athlete' />   
 			<?php  
 		
-			$dropdown = new GUI_Select('athleteSearch', 1, "document.athleteSearch.submit()");
+			$dropdown = new GUI_Select('athleteSearch', 1, "document.athleteSearch.submit()"); 
 			 
 			 if(mysql_num_rows($result_a) > 0)  {  
 				while( $row_athlets=mysql_fetch_row($result_a)) { 
@@ -2026,14 +2026,14 @@ if ($_POST['arg']=="add")
 			else
 				{$search_occurred=true;     
 				} 
-			?>
-			</form>      
+			?>  
+			<!--</form> -->      
 			</td>  
 	   <?php   
 	 } 
-	 
-	 if ( (isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield'])) ) ) {  
-		 ?> 
+
+	 if ( (isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield'])) ) ) {   
+		 ?>          
 		 <th class="dialog"><?php echo $strAthlete ?></th> 
 		 <td class="forms">   
 		 <form action='meeting_entry_add.php' method='post' name='athleteSearch'> 
@@ -2062,7 +2062,7 @@ if ($_POST['arg']=="add")
 		</form>      
 		</td>  
 	   <?php   
-	 }  
+	 } 
    ?>    
 </tr>  
 </table>
@@ -2070,7 +2070,7 @@ if ($_POST['arg']=="add")
 
 <?php   
 
-if($search_occurred){  
+if($search_occurred){ 
 	if($search_match){ // output information and ask to add athlet    
 		?>
 		
@@ -2226,7 +2226,7 @@ if(!empty($club2) && false){ // not yet in use
 	}
 }else{ // else if search
 	  if ( ($_POST['arg']!="change_clubSearch")  
-			&& !( (isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield']) ) )  ) ) {
+			&& !( (isset($_POST['searchfield']) && (!is_numeric($_POST['searchfield']) ) )  ) ) {  
 ?>
 
 <?php $page->printPageTitle($strNewEntry); ?>
