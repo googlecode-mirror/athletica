@@ -227,23 +227,6 @@ function removePassword(){
 			
 			<table class='dialog' width="475">
 				<tr>
-					<th class='faq'><?php echo $strFaq; ?></th>
-				</tr>
-				<tr>
-					<td>
-						<table class='admin'>
-							<tr class='even'>
-								<td>
-								<input type="button" value="<?php echo $strEdit; ?>" onclick="javascript:document.location.href='admin_faq.php'">
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table><br/>
-			
-			<table class='dialog' width="475">
-				<tr>
 					<th class='dialog'><?php echo $strLinks; ?></th>
 				</tr>
 				<tr>
@@ -256,12 +239,6 @@ function removePassword(){
 								</td>
 							</tr>
 							<tr class='even'>
-								<td>&bull;
-									<a href='<?php echo $cfgURLDocumentation; ?>athletica.pdf' target='_blank'>
-									<?php echo $strDocumentation; ?> (PDF)</a>
-								</td>
-							</tr>
-							<tr class='odd'>
 								<td>&bull;
 									<a href='LICENSE.txt' target='_blank'><?php echo $strLicense; ?></a>
 								</td>

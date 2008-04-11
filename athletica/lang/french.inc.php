@@ -195,7 +195,7 @@ $strIWB166 = "Selon règle 166 IWB";
 $strJudges = "Juge-arbitre"; 
 
 $strLanguage = "Langue"; 
-$strLicense = "License (GNU General Public License)";
+$strLicense = "License (GNU General Public License v2.0)";
 $strLimitSelection = "Limiter le choix"; 
 $strLinks = "Lien"; 
 $strLogEvent = "Évènement"; 

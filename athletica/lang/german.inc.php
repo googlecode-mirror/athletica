@@ -258,7 +258,7 @@ $strExportNumbers = "Startnummern exportieren";
 $strExportNbrs = "Nur Nummern von";
 $strExportAllNbrs = "Alle Nummern";
 
-$strFaq = "Frequently Asked Questions";
+$strFaq = "FAQ";
 $strFaqActivateAll = "Alle einschalten";
 $strFaqDeactivateAll = "Alle ausschalten";
 $strFaqActivatedShort = "Ein";
@@ -305,7 +305,7 @@ $strIocShort = "Land";
 $strJudges = "Schiedsrichter";
 
 $strLanguage = "Sprache";
-$strLicense = "Lizenzvereinbarung (GNU General Public License)";
+$strLicense = "Lizenzvereinbarung (GNU General Public License v2.0)";
 $strLicenseNr = "Lizenznummer";
 $strLicenseTypeNormal = "Normale Lizenz";
 $strLicenseTypeDayLicense = "Tageslizenz";

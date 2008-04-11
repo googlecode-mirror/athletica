@@ -196,6 +196,7 @@ if($arg == "login"){
 		case 'admin_athletes':
 		case 'admin_stadiums':
 		case 'admin_roundtypes':
+		case 'admin_faq':
 		case 'admin_region':
 			$admin_class = 'main';
 			// submenus
@@ -206,7 +207,8 @@ if($arg == "login"){
 								, 4 => 'admin_region'
 								, 5 => 'admin_athletes'
 								, 6 => 'admin_stadiums'
-								, 7 => 'admin_roundtypes');
+								, 7 => 'admin_roundtypes'
+								, 8 => 'admin_faq');
 			// submenu titles
 			$subtitles= array(0 => $strCategories
 								, 1 => $strDisciplines
@@ -215,7 +217,8 @@ if($arg == "login"){
 								, 4 => $strRegion
 								, 5 => $strAthletes
 								, 6 => $strStadiums
-								, 7 => $strRoundtypes);
+								, 7 => $strRoundtypes
+								, 8 => $strFaq);
 			// submenu style
 			$subitem_class= array(0 => 'subitem_inactive'
 								, 1 => 'subitem_inactive'
@@ -224,7 +227,8 @@ if($arg == "login"){
 								, 4 => 'subitem_inactive'
 								, 5 => 'subitem_inactive'
 								, 6 => 'subitem_inactive'
-								, 7 => 'subitem_inactive');
+								, 7 => 'subitem_inactive'
+								, 8 => 'subitem_inactive');
 			// highlight current submenu
 			switch($arg) {
 				case 'admin_categories':
@@ -251,69 +255,11 @@ if($arg == "login"){
 				case 'admin_roundtypes':
 					$subitem_class[7]='subitem';
 					break;
-			}
-			break;
-			
-			/*$subitems= array(0 => 'admin_categories'
-								, 1 => 'admin_disciplines'
-								, 2 => 'admin_clubs'
-								, 3 => 'admin_region'
-								, 4 => 'admin_athletes'
-								, 5 => 'admin_stadiums'
-								, 6 => 'admin_roundtypes'
-								, 7 => 'meeting_timing'
-								, 8 => 'meeting_page_layout');
-			// submenu titles
-			$subtitles= array(0 => $strCategories
-								, 1 => $strDisciplines
-								, 2 => $strClubs
-								, 3 => $strRegion
-								, 4 => $strAthletes
-								, 5 => $strStadiums
-								, 6 => $strRoundtypes
-								, 7 => $strTiming
-								, 8 => $strPageLayoutShort);
-			// submenu style
-			$subitem_class= array(0 => 'subitem_inactive'
-								, 1 => 'subitem_inactive'
-								, 2 => 'subitem_inactive'
-								, 3 => 'subitem_inactive'
-								, 4 => 'subitem_inactive'
-								, 5 => 'subitem_inactive'
-								, 6 => 'subitem_inactive'
-								, 7 => 'subitem_inactive'
-								, 8 => 'subitem_inactive');
-			// highlight current submenu
-			switch($arg) {
-				case 'admin_categories':
-					$subitem_class[0]='subitem';
-					break;
-				case 'admin_disciplines':
-					$subitem_class[1]='subitem';
-					break;
-				case 'admin_clubs':
-					$subitem_class[2]='subitem';
-					break;
-				case 'admin_region':
-					$subitem_class[3]='subitem';
-					break;
-				case 'admin_athletes':
-					$subitem_class[4]='subitem';
-					break;
-				case 'admin_stadiums':
-					$subitem_class[5]='subitem';
-					break;
-				case 'admin_roundtypes':
-					$subitem_class[6]='subitem';
-					break;
-				case 'meeting_timing':
-					$subitem_class[7]='subitem';
-					break;
-				case 'meeting_page_layout':
+				case 'admin_faq':
 					$subitem_class[8]='subitem';
 					break;
 			}
-			break;*/
+			break;
 	}
 
 //

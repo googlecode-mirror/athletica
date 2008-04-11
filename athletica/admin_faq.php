@@ -66,7 +66,7 @@ $menu->printMenu();
 
 <table class='dialog'>
 <tr>
-	<th class='dialog'><?php echo $strFaqQuestion; ?></th>
+	<th class='dialog' width="300"><?php echo $strFaqQuestion; ?></th>
 	<th class='dialog'><?php echo $strFaqActivatedShort; ?></th>
 </tr>
 <?php
