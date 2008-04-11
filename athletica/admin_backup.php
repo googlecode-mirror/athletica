@@ -196,38 +196,41 @@ else if ($_POST['arg'] == 'restore')
 	}
 	
 	$validBackup = false;
-	$backupVersion = "";
-	foreach($cfgBackupCompatibles as $v){
-		$idstring = "# $cfgApplicationName $v\n";
-		$idstring2 = "# $cfgApplicationName $v\r";
-		if((strncmp($content, $idstring, strlen($idstring)) == 0) || (strncmp($content, $idstring2, strlen($idstring2)) == 0)){
-			$validBackup = true;
-			$backupVersion = $v;
-			break;
+	
+	if($error_msg==''){
+		$backupVersion = "";
+		foreach($cfgBackupCompatibles as $v){
+			$idstring = "# $cfgApplicationName $v\n";
+			$idstring2 = "# $cfgApplicationName $v\r";
+			if((strncmp($content, $idstring, strlen($idstring)) == 0) || (strncmp($content, $idstring2, strlen($idstring2)) == 0)){
+				$validBackup = true;
+				$backupVersion = $v;
+				break;
+			}
 		}
-	}
-	
-	// cut SLV_ from version
-	$shortVersion = ""; // version without SLV_
-	if(substr($backupVersion,0,4) == "SLV_"){
-		$shortVersion = substr($backupVersion, 4, 3);
-	}else{
-		$shortVersion = substr($backupVersion, 0, 3);
-	}
-	
-	// since version 1.9 the backup contains a termination line
-	if($shortVersion >= 1.9){
-		$term = substr($content, -9);
-		if($term != "#*ENDLINE"){
-			$validBackup = false;
+		
+		// cut SLV_ from version
+		$shortVersion = ""; // version without SLV_
+		if(substr($backupVersion,0,4) == "SLV_"){
+			$shortVersion = substr($backupVersion, 4, 3);
 		}else{
-			echo "<tr><th class='secure'>-- $strBackupStatus2 --</th></tr>";
+			$shortVersion = substr($backupVersion, 0, 3);
 		}
 		
-	}else{
-		
-		echo "<tr><th class='insecure'>-- $strBackupStatus1 --</th></tr>";
-		
+		// since version 1.9 the backup contains a termination line
+		if($shortVersion >= 1.9){
+			$term = substr($content, -9);
+			if($term != "#*ENDLINE"){
+				$validBackup = false;
+			}else{
+				echo "<tr><th class='secure'>-- $strBackupStatus2 --</th></tr>";
+			}
+			
+		}else{
+			
+			echo "<tr><th class='insecure'>-- $strBackupStatus1 --</th></tr>";
+			
+		}
 	}
 	
 	if(!$validBackup)	// invalid backup ID
@@ -235,16 +238,20 @@ else if ($_POST['arg'] == 'restore')
 		if($error_msg!=''){
 			?>
 			<tr>
+				<th class='bestlistupdate'><?=$strError?></th>
+			</tr>
+			<tr class="odd">
+				<td><?=$error_msg?></td>
+			</tr>
+			<tr class="even">
 				<td>
-					<br/><?=$error_msg?><br/><br/>
-					
-					<input type="button" name="btnBack" value="<?=$strBack?>" onclick="document.location.href = 'admin.php';"/>
+					<input type="button" name="btnBack" value="<?=$strBack?>" class="uploadbutton" onclick="document.location.href = 'admin.php';"/>
 				</td>
 			</tr>
 			<?php
+		} else {
+			AA_printErrorMsg($strErrInvalidBackupFile);
 		}
-		
-		AA_printErrorMsg($strErrInvalidBackupFile);
 	}
 	else
 	{
