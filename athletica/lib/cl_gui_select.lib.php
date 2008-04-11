@@ -166,7 +166,7 @@ class GUI_Select
 class GUI_CategorySelect
 {
 	var $select;
-    var $optNone;   
+	var $optNone;   
 	
 	/*
 	 *	Constructor
@@ -175,9 +175,9 @@ class GUI_CategorySelect
 	function GUI_CategorySelect($action = '',$optNone=true)
 	{    
 		$this->select = new GUI_Select('category', 1, $action);
-        $this->optNone = $optNone;
-        if ($this->optNone)
-		    $this->select->addOptionNone();				// empty item
+		$this->optNone = $optNone;
+		if ($this->optNone)
+			$this->select->addOptionNone();				// empty item
 	}
 
 	/*	printList()
@@ -259,7 +259,7 @@ class GUI_ClubSelect
 {
 	var $select;
 	var $all;
-    var $optNone; 
+	var $optNone; 
 	
 	/*	Constructor
 	 *	-----------
@@ -270,11 +270,11 @@ class GUI_ClubSelect
 	function GUI_ClubSelect($all = false, $action='',$optNone=true)
 	{    
 		$this->all = $all;
-        $this->optNone = $optNone;
+		$this->optNone = $optNone;
 		$this->select = new GUI_Select('club', 1, $action);  
-         
+		 
 		if ($this->optNone)  
-            $this->select->addOptionNone();				// empty item
+			$this->select->addOptionNone();				// empty item
 	}
 
 	/*	printList()
@@ -1511,7 +1511,7 @@ class GUI_ScoreTableDisciplineSelect
 			FROM
 				disziplin 
 			ORDER BY
-				Name
+				Anzeige
 		");
 
 		if(!empty($GLOBALS['AA_ERROR']))

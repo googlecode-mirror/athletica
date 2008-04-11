@@ -37,15 +37,21 @@ etc. dargestellt.
 
 <h3>Meetingdaten</h3>
 <h4>Name, Ort</h4>
-Nebst Meetingname kann der Ort erfasst und das Stadion aus der Liste der
+Nebst Meetingname und Organisator kann der Ort erfasst und das Stadion aus der Liste der
 definierten <a href='../administration/stadium.html'>Stadien</a> ausgewählt
 werden.
 <h4>Meeting-Nr.</h4>
 Der Verband vergibt für bewilligungspflichtige Meetings Nummern, welche hier gesetzt werden können. Diese wird später beim Drucken von Resultaten aufs Titelblatt gesetzt.
 <h4>Programm Modus</h4>
-Der Programm Modus definiert, wie die Applikation eingesetzt werden soll.
-Folgende Modi sind möglich und beeinflussen die Art und Weise, wie die
-Resultaterfassung für die technische Disziplinen dargestellt wird:
+<p>Der Programm Modus definiert, wie die Applikation eingesetzt werden soll.
+  Folgende Modi sind möglich und beeinflussen die Art und Weise, wie die
+  Resultaterfassung für die technische Disziplinen dargestellt wird: </p>
+<h4>Saison</h4>
+<p>Die Saison bestimmt, welche Resultate in der Bestenliste f&uuml;r die Anzeige der PB (Personal Best) und SB (Season Best) in der Rangliste gesucht werden.</p>
+<h4>Haftgeld, Startgeld und Reduktion Startgeld</h4>
+<p>Vorgabe-Daten f&uuml;r die einzelnen Disziplinen. Das Haftgeld und Startgeld ist bei der Disziplin definiert und kann von den bei den Meeting-Daten erfassten Betr&auml;gen abweichen. <br />
+Der  im Feld <strong>Startgeld Reduktion ab zweiter Disziplin </strong>erfasster Betrag wird bei jeder zweiten und weiteren Disziplinen-Anmeldung desselben Athleten vom Startgeld (der Disziplin) subtrahiert.</p>
+<p>Startgeld bei Mehrk&auml;mpfen: Obwohl bei jeder Mehrkampf-Disziplin das Start- und Haftgeld erfasst werden kann, wird dieses nur einmal dem Athleten belastet.</p>
 <dl>
 <dt>Wettkampfbüro</dt><dd>Alle Resultate werden im Wettkampfbüro verarbeitet.
 Pro Athlet wird nur die Bestleistung eingegeben. Bei Hochsprung und Stab werden
@@ -111,9 +117,9 @@ definierten Disziplinen gewertet.</dd>
 <dt>SVM Mannschaftswettkampf</dt><dd>SVM-Mannschaftswertung mit fünf Zählresultaten pro Einzeldisziplin plus ein Staffelresultat</dd>
 <dt>SVM Mehrkampf</dt><dd>SVM mit Mehrkampfwertung. Gewertet werden die fünf besten Mehrkampfresultate. Staffeln können zwar definiert werden, werden aber nicht in die Wertung einbezogen</dd>
 </dl>
-<h4>Punktetabelle</h4>
+<h4>Wertungstabelle</h4>
 Für alle Typen ausser <i>Einzel</i> muss eine Wertungspunktetabelle
-ausgewählt werden. Sind bereits Resultate erfasst wenn die Punktetabelle
+ausgewählt werden. Sind bereits Resultate erfasst wenn die Wertungstabelle
 gesetzt oder geändert wird, werden die Resultatpunkte auf 0 zurückgesetzt
 (beim späteren Setzen der Disziplinenformel werden die Punkte neu berechnet).
 In der Disziplinenliste darunter werden automatisch die entsprechenden
@@ -122,9 +128,47 @@ in einer Punktetabelle keine Formel definiert ist.
 <br>
 Folgende Tabellen sind derzeit implementiert:
 <dl>
-<dt>SLV 94, Männer und Frauen</dt><dd>SVM-Wertung des SLV</dd>
+<dt>SLV 94, Männer und Frauen</dt>
+<dd>SVM-Wertung von Swiss Athletics (Ausgenommen NLA-C M&auml;nner und NLA-B Frauen)</dd>
 <dt>IAAF 85, Männer und Frauen</dt><dd>Mehrkampfwertung</dd>
-<dt>Ungarische Tabellen 01, Männer und Frauen</dt><dd>[noch nicht ganz vollständig]</dd>
+<dt>SVM NLA-C M&auml;nner</dt>
+<dd>SVM-Wertung NLA-C M&auml;nner</dd>
+<dt>SVM NLA-B Frauen</dt>
+<dd>SVM-Wertung NLA-B Frauen</dd>
+<dt>Rangpunkte</dt>
+<dd>Die Punkte werden aufgrund des Ranges berechnet. Wenn dieser Wertungsmodus ausgew&auml;hlt wird, muss im Feld &quot;Punkte&quot; folgende Formel eingetragen werden: [Punkte f&uuml;r ersten Rang]-[Punkteabzug pro Rang]<br />
+Beispiel: <strong>16-1</strong></dd>
+<dt>&nbsp; </dt>
+<dd>
+  <table cellpadding="0" cellspacing="0" border="0" style="margin:0px; padding:0px">
+      <tr>
+        <td>Rang</td>
+        <td>Punkte</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>16</td>
+      </tr>
+    <tr>
+      <td>2</td>
+        <td>15</td>
+      </tr>
+    <tr>
+      <td>3</td>
+        <td>14</td>
+      </tr>
+    <tr>
+      <td>4</td>
+        <td>13</td>
+      </tr>
+    <tr>
+      <td>...</td>
+        <td>...</td>
+      </tr>
+    </table>
+</dd>
+<dt>[Eigene Wertungstabellen]</dt>
+<dd>Es k&ouml;nnen beliebig viele eigene Wertungstabellen bzw. Puktetabellen definiert werden. Siehe: <a href="../administration/scoring_tables.html">Wertungstabellen</a></dd>
 </dl>
 
 <h3>Wettkämpfe verwalten</h3>
