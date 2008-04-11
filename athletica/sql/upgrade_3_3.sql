@@ -27,6 +27,8 @@ ALTER IGNORE TABLE base_performance ADD KEY season (season);
 ALTER IGNORE TABLE base_relay ADD KEY discipline (discipline);
 ALTER IGNORE TABLE disziplin ADD KEY Code (Code);
 
+ALTER TABLE meeting ADD COLUMN Saison enum('','I','O') NOT NULL default '' AFTER Haftgeld;
+
 
 CREATE TABLE `sys_backuptabellen` (
   `xBackup` int(11) NOT NULL auto_increment,
