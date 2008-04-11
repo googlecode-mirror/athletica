@@ -19,11 +19,11 @@ zum Laufen bringen möchten. Webserver und Datenbank werden mitinistalliert.
 </dd>
 
 <dt><a href="#professional">Profi-Installation</a></dt>
-<dd>Diese richtet sich an alle Benützer welche etwas genauer wissen möchten,
+<dd>Diese richtet sich an alle Benutzer welche etwas genauer wissen möchten,
 wie Athletica aufgebaut ist und darum die einzelnen Komponenten selber
 installieren möchten.
 <br/>
-Eine zweite Zielgruppe sind Benützer von anderen Betriebssystemen, wie Linux
+Eine zweite Zielgruppe sind Benutzer von anderen Betriebssystemen, wie Linux
 oder Mac.
 </dd>
 
@@ -36,7 +36,7 @@ Die neueste Version für alle, die <i>Athletica</i> bereits im Einsatz haben.
 
 <h2><a name="basic">Einsteiger</a></h2>
 Dank unserem <i>Athletica_WinMAX</i>-Paket ist die Installation von
-<i>Athletica</i> ein Kinderspiel. Mit diesem Paket erhält der Benützer
+<i>Athletica</i> ein Kinderspiel. Mit diesem Paket erhält der Benutzer
 ein pfannenfertiges, vorkonfiguriertes System. Mindestanforderung in diesem
 Fall ist Windows 98, besser wären allerdings Windows 2000 oder XP. Zusätzlich
 dürfen MySQL und Apache nicht bereits auf deinem System installiert sein,
@@ -59,22 +59,22 @@ Disziplinen, Schweizer Vereine) auswählen und nach Abschluss der Installation
 <i>Athletica</i> aufstarten lassen.<p/></dd> 
 
 <dt>4. Nachkonfiguration</dt>
-<dd>Die MySQL-Datenbank arbeitet mit einem eigenen Benützersystem, welches
-nichts mit allfälligen Benützer-Konten des Betriebssystems zu tun hat. Der
-DB-Benützer zur MySQL-Administration heisst <i>root</i> und wurde ohne
+<dd>Die MySQL-Datenbank arbeitet mit einem eigenen Benutzersystem, welches
+nichts mit allfälligen Benutzer-Konten des Betriebssystems zu tun hat. Der
+DB-Benutzer zur MySQL-Administration heisst <i>root</i> und wurde ohne
 Passwort erstellt. Aus Sicherheitsgründen empfehlen wir, an dieser Stelle
-ein Passwort für diesen Benützer zu setzen.
+ein Passwort für diesen Benutzer zu setzen.
 <p/>
 Dies geschieht folgendermassen, wobei wir davon ausgehen, dass <i>Athletica</i>
 bereits gestartet wurde:
 <ol>
 	<li>Mit dem Verweis auf dem Desktop <i>phpMyAdmin</i> starten.</li>
-	<li>Es erscheint ein Eingabefenster zur Benützeridentifikation. Hier ist
+	<li>Es erscheint ein Eingabefenster zur Benutzeridentifikation. Hier ist
 	<i>User = root</i> zu setzen (ohne Passwort).</li>
 	<li>Nach dem öffnen der Applikation kann die Gelegenheit benützt werden, um
 	oben rechts die Sprache auszuwählen (z.B. <i>German</i>).</li>
 	<li>Im <i>MySQL-Menu</i> die Funktion <i>Rechte</i> aufrufen.</li>
-	<li>Benützer <i>root</i> zum Bearbeiten auswählen.</li>
+	<li>Benutzer <i>root</i> zum Bearbeiten auswählen.</li>
 	<li>Unter <i>Kennwort ändern</i> ein sinnvolles Passwort wählen.</li>
 </ol>
 </dd>
@@ -90,7 +90,7 @@ Installationsanleitung zu entnehmen.
 
 <h3>2.) Betriebssystem</a></h3>
 Die Installation erfolgt zweckmässigerweise in mehreren Schritten und
-wird im folgenden für ein Windows-System erklärt. Für Mac-Benützer funktioniert
+wird im folgenden für ein Windows-System erklärt. Für Mac-Benutzer funktioniert
 die Installation sinngemäss gleich. Wer auf ein Linux-System setzt, hat es
 bedeutend einfacher, da die verwendeten Komponenten bei den gängigen
 Distribution mit der Installation des Betriebssystems aufgesetzt werden können.
@@ -251,14 +251,14 @@ durchzuführen und die Werte allenfalls zu ändern.
 überprüft werden, ob der Apache-Webserver funktioniert. Ein nächster Aufruf
 von <span class='src'>"http://[HOST]/phpMyAdmin/index.php"</span> zeigt,
 ob die andern Tools auch funktionieren. Falls dies der Fall ist, wird der
-Benützer aufgefordert, in MySQL einzuloggen (user: <i>"root"</i>; passwort:
+Benutzer aufgefordert, in MySQL einzuloggen (user: <i>"root"</i>; passwort:
 <i>"[PASSWORT]"</i>).
 <p/><i>Athletica</i> wird mit <span class='src'>"http://[HOST]/athletica/index.php"</span> gestartet.
 
 <h3><a name='db'>11.) Datenbank</a></h3>
 Zum Aufsetzen der Datenbank benützen wir das oben installierte
 <a href='#phpmyadmin'>phpMyAdmin</a>. Nach der Grundinstallation von
-<a href='#mysql'>MySQL</a> und dem Einstieg als Benützer <i>"root"</i>
+<a href='#mysql'>MySQL</a> und dem Einstieg als Benutzer <i>"root"</i>
 geschieht das Aufsetzen der Applikationsdatenbank in drei Schritten:
 <ol>
 <li>Auf der Einstiegsseite von phpMyAdmin kann zuerst einmal die gewünschte
@@ -267,12 +267,12 @@ Sprache ausgewählt werden, z.B. <i>"German"</i>
 angelegt werden.</li>
 <li>Im linken Menu-Fenster ist aus der Liste oben jetzt die Datenbank
 <i>"mysql"</i> auszuwählen.</li>
-<li>Zum Definieren der benötigen Spezielle Benützer-Rechte haben wir ein Script geschrieben. Um dieses zu starten ist im rechten Fenster die 
+<li>Zum Definieren der benötigen Spezielle Benutzer-Rechte haben wir ein Script geschrieben. Um dieses zu starten ist im rechten Fenster die 
 <i>"SQL</i>-Funktion aufzurufen, dann kann unten die Datei <span class="src">
 "[ATHLETICA_DIR]\sql\user.sql"</span> ausgewählt und mit <i>"OK"</i> gestartet
 werden.
 <li>Wieder im linken Menu-Fenster jetzt <i>"Home"</i> anklicken und dort
-dann MySQL neu starten,  um die generierten Benützerrechte zu aktivieren.</li>
+dann MySQL neu starten,  um die generierten Benutzerrechte zu aktivieren.</li>
 <li>Jetzt geht's wieder zurück ins Menu-Fenster, um die vorher erstellte
 Datenbank <i>"athletica"</i> zu selektieren.</li>
 <li>Als nächstes wird die Datenbank-Struktur aufgebaut. Auch dazu gibt's ein
@@ -303,7 +303,7 @@ Leichtathletik-Vereine aufsetzt:
 
 </p>
 Selbstverständlich können Administratoren mit MySQL-Erfahrung auch andere
-Tools zu Administration verwenden oder andere Datenbanknamen, Benützer und
+Tools zu Administration verwenden oder andere Datenbanknamen, Benutzer und
 Passwörter wählen. Die Datenbank kann falls gewünscht auf einem anderen
 System installiert werden, usw.. In diesem Fall müssen aber die entsprechenden
 <a href='config.html#config'>Konfigurationsparameter</a> angepasst werden,
@@ -330,7 +330,7 @@ unser <i>Athletica</i>-Paket herunterladen (nicht WinMax-Version).
 <dd>Nach einer <i>Einsteiger-Installation</i> findet sich die Applikation
 unter <span class='src'>c:\athletica\www\athletica</span>.
 </br>
-Bei einer <i>Profi-Installation</i> konnte der Benützer den Installationsort
+Bei einer <i>Profi-Installation</i> konnte der Benutzer den Installationsort
 frei wählen (standardmässig ist das
 <span class='src'>[APACHE_DIR]\htdocs\athletica</span>).
 </dd>
