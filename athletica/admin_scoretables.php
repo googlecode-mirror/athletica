@@ -192,7 +192,7 @@ $page->startPage();
 $page->printPageTitle($strScoreTables);
 
 $menu = new GUI_Menulist();
-$menu->addButton($cfgURLDocumentation . 'help/administration/disciplines.html', $strHelp, '_blank');
+$menu->addButton($cfgURLDocumentation . 'help/administration/scoring_tables.html', $strHelp, '_blank');
 $menu->printMenu();
 
 ?>
