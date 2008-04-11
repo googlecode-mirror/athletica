@@ -6,14 +6,23 @@
 */
 
 body,a, p,h1,h2,h3,h4,ul,ol,li,div,td,th,address,blockquote,b,i,form {
-  	font-family: Arial, Helvetica,sans-serif;
-  	font-size:13px;
+  	font-family: Verdana,Arial,Helvetica,sans-serif;
+  	font-size:12px;
+	line-height:140%;
 }
 
 body {
-  	background-color:#FFFFFF;
+  	background-color:#AAAACC;
   	color:#000000;
   	margin:20px;
+	background-image:url(../img/background.gif);
+	background-repeat:repeat-y;
+	background-position:left top;
+}
+
+div.helpmain {
+	width:800px;
+	background-color:#FFFFFF;
 }
 
 a.chap {
@@ -38,7 +47,7 @@ a:hover {
 }
 
 pre {
-  	font-size:12px;
+  	font-size:11px;
 }
 
 p.warn {
@@ -63,12 +72,12 @@ span.src {
 }
 
 dt {
- 	font-size:12px;
+ 	font-size:11px;
   	font-weight:bold;
   	padding-left:25px;
 }
 dl {
- 	font-size:12px;
+ 	font-size:11px;
   	font-weight:normal;
 }
 
@@ -127,7 +136,7 @@ tr.nav {
 th {
   	text-align:left;
   	vertical-align:middle;
-  	padding:5px;
+  	padding:3px;
 	border-width:1px;
   	border-style:solid;
   	border-color:#888888;
@@ -136,7 +145,7 @@ th {
 td {
   	text-align:left;
   	vertical-align:top;
-  	padding:5px;
+  	padding:3px;
 	border-width:1px;
   	border-style:solid;
   	border-color:#888888;
