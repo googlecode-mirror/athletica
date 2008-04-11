@@ -21,7 +21,6 @@ CREATE TABLE `base_performance` (
 
 ALTER IGNORE TABLE athlet ADD KEY Lizenznummer (Lizenznummer);
 ALTER IGNORE TABLE base_account ADD KEY account_code (account_code);
-ALTER IGNORE TABLE base_performance ADD KEY id_athlete (id_athlete);
 ALTER IGNORE TABLE base_performance ADD KEY discipline (discipline);
 ALTER IGNORE TABLE base_performance ADD KEY season (season);
 ALTER IGNORE TABLE base_relay ADD KEY discipline (discipline);
