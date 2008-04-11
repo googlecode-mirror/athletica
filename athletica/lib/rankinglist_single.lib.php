@@ -300,7 +300,7 @@ else {
 		
 		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";
 		if($relay == FALSE) {
-			$query = "
+			/*$query = "
 				SELECT
 					ss.xSerienstart
 					, IF(ss.Rang=0, $max_rank,ss.Rang) AS rank
@@ -344,10 +344,46 @@ else {
 					, leistung_neu "
 					. $order_perf ."
 					, at.Name
-					, at.Vorname";
+					, at.Vorname";*/
+			$query = "SELECT ss.xSerienstart, 
+							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
+							 ss.Qualifikation, 
+							 ".$sql_leistung." AS leistung_neu, 
+							 r.Info, 
+							 s.Bezeichnung, 
+							 s.Wind, 
+							 r.Punkte, 
+							 IF('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)), 
+							 at.Name, 
+							 at.Vorname, 
+							 at.Jahrgang, 
+							 LPAD(s.Bezeichnung, 5, '0') AS heatid, 
+							 IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land, 
+							 at.xAthlet, 
+							 ru.Datum, 
+							 ru.Startzeit 
+						FROM serie AS s USE INDEX(Runde)
+				   LEFT JOIN serienstart AS ss USING(xSerie) 
+				   LEFT JOIN resultat AS r USING(xSerienstart) 
+				   LEFT JOIN start AS st ON(ss.xStart = st.xStart) 
+				   LEFT JOIN anmeldung AS a USING(xAnmeldung) 
+				   LEFT JOIN athlet AS at USING(xAthlet) 
+				   LEFT JOIN verein AS v USING(xVerein) 
+				   LEFT JOIN region AS re ON(at.xRegion = re.xRegion) 
+				   LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+				   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
+					   WHERE ".$roundSQL." 
+					   ".$limitRankSQL." 
+					   ".$valid_result." 
+					ORDER BY ".$order_heat." 
+							 rank, 
+							 leistung_neu 
+							 ".$order_perf.", 
+							 at.Name, 
+							 at.Vorname;";
 		}
 		else {						// relay event
-			$query = "
+			/*$query = "
 				SELECT
 					ss.xSerienstart
 					, IF(ss.Rang=0, $max_rank,ss.Rang) AS rank
@@ -384,7 +420,38 @@ else {
 					rank
 					, r.Leistung "
 					. $order_perf ."
-					, sf.Name";
+					, sf.Name";*/
+			$query = "SELECT ss.xSerienstart, 
+							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
+							 ss.Qualifikation, 
+							 ".$sql_leistung." AS leistung_neu, 
+							 r.Info, 
+							 s.Bezeichnung, 
+							 s.Wind, 
+							 r.Punkte, 
+							 IF('".$svm."', t.Name, v.Name), 
+							 sf.Name, 
+							 LPAD(s.Bezeichnung, 5, '0') AS heatid, 
+							 st.xStart, 
+							 ru.Datum, 
+							 ru.Startzeit 
+						FROM serie AS s USE INDEX(Runde) 
+				   LEFT JOIN serienstart AS ss USING(xSerie) 
+				   LEFT JOIN resultat AS r USING(xSerienstart) 
+				   LEFT JOIN start AS st ON(ss.xStart = st.xStart) 
+				   LEFT JOIN staffel AS sf USING(xStaffel) 
+				   LEFT JOIN verein AS v USING(xVerein) 
+				   LEFT JOIN team AS t ON(sf.xTeam = t.xTeam) 
+				   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
+					   WHERE s.xRunde = ".$row[0]." 
+					  ".$limitRankSQL." 
+					  ".$valid_result." 
+					GROUP BY r.xSerienstart 
+					ORDER BY ".$order_heat." 
+							 rank, 
+							 r.Leistung 
+							 ".$order_perf.", 
+							 sf.Name;";
 		}
 
 		$res = mysql_query($query);
@@ -402,7 +469,7 @@ else {
 			
 			$list->startList();
 			// process every result
-			while($row_res = mysql_fetch_row($res))
+			while($row_res = mysql_fetch_array($res))
 			{
 				$row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : $row_res[3]);
 				
@@ -599,6 +666,7 @@ else {
 									, DATE_FORMAT(best_effort_date, '%d.%m.%Y') AS pb_date
 									, best_effort_event
 									, season
+									, xAnmeldung
 						FROM 
 							base_performance
 						LEFT JOIN 
@@ -607,39 +675,52 @@ else {
 							disziplin ON (discipline = Code)
 						LEFT JOIN 
 							athlet ON (license = Lizenznummer)
+						LEFT JOIN
+							anmeldung USING(xAthlet) 
 						WHERE 
-							xAthlet = $row_res[14]
+							athlet.xAthlet = $row_res[14]
 							AND xDisziplin = $row[12]
-							AND season = '$saison'";
+							AND season = '$saison' 
+							AND xMeeting = ".$_COOKIE['meeting_id'].";";
 						$res_perf = mysql_query($sql);
-						//echo $sql;
+						
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}else{
 							if ($res_perf){
 								$row_perf = mysql_fetch_array($res_perf);
 							
-								if(($row[3] == $cfgDisciplineType[$strDiscTypeJump])
+								$is_jump = (($row[3] == $cfgDisciplineType[$strDiscTypeJump])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeThrow])
-									|| ($row[3] == $cfgDisciplineType[$strDiscTypeHigh])) {
+									|| ($row[3] == $cfgDisciplineType[$strDiscTypeHigh]));
+								$order = ($is_jump) ? 'DESC' : 'ASC';
+								
+								$best_previous = '';	
+								$previous_date = '';							
+								if($row_perf!==false){
+									$best_previous = AA_getBestPrevious($row[12], $row_perf['xAnmeldung'], $order, $row_res['Datum'], $row_res['Startzeit'], &$previous_date);
+								}
+								
+								if($is_jump) {
 									$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['season_effort']));
 									$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['best_effort']));
+									$bp_perf = AA_formatResultMeter(str_replace(".", "", $best_previous));
 									//highlight sb or pb if new performance is better
 									if (is_numeric($perf)){ //prevent special-codes (disq, n.a. usw)
 										if ($formaction!='print'){
-											if ($perf>$pb_perf){
+											if ($pb_perf!='' && $perf>$pb_perf){
 												$perf = "<b>PB $perf</b> ";
 											} else {
-												if ($perf>$sb_perf){
+												if ($sb_perf!='' && $perf>$sb_perf){
 													$perf = "<b>SB $perf</b>";
 												}
 											}										
 										} else {
-											if ($perf>$pb_perf){
+											if ($pb_perf!='' && $perf>$pb_perf){
 												$perf = "<b>PB</b> $perf";
 											} else {
-												if ($perf>$sb_perf){
+												if ($sb_perf!='' && $perf>$sb_perf){
 													$perf = "<b>SB</b> $perf";
 												}
 											}										
@@ -651,7 +732,21 @@ else {
 									$timepices = explode(":", $row_perf['season_effort']);
 									$season_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) +($timepices[2] *  1000) + ($timepices[3]);
 									$timepices = explode(":", $row_perf['best_effort']);
-									$best_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) +($timepices[2] *  1000) + ($timepices[3]);									
+									$best_effort = ($timepices[0] * 360 * 1000) + ($timepices[1] * 60 * 1000) +($timepices[2] *  1000) + ($timepices[3]);
+									$previous_effort = intval($best_previous);
+									
+									if($previous_effort>0 && $previous_effort<$season_effort){
+										$season_effort = $previous_effort;
+										$row_perf['season_effort_event'] = $_SESSION['meeting_infos']['Name'];
+										$row_perf['sb_date'] = date('d.m.Y', strtotime($previous_date));
+									}
+									
+									if($previous_effort>0 && $previous_effort<$best_effort){
+										$best_effort = $previous_effort;
+										$row_perf['best_effort_event'] = $_SESSION['meeting_infos']['Name'];
+										$row_perf['pb_date'] = date('d.m.Y', strtotime($previous_date));
+									}
+									
 									if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack])
 									|| ($row[3] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
 										$sb_perf = AA_formatResultTime($season_effort, true, true);
@@ -659,21 +754,21 @@ else {
 									}else{
 										$sb_perf = AA_formatResultTime($season_effort, true);
 										$pb_perf = AA_formatResultTime($best_effort, true);
-									}										
+									}
 									if ($formaction!='print'){
 										//highlight sb or pb if new performance is better
-										if ($perf<$pb_perf){
+										if ($pb_perf!='' && $perf<$pb_perf){
 											$perf = "<b>PB $perf</b>";
 										} else {
-											if ($perf<$sb_perf){
+											if ($sb_perf!='' && $perf<$sb_perf){
 												$perf = "<b>SB $perf</b>";
 											}
 										}
 									} else {
-										if ($perf<$pb_perf){
+										if ($pb_perf!='' && $perf<$pb_perf){
 											$perf = "<b>PB</b> $perf";
 										} else {
-											if ($perf<$sb_perf){
+											if ($sb_perf!='' && $perf<$sb_perf){
 												$perf = "<b>SB</b> $perf";
 											}
 										}

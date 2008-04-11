@@ -1,6 +1,6 @@
 <?php
 error_reporting(0);
-ini_set('max_execution_time', 180);
+ini_set('max_execution_time', 360);
 
 /**
  * common functions
@@ -1321,9 +1321,11 @@ require('./config.inc.php');
 	/**
 	 * get the best result from previous day for disciplines 
 	 * -----------------------------------------------------
+	 * 
+	 * Variables DATE and TIME **MUST** be specified together!
 	 */  
 						 
-function AA_getBestPrevious($disciplin, $enrolement, $order)
+function AA_getBestPrevious($disciplin, $enrolement, $order, $date = '', $time = '', $previous_date = '')
 {   
 	$best = 0; 
 	   
@@ -1338,36 +1340,30 @@ function AA_getBestPrevious($disciplin, $enrolement, $order)
 	if(mysql_errno() > 0){
 		AA_printErrorPage(mysql_errno().": ".mysql_error());
 	}else{ 
-			$row_a=mysql_fetch_row($res_a);    
- 
-			$sql="SELECT                    
-						ss.xSerienstart 
-						, a.xAthlet 
-						, rs.Leistung  
-				 FROM 
-						runde AS r
-						, serie AS s
-						, serienstart AS ss
-						, start AS st
-						, anmeldung AS a
-						, athlet AS at
-						LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)
-						LEFT JOIN wettkampf AS w ON (st.xWettkampf = w.xWettkampf)  
-						, verein AS v
-						LEFT JOIN rundentyp AS rt
-							ON rt.xRundentyp = r.xRundentyp  
-						INNER JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart                                  
-				 WHERE 
-						a.xAnmeldung = " . $enrolement ."
-						AND d.xDisziplin = " . $disciplin ."  
-						AND w.xMeeting = ". $_COOKIE['meeting_id'] . "
-						AND s.xRunde = r.xRunde
-						AND ss.xSerie = s.xSerie
-						AND st.xStart = ss.xStart
-						AND a.xAnmeldung = st.xAnmeldung
-						AND at.xAthlet = " . $row_a[0] ."  
-						AND v.xVerein = at.xVerein
-				 ORDER BY rs.Leistung " . $order;  
+			$where = ($date!='') ? "AND r.Datum < '".$date."' OR (r.Datum = '".$date."' AND r.Startzeit < '".$time."') " : "";
+		
+			$row_a=mysql_fetch_row($res_a); 			
+			$sql = "SELECT ss.xSerienstart, 
+						   a.xAthlet, 
+						   rs.Leistung, 
+						   r.Datum 
+					  FROM runde AS r 
+				 LEFT JOIN serie AS s USING(xRunde) 
+				 LEFT JOIN serienstart AS ss USING(xSerie) 
+				 LEFT JOIN start AS st USING(xStart) 
+				 LEFT JOIN anmeldung AS a USING(xAnmeldung) 
+				 LEFT JOIN athlet AS at USING(xAthlet) 
+				 LEFT JOIN wettkampf AS w ON(st.xWettkampf = w.xWettkampf) 
+				 LEFT JOIN disziplin AS d USING(xDisziplin) 
+				 LEFT JOIN verein AS v ON(at.xVerein = v.xVerein) 
+				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				INNER JOIN resultat AS rs ON(ss.xSerienstart = rs.xSerienstart) 
+					 WHERE a.xAnmeldung = ".$enrolement." 
+					   AND d.xDisziplin = ".$disciplin." 
+					   AND w.xMeeting = ".$_COOKIE['meeting_id']." 
+					   AND at.xAthlet = ".$row_a[0]." 
+					   ".$where."
+				  ORDER BY rs.Leistung ".$order.";";
 										  
 			$result = mysql_query($sql);  
 			   
@@ -1377,6 +1373,7 @@ function AA_getBestPrevious($disciplin, $enrolement, $order)
 				if (mysql_num_rows($result) > 0) {  
 					$row=mysql_fetch_row($result);  
 					$best=$row[2];                  
+					$previous_date = $row[3];
 				}
 			}  
 	}
