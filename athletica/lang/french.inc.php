@@ -655,4 +655,8 @@ $strCHF = "CHF";
 $strSubscribe = "Timbre / Signature";
 
 $strNoData = "Aucune inscription trouvé"; //überprüfen
+
+$strUploadMaxFilesize = 'La configuration PHP <b>upload_max_filesize</b> est mise sur un paramètre trop bas: %SIZE%.';
+$strUploadFormFilesize = 'La taille d\'un fichier à télécharger permit par ce formulaire est trop petit pour le fichier séléctionné.';
+$strUploadPartial = 'A cause d\un erreur le fichier est téléchargé seulement partiellement.';
 ?>

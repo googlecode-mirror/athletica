@@ -28,9 +28,6 @@ set_time_limit(3600); // the script will break if this is not set
 
 $idstring = "# $cfgApplicationName $cfgApplicationVersion\n";
 
-$compatible = array("SLV_1.4", "SLV_1.5", "SLV_1.6", "SLV_1.7", "SLV_1.7.1", "SLV_1.7.2"
-		, "SLV_1.8", "SLV_1.8.1", "SLV_1.8.2", "SLV_1.9", "3.0", "3.0.1", "3.1", "3.1.1", "3.1.2", "3.2", "3.2.1", "3.2.2", "3.2.3", "3.3");
-
 if($_GET['arg'] == 'backup')
 {
 	if ($_GET['xMeeting']=="-"){
@@ -180,19 +177,27 @@ else if ($_POST['arg'] == 'restore')
 	// since version 1.4 the include statements contain the table fields,
 	// so they can by restored in later versions
 	
-	if ($content == false){
-		if($_FILES['bkupfile']['error'] == 4){
-			echo $strNoFile ."<br><br>";
-		} else {
-			echo "<pre>";
-			print_r($_FILES);
-			echo "</pre>";
+	$error_msg = '';
+	if($content == false){
+		switch($_FILES['bkupfile']['error']){
+			case 1:
+				$error_msg = str_replace('%SIZE%', ini_get('upload_max_filesize'), $strUploadMaxFilesize);
+				break;
+			case 2:
+				$error_msg = $strUploadFormFilesize;
+				break;
+			case 3:
+				$error_msg = $strUploadPartial;
+				break;
+			case 4:
+				$error_msg = $strNoFile;
+				break;
 		}
 	}
 	
 	$validBackup = false;
 	$backupVersion = "";
-	foreach($compatible as $v){
+	foreach($cfgBackupCompatibles as $v){
 		$idstring = "# $cfgApplicationName $v\n";
 		$idstring2 = "# $cfgApplicationName $v\r";
 		if((strncmp($content, $idstring, strlen($idstring)) == 0) || (strncmp($content, $idstring2, strlen($idstring2)) == 0)){
@@ -227,6 +232,18 @@ else if ($_POST['arg'] == 'restore')
 	
 	if(!$validBackup)	// invalid backup ID
 	{
+		if($error_msg!=''){
+			?>
+			<tr>
+				<td>
+					<br/><?=$error_msg?><br/><br/>
+					
+					<input type="button" name="btnBack" value="<?=$strBack?>" onclick="document.location.href = 'admin.php';"/>
+				</td>
+			</tr>
+			<?php
+		}
+		
 		AA_printErrorMsg($strErrInvalidBackupFile);
 	}
 	else
@@ -876,17 +893,6 @@ else if ($_POST['arg'] == 'restore')
 				$_COOKIE['meeting'] = stripslashes($row['Name']);
 				
 				$_SESSION['meeting_infos'] = $row;
-			} else {
-				?>
-				</table>
-				<table>
-					<tr>
-						<td>
-							<br/>
-							<input type="button" value="<?=$strSelectMeeting?> &raquo;" onclick="location.href='meeting.php'">
-						</td>
-					</tr>
-				<?php
 			}
 		}
 		

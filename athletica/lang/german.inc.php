@@ -665,4 +665,8 @@ $strCHF = "CHF";
 $strSubscribe = "Stempel / Unterschrift";
 
 $strNoData = "Es konnten keine Anmeldungen gefunden werden";
+
+$strUploadMaxFilesize = 'Die PHP-Einstellung <b>upload_max_filesize</b> ist auf einem zu niedrigen Wert eingestellt: %SIZE%.';
+$strUploadFormFilesize = 'Die im Formular angegebene maximale Dateigrösse reicht nicht aus, um die ausgewählte Datei hochzuladen.';
+$strUploadPartial = 'Die Datei konnte aufgrund eines Fehlers nur teilweise hochgeladen werden.';
 ?>
