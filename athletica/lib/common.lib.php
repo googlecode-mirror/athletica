@@ -1340,7 +1340,7 @@ function AA_getBestPrevious($disciplin, $enrolement, $order, $date = '', $time =
 	if(mysql_errno() > 0){
 		AA_printErrorPage(mysql_errno().": ".mysql_error());
 	}else{ 
-			$where = ($date!='') ? "AND r.Datum < '".$date."' OR (r.Datum = '".$date."' AND r.Startzeit < '".$time."') " : "";
+			$where = ($date!='') ? "AND (r.Datum < '".$date."' OR (r.Datum = '".$date."' AND r.Startzeit < '".$time."')) " : "";
 		
 			$row_a=mysql_fetch_row($res_a); 			
 			$sql = "SELECT ss.xSerienstart, 

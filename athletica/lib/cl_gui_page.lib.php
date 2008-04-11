@@ -437,7 +437,7 @@ class GUI_RankingList extends GUI_ListPage
 			echo '<th class="dialog">&nbsp;</th>';
 		}
 		
-		if($base_perf == TRUE)
+		if($relay == FALSE && $base_perf == TRUE)
 		{
 			?>
 		<th class='dialog'><?php echo $GLOBALS['strSB']; ?></th>
@@ -475,10 +475,10 @@ class GUI_RankingList extends GUI_ListPage
 		{
 			?>
 		<td class='forms_ctr'><?php echo $year; ?></th>
+		<td><?php echo $country; ?></td>
 			<?php
 		}
 		?>
-		<td><?php echo $country; ?></td>
 		<td><?php echo $club; ?></td>
 		<td class='forms_right'><?php echo $perf; ?></td>
 		<?php
@@ -505,13 +505,13 @@ class GUI_RankingList extends GUI_ListPage
 			}
 		}
 		
-		if(!empty($sb)){
+		if($this->relay == FALSE && !empty($sb)){
 			?>
 		<td class='forms_right'><?php echo $sb; ?></td>
 			<?php	
 		}
 		
-		if(!empty($pb)){
+		if($this->relay == FALSE && !empty($pb)){
 			?>
 		<td class='forms_right'><?php echo $pb; ?></td>
 			<?php	

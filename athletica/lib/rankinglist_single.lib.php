@@ -651,7 +651,7 @@ else {
 					}
 					
 					//show performances from base
-					if($show_efforts == 'sb_pb'){
+					if($show_efforts == 'sb_pb' && $relay == false){
 						
 						$saison = $_SESSION['meeting_infos']['Saison'];
 						if ($saison == ''){
@@ -706,6 +706,19 @@ else {
 									$sb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['season_effort']));
 									$pb_perf = AA_formatResultMeter(str_replace(".", "", $row_perf['best_effort']));
 									$bp_perf = AA_formatResultMeter(str_replace(".", "", $best_previous));
+									
+									if($bp_perf>0 && $bp_perf>$sb_perf){
+										$sb_perf = $bp_perf;
+										$row_perf['season_effort_event'] = $_SESSION['meeting_infos']['Name'];
+										$row_perf['sb_date'] = date('d.m.Y', strtotime($previous_date));
+									}
+									
+									if($bp_perf>0 && $bp_perf>$pb_perf){
+										$pb_perf = $bp_perf;
+										$row_perf['best_effort_event'] = $_SESSION['meeting_infos']['Name'];
+										$row_perf['pb_date'] = date('d.m.Y', strtotime($previous_date));
+									}
+									
 									//highlight sb or pb if new performance is better
 									if (is_numeric($perf)){ //prevent special-codes (disq, n.a. usw)
 										if ($formaction!='print'){
@@ -791,8 +804,7 @@ else {
 					}
 					
 					
-					$list->printLine($rank, $name, $year, $row_res[8], $perf
-						, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode);
+					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode);
 					if($secondResult){
 						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);
 					}
