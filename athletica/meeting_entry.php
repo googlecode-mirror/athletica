@@ -1575,6 +1575,12 @@ $dis2 = false;
 				// merge the disciplines for a combined event
 				//
 				if($event_row[10] == $cfgEventType[$strEventTypeSingleCombined]){
+					
+					if (!$comb_start ) {
+						echo "</tr>";
+					}
+					$comb_start = true;
+					
 					$d=1;
 					
 					// check if one of the combined events is selected
@@ -1668,7 +1674,7 @@ $dis2 = false;
 					}else{
 						printf("<td class=\"dialog-top\" nowrap=\"nowrap\"><input name='events[]' type='checkbox' id='$event_row[0]'"
 						. " onclick='updateStarts(\"add_event\", $event_row[0], $event_row[0])'"
-						. " value='$event_row[0]' />$event_row[1] $info</td><td/>\n");
+						. " value='$event_row[0]' />$event_row[1] $info</td><td></td>\n");
 					}
 				}
 				
