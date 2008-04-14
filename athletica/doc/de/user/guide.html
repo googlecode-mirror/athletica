@@ -6,8 +6,7 @@
 	<meta content="text/html; charset=iso-8859-1" />
 
 	<title>Athletica für Benutzer: Bedienungsanleitung</title>
-	<link rel="stylesheet" type="text/css" href="../../css/stylesheet.css" />
-</head>
+	<link rel="stylesheet" type="text/css" href="../../css/stylesheet.css" /></head>
 
 <body>
 <div class="helpmain">
@@ -634,9 +633,17 @@ Fakultativ kann nach einer Kategorie oder auch nach jeder Disziplin ein
 Seitenumbruch eingefügt werden.
 
 <h3>8.3 Option Titelblatt</h3>
-Wird diese Option gewählt, generiert <i>Athletica</i> ein Titelblatt mit
-den wichtigsten Angaben zum Meeting und hängt dieses der Rangliste voran.
+<p>Wird diese Option gewählt, generiert <i>Athletica</i> ein Titelblatt mit
+  den wichtigsten Angaben zum Meeting und hängt dieses der Rangliste voran. </p>
+<h3>8.4 Bestleistungen  </h3>
+<p>Ist diese Option aktiviert, werden in der Rangliste hinter jedem Athleten die   Informationen zu den Bestleistungen (Saison- und pers&ouml;nliche Bestleistung) angezeigt. </p>
+<p class='warn'>Bei vielen Resultaten kann die Ausgabezeit mehrere Minuten dauern</p>
 
+<h3>8.5 Funktionen</h3>
+
+<p><strong>Drucken:</strong> Ein neues Browserfenster wird ge&ouml;ffnet und die Druckfunktion gestartet.  </p>
+<p><strong>Anzeigen:</strong> Die Rangliste wird im selben Browserfenster dargestellt und eignet sich f&uuml;r die Ansicht auf dem Bildschirm. </p>
+<p>&nbsp;</p>
 <h2>9. Administration<a name="c9"/></a></h2>
 Mit den Administrationsfunktionen werden die Basisdaten von <i>Athletica</i>
 administriert. Obwohl diese Funktionen nicht so häufig verwendet werden
@@ -644,19 +651,38 @@ müssen, ist das Wissen über die hier abgelegten Daten sehr nützlich, um die
 Applikation besser zu verstehen.
 
 <h3>9.1 Allgemeine Funktionen</h3>
-Auf der Einstiegsseite kann der Benutzer die Applikationssprache auswählen.
-Der hier gewählte Wert wird als Cookie im Browser des Benutzers gespeichert.
-Zudem stehen dort Links zur Dokumentation im HTML- und im PDF-Format zur
-Verfügung, sowie zu den Lizenzvereinbarungen.
-<h4>9.1.1 Datensicherung</h4>
-Mit den Funktionen unter dem Titel <i>Datenbank</i> können sämtliche Daten
-in eine externe Datei gesichert und z.B. auf Diskette gespeichert werden.
-Diese Sicherung kann auch wieder eingespielt werden und überschreibt die
-aktuelle Datenbank!
-<br/>
-Dies ist nur möglich, wenn die Daten mit derselben <i>Athletica</i>-Version
-gesichert wurden. 
-
+<p>Auf der Einstiegsseite kann der Benutzer die Applikationssprache auswählen.
+  Der hier gewählte Wert wird als Cookie im Browser des Benutzers gespeichert.
+  Zudem stehen dort Links zur Dokumentation im HTML- und im PDF-Format zur
+  Verfügung, sowie zu den Lizenzvereinbarungen. </p>
+<p>Mit dem Knopf <em>Version pr&uuml;fen</em> wird (bei verf&uuml;gbarer Internetverbindung) auf dem Swiss Athletics Server gepr&uuml;ft ob eine neuere <em>Athletica</em>-Verion verf&uuml;gbar ist und heruntergeladen werden kann.</p>
+<h4>9.1.1 Datenbank - Daten sichern</h4>
+<p>Mit den Funktionen unter dem Titel <i>Datenbank - Daten sichern </i>können sämtliche Daten
+  in eine externe Datei gesichert und z.B. auf Diskette gespeichert werden.<br />
+Es k&ouml;nnen alle Meetings der Datenbank in eine Sicherungs-Datei gespeichert werden oder durch Auswahl nur ein bestimmtes Meeting. Ist die Option <em>Auch Stammdaten sichern</em> aktiviert, werden die Tabellen mit den Lizenzdaten und Leistungen der Athleten (PB, SB und Meldeleistung) ebenfalls gesichert. Dies hat zur Folge, dass die Sicherungsdatei um ein vielfaches gr&ouml;sser wird (&uuml;ber 15MB).</p>
+<h4>9.1.2 Datenbank - Sicherung einspielen</h4>
+<p>Diese Sicherung kann auch wieder eingespielt werden und überschreibt die
+  aktuelle Datenbank! <br/>
+  Werden Daten einer veralteten <i>Athletica</i>-Version
+  eingelesen, so werden diese ins Format der aktuellen Version konvertiert und k&ouml;nnen nicht mehr mit der urspr&uuml;nglichen Version eingelesen werden. </p>
+<h4>9.1.3 Cache leeren</h4>
+<p>Mit dieser Funktion k&ouml;nnen Sie erfasste Athleten und Vereine (eigene &Auml;nderungen) l&ouml;schen.</p>
+<p class="warn"><strong>Achtung:</strong> F&uuml;hren Sie diese Funktion nur aus, wenn Sie zur Zeit <strong>keine Anmeldungen</strong> f&uuml;r jegliche Meetings in Athletica erfasst haben.</p>
+<p>  Empfohlener Ablauf:<br />
+  1. Cache leeren<br />
+  2. Meeting erfassen<br />
+  3. Stammdatenupdate und Meeting-Abgleich</p>
+<h4>9.1.4 Update der Stammdaten</h4>
+<p>Mit dieser Funktion k&ouml;nnen Sie die Stammdaten (Athleten, Bestleistungen, Staffeln, Vereine) aktualisieren.</p>
+<p class="warn"><strong>Hinweis: </strong>Da &uuml;ber 15'000 Athleten mit insgesamt 85'000 Resultaten (Stand April 08) heruntergeladen und verarbeitet werden, kann diese Funktion einige Zeit dauern... </p>
+<h4>9.1.5 Abgleich mit der Online-Meetingbewilligung</h4>
+<p>Mittels Vereinscode und Passwort kannst du dich am Swiss Atheltics Server anmelden und die erfassten Meetings, welche Online-Anmeldungen zulassen, werden angezeigt. Beim Abgleich mit der Meetingbewilligung werden die Disziplinen-Defninitionen und die Athleten-Anmeldungen ins aktive Meeting importiert.</p>
+<p class="warn"><strong>Achtung:</strong> Ein Abgleich mit der Meetingbewilligung kann zu ungewollten &Auml;nderungen f&uuml;hren!
+Erstellen Sie zu erst eine Sicherung der Datenbank bevor Sie fortfahren.</p>
+<h4>9.1.6 Resultate in Bestenliste eintragen</h4>
+<p>Die Resultete des aktiven Wettkampfes werden auf den Swiss Athletics Server &uuml;bermittelt und stehen danach in der Bestenlisten-Applikation zur Abfrage bereit</p>
+<p class="warn"><strong>Wichtig:</strong> Es werden alle rangierten Runden &uuml;bertragen.
+  Diese k&ouml;nnen kein 2tes mal gesendet werden!</p>
 <h3>9.2 Kategorien</h3>
 Es können beliebig viele Kategorien konfiguriert werden. Die Werte können
 auch im Wettkampfbetrieb geändert werden und die Änderung wird sofort
@@ -700,15 +726,86 @@ Die Seriegrösse dient als Standardwert für die Serieneinteilung.
 Die Kategorien werden dem Wert <i>Reihenfolge</i> nach aufsteigend sortiert.
 Der Wert ist applikationsweit für jede Anzeige wirksam.
 <p/>
-Eine Disziplin kann nur gelöscht werden, wenn sie in keinem Meeting
-referenziert wird.
-
-<h3>9.4 Verein</h3>
-Nebst dem Vereinsnamen kann auch ein Sortierwert eingegeben werden, nach
-welchem Vereinslisten sortiert werden. Auch ein Verein kann nur gelöscht werden
-wenn er nirgends mehr refenziert wierden.
-
-<h3>9.5 Athleten</h3>
+<p>Eine Disziplin kann nur gelöscht werden, wenn sie in keinem Meeting
+  referenziert wird. </p>
+<h3>9.4 Wertungstabellen</h3>
+<p>Athletica unerst&uuml;tzt neben den fest eingebauten Wertungtabellen (SLV 94, IAAF 85) auch eigene Punktetabellen.</p>
+<p>Es k&ouml;nnen beiliebig viele Punktetabellen erfasst werden. </p>
+<p>Wiederum jeder Punktetabelle k&ouml;nnen beliebig viele verschiedene Disziplinen hinzugef&uuml;gt werden. Bei der Disziplin muss zus&auml;tzlich noch das Geschlecht definiert werden.</p>
+<p>Beispiel-Punktetabelle f&uuml;r 100m M&auml;nner:</p>
+<table>
+  <tr>
+    <td>Punkte</td>
+    <td>Leistung</td>
+    <td>Geschlecht</td>
+  </tr>
+  <tr>
+    <td>100</td>
+    <td>10.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>90</td>
+    <td>11.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>80</td>
+    <td>12.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>70</td>
+    <td>13.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>60</td>
+    <td>14.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>50</td>
+    <td>15.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>40</td>
+    <td>16.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>30</td>
+    <td>17.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>18.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td>19.00</td>
+    <td>M</td>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>20.00</td>
+    <td>M</td>
+  </tr>
+</table>
+<p>Athleten mit Leistung 10.00 und besser erhalten 100 Punkte, die Leistung zwischen 11.00 und 11.99 ergibt 90 Punkte usw. ... jeder Athlet, welcher ins Ziel kommt erh&auml;lt mindestens 5 Punkte.</p>
+<h3>9.5 Verein</h3>
+<p>Nebst dem Vereinsnamen kann auch ein Sortierwert eingegeben werden, nach
+  welchem Vereinslisten sortiert werden. Auch ein Verein kann nur gelöscht werden
+  wenn er nirgends mehr refenziert wierden. </p>
+<h3>9.6 Region</h3>
+<p>Die hier erfassten Regionen stehen bei den Anmeldungen (Personen) zur Auswahl.</p>
+<p>Eine neue Region wird mit dem Formular am oberen Seitenende aufgesetzt  und muss gespeichert werden. <br />
+&Auml;nderungen an bestehenden Daten werden direkt in der Datenbank gespeichert,  wenn zum n&auml;chsten Feld gewechselt wird. <br />
+Eine Region kann nur gel&ouml;scht werden, wenn er nicht mehr referenziert  wird. </p>
+<h3>9.7 Athleten</h3>
 Die Athletenliste ist sehr umfassend und kann darum nicht gemeinsam editiert
 werden. Hier muss der Athlet erst angeklickt werden.
 <p/>
@@ -719,21 +816,23 @@ der Athlet schon vorhanden ist. Ist das der Fall, wird nur eine Referenz
 auf den entsprechendn Athleteneintrag in dieser Liste gesetzt. Ist der
 Athlet neu, werden seine Daten automatisch auch hier gespeichert.
 
-<h3>9.6 Stadion</h3>
+<h3>9.8 Stadion</h3>
 Um überhaupt ein Meeting durchführen zu können, muss hier mindestens ein
 Stadion erfasst sein. Der Wert <i>Bahnen</i> definert den Standard, der
 verwendet wird, wenn ein Meeting in diesem Stadion stattfinden soll.
 
-<h3>9.6.1 Anlagen</h3>
+<h3>9.8.1 Anlagen</h3>
 Pro Stadion können beliebig viele Anlagen verwendet werden, welchen später
 die Wettkämpfe zugeteilt werden können.
 
-<h3>9.7 Rundentypen</h3>
-Die Rundentypen und ihre Kurzformen können ebenfalls beliebig gewählt werden.
-Aber auch hier macht es Sinnd, traditionelle Begriffe zu verwenden.
-<i>Wertung</i> definiert, wie die Serien einer Wettkampfrunde ausgewertet
-und die Athleten rangiert werden: In einer gemeinsamen Rangliste oder jede
-Serie separat in einer eigenen Rangliste.
+<h3>9.9 Rundentypen</h3>
+<p>Die Rundentypen und ihre Kurzformen können ebenfalls beliebig gewählt werden.
+  Aber auch hier macht es Sinnd, traditionelle Begriffe zu verwenden. <i>Wertung</i> definiert, wie die Serien einer Wettkampfrunde ausgewertet
+  und die Athleten rangiert werden: In einer gemeinsamen Rangliste oder jede
+  Serie separat in einer eigenen Rangliste.</p>
+<h3>9.10 FAQ</h3>
+<p>FAQ = H&auml;ufig gestellte Fragen</p>
+<p>Hier k&ouml;nnen die farbigen K&auml;stchen, welche dem Inhalt &uuml;berlagert der Website &uuml;berlagert werden und die hoffentlich den einen oder anderen guten Tipp gegeben haben wieder aktiviert werden, falls diese zuvor mit <em>Nicht mehr anzeigen</em> geschlossen wurden. Mit dem Befehl <em>Alle ausschalten</em> werden alle Hinweis-K&auml;stchen deaktiviert.</p>
 </div>
 </body>
 </html>

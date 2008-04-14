@@ -247,7 +247,7 @@ td.forms_right {
 
 td.monitor {
 	border-width:1px;
-   border-style:solid;
+    border-style:solid;
 	border-color:#888888;
 }
 
@@ -273,9 +273,8 @@ td.nav_announced {
 table.timetable {
 	border-collapse:collapse;
 	border-width:1px;
-   border-style:solid;
+    border-style:solid;
 	border-color:#888888;
-
 }
 
 th.timetable {

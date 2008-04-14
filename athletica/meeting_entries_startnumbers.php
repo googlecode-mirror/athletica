@@ -572,60 +572,50 @@ function select_CheckDisc(){
 <table class='dialog'>
 <tr>
 	<th class='dialog'><?php echo $strSortBy; ?></th>
-	<th class='dialog' colspan='2'><?php echo $strRules; ?></th>
+	<th class='dialog' colspan='3'><?php echo $strRules; ?></th>
 </tr>
 <tr>
 	<td class='dialog'>
 		<input type='radio' name='sort' id='name' value='name' checked>
-			<?php echo $strName; ?></input>
-	</td>
+			<?php echo $strName; ?></input>	</td>
 	<td class='dialog'>
-		<?php echo $strBeginningWith; ?>
-	</td>
+		<?php echo $strBeginningWith; ?>	</td>
 	<td>
-		<input class='nbr' type='text' name='start' maxlength='5' value='<?php echo $cfgNbrStartWith; ?>'>
-	</td>
+		<input class='nbr' type='text' name='start' maxlength='5' value='<?php echo $cfgNbrStartWith; ?>'>	</td>
+    <td>&nbsp;</td>
 </tr>
 <tr>
 	<td class='dialog'>
 		<input type='radio' name='sort' id='cat' value='cat' onchange="select_CheckCat()">
-			<?php echo $strCategory; ?></input>
-	</td>
-	<td colspan='2'>
-		<?php echo $strGapBetween; ?>
-	</td>
+			<?php echo $strCategory; ?></input>	</td>
+	<td colspan='3'>
+		<?php echo $strGapBetween; ?>	</td>
 </tr>
 <tr>
 	<td class='dialog'>
 		<input type='radio' name='sort' id='club' value='club'>
-			<?php echo $strClub; ?></input>
-	</td>
+			<?php echo $strClub; ?></input>	</td>
 	<td class='dialog'>
-		<?php echo $strCategory; ?>
-	</td>
+		<?php echo $strCategory; ?>	</td>
 	<td class='dialog'>
-		<input class='nbr' type='text' name='catgap' maxlength='4' value='<?php echo $cfgNbrCategoryGap; ?>'>
-	</td>
+		<input class='nbr' type='text' name='catgap' maxlength='4' value='<?php echo $cfgNbrCategoryGap; ?>'>	</td>
+    <td class='dialog'>&nbsp;</td>
 </tr> 
 <tr>
-	<td class='dialog'>  
-       
-	</td>
+	<td class='dialog'>	</td>
 	<td class='dialog'>
-		<?php echo $strClub; ?>
-	</td>
+		<?php echo $strClub; ?>	</td>
 	<td class='dialog'>
-		<input class='nbr' type='text' name='clubgap' maxlength='4' value='<?php echo $cfgNbrClubGap; ?>'>
-	</td>
+		<input class='nbr' type='text' name='clubgap' maxlength='4' value='<?php echo $cfgNbrClubGap; ?>'>	</td>
+    <td class='dialog'>&nbsp;</td>
 </tr>  
 <tr>
-	<td class='dialog' colspan="3">
+	<td class='dialog' colspan="4">
 		<hr>  
          <input type="radio" name="assign" id="percategory" value="percategory" onchange="select_CheckCat()"
             > </input>
 		<?php echo $strPerCategory; ?>
-	</th>      
-</tr>
+	</th></tr>
 <?php
 
 // get all used categories in this meeting
@@ -648,12 +638,11 @@ if(mysql_errno() > 0){
 	<td class='dialog'><?php echo $row[1] ?></td>
 	<td class='forms'>
 		<?php echo $strOf ?>
-		<input type="text" size="3" value="0" name="of_<?php echo $row[0] ?>" onchange="select_PerCategory()">
-	</td>
-	<td class='forms'>
+		<input type="text" size="3" value="0" name="of_<?php echo $row[0] ?>" onchange="select_PerCategory()">	</td>
+	<td class='forms_right'>
 		<?php echo $strTo ?>
-		<input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" onchange="select_PerCategory()">
-	</td>
+		<input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" onchange="select_PerCategory()">	</td>
+    <td class='forms'>&nbsp;</td>
 </tr>
 		<?php
 	}
@@ -666,19 +655,18 @@ if(mysql_errno() > 0){
 		<input type="checkbox" name="persvmteam" id="persvmteam1" value="persvmteam">
 		<?php echo $strPerSvmTeam; ?>
 	</th>
-	<td class='forms'>
+	<td class='forms_right'>
 		<?php echo $strGap.":" ?>
-		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('1')">
-	</td>
+		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('1')">	</td>
+    <td class='forms'>&nbsp;</td>
 </tr>
 
 <tr>
-	<td class='dialog' colspan="3">
+	<td class='dialog' colspan="4">
 		<hr>   
         <input type="radio" name="assign" id="percontestcat" value="percontestcat" onchange="select_CheckCat()"> </input>
 		<?php echo $strPerContestCategory; ?>
-	</th>
-</tr>
+	</th></tr>
 <?php
 
 // get all used categories in contest
@@ -702,12 +690,11 @@ if(mysql_errno() > 0){
 	<td class='dialog'><?php echo $row[1] ?></td>
 	<td class='forms'>
 		<?php echo $strOf ?>
-		<input type="text" size="3" value="0" name="of2_<?php echo $row[0] ?>" onchange="select_PerContestCat()">
-	</td>
-	<td class='forms'>
+		<input type="text" size="3" value="0" name="of2_<?php echo $row[0] ?>" onchange="select_PerContestCat()">	</td>
+	<td class='forms_right'>
 		<?php echo $strTo ?>
-		<input type="text" size="3" value="0" name="to2_<?php echo $row[0] ?>" onchange="select_PerContestCat()">
-	</td>
+		<input type="text" size="3" value="0" name="to2_<?php echo $row[0] ?>" onchange="select_PerContestCat()">	</td>
+    <td class='forms'>&nbsp;</td>
 </tr>
 		<?php
 	}
@@ -720,19 +707,18 @@ if(mysql_errno() > 0){
 		<input type="checkbox" name="persvmteam" id="persvmteam2" value="persvmteam">
 		<?php echo $strPerSvmTeam; ?>
 	</th>
-	<td class='forms'>
+	<td class='forms_right'>
 		<?php echo $strGap.":" ?>
-		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('2')">
-	</td>
+		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('2')">	</td>
+    <td class='forms'>&nbsp;</td>
 </tr> 
 
 <tr>
-    <td class='dialog' colspan="3">
+    <td class='dialog' colspan="4">
         <hr>  
         <input type="radio" name="assign" id="perdiscipline" value="perdiscipline" onchange="select_CheckDisc()"> </input> 
         <?php echo $strPerDiscipline; ?>
-    </th>      
-</tr>
+    </th></tr>
 <?php
 
 // check track disziplines in this meeting  
@@ -762,12 +748,11 @@ if(mysql_errno() > 0){
     <td class='dialog'><?php echo $strTrack; ?></td>
     <td class='forms'>
         <?php echo $strOf ?>
-        <input type="text" size="3" value="0" name="of_track" onchange="select_PerDiscipline()">
-    </td>
-    <td class='forms'>
+        <input type="text" size="3" value="0" name="of_track" onchange="select_PerDiscipline()">    </td>
+    <td class='forms_right'>
         <?php echo $strTo ?>
-        <input type="text" size="3" value="0" name="to_track" onchange="select_PerDiscipline()">
-    </td>
+        <input type="text" size="3" value="0" name="to_track" onchange="select_PerDiscipline()">    </td>
+    <td class='forms'>&nbsp;</td>
 </tr>
 <?php
     }
@@ -802,13 +787,12 @@ if(mysql_errno() > 0){
     <td class='dialog'><?php echo $strTech; ?></td>
     <td class='forms'>
         <?php echo $strOf ?>
-        <input type="text" size="3" value="0" name="of_tech" onchange="select_PerDiscipline()">
-    </td>
-    <td class='forms'>
+        <input type="text" size="3" value="0" name="of_tech" onchange="select_PerDiscipline()">    </td>
+    <td class='forms_right'>
         <?php echo $strTo ?>
-        <input type="text" size="3" value="0" name="to_tech" onchange="select_PerDiscipline()">
-    </td>
-</tr>
+        <input type="text" size="3" value="0" name="to_tech" onchange="select_PerDiscipline()">    </td>
+    <td class='forms'>&nbsp;</td>
+   </tr>
         <?php
     }
     }
@@ -821,20 +805,18 @@ if(mysql_errno() > 0){
         <input type="checkbox" name="persvmteam" id="persvmteam3" value="persvmteam">
         <?php echo $strPerSvmTeam; ?>
     </th>
-    <td class='forms'>
+    <td class='forms_right'>
         <?php echo $strGap.":" ?>
-        <input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('3')">
-    </td>
+        <input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('3')">    </td>
+    <td class='forms'>&nbsp;</td>
 </tr> 
  
 <tr>
-	<td class='dialog' colspan = 3>
+	<td class='dialog' colspan = 4>
 		<hr>
 		<input type='radio' name='sort' value='del'>
-			<?php echo $strDeleteStartnumbers; ?></input>
-	</td>
+			<?php echo $strDeleteStartnumbers; ?></input>	</td>
 </tr>
-
 </table>
 
 <p />

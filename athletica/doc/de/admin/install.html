@@ -45,12 +45,13 @@ was aber kaum der Fall sein wird.
 
 <dl>
 <dt>1. Software beziehen</dt>
-<dd>Auf der <a href="athletica.sourceforge.net">Athletica-Website</a> zuerst
-unser <i>Athletica_WinMAX</i>-Paket herunterladen, was je nach Internet-Verbindung
-einige Zeit beansprucht (das EXE-File ist ca. 17MB gross).<p/>
-</dd>
-
-<dt>2. Installation starten</dt>
+<dd>Auf der <a href="http://www.swiss-athletics.ch/index.php?option=com_content&amp;task=view&amp;id=140&amp;Itemid=358">Athletica-Website</a> von Swiss-Athletics zuerst
+  unser <i>Athletica_WinMAX</i>-Paket herunterladen, was je nach Internet-Verbindung
+  einige Zeit beansprucht (das EXE-File ist ca. 35MB gross). <br />
+  Bei kleinere Software-Korrekturen werden 
+  jeweils nur Update-Installationen angeboten. Das heisst, dass evtl. neben der WinMax Installation noch eine Update-Datei heruntergeladen und installiert werden muss (z.B. Update 3.3 welches nach der Installation von WinMAX 3.2 installiert werden muss)
+  <p/>
+</dd><dt>2. Installation starten</dt>
 <dd><i>athletica_winmax_VERSION.exe</i> durch Doppelklick starten.<p/>
 </dd>
 
@@ -115,11 +116,11 @@ Datenbankmanagement-Systems. Transaktionsunterstützung ist nicht nötig.
 Vorzugsweise wird MySQL so installiert, dass beim Aufstarten des Servers
 MySQL automatisch als Service gestartet wird.
 <p/>
-Im folgenden wird beispielhaft die Installation von MySQL 3.23.38 unter
+Im folgenden wird beispielhaft die Installation von MySQL 4.1.22 unter
 Windows 2000 beschrieben. Für andere Versionen dürften in etwa die gleichen
 Angaben gelten.
 <ol>
-	<li>Nach dem Download muss MYSQL-3.23.38-WIN.ZIP ausgepackt werden. Durch
+	<li>Nach dem Download muss MYSQL-4.1.22-WIN.ZIP ausgepackt werden. Durch
 	Doppelklicken von <i>"Setup.exe"</i> wird der Installationsprozess
 	gestartet.</li>
 	<li>Der Ziel-Ordner für die Installation kann frei gewählt werden. Wir
@@ -192,6 +193,7 @@ track_errors = ON
 extension_dir = [PHP_DIR]\extensions
 session_save_path = c:\winnt\temp
 session_auto_start = 1
+upload_max_filesize = 50MB
 	</pre>
 	</li>
 	<li>Als nächstes muss die Apache-Konfiguration so angepasst werden,
@@ -323,27 +325,19 @@ neuen Dateien abgleichen.
 
 <dl>
 <dt>1. Software beziehen</dt>
-<dd>Auf der <a href="athletica.sourceforge.net">Athletica-Website</a> zuerst
-unser <i>Athletica</i>-Paket herunterladen (nicht WinMax-Version).
-</dd>
+<dd>Auf der <a href="http://www.swiss-athletics.ch/index.php?option=com_content&amp;task=view&amp;id=140&amp;Itemid=358">Athletica-Website von Swiss Athletics </a> zuerst
+unsere <i>Athletica</i>-Upgrade Datei herunterladen (nicht WinMax-Version).</dd>
 
-<dt>2. Installationsverzeichnis auswählen</dt>
+<dt>2. Upgrade installieren</dt>
+<dd>Setup-Datei starten und den Anweisungen am Bildschirm folgen. Normalerweise sind hier keine Eingriffe durch den Benutzer notwendig.</dd>
 <dd>Nach einer <i>Einsteiger-Installation</i> findet sich die Applikation
 unter <span class='src'>c:\athletica\www\athletica</span>.
 </br>
 Bei einer <i>Profi-Installation</i> konnte der Benutzer den Installationsort
 frei wählen (standardmässig ist das
-<span class='src'>[APACHE_DIR]\htdocs\athletica</span>).
-</dd>
+<span class='src'>[APACHE_DIR]\htdocs\athletica</span>).</dd>
 
-<dt>3. Software ersetzen</dt>
-<dd>Das bestehende Verzeichnis löschen und <i>athletica_VERSION.zip</i> dorthin
-auspacken.</dd> 
-
-<dt>4. Anweisungen in INSTALL.txt ausführen</dt>
-<dd>Im neuen <i>Athletica</i>-Paket die Datei <i>INSTALL.txt</i> öffnen
-und allfällige Anweisungen zum gültigen Upgrade ausführen.
-</dd>
+<dt>&nbsp;</dt>
 </dl>
 </div>
 </body>

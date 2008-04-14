@@ -237,8 +237,13 @@ function removePassword(){
 									<a href='<?php echo $cfgURLDocumentation; ?>index.html' target='_blank'>
 									<?php echo $strDocumentation; ?> (HTML)</a>
 								</td>
-							</tr>
 							<tr class='even'>
+								<td>&bull;
+									<a href='<?php echo $cfgURLDocumentation; ?>athletica.pdf' target='_blank'>
+									<?php echo $strDocumentation; ?> (PDF)</a>
+								</td>
+							</tr>
+							<tr class='odd'>
 								<td>&bull;
 									<a href='LICENSE.txt' target='_blank'><?php echo $strLicense; ?></a>
 								</td>
@@ -301,7 +306,7 @@ function removePassword(){
 					</td>
 				</tr>
 			</table>
-			<?php
+			 <?php
 			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 && ($_SESSION['meeting_infos']!='meetingNotChosen' &&  $_SESSION['meeting_infos']!='noMeeting')){
 				?>
 				<br/><br/>
