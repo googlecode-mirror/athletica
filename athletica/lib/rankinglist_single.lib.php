@@ -789,13 +789,13 @@ else {
 								}
 								
 								if (!empty($row_perf['season_effort'])){
-									$sb = "<abbr class=\"info\">$sb_perf<span>$row_perf[sb_date]<br>$row_perf[season_effort_event]</span></abbr>";
+									$sb = "<a href=\"#\" class=\"info\">$sb_perf<span>$row_perf[sb_date]<br>$row_perf[season_effort_event]</span></a>";
 								} else {
 									$sb = "&nbsp;";
 								}
 								
 								if (!empty($row_perf['best_effort'])){
-									$pb = "<abbr class=\"info\">$pb_perf<span>$row_perf[pb_date]<br>$row_perf[best_effort_event]</span></abbr>";
+									$pb = "<a href=\"#\" class=\"info\">$pb_perf<span>$row_perf[pb_date]<br>$row_perf[best_effort_event]</span></a>";
 								} else {
 									$pb = "&nbsp;";
 								}

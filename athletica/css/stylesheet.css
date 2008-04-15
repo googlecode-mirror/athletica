@@ -247,7 +247,7 @@ td.forms_right {
 
 td.monitor {
 	border-width:1px;
-    border-style:solid;
+	border-style:solid;
 	border-color:#888888;
 }
 
@@ -273,7 +273,7 @@ td.nav_announced {
 table.timetable {
 	border-collapse:collapse;
 	border-width:1px;
-    border-style:solid;
+	border-style:solid;
 	border-color:#888888;
 }
 
@@ -392,19 +392,19 @@ th.updateboxok{
 
 
 /*base_performance hover tooltips*/
-abbr.info{
+a.info{
 	position:relative; /*this is the key*/
 	z-index:24; 
+	text-decoration:none;
 	/*background-color:#ccc;*/
 	/*color:#000;*/
-	/*text-decoration:none;*/
 }
 
-abbr.info:hover{z-index:25; background-color:#ff0}
+a.info:hover{z-index:25; background-color:#ff0}
 
-abbr.info span{display: none}
+a.info span{display: none}
 
-abbr.info:hover span{ /*the span will display just on :hover state*/
+a.info:hover span{ /*the span will display just on :hover state*/
 	display:block;
 	position:absolute;
 	top:1.5em; left:2em; width:25em;
@@ -412,4 +412,5 @@ abbr.info:hover span{ /*the span will display just on :hover state*/
 	padding: 2px 5px;
 	background-color:#FFFFDF; color:#000;
 	text-align: left;
+	text-decoration: none;
 }

@@ -307,7 +307,7 @@ if($tage>1){
 //if($presets['event'] > 0) {	// event selected
 //	$efforts_text = $strEfforts;
 //} else {
-	$efforts_text = "<abbr class=\"info\">$strEfforts<span>$strEffortsWarning</span></abbr>"; //show anyway
+	$efforts_text = "<a href=\"#\" class=\"info\">$strEfforts<span>$strEffortsWarning</span></a>"; //show anyway
 //}?>	
 <tr>
 	<th class='dialog'>
