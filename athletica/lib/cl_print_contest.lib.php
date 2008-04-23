@@ -210,7 +210,7 @@ class PRINT_ContestTrack extends PRINT_Contest
 		<td class='contest_track_nbr'><?php echo $nbr; ?></td>
 		<td class='contest_track_name'><?php echo $name; ?></td>
 		<td class='contest_track_year'><?php echo $year; ?></td>
-		<td class='contest_track_club'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+		<td class='contest_track_country'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
 		<td class='contest_track_club'><?php echo $club; ?></td>
 		<td class='contest_track_result'></td>
 		<td class='contest_track_rank'></td>
@@ -359,7 +359,7 @@ class PRINT_ContestTech extends PRINT_Contest
 		<th class='contest_tech_nbr'><?php echo $nbr; ?></th>
 		<th class='contest_tech_name'><?php echo $name; ?></th>
 		<th class='contest_tech_year'><?php echo $year; ?></th>
-		<td class='contest_track_club'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+		<td class='contest_tech_country'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
 		<th class='contest_tech_club'><?php echo $club; ?></th>
 	</tr>
 	</table>
@@ -468,7 +468,7 @@ class PRINT_ContestTechNoWind extends PRINT_ContestTech
 		<th class='contest_tech_nbr'><?php echo $nbr; ?></th>
 		<th class='contest_tech_name'><?php echo $name; ?></th>
 		<th class='contest_tech_year'><?php echo $year; ?></th>
-		<td class='contest_track_club'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+		<td class='contest_tech_country'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
 		<th class='contest_tech_club'><?php echo $club; ?></th>
 	</tr>
 	</table>
@@ -588,7 +588,7 @@ class PRINT_ContestHigh extends PRINT_ContestTech
 		<th class='contest_tech_nbr'><?php echo $nbr; ?></th>
 		<th class='contest_tech_name'><?php echo $name; ?></th>
 		<th class='contest_tech_year'><?php echo $year; ?></th>
-		<td class='contest_track_club'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+		<td class='contest_tech_country'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
 		<th class='contest_tech_club'><?php echo $club; ?></th>
 	</tr>
 	</table>
