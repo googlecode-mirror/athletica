@@ -12,7 +12,7 @@ if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 
 function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none')
 {
-
+                
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -78,7 +78,7 @@ $results = mysql_query("
 		, d.Anzeige
 		, r.Datum
 		, r.Startzeit
-");
+");  
 
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -298,8 +298,12 @@ else {
 		// rank is set to max_rank to put them to the end of the list.
 		$max_rank = 999999999;
 		
-		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";
-		if($relay == FALSE) {
+		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";		 
+        if($relay == FALSE) {
+            if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack] )
+                        || ($row[3] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+                        || ($row[3] == $cfgDisciplineType[$strDiscTypeDistance]))
+                        {
 			/*$query = "
 				SELECT
 					ss.xSerienstart
@@ -345,7 +349,7 @@ else {
 					. $order_perf ."
 					, at.Name
 					, at.Vorname";*/
-			$query = "SELECT ss.xSerienstart, 
+			    $query = "SELECT ss.xSerienstart, 
 							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
 							 ss.Qualifikation, 
 							 ".$sql_leistung." AS leistung_neu, 
@@ -374,13 +378,55 @@ else {
 				   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
 					   WHERE ".$roundSQL." 
 					   ".$limitRankSQL." 
-					   ".$valid_result." 
+					   ".$valid_result."    
 					ORDER BY ".$order_heat." 
 							 rank, 
 							 leistung_neu 
 							 ".$order_perf.", 
 							 at.Name, 
-							 at.Vorname;";
+							 at.Vorname;";      
+                        }
+                   else {                                              // disciplines technique
+                         $sql_leistung="MAX(" .$sql_leistung . ")"; 
+                         
+                         $query = "SELECT ss.xSerienstart, 
+                             IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
+                             ss.Qualifikation, 
+                             ".$sql_leistung." AS leistung_neu, 
+                             r.Info, 
+                             s.Bezeichnung, 
+                             s.Wind, 
+                             MAX(r.Punkte), 
+                             IF('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)), 
+                             at.Name, 
+                             at.Vorname, 
+                             at.Jahrgang, 
+                             LPAD(s.Bezeichnung, 5, '0') AS heatid, 
+                             IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land, 
+                             at.xAthlet, 
+                             ru.Datum, 
+                             ru.Startzeit 
+                        FROM serie AS s USE INDEX(Runde)
+                   LEFT JOIN serienstart AS ss USING(xSerie) 
+                   LEFT JOIN resultat AS r USING(xSerienstart) 
+                   LEFT JOIN start AS st ON(ss.xStart = st.xStart) 
+                   LEFT JOIN anmeldung AS a USING(xAnmeldung) 
+                   LEFT JOIN athlet AS at USING(xAthlet) 
+                   LEFT JOIN verein AS v USING(xVerein) 
+                   LEFT JOIN region AS re ON(at.xRegion = re.xRegion) 
+                   LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+                   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
+                       WHERE ".$roundSQL." 
+                       ".$limitRankSQL." 
+                       ".$valid_result." 
+                    GROUP BY at.Name,at.Vorname   
+                    ORDER BY ".$order_heat." 
+                             rank, 
+                             leistung_neu 
+                             ".$order_perf.", 
+                             at.Name, 
+                             at.Vorname;";  
+                   }   
 		}
 		else {						// relay event
 			/*$query = "
