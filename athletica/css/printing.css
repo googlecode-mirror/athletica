@@ -575,7 +575,7 @@ th.contest_track_year	{ width: 30px; font-size:12px; text-align:center;
 th.contest_track_club	{ width: 180px; font-size:12px;
 							border-width:1px; border-style:solid; border-color:#000000;
 							padding:6px;}
-th.contest_track_country	{ width: 20px; font-size:12px;
+th.contest_track_country	{ width: 50px; font-size:12px;
 							border-width:1px; border-style:solid; border-color:#000000;
 							padding:6px;}
 th.contest_track_result	{ width: 70px; font-size:12px; text-align:center;
@@ -607,6 +607,9 @@ td.contest_track_year	{ width: 20px; font-size:12px; text-align:center;
 td.contest_track_club	{ width: 178px; font-size:12px;
 							border-width:1px; border-style:solid; border-color:#000000;
 							padding:6px;}
+td.contest_track_country    { width: 50px; font-size:12px;
+                            border-width:1px; border-style:solid; border-color:#000000;
+                            padding:6px;}  
 td.contest_track_result	{ width: 70px; font-size:12px; text-align:center;
 							border-width:1px; border-style:solid; border-color:#000000;
 							padding:6px;}
@@ -626,6 +629,9 @@ th.contest_tech_year	{ width: 50px; font-size:12px; text-align:center;
 							border-width:0px; padding:6px; }
 th.contest_tech_club	{ width: 270px; font-size:12px;
 							border-width:0px; padding:6px; }
+                            
+td.contest_tech_country    { width: 50px; font-size:12px;
+                            border-width:0px; padding:6px; }
 
 /* technical disciplines: line */
 td.contest_tech_field	{ width: 44px; font-size:12px; text-align:center;
