@@ -110,28 +110,42 @@ if($_GET['arg'] == 'backup')
 			$n = 0;
 			while($tabrow = mysql_fetch_assoc($res))
 			{
-				$n++;
 				if(!empty($values) && !$skip_nextline) {	// print previous row
 					echo "$values),\n";
 				}
-
-				$values = "(";
-				$cma = "";
+				
+				// dds
+				// skip row if all vales are empty
+				$allEmpty = true;
 				foreach($fieldArray as $f){
-					if(substr($f['Type'],0,3) == 'int') {	
-						$values = $values . $cma . $tabrow[$f['Field']];
-					} else {
-						$values = $values . $cma . "'" . addslashes($tabrow[$f['Field']]) . "'";
+					if($tabrow[$f['Field']]!=''){
+						$allEmpty = false;
+						break;
 					}
-					$cma = ", ";
 				}
 				
-				if ($n==1000){
-					$n=0;
-					echo "$values);#*\n $sqlInsert";
-					$skip_nextline = true;
-				} else {
-					$skip_nextline = false;
+				if(!$allEmpty){
+					$n++;
+					
+					$values = "(";
+					$cma = "";
+					
+					foreach($fieldArray as $f){
+						if(substr($f['Type'],0,3) == 'int') {	
+							$values = $values . $cma . $tabrow[$f['Field']];
+						} else {
+							$values = $values . $cma . "'" . addslashes($tabrow[$f['Field']]) . "'";
+						}
+						$cma = ", ";
+					}
+					
+					if ($n==1000){
+						$n=0;
+						echo "$values);#*\n $sqlInsert";
+						$skip_nextline = true;
+					} else {
+						$skip_nextline = false;
+					}
 				}
 				
 			}		// End while every table row
