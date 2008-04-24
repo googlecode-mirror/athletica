@@ -178,9 +178,53 @@ else if ($_POST['arg'] == 'restore')
 	// so they can by restored in later versions
 	
 	$error_msg = '';
+	$error_type = 0;
+	$ini_done = false;
+	$name_ini = 'php.ini';
+	$name_ini2 = 'php2.ini';
+	$name_bak = 'php.bak_'.date('YmdHis', time());
+	
 	if($content == false){
+		$error_type = $_FILES['bkupfile']['error'];
 		switch($_FILES['bkupfile']['error']){
 			case 1:
+				if($cfgInstallDir!='[ATHLETICA]'){
+					$ini_inhalt = @file_get_contents($cfgInstallDir.'\php\\'.$name_ini);
+					
+					$search = 'upload_max_filesize = ([0-9]{1,2}M)';
+					$replace = 'upload_max_filesize = 50M';
+					$ini_inhalt2 = eregi_replace($search, $replace, $ini_inhalt);
+					
+					if($ini_inhalt2!='' && $ini_inhalt2!=$ini_inhalt){
+						$ini_neu = @fopen($cfgInstallDir.'\php\\'.$name_ini2, 'w+');
+						
+						if($ini_neu){
+							$write_neu = @fwrite($ini_neu, $ini_inhalt2);
+							
+							if($write_neu){
+								@fclose($ini_neu);
+								
+								$ini_rename = rename($cfgInstallDir.'\php\\'.$name_ini, $cfgInstallDir.'\php\\'.$name_bak);
+									
+								if($ini_rename){
+									$ini_rename2 = rename($cfgInstallDir.'\php\\'.$name_ini2, $cfgInstallDir.'\php\\'.$name_ini);
+									
+									if($ini_rename2){
+										$ini_done = true;
+									} else {
+										$ini_rename = rename($cfgInstallDir.'\php\\'.$name_bak, $cfgInstallDir.'\php\\'.$name_ini);
+										@unlink($cfgInstallDir.'\php\\'.$name_ini2, 'w+');
+									}
+								} else {
+									@unlink($cfgInstallDir.'\php\\'.$name_ini2, 'w+');
+								}
+							} else {
+								@fclose($ini_neu);
+							}
+						}
+					}
+				}
+			
 				$error_msg = str_replace('%SIZE%', ini_get('upload_max_filesize'), $strUploadMaxFilesize);
 				break;
 			case 2:
@@ -243,6 +287,51 @@ else if ($_POST['arg'] == 'restore')
 			<tr class="odd">
 				<td><?=$error_msg?></td>
 			</tr>
+			<?php
+			if($error_type==1){
+				if($ini_done){
+					$strMaxFileSize8 = str_replace('%NAME%', $name_bak, $strMaxFileSize8);
+					?>
+					<tr class="odd">
+						<td>
+							<br/><?=$strMaxFileSizeOK?><br/>
+							<ol>
+								<li><?=$strMaxFileSize1?><br/><br/></li>
+								<li><?=$strMaxFileSize2?><br/><br/></li>
+								<li><?=$strMaxFileSize7?><br/><br/></li>
+								<li><?=$strMaxFileSize8?><br/><br/></li>
+								<li><?=$strMaxFileSize6?></li>
+							</ol>
+						</td>
+					</tr>
+					<?php
+				} else {
+					$upload_max_filesize = ini_get('upload_max_filesize');
+					$strMaxFileSize5 = str_replace('%SIZE%', $upload_max_filesize, $strMaxFileSize5);
+					?>
+					<tr class="odd">
+						<td>
+							<br/><?=$strMaxFileSizeCorrect?><br/>
+							<ol>
+								<li><?=$strMaxFileSize1?><br/><br/></li>
+								<li><?=$strMaxFileSize2?><br/><br/></li>
+								<li><?=$strMaxFileSize3?><br/><br/></li>
+								<li>
+									<?=$strMaxFileSize4?><br/><br/>
+									<div class="code">
+										; Maximum allowed size for uploaded files.<br/>
+										upload_max_filesize = <?=$upload_max_filesize?>
+									</div><br/>
+								</li>
+								<li><?=$strMaxFileSize5?><br/><br/></li>
+								<li><?=$strMaxFileSize6?></li>
+							</ol>
+						</td>
+					</tr>
+					<?php
+				}
+			}
+			?>
 			<tr class="even">
 				<td>
 					<input type="button" name="btnBack" value="<?=$strBack?>" class="uploadbutton" onclick="document.location.href = 'admin.php';"/>

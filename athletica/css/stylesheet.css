@@ -414,3 +414,12 @@ a.info:hover span{ /*the span will display just on :hover state*/
 	text-align: left;
 	text-decoration: none;
 }
+
+.code {
+	border: dashed 1px #000000;
+	background-color: #FFFFFF;
+	
+	padding: 10px;
+	
+	font-family: Courier New;
+}

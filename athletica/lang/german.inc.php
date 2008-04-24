@@ -669,4 +669,15 @@ $strNoData = "Es konnten keine Anmeldungen gefunden werden";
 $strUploadMaxFilesize = 'Die PHP-Einstellung <b>upload_max_filesize</b> ist auf einem zu niedrigen Wert eingestellt: %SIZE%.';
 $strUploadFormFilesize = 'Die im Formular angegebene maximale Dateigrösse reicht nicht aus, um die ausgewählte Datei hochzuladen.';
 $strUploadPartial = 'Die Datei konnte aufgrund eines Fehlers nur teilweise hochgeladen werden.';
+
+$strMaxFileSizeCorrect = 'Sie können die PHP-Einstellung wie folgt korrigieren:';
+$strMaxFileSize1 = 'Öffnen Sie im Windows Explorer das Verzeichnis, in dem Athletica installiert wurde (z.B. C:\Programme\Athletica).';
+$strMaxFileSize2 = 'Wechseln Sie in das Verzeichnis <b>php</b>.';
+$strMaxFileSize3 = 'Öffnen Sie dort die Datei <b>php.ini</b> mit dem Texteditor (Rechtsklick > öffnen mit > Programm auswählen > Editor)';
+$strMaxFileSize4 = 'Suchen Sie (Bearbeiten > Suchen) folgende Zeilen: (Zeilen 472-473 ca.)';
+$strMaxFileSize5 = 'Ersetzen Sie die den Wert <b>%SIZE%</b> durch <b>50M</b>.<br/><b>ACHTUNG:</b> nicht die volle Angabe <b>50MB</b>, sondern nur <b>50M</b>.';
+$strMaxFileSize6 = 'Starten Sie den Computer neu.';
+$strMaxFileSize7 = 'Löschen Sie die Datei <b>php.ini</b>.';
+$strMaxFileSize8 = 'Bennen Sie die Datei <b>%NAME%</b> um nach <b>php.ini</b>.';
+$strMaxFileSizeOK = '<b>Athletica hat die PHP-Konfigurationsdatei automatisch angepasst.<br/>Bitte starten Sie den Computer neu, damit die Änderungen Wirkung zeigen.</b><br/><br/><b>ACHTUNG:</b> Sollten Probleme beim Starten von Athletica auftreten, können Sie die alte PHP-Konfigurationsdatei wie folgt wiederherstellen:';
 ?>
