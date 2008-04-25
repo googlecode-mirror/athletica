@@ -366,12 +366,12 @@ if($round > 0)
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
-						, if('".$svm."', t.Name, v.Name)
+						, if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))
 						, LPAD(s.Bezeichnung, 5, '0') as heatid
 						, ss.Bahn
 						, s.Film
 						, a.BestleistungMK
-						, at.Land
+						, IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
 					FROM
 						runde AS r
 					LEFT JOIN 
@@ -390,6 +390,8 @@ if($round > 0)
 						verein AS v USING(xVerein)
 					LEFT JOIN
 						team AS t ON(a.xTeam = t.xTeam)
+					LEFT JOIN 
+						region AS re ON(at.xRegion = re.xRegion) 
 					WHERE 
 						r.xRunde = ".$round."
 					ORDER BY

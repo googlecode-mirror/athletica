@@ -530,7 +530,7 @@ if($event > 0 || $comb > 0)
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
-						, v.Name
+						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
 						, a.xAnmeldung
 					FROM
 						anmeldung AS a
@@ -576,7 +576,7 @@ if($event > 0 || $comb > 0)
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
-						, v.Name
+						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
 					FROM
 						anmeldung AS a
 					LEFT JOIN
@@ -627,7 +627,7 @@ if($event > 0 || $comb > 0)
 					  s2.xStart
 					, s2.Anwesend
 					, st.Name
-					, v.Name
+					, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
 					, a.Startnummer
 					, at.Name
 					, at.Vorname

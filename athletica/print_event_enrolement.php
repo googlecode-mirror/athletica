@@ -146,7 +146,7 @@ else
 						  . ", at.Name"
 						  . ", at.Vorname"
 						  . ", at.Jahrgang"
-						  . ", v.Name"
+						  . ", IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)"
 						  . ", a.BestleistungMK"
 						  . ", d.Typ"
 						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
@@ -171,7 +171,7 @@ else
 						  . ", at.Name"
 						  . ", at.Vorname"
 						  . ", at.Jahrgang"
-						  . ", if('$svm', t.Name, v.Name)"
+						  . ", if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))"
 						  . ", s.Bestleistung"
 						  . ", d.Typ"
 						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
@@ -269,14 +269,14 @@ else
 						if($combined){
 							$perf = $row[5]; // points
 						}
-				  		$doc->printLine($row[0], $row[1] . " " . $row[2],
+						$doc->printLine($row[0], $row[1] . " " . $row[2],
 							AA_formatYearOfBirth($row[3]), $row[4], $row[7], $perf);
 				  }
 				  else
 				  {
-					  	$doc->printLine($row[4], $row[5] . " " . $row[6],
+						$doc->printLine($row[4], $row[5] . " " . $row[6],
 							AA_formatYearOfBirth($row[7]), $row[2], $row[8], "", $row[3]);
-				  		//$doc->printLine('', $row[0], '', $row[1]);
+						//$doc->printLine('', $row[0], '', $row[1]);
 				  }
 				  $l++;			// increment line count
 			  }

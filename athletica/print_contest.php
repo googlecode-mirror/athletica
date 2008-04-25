@@ -287,11 +287,11 @@ else
 					. ", at.Name"
 					. ", at.Vorname"
 					. ", at.Jahrgang"
-					. ", if('$svm', t.Name, v.Name)"
+					. ", if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))"
 					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
 					. ", ss.Bahn"
 					. ", s.Film"
-					. ", at.Land"
+					. ", IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land"
 					. " FROM runde AS r"
 					. ", serie AS s"
 					. ", serienstart AS ss"
@@ -304,6 +304,7 @@ else
 					. " LEFT JOIN anlage AS an"
 					. " ON an.xAnlage = s.xAnlage"
 					. " LEFT JOIN team as t ON a.xTeam = t.xTeam"
+					. " LEFT JOIN region AS re ON at.xRegion = re.xRegion "
 					. " WHERE r.xRunde = " . $round
 					. " AND s.xRunde = r.xRunde"
 					. " AND ss.xSerie = s.xSerie"
@@ -475,17 +476,19 @@ else
 						$res = mysql_query("SELECT at.Name"
 												. ", at.Vorname"
 												. ", sta.Position"
-												. ", at.Land"
+												. ", IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land"
 												. " FROM athlet AS at"
 												. ", anmeldung AS a"
 												. ", start AS ss"
 												. ", staffelathlet AS sta"
 												. ", start AS st"
+												. ", region AS re"
 												. " WHERE ss.xStaffel = " . $row[6]
 												. " AND sta.xStaffelstart = ss.xStart"
 												. " AND sta.xAthletenstart = st.xStart"
 												. " AND st.xAnmeldung = a.xAnmeldung"
 												. " AND a.xAthlet = at.xAthlet"
+												. " AND at.xRegion = re.xRegion"
 												. " AND sta.xRunde = ".$row[10]
 												. " ORDER BY sta.Position
 													LIMIT $maxRunners");
