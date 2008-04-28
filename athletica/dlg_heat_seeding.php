@@ -9,6 +9,7 @@
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
+require('./lib/results.lib.php');
 
 require('./lib/common.lib.php');
 
@@ -117,13 +118,6 @@ if($round > 0)
 	$count == 0;
 	$prev_rnd = 0;
 	$prev_rnd_name = "";
-	/*$res = mysql_query("SELECT r.xRunde"
-				. ", rt.Name"
-				. " FROM runde AS r"
-				. " LEFT JOIN rundentyp AS rt"
-				. " ON r.xRundentyp = rt.xRundentyp"
-				. " WHERE r.xWettkampf = $event"
-				. " ORDER BY r.Datum, r.Startzeit");*/
 	$sql = "SELECT 
 				  r.xRunde
 				, rt.Name 
@@ -162,12 +156,6 @@ if($round > 0)
 
 	// get default heat size and discipline type
 	$size = 0;
-	/*$res = mysql_query("SELECT d.Seriegroesse"
-							. ", d.Typ"
-							. " FROM disziplin AS d"
-							. ", wettkampf AS w"
-							. " WHERE d.xDisziplin = w.xDisziplin"
-							. " AND w.xWettkampf = $event");*/
 	$sql = "SELECT 
 				  d.Seriegroesse
 				, d.Typ 
@@ -199,11 +187,6 @@ if($round > 0)
 		|| ($type == $cfgDisciplineType[$strDiscTypeTrackNoWind])
 		|| ($type == $cfgDisciplineType[$strDiscTypeRelay]))
 	{
-		/*$res = mysql_query("SELECT s.Bahnen, s.BahnenGerade"
-								. " FROM meeting AS m"
-								. ", stadion AS s"
-								. " WHERE m.xMeeting = " . $_COOKIE['meeting_id']
-								. " AND s.xStadion = m.xStadion");*/
 		$sql = "SELECT 
 					  s.Bahnen
 					, s.BahnenGerade
@@ -249,13 +232,6 @@ if($round > 0)
 	}
 	
 	if($rsrow[0] > 0){
-		/*$result = mysql_query("	SELECT r.xWettkampf FROM
-						rundenset as s
-						, runde as r
-					WHERE
-						s.xMeeting = ".$_COOKIE['meeting_id']."
-					AND	s.xRundenset = $rsrow[0]
-					AND	r.xRunde = s.xRunde");*/
 		$sql = "SELECT
 					r.xWettkampf 
 				FROM
@@ -306,13 +282,6 @@ if($round > 0)
 					. " AND s.Anwesend=0";
 		}
 		else {							// relay event
-			/*$query = "SELECT COUNT(*)"
-					. " FROM start AS s"
-					. ", staffel AS st"
-					. " WHERE " //s.xWettkampf = $event"
-					. $sqlEvents
-					. " AND s.Anwesend = 0"
-					. " AND st.xStaffel = s.xStaffel";*/
 			$query = "SELECT
 						  COUNT(*) 
 					  FROM
@@ -325,12 +294,6 @@ if($round > 0)
 						  s.Anwesend = 0;";
 		}
 		if($combined && $cLast == 0 && !empty($cGroup)){	// combined event and not last discipline, count athletes of correct group
-			/*$query = "SELECT COUNT(*)"
-					. " FROM start AS s, anmeldung as a"
-					. " WHERE s.xWettkampf = $event"
-					. " AND a.xAnmeldung = s.xAnmeldung"
-					. " AND a.Gruppe = $cGroup"
-					. " AND s.Anwesend=0";*/
 			$query = "SELECT
 						  COUNT(*)
 					  FROM
@@ -351,12 +314,6 @@ if($round > 0)
 					. " AND s.Anwesend=0";
 		}
 		if($teamsm && !empty($cGroup)){ // team sm event with group (tech)
-			/*$query = "SELECT COUNT(*)"
-					. " FROM start AS s, anmeldung as a"
-					. " WHERE s.xWettkampf = $event"
-					. " AND a.xAnmeldung = s.xAnmeldung"
-					. " AND a.Gruppe = $cGroup"
-					. " AND s.Anwesend=0";*/
 			$query = "SELECT
 						  COUNT(*)
 					  FROM
@@ -452,6 +409,15 @@ if($round > 0)
 				</tr>
 <?php
 		}
+		
+		$presets = AA_results_getPresets($round);
+		$svmContest = AA_checkSVM($presets['event']);
+		
+		if($svmContest){
+			?>
+			<input type="hidden" name="mode" value="0"/>
+			<?php
+		} else {
 ?>
 				 <tr>
 					 <th class='dialog'><?php echo $strMode; ?></th>
@@ -469,6 +435,7 @@ if($round > 0)
 						 <?php echo $strModeTopSeparated; ?></input></td>
 				 </tr>
 <?php
+		}
 	}	// ET 1st round
 	
 	//

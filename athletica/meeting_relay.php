@@ -341,11 +341,14 @@ else if ($_POST['arg']=="add_pos")
 elseif($_POST['arg'] == "remove_pos"){
 	
 	
-	mysql_query("LOCK TABLES staffelathlet WRITE");
+	mysql_query("LOCK TABLES staffelathlet WRITE, start WRITE");
 	
 	mysql_query("DELETE FROM staffelathlet"
 			. " WHERE xStaffelstart='" . $_POST['relay']
 			. "' AND xAthletenstart='" . $_POST['athlete'] . "'");
+			
+	mysql_query("DELETE FROM start"
+			. " WHERE xStart ='" . $_POST['athlete'] . "'");
 			
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

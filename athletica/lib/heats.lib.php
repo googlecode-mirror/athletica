@@ -55,30 +55,6 @@ function AA_heats_seedEntries($event)
 	}else{
 		$orderFirst = "";
 	}
-	/*$result = mysql_query("SELECT
-					w.Typ
-				FROM
-					wettkampf AS w
-				WHERE xWettkampf = $event");
-	if(mysql_errno() > 0)		// DB error
-	{
-		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-		$svmContest = false;
-		$orderFirst = "";
-	}
-	else
-	{
-		$row = mysql_fetch_array($result);
-		if($row[0] > 1){ //svm
-			$svmContest = true;
-			//$orderFirst = "a.Erstserie ASC,";
-			$orderFirst = "s.Erstserie ASC,"; // those with 'y' come first
-		}else{
-			$svmContest = false;
-			$orderFirst = "";
-		}
-		mysql_free_result($result);
-	}*/
 	
 	// discipline type for top performance mode and for determining the need of a filmnumber
 	$result = mysql_query("
@@ -101,7 +77,7 @@ function AA_heats_seedEntries($event)
 		$row = mysql_fetch_row($result);
 	}
 	
-	if($mode == 0) {	// open mode
+	if($mode == 0 && !$svmContest) {	// open mode
 		// random order
 		$order = "RAND()";
 		$badValue = "0";
@@ -112,6 +88,20 @@ function AA_heats_seedEntries($event)
 			|| ($row[0] == $cfgDisciplineType[$strDiscTypeDistance]))
 			{
 				$filmnumber = true;
+			}
+	} elseif($svmContest){	// SVM mode
+		if(($row[0] == $cfgDisciplineType[$strDiscTypeTrack])
+			|| ($row[0] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+			|| ($row[0] == $cfgDisciplineType[$strDiscTypeRelay])
+			|| ($row[0] == $cfgDisciplineType[$strDiscTypeDistance]))
+			{
+				$order = "best ASC, RAND()";	// track disciplines
+				$badValue = "99999999";
+				$filmnumber = true;
+			}
+			else {
+				$order = "best ASC, RAND()";	// field disciplines
+				$badValue = "0";
 			}
 	}
 	else {				// top performance mode
