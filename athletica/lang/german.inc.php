@@ -680,4 +680,6 @@ $strMaxFileSize6 = 'Starten Sie den Computer neu.';
 $strMaxFileSize7 = 'Löschen Sie die Datei <b>php.ini</b>.';
 $strMaxFileSize8 = 'Bennen Sie die Datei <b>%NAME%</b> um nach <b>php.ini</b>.';
 $strMaxFileSizeOK = '<b>Athletica hat die PHP-Konfigurationsdatei automatisch angepasst.<br/>Bitte starten Sie den Computer neu, damit die Änderungen Wirkung zeigen.</b><br/><br/><b>ACHTUNG:</b> Sollten Probleme beim Starten von Athletica auftreten, können Sie die alte PHP-Konfigurationsdatei wie folgt wiederherstellen:';
+
+$strNewDate = 'Neues Startdatum';
 ?>

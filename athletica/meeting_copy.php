@@ -9,6 +9,7 @@
 require('./lib/cl_gui_page.lib.php');
 
 require('./lib/common.lib.php');
+require('./lib/meeting.lib.php');
 
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
@@ -31,25 +32,40 @@ if(isset($_POST['arg'])){
 // check on new name != empty for copy prozess
 if(empty($arg) || empty($_POST['newname'])){
 ?>
-<form action='meeting_copy.php' method='post' name='copy'>
-
-<table class='dialog'>
-	<tr>
-		<th class='dialog' colspan="2"><?php echo $strMeetingNew; ?></th>
-		<input type="hidden" name="arg" value="copy">
-	</tr>
-
-	<tr>
-		<td>
-			<?php echo $strNewName ?>
-			<input type="text" name="newname" value="<?php echo $_COOKIE['meeting'] ?>">
-			<?php echo $strNewNumber ?>
-			<input type="text" name="newnumber" value="">
-		</td>
-		<td><input type="submit" name="submit" value="<?php echo $strCopy ?>"></td>
-	</tr>
-</table>
-
+<form name="copy" action="meeting_copy.php" method="post">
+	<input type="hidden" name="arg" value="copy">
+	
+	<table width="700" border="0" cellpadding="0" cellspacing="0" class="dialog">
+		<colgroup>
+			<col width="150"/>
+			<col width="150"/>
+			<col width="150"/>
+			<col width="150"/>
+			<col width="100"/>
+		</colgroup>
+		<tr>
+			<th colspan="5" class="dialog"><?=$strMeetingNew?></th>
+		</tr>
+		<tr>
+			<td><?=$strNewName?></td>
+			<td><input type="text" name="newname" value="<?=$_COOKIE['meeting']?>"/></td>
+			<td><?=$strNewNumber?></td>
+			<td><input type="text" name="newnumber" value=""/></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td><?=$strNewDate?></td>
+			<td>
+				<table width="100%" border="0" cellpadding="0" cellspacing="0">
+					<tr>
+						<?php AA_meeting_printDate('from', ''); ?>
+					</tr>
+				</table>
+			</td>
+			<td colspan="2">&nbsp;</td>
+			<td style="text-align: right;"><input type="submit" name="submit" value="<?=$strCopy?>"/></td>
+		</tr>
+	</table>
 </form>
 
 <?php
@@ -63,8 +79,9 @@ elseif($arg == "copy")
 	$newname = $_POST['newname'];
 	$newnumber = $_POST['newnumber'];
 	$newxMeeting = 0;
+	$new_date = $_POST['from_year'].'-'.$_POST['from_month'].'-'.$_POST['from_day'];
 	
-	mysql_query("LOCK TABLES meeting WRITE, wettkampf WRITE");
+	mysql_query("LOCK TABLES meeting WRITE, wettkampf WRITE, runde WRITE");
 	
 	// copy meeting entry
 	$resFields = mysql_query("SHOW COLUMNS FROM meeting");
@@ -75,34 +92,48 @@ elseif($arg == "copy")
 		
 		$data = mysql_fetch_assoc($resData);
 		
+		$data_array = array();
+		$data_index = array();
+		$count = 0;
+		for($a=strtotime($data['DatumVon']); $a<=strtotime($data['DatumBis']); $a++){
+			$key = date('Y-m-d', $a);
+			$data_array[$key] = $key;
+			$data_index[$count] = $key;
+			
+			$a--;			
+			$a = strtotime('+1 day', $a);
+			$count++;
+		}
+		
+		// get the start and end date
+		$dateDiff = (strtotime($data['DatumBis']) - strtotime($data['DatumVon']));
+		$daysDiff = ($dateDiff==0) ? 0 : (floor($dateDiff / 86400));
+		$dateFrom = $new_date;
+		$dateTo = ($daysDiff>0) ? date('Y-m-d', strtotime('+'.$daysDiff.(($daysDiff==1) ? 'day' : 'days'), strtotime($dateFrom))) : $dateFrom;
+		
+		$count = 0;
+		for($a=strtotime($dateFrom); $a<=strtotime($dateTo); $a++){
+			$key = date('Y-m-d', $a);
+			$data_array[$data_index[$count]] = $key;
+			
+			$a--;
+			$a = strtotime('+1 day', $a);
+			$count++;
+		}
+		
 		$sql = "";
-        $dateDiff = "";   
 		while($f = mysql_fetch_assoc($resFields)){  
-            if ($f['Field'] == "DatumVon"){
-                    $dateFrom=$data[$f['Field']]; 
-                }
-            elseif ($f['Field'] == "DatumBis"){
-                    $dateTo=$data[$f['Field']];  
-                    $dateDiff=(str_replace("-","",$dateTo))-(str_replace("-","",$dateFrom));  // get meeting duration   
-                    } 
-            
 			if($f['Key'] != "PRI" && $f['Field'] != "Name" && $f['Field'] != "Nummer" && $f['Field'] != "DatumVon" && $f['Field'] != "DatumBis"){ // exclude primary key and 2 fields
 				$sql .= ", ".$f['Field']." = '".$data[$f['Field']]."' ";  
 			}
 			
 		} 
-        // get date today and end date meeting
-		$dateFrom=date("Y.m.d");
-        $j = date('Y');
-        $m = date('m');
-        $d = date('d');
-        $dateTo = date('Y.m.d',mktime(0,0,0,$m,$d+$dateDiff,$j));   
-        
+		
 		mysql_query("INSERT INTO meeting SET
 				Name = '$newname'
 				, Nummer = '$newnumber'
-                , DatumVon = '$dateFrom'
-                , DatumBis = '$dateTo' 
+				, DatumVon = '$dateFrom'
+				, DatumBis = '$dateTo' 
 				$sql
 		");
 		
@@ -117,9 +148,9 @@ elseif($arg == "copy")
 		
 	}
 	
-	// copy discipline entrys
 	if($newxMeeting > 0){
 		
+		// copy discipline entrys
 		$resFields = mysql_query("SHOW COLUMNS FROM wettkampf");
 		$fields = array();
 		while($row = mysql_fetch_assoc($resFields)){
@@ -133,6 +164,7 @@ elseif($arg == "copy")
 		}else{
 			
 			while($data = mysql_fetch_assoc($resData)){
+				$xWettkampfOld = $data['xWettkampf'];
 				
 				$sql = "";
 				foreach($fields as $f){
@@ -143,38 +175,62 @@ elseif($arg == "copy")
 					
 				}
 				
-				mysql_query("INSERT INTO wettkampf SET
-						xMeeting = $newxMeeting
-						$sql
-				");
+				$query = "INSERT INTO wettkampf 
+								  SET xMeeting = ".$newxMeeting.$sql.";";
+				mysql_query($query);
 				
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+				} else {
+					$xWettkampf = mysql_insert_id();
+					
+					$resFields2 = mysql_query("SHOW COLUMNS FROM runde");
+					$fields2 = array();
+					while($row2 = mysql_fetch_assoc($resFields2)){
+						$fields2[] = $row2;
+					}
+					
+					$resData2 = mysql_query("SELECT * FROM runde WHERE xWettkampf = ".$xWettkampfOld);
+		
+					if(mysql_errno() > 0) {
+						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+					}else{
+						while($data2 = mysql_fetch_assoc($resData2)){
+							$datumOld = $data2['Datum'];
+							
+							$sql2 = "";
+							foreach($fields2 as $f2){
+								if($f2['Key'] != "PRI" && $f2['Field'] != "xRunde" && $f2['Field'] != "Datum" && $f2['Field'] != "xWettkampf" && $f2['Field'] != "Status" && $f2['Field'] != "Speakerstatus" && $f2['Field'] != "StatusZeitmessung" && $f2['Field'] != "StatusUpload"){ // exclude primary key and meeting id
+										$sql2 .= ", ".$f2['Field']." = '".$data2[$f2['Field']]."' ";
+									}
+								
+							}
+							
+							$query2 = "INSERT INTO runde 
+											  SET Datum = '".$data_array[$datumOld]."', 
+												  xWettkampf = ".$xWettkampf.$sql2.";";
+							mysql_query($query2);
+						}
 				}
-			}
-			
-			mysql_free_result($resData);
-			mysql_free_result($resFields);
-			
+			}			
 		}
 		
-		if(mysql_errno() > 0) {
-			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-		}else{
-			// unlock all tables
-			mysql_query("UNLOCK TABLES");
+		mysql_free_result($resData);
+		mysql_free_result($resFields);
+		mysql_free_result($resData2);
+		mysql_free_result($resFields2);
+		
+		// unlock all tables
+		mysql_query("UNLOCK TABLES");
 			
-			?>
-			
-	<tr>
-		<th class='dialog'><?php echo $strCopyMade ?></th>
-	</tr>
-	<tr>
-		<td><input type="button" name="" value="<?php echo $strBack ?>" onclick="parent.location = 'index.php'"></td>
-	</tr>
-			
-			<?php
-		}
+		?>
+		<tr>
+			<th class='dialog'><?php echo $strCopyMade ?></th>
+		</tr>
+		<tr>
+			<td><input type="button" name="" value="<?php echo $strBack ?>" onclick="parent.location = 'index.php'"></td>
+		</tr>
+		<?php
 	}
 	
 	
@@ -183,6 +239,7 @@ elseif($arg == "copy")
 </table>
 <?php
 
+}
 }
 
 $page->endPage();
