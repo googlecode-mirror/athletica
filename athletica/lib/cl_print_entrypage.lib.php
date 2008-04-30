@@ -494,11 +494,12 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 <?php 
 		}
 		else
-		{
+		{  
 ?>
 	<tr>
 		<th class='enrolmt_tic' />
 		<th class='enrolmt_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
+        <th class='enrolmt_pos'><?php echo $GLOBALS['strPositionShort']; ?></th>  
 		<th class='enrolmt_name'><?php echo $GLOBALS['strName']; ?></th>
 		<th class='enrolmt_year'><?php echo $GLOBALS['strYearShort']; ?></th>
 		<th class='enrolmt_year'><?php echo $GLOBALS['strCountry']; ?></th>
@@ -521,8 +522,8 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	}
 
 
-	function printLine($nbr, $name, $year, $club, $ioc, $top, $club2='')
-	{
+	function printLine($nbr,  $name, $year, $club, $ioc, $top, $club2='', $pos)
+	{   
 		if(($this->lpp - $this->linecnt) < 2)		// page break check
 		{
 			printf("</table>");
@@ -532,11 +533,11 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 		}
 
 		if(!$this->bRelay)		// athlete
-		{
+		{      
 ?>
 	<tr>
 		<td class='enrolmt_tic'>[&nbsp;&nbsp;&nbsp;]</td>
-		<td class='enrolmt_nbr'><?php echo $nbr; ?></td>
+		<td class='enrolmt_nbr'><?php echo $nbr; ?></td> 
 		<td class='enrolmt_name'><?php echo $name; ?></td>
 		<td class='enrolmt_year'><?php echo $year; ?></td>
 		<td class='enrolmt_year'><?php echo $ioc; ?></td>
@@ -547,7 +548,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 
 		}
 		else		// relay
-		{
+		{     
 			$headerline = str_pad("", $GLOBALS['cfgPrtEnrolementLine']['tic'])
 									. str_pad($GLOBALS['strName'], $GLOBALS['cfgPrtEnrolementLine']['name'])
 									. str_pad($GLOBALS['strClub'], $GLOBALS['cfgPrtEnrolementLine']['club']);
@@ -555,6 +556,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	<tr>
 		<td class='enrolmt_tic'>[&nbsp;&nbsp;&nbsp;]</td>
 		<td class='enrolmt_nbr'><?php echo $nbr; ?></td>
+        <td class='enrolmt_pos'><?php echo $pos; ?></td>   
 		<td class='enrolmt_name'><?php echo $name; ?></td>
 		<td class='enrolmt_year'><?php echo $year; ?></td>
 		<td class='enrolmt_year'><?php echo $ioc; ?></td>
