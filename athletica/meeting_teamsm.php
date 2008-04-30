@@ -69,8 +69,8 @@ if ($_POST['arg']=="add_athlete")
 				// get top performance
 				$sql_xAthlet = "SELECT lizenznummer 
 								  FROM athlet
-						 	 LEFT JOIN anmeldung USING(xAthlet) 
-						 	 	 WHERE xAnmeldung = ".$_POST['athlete'].";";
+							 LEFT JOIN anmeldung USING(xAthlet) 
+								 WHERE xAnmeldung = ".$_POST['athlete'].";";
 				$query_xAthlet = mysql_query($sql_xAthlet);
 				
 				$licence = (mysql_num_rows($query_xAthlet)==1 && mysql_result($query_xAthlet, 0, 'lizenznummer')!='') ? mysql_result($query_xAthlet, 0, 'lizenznummer') : '';
@@ -172,6 +172,20 @@ if ($_GET['arg']=="del_athlete")
 		mysql_query("DELETE FROM teamsmathlet
 			WHERE	xTeamsm = ".$_GET['item']."
 			AND	xAnmeldung = ".$_GET['athlete']."");
+		
+		$sql = "SELECT xWettkampf 
+				  FROM teamsm 
+				 WHERE xTeamsm = ".$_GET['item'].";";
+		$query = mysql_query($sql);
+		
+		if($query && mysql_num_rows($query)==1){
+			$teamsm = mysql_fetch_assoc($query);
+			
+			$sql2 = "DELETE FROM start 
+						   WHERE xAnmeldung = ".$_GET['athlete']." 
+							 AND xWettkampf = ".$teamsm['xWettkampf'].";";
+			mysql_query($sql2);
+		}
 		
 		if(mysql_errno()>0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
