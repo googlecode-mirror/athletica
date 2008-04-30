@@ -1442,6 +1442,54 @@ function AA_getEventTypesCat(){
 		return $eventTypeCat;
 	}
 }
+
+/**
+     * get sort display order from disziplines
+     * ---------------------------------------
+     */                 
+ function AA_getSortDisc($discFrom, $discTo ){
+      $arrDisc=array();    
+      $arrDisc[0]=false;  
+      $result = mysql_query("SELECT d.xDisziplin, d.Anzeige"
+                                        . " FROM disziplin AS d" 
+                                        . " WHERE d.xDisziplin IN (" . $discFrom . ","  .  $discTo . ")");  
+                                                              
+                                        
+      if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+      }
+      else {
+                while($row = mysql_fetch_row($result)){
+                    $arrDisc[0]=true; 
+                    $arrDisc[$row[0]]=$row[1];
+                }
+            }   
+      return $arrDisc;    
+ }
+ 
+ /**
+     * get sort display order from categories
+     * --------------------------------------
+     */                 
+ function AA_getSortCat($catFrom, $catTo ){
+      $arrCat=array();   
+      $arrCat[0]=false; 
+      $result = mysql_query("SELECT k.xKategorie, k.Anzeige"
+                                        . " FROM kategorie AS k" 
+                                        . " WHERE k.xKategorie IN (" . $catFrom . ","  .  $catTo . ")");  
+                                        
+      if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+      }
+      else {  
+                while($row = mysql_fetch_row($result)){
+                    $arrCat[0]=true; 
+                    $arrCat[$row[0]]=$row[1];
+                }
+            } 
+      return $arrCat;     
+ }
+      
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>
