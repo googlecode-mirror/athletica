@@ -531,4 +531,6 @@ $strUpdateDownload = 'scarica';
 
 $strDay = 'Giorno';
 $strAll = 'tutti';
+$strOf2 = "da"; 
+$strTo2 = "fino a"; 
 ?>

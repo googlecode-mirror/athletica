@@ -670,4 +670,6 @@ $strMaxFileSize6 = 'Rédémarrez l\'ordinateur.';
 $strMaxFileSize7 = 'Supprimez le fichier <b>php.ini</b>.';
 $strMaxFileSize8 = 'Renommez le fichier <b>%NAME%</b> en <b>php.ini</b>.';
 $strMaxFileSizeOK = '<b>Athletica a automatiquement adapté le fichier de configuration PHP.<br/>Redémarrez l’ordinateur pour que les changements soient effectifs.</b><br/><br/><b>ATTENTION:</b> Si vous avez des problèmes au démarrage d\'Athletica, vous pouvez rétablir l\'ancien fichier de configuration PHP comme suit:';
+$strOf2 = "de"; 
+$strTo2 = "jusqu’à"; 
 ?>
