@@ -80,9 +80,12 @@ th.enrolmt_timeinfo { text-align:right; padding-left:0px; padding-right:5px;
 th.enrolmt_tic { width:10px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.enrolmt_nbr { width:40px; padding-left:5px; padding-right:5px;
+th.enrolmt_nbr { width:35px; padding-left:5px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.enrolmt_pos { width:35px; padding-left:5px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 th.enrolmt_name { width:240px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
@@ -101,6 +104,8 @@ td.enrolmt_tic { padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
 td.enrolmt_nbr { text-align:right; padding-left:0px; padding-right:10px;
 				padding-top:0px; padding-bottom:2px; }
+td.enrolmt_pos { text-align:right; padding-left:0px; padding-right:10px;
+                padding-top:0px; padding-bottom:2px; }
 td.enrolmt_name { padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
 td.enrolmt_year { padding-left:0px; padding-right:5px;
