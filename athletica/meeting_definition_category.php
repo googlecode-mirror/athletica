@@ -5,7 +5,7 @@
  *	-------------------------------
  *	
  */
-     
+	 
 require('./convtables.inc.php');
 
 require('./lib/cl_gui_button.lib.php');
@@ -54,7 +54,7 @@ else if ($_POST['arg']=="change_event")
 // change event data
 else if ($_POST['arg']=="change_event_discipline")
 {
-    AA_meeting_changeEventDiscipline();
+	AA_meeting_changeEventDiscipline();
 }
 // change type of combined event (needed for bestlist)
 else if($_POST['arg']=="change_combtype"){
@@ -75,10 +75,10 @@ else if($_POST['arg']=="change_combtype"){
 			if(mysql_num_rows($res) > 0){
 				AA_printErrorMsg($strDoubleCombinedEvent);
 			}else{  
-               
-                  mysql_query("LOCK TABLES kategorie READ, disziplin READ"
-                    . ", wettkampf WRITE");
-                    
+			   
+				  mysql_query("LOCK TABLES kategorie READ, disziplin READ"
+					. ", wettkampf WRITE");
+					
 			//	mysql_query("
 			//		UPDATE wettkampf
 			//			SET Mehrkampfcode = ".$_POST['combinedtype']."
@@ -86,25 +86,25 @@ else if($_POST['arg']=="change_combtype"){
 			//		AND Mehrkampfcode = ".$_POST['comb']."
 			//		AND xMeeting = ".$_COOKIE['meeting_id']."
 			//		");
-            
-                // delete combined event
-                
-                mysql_query("DELETE FROM wettkampf                                     
-                             WHERE xKategorie = ".$_POST['cat']."
-                    AND Mehrkampfcode = ".$_POST['comb']."
-                    AND xMeeting = ".$_COOKIE['meeting_id']."
-                    ");
-            
-            
+			
+				// delete combined event
+				
+				mysql_query("DELETE FROM wettkampf                                     
+							 WHERE xKategorie = ".$_POST['cat']."
+					AND Mehrkampfcode = ".$_POST['comb']."
+					AND xMeeting = ".$_COOKIE['meeting_id']."
+					");
+			
+			
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
-                else {  
-                         // add new combined event
-                        AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);                                                                                                  
-                }
-                
-             mysql_query("UNLOCK TABLES");    
+				else {  
+						 // add new combined event
+						AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);                                                                                                  
+				}
+				
+			 mysql_query("UNLOCK TABLES");    
 			}
 		}
 		
@@ -132,7 +132,7 @@ else if($_POST['arg']=="change_svmcat"){
 }
 // add a new combined contest
 elseif($_POST['arg']=="add_combtype"){
-	         
+			 
 	AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);
 	
 }
@@ -414,7 +414,7 @@ else			// no DB error
 	// display list
 	$i=0;
 	$k=0;
-    $c=0;           // count of combined disciplines
+	$c=0;           // count of combined disciplines
 	$comb=0;		// combined code
 	$cType = 0;
 	$cGroups = array();	// combined groups
@@ -443,7 +443,7 @@ else			// no DB error
 					Mehrkampfreihenfolge = $pos
 				WHERE
 					xWettkampf = ".$row[0]);
-           
+		   
 			
 		}
 		
@@ -464,7 +464,7 @@ else			// no DB error
 <?php
 			if($row[2] > $cfgEventType[$strEventTypeSingleCombined]
 				&& $row[2] != $cfgEventType[$strEventTypeTeamSM]) {		// not single event
-                
+				
 ?>
 	<th class='dialog'><?php echo $strConversionTable; ?></th>
 <?php
@@ -613,10 +613,10 @@ else			// no DB error
 		// first print header for different comb-types
 		if($row[2] == $cfgEventType[$strEventTypeSingleCombined]){     
 			if($comb != $row[7]){ 
-                $c=0;  
+				$c=0;  
 				
 				if($comb != 0){ //show entry for add new disc and close disc table
-                              
+							  
 					?>
 		<tr>
 			<form action='meeting_definition_category.php' method='post' name='newdiscipline_<?php echo $comb ?>'>
@@ -680,21 +680,6 @@ else			// no DB error
 				
 				// get count of groups of entrys for current combined event
 				$cGroups = array();
-				/*$res_c = mysql_query("	SELECT
-								DISTINCT(a.Gruppe) as g
-							FROM
-								wettkampf as w
-								, start as st
-								, anmeldung as a
-							WHERE
-								w.Mehrkampfcode = $row[7]
-							AND	w.xKategorie = $row[1]
-							AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-							AND	st.xWettkampf = w.xWettkampf
-							AND	a.xAnmeldung = st.xAnmeldung
-							AND	a.Gruppe != ''
-							ORDER BY
-								g");*/
 				$sql = "SELECT
 							DISTINCT(a.Gruppe) as g
 						FROM
@@ -773,92 +758,92 @@ else			// no DB error
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
 			<input type="hidden" name="nocat" value="1"/> 
 			
-            <?php
-         
-            if(!empty($_POST['combinedtype']) || !empty($_POST['cmbtype']) || !empty($row[7])  ){
-                if  (!empty($_POST['combinedtype'])) {
-                    $t = $_POST['combinedtype'];
-                }
-                elseif  (!empty($_POST['cmbtype'])) {
-                          $t = $_POST['cmbtype'];
-                }
-                elseif  (!empty($row[7])) {
-                          $t = $row[7];
-                }                 
-                               
-                // check if combined type has predefined disciplines
-                            
-                $sql_k = "SELECT 
-                                Geschlecht 
-                          FROM 
-                                kategorie 
-                          WHERE 
-                                xKategorie = ".$category.";";  
-                                
-                $query_k = mysql_query($sql_k);                   
-                $row_k = mysql_fetch_assoc($query_k);
-                                                      
-                $my_tmp = $t;
-                if($my_tmp==394 && ($row_k['Geschlecht']=='m' || $row_k['Geschlecht']=='M')){
-                    $my_tmp = 3942;
-                }
-               
-                if(isset($cfgCombinedDef[$my_tmp])){
-                    $tt = $cfgCombinedDef[$my_tmp];   
-                    
-                    ?>
-                    <td class='forms'>            
-                    <input name='cmbtype' type='hidden' value='<?php echo $t; ?>' />
-                    <?php
-                    $dropdown = new GUI_Select('discipline_cmb', 1, "document.event_neu_$row[0].submit()");                                       
-                         
-                    $res_d = mysql_query("SELECT 
-                                                xDisziplin
-                                                , Name
-                                                , Code 
-                                          FROM 
-                                                disziplin");  
-                    $val=$cfgCombinedWO[$tt][$c];
-                    
-                    while ($row_d = mysql_fetch_array($res_d)){  
-                        if(!empty($_POST['combinedtype'])){  
-                             if($row_d[2] == $row[16]) {                                         
-                                $dropdown->selectOption($row[16]);
-                            }
-                        }                            
-                        else {
-                             $dropdown->selectOption($row[16]);                                       
-                        }                           
-                                    
-                    $dropdown->addOption( $row_d[1],$row_d[2]);   
-                    }                 
-                $dropdown->printList();  
-                       
-                $c++;                                       // count of combined disciplines  
-                }
-                 else {                    
-                     ?>
-                     <td class='dialog'><?php echo $row[6]; ?></td>
-                     </td>
-                     <?php                      
-                 }                   
-               ?> 
-            </td>
-            </form>     
-             <?php       
-            }             
+			<?php
+		 
+			if(!empty($_POST['combinedtype']) || !empty($_POST['cmbtype']) || !empty($row[7])  ){
+				if  (!empty($_POST['combinedtype'])) {
+					$t = $_POST['combinedtype'];
+				}
+				elseif  (!empty($_POST['cmbtype'])) {
+						  $t = $_POST['cmbtype'];
+				}
+				elseif  (!empty($row[7])) {
+						  $t = $row[7];
+				}                 
+							   
+				// check if combined type has predefined disciplines
+							
+				$sql_k = "SELECT 
+								Geschlecht 
+						  FROM 
+								kategorie 
+						  WHERE 
+								xKategorie = ".$category.";";  
+								
+				$query_k = mysql_query($sql_k);                   
+				$row_k = mysql_fetch_assoc($query_k);
+													  
+				$my_tmp = $t;
+				if($my_tmp==394 && ($row_k['Geschlecht']=='m' || $row_k['Geschlecht']=='M')){
+					$my_tmp = 3942;
+				}
+			   
+				if(isset($cfgCombinedDef[$my_tmp])){
+					$tt = $cfgCombinedDef[$my_tmp];   
+					
+					?>
+					<td class='forms'>            
+					<input name='cmbtype' type='hidden' value='<?php echo $t; ?>' />
+					<?php
+					$dropdown = new GUI_Select('discipline_cmb', 1, "document.event_neu_$row[0].submit()");                                       
+						 
+					$res_d = mysql_query("SELECT 
+												xDisziplin
+												, Name
+												, Code 
+										  FROM 
+												disziplin");  
+					$val=$cfgCombinedWO[$tt][$c];
+					
+					while ($row_d = mysql_fetch_array($res_d)){  
+						if(!empty($_POST['combinedtype'])){  
+							 if($row_d[2] == $row[16]) {                                         
+								$dropdown->selectOption($row[16]);
+							}
+						}                            
+						else {
+							 $dropdown->selectOption($row[16]);                                       
+						}                           
+									
+					$dropdown->addOption( $row_d[1],$row_d[2]);   
+					}                 
+				$dropdown->printList();  
+					   
+				$c++;                                       // count of combined disciplines  
+				}
+				 else {                    
+					 ?>
+					 <td class='dialog'><?php echo $row[6]; ?></td>
+					 </td>
+					 <?php                      
+				 }                   
+			   ?> 
+			</td>
+			</form>     
+			 <?php       
+			}             
 
-            ?>             
-            <form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
-            <input type="hidden" name="arg" value="change_event">
-            <input type="hidden" name="g" value="">
-            <input type="hidden" name="round" value="">
-            <input type="hidden" name="item" value="<?php echo $row[0] ?>">
-            <input type="hidden" name="info" value="<?php echo $row[13] ?>">
-            <input type="hidden" name="last" value="<?php echo $row[14] ?>">
-            <input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
-            <input type="hidden" name="nocat" value="1"/>             
-            
+			?>             
+			<form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
+			<input type="hidden" name="arg" value="change_event">
+			<input type="hidden" name="g" value="">
+			<input type="hidden" name="round" value="">
+			<input type="hidden" name="item" value="<?php echo $row[0] ?>">
+			<input type="hidden" name="info" value="<?php echo $row[13] ?>">
+			<input type="hidden" name="last" value="<?php echo $row[14] ?>">
+			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
+			<input type="hidden" name="nocat" value="1"/>             
+			
 			<td class='forms'>
 			<?php
 			if($row[3]>=100){
@@ -1062,20 +1047,6 @@ else			// no DB error
 			
 			// get count of groups of entrys for current event
 			$cGroups = array();
-			/*$res_c = mysql_query("	SELECT
-							DISTINCT(a.Gruppe) as g
-						FROM
-							wettkampf as w
-							, start as st
-							, anmeldung as a
-						WHERE
-							w.xWettkampf = $row[0]
-						AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-						AND	st.xWettkampf = w.xWettkampf
-						AND	a.xAnmeldung = st.xAnmeldung
-						AND	a.Gruppe != ''
-						ORDER BY
-							g");*/
 			$sql = "SELECT
 						DISTINCT(a.Gruppe) AS g
 					FROM
@@ -1252,6 +1223,30 @@ else			// no DB error
 		?>
 	</table>
 <br>
+
+<!--<table class='dialog'>
+<tr>
+	<th class='dialog'><?php echo $strEventType; ?></th>
+</tr>
+<tr>
+	<form action='meeting_definition_category.php?arg=create_combined&cat=<?=$_GET['cat']?>' method='post' name='frmType'>
+<?php
+			// event type drop down
+			$sel = (isset($_POST['change_type'])) ? $_POST['change_type'] : $cfgEventType[$strEventTypeSingleCombined];
+			$dd = new GUI_ConfigDropDown('change_type', 'cfgEventType', $sel, "document.frmType.submit()");
+
+			// conversion table drop down
+			if($row[2] > $cfgEventType[$strEventTypeSingleCombined]
+				&& $row[2] != $cfgEventType[$strEventTypeTeamSM]) 		// not single event
+			{
+				$dd = new GUI_ConfigDropDown('conv', 'cvtTable', $row[3], "selectNewConvtable()");
+			}
+?>
+	</form>
+</tr>
+</table>
+<br>-->
+
 <table class='dialog'>
 <tr>
 <th class='dialog'><?php echo $strNew." ".$strCombinedDiscipline; ?></th>
