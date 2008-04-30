@@ -221,11 +221,12 @@ if($_GET['arg'] == 'change')
 		}
 		else
 		{
-
-			mysql_query("UPDATE start SET 
+			$sql = "UPDATE start SET 
 						Anwesend='$present'
 						, Bezahlt='$payed'
-						WHERE xStart='" . $_GET['item'] . "'");
+						WHERE xStart='" . $_GET['item'] . "'";
+			//echo $sql;
+			mysql_query($sql);
 
 		
 		
@@ -348,13 +349,13 @@ if ($arg=="nbr") {
 	$argument="at.Name, at.Vorname";
 	$img_name="img/sort_act.gif";
 } else if ($arg=="club") {
-	$argument="v.Sortierwert, a.Startnummer";
+	$argument="v.Sortierwert, a.Startnummer, d.Anzeige";
 	$img_club="img/sort_act.gif";
 } else if ($arg=="relay") {
 	$argument="st.Name";
 	$img_name="img/sort_act.gif";
 } else if ($arg=="relay_club") {
-	$argument="v.Sortierwert, st.Name";
+	$argument="v.Sortierwert, st.Name, d.Anzeige";
 	$img_club="img/sort_act.gif";
 } else if($relay == FALSE) {		// single event
 	$argument="at.Name, at.Vorname";
@@ -580,36 +581,37 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 <table class='dialog'>
 	<tr>
 		<th class='dialog'>
-			<?php echo $strPresent; ?>
+			<?= $strPresent; ?>
 		</th>
 <?php
 	if($relay == FALSE)		// single event
 	{
 ?>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=nbr&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strStartnumber; ?>
-				<img src='<?php echo $img_nbr; ?>' />
+			<a href='event_enrolement.php?arg=nbr&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>'><?= $strStartnumber; ?>
+				<img src='<?= $img_nbr; ?>' />
 			</a>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=payed&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strPayed; ?>
+			<?php /*<a href='event_enrolement.php?arg=payed&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'>*/?>
+			<?= $strPayed; ?>
 
-				<img src='<?php echo $img_name; ?>' />
+				<?php /*<img src='<?= $img_name; ?>' />*/?>
 			</a>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=name&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strName; ?>
+			<a href='event_enrolement.php?arg=name&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>'><?= $strName; ?>
 
-				<img src='<?php echo $img_name; ?>' />
+				<img src='<?= $img_name; ?>' />
 			</a>
 		</th>
 
 		<th class='dialog'>
-		<?php echo $strYear; ?>
+		<?= $strYear; ?>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=club&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strClub; ?>
-				<img src='<?php echo $img_club; ?>' />
+			<a href='event_enrolement.php?arg=club&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>'><?= $strClub; ?>
+				<img src='<?= $img_club; ?>' />
 			</a>
 		</th> 
 		<?php  
@@ -618,14 +620,14 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			 if ($event==0){  
 			 ?>
 			  <th class='dialog'>
-			  <?php echo $strDiscipline; ?>
+			  <?= $strDiscipline; ?>
 			  </th>
 			  <?php 
 			  if ($mDate==''  || $mDate=='%' ){ 
 					if ($tage>1) {
 					?>    
 					<th class='dialog'>
-					<?php echo $strDate; ?>    
+					<?= $strDate; ?>    
 					</th>
 					<?php
 					}      
@@ -640,31 +642,32 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		{
 ?>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=nbr&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strStartnumber; ?>
-				<img src='<?php echo $img_nbr; ?>' />
+			<a href='event_enrolement.php?arg=nbr&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strStartnumber; ?>
+				<img src='<?= $img_nbr; ?>' />
 			</a>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=payed&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strPayed; ?>
-				<img src='<?php echo $img_name; ?>' />
+			<?php /*<a href='event_enrolement.php?arg=payed&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strPayed; ?>
+				<img src='<?= $img_name; ?>' />
+			</a>*/?>
+			<?= $strPayed; ?>
+		</th>
+		<th class='dialog'>
+			<a href='event_enrolement.php?arg=name&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strName; ?>
+				<img src='<?= $img_name; ?>' />
 			</a>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=name&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strName; ?>
-				<img src='<?php echo $img_name; ?>' />
+		<?= $strYear; ?>
+		</th>
+		<th class='dialog'>
+			<a href='event_enrolement.php?arg=relay&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strRelays; ?>
+				<img src='<?= $img_name; ?>' />
 			</a>
 		</th>
 		<th class='dialog'>
-		<?php echo $strYear; ?>
-		</th>
-		<th class='dialog'>
-			<a href='event_enrolement.php?arg=relay&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strRelays; ?>
-				<img src='<?php echo $img_name; ?>' />
-			</a>
-		</th>
-		<th class='dialog'>
-			<a href='event_enrolement.php?arg=relay_club&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strClub; ?>
-				<img src='<?php echo $img_club; ?>' />
+			<a href='event_enrolement.php?arg=relay_club&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strClub; ?>
+				<img src='<?= $img_club; ?>' />
 			</a>
 		</th>
 <?php
@@ -973,7 +976,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					, at.Name
 					, at.Vorname
 					, at.Jahrgang
-					, s.Bezahlt
+					, s2.Bezahlt
 					, d.Name
 				FROM
 					staffel AS st
@@ -989,7 +992,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					anmeldung AS a USING(xAnmeldung)
 				LEFT JOIN
 					athlet AS at USING(xAthlet)
-				 LEFT JOIN
+				LEFT JOIN
 					wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 				LEFT JOIN
 					disziplin AS d ON(w.xDisziplin = d.xDisziplin)
@@ -1001,7 +1004,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					".$argument.";";
 		$query = $sql;
 	}
-	
+	//echo $query;
 	$result = mysql_query($query);
 	
 	if(mysql_errno() > 0)		// DB error
@@ -1045,7 +1048,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				$present = 1;
 				$checked = "";
 			}
-			
+		
 			printf("<td class='forms_ctr'>");
 			printf("<input name='arg' type='hidden' value='change' />");
 			printf("<input name='item' type='hidden' value='$row[0]' />");
@@ -1062,15 +1065,11 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					. " onClick='document.change_present_$i.submit()' />\n");
 			printf("</td>\n");
 			
-			switch ($row['Bezahlt']) {
-				case 'n':
-					$payed_checked = '';
-					break;
-				case 'y':
-					$payed_checked = 'checked="checked"';
-					break;
-				default:
-					$payed_checked = '';
+			
+			if ($row['Bezahlt']=="y") {
+				$payed_checked = 'checked="checked"';
+			} else {
+				$payed_checked = '';
 			}
 			 
 			if($relay == FALSE)			// single event
