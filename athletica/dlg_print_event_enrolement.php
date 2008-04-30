@@ -38,6 +38,29 @@ if(isset($_GET['comb'])){
 	$comb = $_GET['comb'];
 }
 
+$catFrom = 0;
+if(isset($_GET['catFrom'])){
+    $catFrom = $_GET['catFrom'];
+}
+
+$catTo = 0;
+if(isset($_GET['catTo'])){
+    $catTo = $_GET['catTo'];
+}
+$discFrom = 0;
+if(isset($_GET['discFrom'])){
+    $discFrom = $_GET['discFrom'];
+}
+$discTo = 0;
+if(isset($_GET['discTo'])){
+    $discTo = $_GET['discTo'];
+}
+
+$mDate = "";
+if(isset($_GET['mDate'])){
+    $mDate = $_GET['mDate'];
+}
+
 
 $page = new GUI_Page('dlg_print_event_enrolement');
 $page->startPage();
@@ -56,6 +79,11 @@ $menu->printMenu();*/
 <input type="hidden" name="category" value="<?php echo $category ?>">
 <input type="hidden" name="event" value="<?php echo $event ?>">
 <input type="hidden" name="comb" value="<?php echo $comb ?>">
+<input type="hidden" name="catFrom" value="<?php echo $catFrom ?>"> 
+<input type="hidden" name="catTo" value="<?php echo $catTo ?>"> 
+<input type="hidden" name="discFrom" value="<?php echo $discFrom ?>"> 
+<input type="hidden" name="discTo" value="<?php echo $discTo ?>"> 
+<input type="hidden" name="mDate" value="<?php echo $mDate ?>"> 
 
 <table class='dialog'>
 	<tr>

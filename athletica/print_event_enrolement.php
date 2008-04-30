@@ -6,7 +6,7 @@
  *	-------------------------
  *	
  */
-
+     
 include('./config.inc.php');
 require('./lib/common.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
@@ -22,25 +22,53 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 $cCat = 0; // vars for combined event
 $cCode = 0;
 
-if(!empty($_GET['event'])) {
-	$argument = "w.xWettkampf = " . $_GET['event'];
+$argument = "w.xMeeting = " . $_COOKIE['meeting_id'];   
+
+if ((($_GET['catFrom'] > 0)  ||  ($_GET['discFrom'] > 0 || $_GET['mDate'] != '')) ) {     
+    if ($_GET['catFrom'] > 0 & $_GET['discFrom'] > 0){
+        $catFrom=$_GET['catFrom']; 
+        $catTo=$_GET['catTo']; 
+           $argument = "w.xKategorie >= " . $_GET['catFrom'] . " AND w.xKategorie <= " . $_GET['catTo'] 
+           . " AND w.xDisziplin >= " . $_GET['discFrom'] . " AND w.xDisziplin <= " . $_GET['discTo'] 
+           . " AND w.xMeeting = " . $_COOKIE['meeting_id']; 
+    }  
+    else
+    if ($_GET['catFrom'] > 0){  
+        $catFrom=$_GET['catFrom']; 
+        $catTo=$_GET['catTo']; 
+           $argument = "w.xKategorie >= " . $_GET['catFrom'] . " AND w.xKategorie <= " . $_GET['catTo'] 
+         . " AND w.xMeeting = " . $_COOKIE['meeting_id']; 
+    }
+    else
+        {
+          $discFrom=$_GET['discFrom']; 
+          $discTo=$_GET['discTo']; 
+          $argument = " w.xDisziplin >= " . $_GET['discFrom'] . " AND w.xDisziplin <= " . $_GET['discTo']
+        . " AND w.xMeeting = " . $_COOKIE['meeting_id']; 
+        }
+    if  (!empty($_GET['mDate'])) { 
+         $mDate=$_GET['mDate'];
+         $argument .= " AND r.Datum = '" . $_GET['mDate'] ."'"
+         . " AND w.xMeeting = " . $_COOKIE['meeting_id'];    
+    }
 }
-else if(!empty($_GET['category'])) {
-	$argument = "w.xKategorie = " . $_GET['category']
+else {     
+    if(!empty($_GET['event'])) {
+	    $argument = "w.xWettkampf = " . $_GET['event'];
+    }
+    else if(!empty($_GET['category'])) {
+	    $argument = "w.xKategorie = " . $_GET['category']
 				. " AND w.xMeeting = " . $_COOKIE['meeting_id']
 				. " AND d.Appellzeit > 0";
-}
-elseif(!empty($_GET['comb'])){
-	list($cCat, $cCode) = explode("_", $_GET['comb']);
-	$argument = "w.xKategorie = $cCat
+    }
+    elseif(!empty($_GET['comb'])){
+	    list($cCat, $cCode) = explode("_", $_GET['comb']);
+	    $argument = "w.xKategorie = $cCat
 			AND w.Mehrkampfcode = $cCode
 			AND w.xMeeting = ". $_COOKIE['meeting_id'];
+    }
 }
-else {
-	$argument = "w.xMeeting = " . $_COOKIE['meeting_id'];
-				//. " AND d.Appellzeit > 0";
-}
-
+ 
 $pagebreak = "no";
 if(isset($_GET['pagebreak'])){
 	$pagebreak = $_GET['pagebreak'];
@@ -48,7 +76,7 @@ if(isset($_GET['pagebreak'])){
 
 // start a new HTML page for printing
 $doc = new PRINT_EnrolementPage($_COOKIE['meeting']);
-
+       
 // get event title data
 $result = mysql_query("SELECT d.Name"
 					. ", k.Name"
@@ -72,7 +100,7 @@ $result = mysql_query("SELECT d.Name"
 					. " AND d.xDisziplin = w.xDisziplin"
 					. " AND k.xKategorie = w.xKategorie"
 					. " ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit");
-
+      
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -84,8 +112,9 @@ else
 	$xCat = 0;
 	$xComb = 0;
 	
-	while($row = mysql_fetch_row($result))
-	{
+	while($row = mysql_fetch_row($result))   
+	{   
+        $discHeader=($row[0]!='') ? $row[0] : $row[11];                              
 		if($row[4] != $event)	// only first round per event
 		{
 			// change round status only if nothing done yet
@@ -118,6 +147,7 @@ else
 		  if($combined && $xComb == $row[10]){
 			  continue;
 		  }
+          
 		  $xComb = $row[10];
 		  
 		  if($combined){
@@ -138,7 +168,65 @@ else
 		  $ot .= ")";
 		  $doc->time = $strEnrolement. ": " . $row[2] . $et;
 		  $doc->timeinfo = $ot;
-
+                   
+          if ($event > 0 && ($catFrom == '' ||  $discFrom == '') ) {  
+            $sqlEvents = " WHERE s.xWettkampf = ".$event." ";
+          }  
+            
+          if ($catFrom > 0 && $discFrom > 0){ 
+                $getSortDisc = AA_getSortDisc($discFrom,$discTo);         // sort display from category
+                $getSortCat = AA_getSortCat($catFrom,$catTo);             // sort display from dicipline 
+                if ($getSortCat[0] && $getSortDisc[0]){ 
+                    if ($catTo > 0)     
+                        $sqlEvents = " WHERE k.Anzeige >= ".$getSortCat[$catFrom]." AND k.Anzeige <= ".$getSortCat[$catTo]." ";
+                    else
+                        $sqlEvents = " WHERE k.Anzeige = ".$$getSortCat[$catFrom]." "; 
+                    if ($discTo > 0)                              
+                        $sqlEvents .= " AND d.Anzeige >= ".$getSortDisc[$discFrom]." AND d.Anzeige <= ".$getSortDisc[$discTo]." "; 
+                    else
+                        $sqlEvents .= " AND d.Anzeige = ".$getSortDisc[$discFrom]." ";  
+                    $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id']; 
+                } 
+                else    
+                    $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id']; 
+                    
+                $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
+         }
+         elseif ($catFrom > 0){ 
+                $getSortCat = AA_getSortCat($catFrom,$catTo);             // sort display from category  
+                if ($getSortCat[0]) {  
+                    if ($catTo > 0)     
+                        $sqlEvents = " WHERE k.Anzeige >= ".$getSortCat[$catFrom]." AND k.Anzeige <= ".$getSortCat[$catTo]." ";
+                    else
+                        $sqlEvents = " WHERE k.Anzeige = ".$getSortCat[$catFrom]." ";  
+                    $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id']; 
+                }
+                else
+                    $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];  
+                $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
+         }
+         elseif ($discFrom > 0) {
+                $getSortDisc = AA_getSortDisc($discFrom,$discTo);          // sort display from dicipline
+                if ($getSortDisc[0]){   
+                    if ($discTo > 0)                              
+                        $sqlEvents = " WHERE  d.Anzeige >= ".$getSortDisc[$discFrom]." AND d.Anzeige <= ".$getSortDisc[$discTo]." "; 
+                    else
+                        $sqlEvents = " WHERE d.Anzeige = ".$getSortDisc[$discFrom]." "; 
+                    $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id']; 
+                }
+                else
+                    $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];  
+                    
+                $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";    
+         }    
+         
+         if ($mDate > 0){
+                if ($sqlEvents!='')
+                    $sqlEvents.=" AND r.Datum = '" . $mDate . "' ";
+                else
+                    $sqlEvents.=" r.Datum = '" . $mDate . "' ";    
+         }
+                     
 		  // read event entries
 		  if($relay == FALSE) {		// single event
 			  if($combined){
@@ -167,7 +255,7 @@ else
 						  . " GROUP BY a.xAnmeldung"
 						  . " ORDER BY at.Name, at.Vorname";
 			  }else{
-				  $query = "SELECT a.Startnummer"
+				  $query = "SELECT DISTINCT a.Startnummer"
 						  . ", at.Name"
 						  . ", at.Vorname"
 						  . ", at.Jahrgang"
@@ -175,6 +263,7 @@ else
 						  . ", s.Bestleistung"
 						  . ", d.Typ"
 						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
+                           . ", d.Name" 
 						  . " FROM anmeldung AS a"
 						  . ", athlet AS at"
 						  . ", start AS s"
@@ -182,12 +271,16 @@ else
 						  . "  LEFT JOIN region as re ON at.xRegion = re.xRegion"
 						  . "  LEFT JOIN wettkampf as w ON s.xWettkampf = w.xWettkampf"
 						  . "  LEFT JOIN disziplin as d ON w.xDisziplin = d.xDisziplin"
+                          . "  LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)"   
 						  . "  LEFT JOIN team as t ON a.xTeam = t.xTeam"
-						  . " WHERE s.xWettkampf = " . $event
+                          . " LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) "
+                          . $sqlEvents   
+                          . " AND w.Mehrkampfcode = 0 " 
 						  . " AND s.xAnmeldung = a.xAnmeldung"
 						  . " AND a.xAthlet = at.xAthlet"
 						  . " AND at.xVerein = v.xVerein"
-						  . " ORDER BY $sortAddition at.Name, at.Vorname";
+                          . $sqlGroup
+						  . " ORDER BY $sortAddition at.Name, at.Vorname";    
 			  }
 		  }
 		  else {							// relay event
@@ -212,6 +305,7 @@ else
 					. ", at.Vorname"
 					. ", at.Jahrgang"
 					. ", at.Land"
+                    . ", stat.Position"    
 					. " FROM staffel AS st"
 					. ", start AS s"
 					. ", verein AS v"
@@ -230,9 +324,9 @@ else
 					. " GROUP BY stat.xAthletenstart"
 					. " ORDER BY $sortAddition v.Sortierwert, st.Name, a.Startnummer";
 		  }
-
+         
 		  $res = mysql_query($query);
-
+         
 		  if(mysql_errno() > 0)		// DB error
 		  {
 			  AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -240,16 +334,23 @@ else
 		  else if(mysql_num_rows($res) > 0)  // data found
 		  {
 			  $l = 0;		// line counter
-
+              
 			  // full list
 			  while ($row = mysql_fetch_row($res))
-			  {
+			  {   
+                  if (!$relay){        // not relay and not combined        
+                        // print only disciplines related to header 
+                        if ($row[8]!=$discHeader & $xComb==0 ){ 
+                            continue;
+                         }
+                  }
+                  
 				  if($l == 0) {					// new page, print header line
 					  $doc->printTitle();
 					  printf("<table>\n");
 					  $doc->printHeaderLine($relay, $svm);
-				  }
-
+				  }               
+                  
 				  if($relay == FALSE)
 				  {
 						// show top performance of athletes
@@ -273,13 +374,14 @@ else
 							AA_formatYearOfBirth($row[3]), $row[4], $row[7], $perf);
 				  }
 				  else
-				  {
-						$doc->printLine($row[4], $row[5] . " " . $row[6],
-							AA_formatYearOfBirth($row[7]), $row[2], $row[8], "", $row[3]);
+				  {     echo " row 4=$row[4]";    echo " row 9=$row[9]"; echo "row 5=$row[5]";  
+						$doc->printLine($row[4],  $row[5] . " " . $row[6],
+							AA_formatYearOfBirth($row[7]), $row[2], $row[8], "", $row[3], $row[9]);
 						//$doc->printLine('', $row[0], '', $row[1]);
 				  }
 				  $l++;			// increment line count
 			  }
+             
 			  printf("</table>\n");
 			  mysql_free_result($res);
 		  }		// ET DB error

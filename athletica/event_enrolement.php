@@ -4,8 +4,8 @@
  *	event_enrolement.php
  *	--------------------
  *	
- */
-
+ */    
+      
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -21,7 +21,71 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
 
+ 
+ 
+ if (!empty($_POST['arg'] )) {
+    if ($_POST['arg'] =='change_catFrom')   
+        $catFrom=$_POST['category'];
+        $catTo=$_POST['category'];     
+}          
+ 
+if (!empty($_POST['arg'] )) {
+     if ($_POST['arg'] =='change_catTo') 
+        $catTo=$_POST['category'];    
+} 
 
+if (!empty($_POST['arg'] )) {
+     if ($_POST['arg'] =='change_discFrom')
+        $discFrom=$_POST['discipline'];
+        $discTo=$_POST['discipline'];   
+}
+if (!empty($_POST['arg'] )) {
+     if ($_POST['arg'] =='change_discTo')
+        $discTo=$_POST['discipline'];  
+} 
+if (!empty($_POST['arg'] )) {
+    if ($_POST['arg'] =='change_mDate')  
+        $mDate=$_POST['date']; 
+}                                                          
+
+if  (!empty($_POST['catFrom']) && $_POST['arg'] !='change_catFrom'){
+     $catFrom=$_POST['catFrom']; 
+    
+}
+if  (!empty($_POST['catTo']) && $_POST['arg'] !='change_catTo'){
+     $catTo=$_POST['catTo'];      
+}
+if  (!empty($_POST['discFrom']) && $_POST['arg'] !='change_discFrom') {
+     $discFrom=$_POST['discFrom']; 
+
+}
+if  (!empty($_POST['discTo']) && $_POST['arg'] !='change_discTo'){
+     $discTo=$_POST['discTo']; 
+
+}
+if  (!empty($_POST['mDate']) && $_POST['arg'] !='change_mDate'){
+     $mDate=$_POST['mDate']; 
+
+}
+
+if  (!empty($_GET['catFrom'])) {
+     $catFrom=$_GET['catFrom'];  
+}
+if  (!empty($_GET['catTo'])) {
+     $catTo=$_GET['catTo'];  
+}
+if  (!empty($_GET['discFrom'])) {
+     $discFrom=$_GET['discFrom'];  
+}
+if  (!empty($_GET['discTo'])) {
+     $discTo=$_GET['discTo'];  
+}
+ 
+if  (!empty($_GET['mDate'])) {
+     $mDate=$_GET['mDate'];  
+}                           
+
+ 
 // get presets
 if(!empty($_GET['category'])) {
 	$category = $_GET['category'];
@@ -59,7 +123,9 @@ else {
 //	Check if relay event
 //
 $relay = AA_checkRelay($event);
-$combined = AA_checkCombined($event, $round);
+$combined = AA_checkCombined($event, $round);        
+
+
 
 //
 // Update absent status
@@ -132,7 +198,7 @@ if($_GET['arg'] == 'change')
 						AND	
 							start.xAnmeldung='" . $_GET['entry']."';";
 				mysql_query($sql);
-				//echo $sql;
+				
 				if(mysql_errno() > 0){
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
@@ -163,7 +229,7 @@ if($_GET['arg'] == 'change')
 		}
 	}
 	
-	mysql_query("UNLOCK TABLES");
+	mysql_query("UNLOCK TABLES"); 
 }
 
 //
@@ -246,17 +312,17 @@ else if($_GET['arg'] == 'terminate')
 
 $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_enrolement'])) ? $_COOKIE['sort_enrolement'] : 'nbr');
 setcookie('sort_enrolement', $arg, time()+2419200);
-
+    
 //
 //	Display enrolement list
 //
-
+   
 $page = new GUI_Page('event_enrolement', TRUE);
 $page->startPage();
 $page->printPageTitle($strEnrolement . ": " . $_COOKIE['meeting']);
 
 $menu = new GUI_Menulist();
-$menu->addButton("dlg_print_event_enrolement.php?category=$category&event=$event&comb=$comb", $strPrint." ...", '_self');
+$menu->addButton("dlg_print_event_enrolement.php?category=$category&event=$event&comb=$comb&catFrom=$catFrom&catTo=$catTo&discFrom=$discFrom&discTo=$discTo&mDate=$mDate", $strPrint." ...", '_self');
 $menu->addButton($cfgURLDocumentation . 'help/event/enrolement.html', $strHelp, '_blank');
 $menu->printMenu();
 
@@ -264,7 +330,7 @@ $menu->printMenu();
 $img_nbr="img/sort_inact.gif";
 $img_name="img/sort_inact.gif";
 $img_club="img/sort_inact.gif";
-
+        
 if ($arg=="nbr") {
 	$argument="a.Startnummer";
 	$img_nbr="img/sort_act.gif";
@@ -287,6 +353,8 @@ if ($arg=="nbr") {
 	$argument="st.Name";
 	$img_name="img/sort_act.gif";
 }
+
+ 
 ?>
 <p />
 
@@ -301,11 +369,127 @@ if ($arg=="nbr") {
 		<?php	AA_printEventCombinedSelection('event_enrolement.php', $category, $comb, 'get'); ?>
 	</td>
 </tr></table>
+ <br>
+<table>   
+
+    <tr>       
+                <th class='dialog'><?php echo $strCategory . " "; echo $strOf2;?></th>
+                 <form action='event_enrolement.php' method='post' name='catFrom' > 
+                    <input name='arg' type='hidden' value='change_catFrom' /> 
+                     <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+                      <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' /> 
+                      <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+                       <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' /> 
+                       <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />       
+                <?php                          
+                $dd = new GUI_CategoryDropDown($catFrom,'document.catFrom.submit()', false);
+                ?>
+                </form>
+                 <th class='dialog'><?php echo $strCategory. " "; echo $strTo2; ?></th>
+                 <form action='event_enrolement.php' method='post' name='catTo' > 
+                 <input name='arg' type='hidden' value='change_catTo' /> 
+                 <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' />  
+                 <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+                  <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' />  
+                   <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />   
+                   <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />    
+                <?php
+                $dd = new GUI_CategoryDropDown($catTo,'document.catTo.submit()', false);
+                ?>
+                 </form>   
+            </tr>
+    <tr>
+                
+                <th class='dialog'><?php echo $strDiscipline. " "; echo $strOf2;?></th>
+                 <form action='event_enrolement.php' method='post' name='discFrom' > 
+                    <input name='arg' type='hidden' value='change_discFrom' /> 
+                     <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+                     <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />  
+                      <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+                       <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' /> 
+                       <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />       
+                <?php     
+                $dd = new GUI_DisciplineDropDown($discFrom,'','','','document.discFrom.submit()');
+                ?>
+                 </form> 
+                 <th class='dialog'><?php echo $strDiscipline. " "; echo $strTo2; ?></th> 
+                  <form action='event_enrolement.php' method='post' name='discTo' > 
+                    <input name='arg' type='hidden' value='change_discTo' /> 
+                     <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+                      <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' />    
+                     <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />   
+                      <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+                      <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />     
+                
+                <?php
+                $dd = new GUI_DisciplineDropDown($discTo,'','','','document.discTo.submit()');   
+                ?>
+                 </form>   
+    </tr>
+    <tr>
+                <form action='event_enrolement.php' method='post' name='mDate' > 
+                    <input name='arg' type='hidden' value='change_mDate' /> 
+                     <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+                     <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />  
+                      <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+                       <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' />  
+                       <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />   
+                <?php 
+                
+                $tage = 1;
+                $sql_day = "SELECT 
+                            DISTINCT(Datum) AS Datum 
+                        FROM 
+                            runde 
+                        LEFT JOIN wettkampf USING(xWettkampf) 
+                        WHERE xMeeting = ".$_COOKIE['meeting_id']." 
+                        ORDER BY Datum ASC;";
+                        
+                $query_day = mysql_query($sql_day);
+               
+                $tage = mysql_num_rows($query_day);
+                
+                if($tage>1){
+                    ?> 
+                 
+                    <th class='dialog'>
+                    <?php echo $strDay; ?></input>
+                    </th>
+                 
+                    <td class='forms'>
+                        <select name='date' onchange='document.mDate.submit()'>
+                        <option value="%">- <?=$strAll?> -</option>
+                    <?php
+                        while($row = mysql_fetch_assoc($query_day)){     
+                            
+                            if ($row['Datum'] == $mDate) {                                  
+                                ?>
+                                <option selected="<?php $mDate ?>" value="<?=$row['Datum']?>"><?=date('d.m.Y', strtotime($row['Datum']))?> </option>
+                                <?php
+                            }
+                            else {
+                            ?>
+                            <option value="<?=$row['Datum']?>"><?=date('d.m.Y', strtotime($row['Datum']))?> </option>
+                            <?php
+                            }
+                       }
+                    ?>
+                            </select>
+                
+                     <?php
+                       }
+                    ?>
+                
+                    </form> 
+                    </td>
+                 </tr>
+
+</table>
 
 <?php
 
-if($event > 0 || $comb > 0)
-{
+if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
+{   
 	// check if enrolement pending for this event
 	if($comb > 0){ // combined event selected
 		/*$result = mysql_query("
@@ -345,7 +529,8 @@ if($event > 0 || $comb > 0)
 					, r.Startzeit ASC;";
 		$result = mysql_query($sql);
 	}else{ // normal single event
-		$result = mysql_query("
+		  
+        $result = mysql_query("
 			SELECT
 				xRunde
 			FROM
@@ -364,7 +549,7 @@ if($event > 0 || $comb > 0)
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else if(mysql_num_rows($result) > 0)  // data found
-	{
+	{   
 		$row = mysql_fetch_row($result);
 		$round=$row[0];
 
@@ -392,12 +577,12 @@ if($event > 0 || $comb > 0)
 	{
 ?>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=nbr&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strStartnumber; ?>
+			<a href='event_enrolement.php?arg=nbr&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strStartnumber; ?>
 				<img src='<?php echo $img_nbr; ?>' />
 			</a>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=name&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strName; ?>
+			<a href='event_enrolement.php?arg=name&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strName; ?>
 				<img src='<?php echo $img_name; ?>' />
 			</a>
 		</th>
@@ -405,10 +590,32 @@ if($event > 0 || $comb > 0)
 		<?php echo $strYear; ?>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=club&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strClub; ?>
+			<a href='event_enrolement.php?arg=club&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'><?php echo $strClub; ?>
 				<img src='<?php echo $img_club; ?>' />
 			</a>
-		</th>
+		</th> 
+        <?php  
+                                            
+        if ($comb==0) { 
+             if ($event==0){  
+             ?>
+              <th class='dialog'>
+              <?php echo $strDiscipline; ?>
+              </th>
+              <?php 
+              if ($mDate==''  || $mDate=='%' ){ 
+                    if ($tage>1) {
+                    ?>    
+                    <th class='dialog'>
+                    <?php echo $strDate; ?>    
+                    </th>
+                    <?php
+                    }      
+              }
+              }
+        }
+        ?>
+       
 <?php
 	}
 	else		// relay event
@@ -459,7 +666,7 @@ if($event > 0 || $comb > 0)
 		mysql_free_result($result);
 	}
 	
-	if($rsrow[0] > 0){
+	if($rsrow[0] > 0){   
 		/*$result = mysql_query("	SELECT r.xWettkampf FROM
 						rundenset as s
 						, runde as r
@@ -496,11 +703,69 @@ if($event > 0 || $comb > 0)
 			}
 			mysql_free_result($result);
 		}
-	}else{
-		$sqlEvents .= " s.xWettkampf = ".$event." ";
+	}else{ 
+    
+        if ($event > 0 )
+            { 
+            $sqlEvents = " s.xWettkampf = ".$event." ";
+            }
+         if ($catFrom > 0 && $discFrom > 0){  
+             $getSortDisc = AA_getSortDisc($discFrom,$discTo);            // sort display from category
+             $getSortCat = AA_getSortCat($catFrom,$catTo);                // sort display from dicipline
+             if ($getSortCat[0] && $getSortDisc[0]) {  
+                if ($catTo > 0)     
+                    $sqlEvents = " k.Anzeige >= ".$getSortCat[$catFrom] ." AND k.Anzeige <= ".$getSortCat[$catTo]." ";
+                else
+                    $sqlEvents = " k.Anzeige = ".$getSortCat[$catFrom]." "; 
+                if ($discTo > 0)                              
+                        $sqlEvents .= " AND d.Anzeige >= ".$getSortDisc[$discFrom] ." AND d.Anzeige <= " . $getSortDisc[$discTo] ." "; 
+                    else
+                       $sqlEvents .= " AND d.Anzeige = " . $getSortDisc[$discFrom]." "; 
+              $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id']; 
+             }
+             else
+                  $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];   
+                
+            $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";   
+         }
+         elseif ($catFrom > 0){    
+                  $getSortCat = AA_getSortCat($catFrom,$catTo);          // sort display from category  
+                  if ($getSortCat[0]) {
+                    if ($catTo > 0)     
+                        $sqlEvents = " k.Anzeige >= ".$getSortCat[$catFrom]." AND k.Anzeige <= ".$getSortCat[$catTo]." ";
+                    else
+                        $sqlEvents = " k.Anzeige = ".$getSortCat[$catFrom]." ";  
+                    $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id'];  
+                  } 
+                  else                    
+                    $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id']; 
+                     
+                  $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
+         }
+         elseif ($discFrom > 0) {
+                    $getSortDisc = AA_getSortDisc($discFrom,$discTo);         // sort display from dicipline              
+                     if ($getSortDisc[0]){
+                        if ($discTo > 0)                              
+                            $sqlEvents = " d.Anzeige >= ".$getSortDisc[$discFrom]." AND d.Anzeige <= ".$getSortDisc[$discTo] ." "; 
+                        else
+                            $sqlEvents = " d.Anzeige = ".$$getSortDisc[$discFrom]." "; 
+                     $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id'];  
+                     }
+                     else 
+                        $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];  
+            
+                    $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin "; 
+         }
+         if ($mDate > 0){
+             if ($sqlEvents!='')
+                $sqlEvents.=" AND r.Datum = '" . $mDate . "' ";
+             else
+                $sqlEvents.=" r.Datum = '" . $mDate . "' ";    
+         }  
 	}
 	
-	if($relay == FALSE) {		// single event
+	if($relay == FALSE) {   
+    		// single event
 		if($comb > 0){ // combined, select entries over each discipline
 			/*$query = "SELECT s.xStart"
 					. ", s.Anwesend"
@@ -524,14 +789,14 @@ if($event > 0 || $comb > 0)
 					. " AND at.xVerein = v.xVerein"
 					. " ORDER BY " . $argument;*/
 			$sql = "SELECT
-						  s.xStart
+						   s.xStart    
 						, s.Anwesend
 						, a.Startnummer
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
 						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
-						, a.xAnmeldung
+						, a.xAnmeldung                              
 					FROM
 						anmeldung AS a
 					LEFT JOIN
@@ -550,8 +815,9 @@ if($event > 0 || $comb > 0)
 						w.xMeeting = ".$_COOKIE['meeting_id']."
 					ORDER BY
 						".$argument.";";
-			$query = $sql;
-		}else{ // no combined
+			$query = $sql;     
+		}else{  
+            // no combined
 			/*$query = "SELECT s.xStart"
 					. ", s.Anwesend"
 					. ", a.Startnummer"
@@ -569,16 +835,22 @@ if($event > 0 || $comb > 0)
 					. " AND a.xAthlet = at.xAthlet"
 					. " AND at.xVerein = v.xVerein"
 					. " ORDER BY " . $argument;*/
-			$sql = "SELECT
-						  s.xStart
+            if ($sqlEvents!=''){
+               $sqlEvents.=" AND ";
+            }
+			$sql = "(SELECT DISTINCT 
+                        s.xStart     
 						, s.Anwesend
 						, a.Startnummer
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
 						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
-					FROM
-						anmeldung AS a
+                        , a.xAnmeldung  
+                        , d.Name
+                        , r.Datum   
+					FROM   
+                        anmeldung AS a
 					LEFT JOIN
 						athlet AS at USING(xAthlet)
 					LEFT JOIN 
@@ -587,11 +859,54 @@ if($event > 0 || $comb > 0)
 						verein AS v ON(at.xVerein = v.xVerein)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
+                    LEFT JOIN
+                        disziplin AS d ON(w.xDisziplin   = d.xDisziplin)
+                    LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) 
+                    LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)      
 					WHERE
-						".$sqlEvents."
+						".$sqlEvents." d.Staffellaeufer = 0 AND w.Mehrkampfcode = 0 
+                    ".$sqlGroup ." 
 					ORDER BY
-						".$argument.";";
-			$query = $sql;
+						".$argument.")
+                        
+                    UNION    
+                        
+                    (SELECT DISTINCT 
+                        s.xStart     
+                        , s.Anwesend
+                        , a.Startnummer
+                        , at.Name
+                        , at.Vorname
+                        , at.Jahrgang
+                        , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
+                        , a.xAnmeldung  
+                        , d.Name
+                        , r.Datum
+                    FROM
+                         staffel as staf  
+                        ,anmeldung AS a
+                    LEFT JOIN
+                        athlet AS at USING(xAthlet)
+                    LEFT JOIN 
+                        start AS s ON(s.xAnmeldung = a.xAnmeldung)
+                    LEFT JOIN 
+                        verein AS v ON(at.xVerein = v.xVerein)
+                    LEFT JOIN
+                        wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
+                    LEFT JOIN
+                        disziplin AS d ON(w.xDisziplin   = d.xDisziplin)
+                    LEFT JOIN 
+                        start AS s1 On (s1.xStaffel= staf.xStaffel)  
+                     LEFT JOIN
+                        staffelathlet AS stat ON(stat.xStaffelstart = s1.xStart) 
+                     LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf)
+                     LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)     
+                    WHERE
+                        ".$sqlEvents." d.Staffellaeufer > 0  
+                    ".$sqlGroup ."  
+                    ORDER BY
+                        ".$argument.")";    
+			$query = $sql;      
 		}
 	}
 	else {							// relay event
@@ -631,7 +946,8 @@ if($event > 0 || $comb > 0)
 					, a.Startnummer
 					, at.Name
 					, at.Vorname
-					, at.Jahrgang
+					, at.Jahrgang 
+                    , d.Name
 				FROM
 					staffel AS st
 				LEFT JOIN 
@@ -646,13 +962,17 @@ if($event > 0 || $comb > 0)
 					anmeldung AS a USING(xAnmeldung)
 				LEFT JOIN
 					athlet AS at USING(xAthlet)
+                 LEFT JOIN
+                    wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
+                LEFT JOIN
+                    disziplin AS d ON(w.xDisziplin = d.xDisziplin)
 				WHERE
 					".$sqlEvents."
 				GROUP BY 
 					stat.xAthletenstart
 				ORDER BY
 					".$argument.";";
-		$query = $sql;
+		$query = $sql;     
 	}
 	
 	$result = mysql_query($query);
@@ -667,8 +987,8 @@ if($event > 0 || $comb > 0)
 		$rowclass = "odd";
 		$xEntry = 0;
 		
-		while ($row = mysql_fetch_row($result))
-		{
+		while ($row = mysql_fetch_array($result))
+		{   
 			if($comb > 0 && $xEntry == $row[7]){ // combined, merge starts
 				continue;
 			}
@@ -697,7 +1017,7 @@ if($event > 0 || $comb > 0)
 				$present = 1;
 				$checked = "";
 			}
-			
+			                
 			printf("<td class='forms_ctr'>");
 			printf("<input name='arg' type='hidden' value='change' />");
 			printf("<input name='item' type='hidden' value='$row[0]' />");
@@ -705,6 +1025,11 @@ if($event > 0 || $comb > 0)
 			printf("<input name='category' type='hidden' value='$category' />");
 			printf("<input name='event' type='hidden' value='$event' />");
 			printf("<input name='comb' type='hidden' value='$comb' />");
+            printf("<input name='catFrom' type='hidden' value='$catFrom' />"); 
+            printf("<input name='catTo' type='hidden' value='$catTo' />");   
+            printf("<input name='discFrom' type='hidden' value='$discFrom' />"); 
+            printf("<input name='discTo' type='hidden' value='$discTo' />"); 
+            printf("<input name='mDate' type='hidden' value='$mDate' />");    
 			printf("<input type='checkbox' name='present' value='$present' $checked"
 					. " onClick='submitForm(document.change_present_$i)' />\n");
 			printf("</td>\n");
@@ -714,15 +1039,33 @@ if($event > 0 || $comb > 0)
 				printf("<td class='forms_right'><a name='$row[0]'></a>$row[2]</td>");		// startnummer
 				printf("<td>$row[3] $row[4]</td>");		// name
 				printf("<td class='forms_ctr'>" . $row[5] . "</td>");	// year
-				printf("<td>$row[6]</td>\n");		// club name
+				printf("<td>$row[6]</td>");		// club name  
+               
+                if ($comb==0 )  {               // show disziplines and date only if they are different
+                    if ($event==0){
+                        printf("<td>");
+                        printf($row['Name']);        // discipline  
+                        printf("</td>\n");        
+                    
+                        if ($mDate=='' || $mDate=='%'){
+                            if ($tage>1) {
+                                 printf("<td>");   
+                                 printf( date('d.m.Y', strtotime($row['Datum'])) );      // date   
+                                 printf("</td>\n");       
+                            }
+                        }   
+                    }
+                }
+                
 			}
 			else							// relay event
-			{
+			{  
 				printf("<td class='forms_right'><a name='$row[0]'></a>$row[4]</td>");		// startnummer
 				printf("<td>$row[5] $row[6]</td>");		// name
 				printf("<td class='forms_ctr'>" . $row[7] . "</td>");	// year
 				printf("<td>$row[2]</td>");		// relay
 				printf("<td>$row[3]</td>\n");		// club name
+                 
 			}
 
 			printf("</form>\n");
