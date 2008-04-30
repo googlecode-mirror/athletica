@@ -2,11 +2,10 @@
 
 /**********
  *
- *	print_meeting_entries.php
+ *	print_meeting_receipt.php
  *	-------------------------
  *	
- */
-     
+ */     
 require('./lib/cl_gui_entrypage.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
 require('./lib/cl_export_entrypage.lib.php');
@@ -25,39 +24,42 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 // Content
 // -------
 
-
-$athlete_clause="";
+  
 
 // basic sort argument sort by name    
 	
-$argument = "at.Name, at.Vorname, d2.Name, d.Anzeige";  
+$argument = "v.Sortierwert, at.Name, at.Vorname, d2.Name, d.Anzeige";  
 
 // selection arguments
+$club_clause = "";
 if($_GET['club'] > 0) {        // club selected
     $club_clause = " AND v.xVerein = " . $_GET['club'];
 } 
-else if($_GET['athleteSearch'] > 0 ) {        // athlete selected
-    $athlete_clause = " AND a.xAnmeldung = " . $_GET['athleteSearch'];
+
+$athlete_clause="";   
+if($_GET['athleteSearch'] > 0 ) {        // athlete selected   
+    $athlete_clause = " AND a.xAnmeldung = " . $_GET['athleteSearch'];    
 } 
+
+if (!empty($_GET['item'])){               // athlete selected  from meeting_entry.php
+   $athlete_clause = " AND a.xAnmeldung = " . $_GET['item']; 
+}
 
 $print = false;
 if($_GET['formaction'] == 'print') {		// page for printing 
 	$print = true;
-}    
+} 
+                
 
 // start a new HTML page for printing
-
-
+                                            
 	if($print == true) { 
 		$doc = new PRINT_ReceiptEntryPage($_COOKIE['meeting']);  
     }    
-
-  if((!empty($_GET['club']))  ||    (!empty($_GET['athleteSearch'])))  { 
-    
+                      
     $reduction=AA_getReduction(); 
   
-    $date=date("d.m.Y"); 
-
+    $date=date("d.m.Y");      
  
     $result = mysql_query("
 	SELECT DISTINCT a.xAnmeldung
@@ -118,13 +120,13 @@ if($_GET['formaction'] == 'print') {		// page for printing
 		$argument
     
 ");     
-       
+   
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else if(mysql_num_rows($result) > 0)  // data found
-{
+{                                     
 	$a = 0;		// current athlete enrolement  
 	$l = 0;		// line counter   
 	
@@ -133,7 +135,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	{          
 		// print previous athlete, if any
 		if($a != $row[0] && $a > 0)
-		{               
+		{            
             $doc->printHeaderLine();
             $doc->printLineBreak(2);     
             $doc->printLine1($nbr, $name, $year );   
@@ -146,15 +148,17 @@ else if(mysql_num_rows($result) > 0)  // data found
             $doc->printLineBreak(1);   
             $doc->printLine6(); 
             $l+=6;     
-            
+             
 			$doc->insertPageBreak();   
 		}
 	
         // new athlete   
 		if($a != $row[0])		
-		    {
+		    {  
             $l = 0;                  // reset line counter  
             $fee=0;    
+            $disc="";
+            $sep="";  
 			$name = $row[2] . " " . $row[3];		// assemble name field
 			$year = $row[4];
 			$cat = $row[5];   
@@ -166,21 +170,9 @@ else if(mysql_num_rows($result) > 0)  // data found
 			}    
             $place = $row[23];  
 		}
-		
-		if(($row[11] == $cfgDisciplineType[$strDiscTypeTrack])
-			|| ($row[11] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
-			|| ($row[11] == $cfgDisciplineType[$strDiscTypeRelay])
-			|| ($row[11] == $cfgDisciplineType[$strDiscTypeDistance]))
-		    {
-			$perf = AA_formatResultTime($row[12]);
-		}
-		else {
-			$perf = AA_formatResultMeter($row[12]);
-		}    
 	
-	    if($perf == 0){    
             $Info = ($row[18]!="") ? ' ('.$row[18].')' : '';    
-            $noFee=false;  
+            $noFee=false;   
             if  ($row[18]!="" && $m != $row[19]) { 
                     $disc = $disc . $sep . $row[19] . $Info;    // add combined   
                 }
@@ -188,13 +180,11 @@ else if(mysql_num_rows($result) > 0)  // data found
                 if  ($row[18]!="" && $m == $row[19]) { 
                           $noFee=true;                        // the same combined
                 }
-                else  
-				    $disc = $disc . $sep . $row[10] . $Info;	// add discipline
-                      
-			}else{   
-				$Info = ($row[17]!="") ? $row[17] .', ' : '';
-				$disc = $disc . $sep . $row[10] . " (".$Info . $perf.")";	// add discipline
-			}
+                else {
+                     $Info = ($row[17]!="") ? ' ('.$row[17].')'  : '';   
+				     $disc = $disc . $sep . $row[10] .$Info ; 	// add discipline
+                }      
+		               
 		$sep = ", ";
 	  
         if (!$noFee) {
@@ -212,7 +202,7 @@ else if(mysql_num_rows($result) > 0)  // data found
     }
 	
 	if($a > 0)
-	    {  
+	    {        
             $doc->printHeaderLine();
             $doc->printLineBreak(2);     
 			$doc->printLine1($nbr, $name, $year );   
@@ -232,5 +222,5 @@ else if(mysql_num_rows($result) > 0)  // data found
 
 
 $doc->endPage();		// end HTML page for printing
-}
+
 ?>
