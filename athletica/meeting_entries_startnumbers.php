@@ -5,8 +5,7 @@
  *	meeting_entries_startnumbers.php
  *	--------------------------------
  *	
- */
- 
+ */            
   
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -171,7 +170,7 @@ if($_GET['arg'] == 'assign')
 		}   
        
         // assign startnumbers per disciplines
-        //          
+        //       
           elseif ($_GET['assign']=="perdiscipline"){  
                 if(isset($_GET['persvmteam'])){
                    $argument = "t.Name, ".$argument;
@@ -191,29 +190,29 @@ if($_GET['arg'] == 'assign')
                     , team AS t READ
             ");    
   
-            // startnumbers for disciplines track
+            // startnumbers for disciplines        
+                             
+            if (!empty($_GET["of_track1"]) || !empty($_GET["of_track2"]) ||  !empty($_GET["of_tech"]) || 
+                       !empty($_GET["to_track1"]) || !empty($_GET["to_track2"]) ||  !empty($_GET["to_tech"] )){  
                 
-            if (!empty($_GET["of_track"]) ||  !empty($_GET["of_tech"])) {  
-           
-                if ( (!empty($_GET["of_track"])) && (!empty($_GET["of_teck"] ) ))  
-                    $desc='ASC'; 
-                else
-                    if ( (!empty($_GET["of_track"]))) 
-                        $desc='ASC'; 
-                    else
-                        $desc='DESC';           
+                if ( (!empty($_GET["of_track1"]) || !empty($_GET["to_track1"]) ) )
+                    $desc='ASC';   
+                else    
+                    $desc='DESC';   
                            
                 $sql_d="SELECT 
                                 DISTINCT at.Name, 
                                 at.Vorname,
                                 a.xAnmeldung, 
                                 IF( (d.Typ = ".$cfgDisciplineType[$strDiscTypeTrack]." 
-                                    || d.Typ = ".$cfgDisciplineType[$strDiscTypeTrackNoWind]." 
-                                    || d.Typ = ".$cfgDisciplineType[$strDiscTypeRelay]." 
-                                    || d.Typ = ".$cfgDisciplineType[$strDiscTypeDistance]." ),1, 2) as discSort,
+                                    || d.Typ = ".$cfgDisciplineType[$strDiscTypeTrackNoWind]."   
+                                     ),1, IF( (d.Typ = ".$cfgDisciplineType[$strDiscTypeDistance]."
+                                     || d.Typ = ".$cfgDisciplineType[$strDiscTypeRelay]."                                       
+                                     ),2, 3 ) ) as discSort,
                                 w.xDisziplin, 
                                 at.xVerein,
                                 a.xTeam
+                                , d.Typ
                         FROM 
                                 anmeldung AS a
                                 LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet
@@ -230,7 +229,7 @@ if($_GET['arg'] == 'assign')
                         ORDER BY " . $argument . " , discSort " . $desc;  
                             
                 $result_d=mysql_query($sql_d);    
-            
+                
                 if(mysql_errno() > 0)        // DB error
                     {
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -240,9 +239,13 @@ if($_GET['arg'] == 'assign')
                     $t = 0;         // current team  
               
                     // Assign startnumbers
-                    $nbr_track = $_GET["of_track"] - 1 ;
-                    $nbr_track==0?1:$nbr;
-                    $limit_track = $_GET["to_track"];
+                    $nbr_track1 = $_GET["of_track1"] - 1 ;
+                    $nbr_track1==0?1:$nbr;
+                    $limit_track1 = $_GET["to_track1"];
+                    
+                    $nbr_track2 = $_GET["of_track2"] - 1 ;
+                    $nbr_track2==0?1:$nbr;
+                    $limit_track2 = $_GET["to_track2"];
               
                     $nbr_tech = $_GET["of_tech"] - 1 ;
                     $nbr_tech==0?1:$nbr;
@@ -258,20 +261,32 @@ if($_GET['arg'] == 'assign')
                             && isset($_GET['persvmteam']))
                             {  
                     
-                            if ( $row_d[3]== 1)             // discipline track
+                            if ( $row_d[3]== 1)             // discipline track under 400 m
                                 {
-                                $nbr_track += $teamgap;    
+                                $nbr_track1 += $teamgap;    
                             }
-                            else {                          // discipline tech
-                                $nbr_tech += $teamgap; 
-                            }     
+                            elseif ($row_d[3]== 2)   
+                                {                          // discipline track over 400 m  
+                                $nbr_track2 += $teamgap; 
+                            }
+                            else {
+                                $nbr_tech2 += $teamgap;     // discipline tech 
+                            } 
                         }else{ 
-                            if ( $row_d[3]== 1)        // discipline track   
+                            if ( $row_d[3]== 1)        // discipline track under 400 m  
                                 {      
-                                $nbr_track++;
-                                if(($limit_track > 0 && $nbr_track > $limit_track) || $limit_track == 0){
-                                    $nbr_track = 0;
-                                    $limit_track = 0;
+                                $nbr_track1++;
+                                if(($limit_track1 > 0 && $nbr_track1 > $limit_track1) || $limit_track1 == 0){
+                                    $nbr_track1 = 0;
+                                    $limit_track1 = 0;
+                                }
+                         }
+                         else if ( $row_d[3]== 2)        // discipline track over 400 m      
+                                {      
+                                $nbr_track2++;
+                                if(($limit_track2 > 0 && $nbr_track2 > $limit_track2) || $limit_track2 == 0){
+                                    $nbr_track2 = 0;
+                                    $limit_track2 = 0;
                                 }
                          }
                           else {                         // discipline tech  
@@ -282,11 +297,19 @@ if($_GET['arg'] == 'assign')
                                 }   
                           } 
                          }  
-                         if ( $row_d[3]== 1)              // discipline track 
+                         if ( $row_d[3]== 1)              // discipline track under 400 m 
                             {            
                             mysql_query("
                                 UPDATE anmeldung SET
-                                    Startnummer='$nbr_track'
+                                    Startnummer='$nbr_track1'
+                                    WHERE xAnmeldung = $row_d[2]
+                                    ");    
+                         }
+                         elseif ( $row_d[3]== 2)              // discipline track over 400 m 
+                            {            
+                            mysql_query("
+                                UPDATE anmeldung SET
+                                    Startnummer='$nbr_track2'
                                     WHERE xAnmeldung = $row_d[2]
                                     ");    
                          }
@@ -721,11 +744,10 @@ if(mysql_errno() > 0){
     </th></tr>
 <?php
 
-// check track disziplines in this meeting  
+// check track disziplines in this meeting under 400 m
 $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeTrack] . ","  
                            . $cfgDisciplineType[$strDiscTypeTrackNoWind] . ","  
-                           . $cfgDisciplineType[$strDiscTypeRelay] . ","  
-                           . $cfgDisciplineType[$strDiscTypeDistance] . ")";   
+                           . $cfgDisciplineType[$strDiscTypeRelay] . ")";    
         
 $res = mysql_query("    SELECT
                 DISTINCT (w.xDisziplin)  , d.Name , d.Typ
@@ -745,13 +767,49 @@ if(mysql_errno() > 0){
     if (mysql_num_rows($res)>0){ 
         ?>
 <tr>
-    <td class='dialog'><?php echo $strTrack; ?></td>
+    <td class='dialog'><?php echo $strTrack1; ?></td>
     <td class='forms'>
         <?php echo $strOf ?>
-        <input type="text" size="3" value="0" name="of_track" onchange="select_PerDiscipline()">    </td>
+        <input type="text" size="3" value="0" name="of_track1" onchange="select_PerDiscipline()">    </td>
     <td class='forms_right'>
         <?php echo $strTo ?>
-        <input type="text" size="3" value="0" name="to_track" onchange="select_PerDiscipline()">    </td>
+        <input type="text" size="3" value="0" name="to_track1" onchange="select_PerDiscipline()">    </td>
+    <td class='forms'>&nbsp;</td>
+</tr>
+<?php
+    }
+}
+
+
+
+// check track disziplines in this meeting  over 400m
+$selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeDistance] . ")";   
+        
+$res = mysql_query("    SELECT
+                DISTINCT (w.xDisziplin)  , d.Name , d.Typ
+            FROM
+               anmeldung as a
+                INNER JOIN start as s USING (xAnmeldung)
+                INNER JOIN wettkampf as w USING (xWettkampf)
+                INNER JOIN disziplin as d USING (xDisziplin)
+            WHERE
+                a.xMeeting = ".$_COOKIE['meeting_id']."
+                AND d.Typ IN" . $selection_disciplines ."
+            ");     
+      
+if(mysql_errno() > 0){
+    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+}else{
+    if (mysql_num_rows($res)>0){ 
+        ?>
+<tr>
+    <td class='dialog'><?php echo $strTrack2; ?></td>
+    <td class='forms'>
+        <?php echo $strOf ?>
+        <input type="text" size="3" value="0" name="of_track2" onchange="select_PerDiscipline()">    </td>
+    <td class='forms_right'>
+        <?php echo $strTo ?>
+        <input type="text" size="3" value="0" name="to_track2" onchange="select_PerDiscipline()">    </td>
     <td class='forms'>&nbsp;</td>
 </tr>
 <?php
