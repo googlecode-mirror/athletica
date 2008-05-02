@@ -649,7 +649,7 @@ $strPerDiscipline = 'Nach Disziplinen';
 $strSaison = "Saison";
 $strSB = "SB";
 $strPB = "PB";  
-$strTrack = "Läufe";
+
 $strTech = "Techn.";   
 $strRankingListEfforts = "Rangliste mit Bestleistungen";
 $strEfforts = "Bestleistungen";
@@ -686,4 +686,6 @@ $strPayed = "Bezahlt";
 
 $strOf2 = "von"; 
 $strTo2 = "bis"; 
+$strTrack1 = "Läufe bis 400m"; 
+$strTrack2 = "Läufe ab 400m";
 ?>
