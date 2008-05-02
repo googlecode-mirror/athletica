@@ -1443,6 +1443,45 @@ function AA_getEventTypesCat(){
 	}
 }
 
+function AA_getEventTypes($round){
+// get event-type (single, combined, club (svm))
+    $res = mysql_query('SELECT 
+                            w.Typ 
+                        FROM 
+                            runde AS r 
+                            LEFT JOIN Wettkampf AS w USING (xWettkampf)  
+                        WHERE w.xMeeting = ' .$_COOKIE['meeting_id']  . ' AND r.xRunde = ' . $round );
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    } else {
+        $cfgEventType = $GLOBALS['cfgEventType'];
+        if (mysql_num_rows($res) > 0 )  {
+            $row=mysql_fetch_array($res);
+            if ( $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSingle']]){
+                $eventTypeCat['single'] = true;    
+            }else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSingleCombined']]){
+                $eventTypeCat['combined']=true;
+                $show_combined = true;
+            } else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSVMNL']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMA']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMB']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMC']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFA']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFB']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubBasic']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubAdvanced']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubTeam']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubCombined']]
+                        || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMixedTeam']]){
+                $eventTypeCat['club'] = true;
+            } else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeTeamSM']]){
+                $eventTypeCat['teamsm'] = true;            
+            }
+        }   
+        return $eventTypeCat;
+    }
+}
+
 /**
      * get sort display order from disziplines
      * ---------------------------------------
@@ -1489,7 +1528,111 @@ function AA_getEventTypesCat(){
             } 
       return $arrCat;     
  }
-      
+
+/**
+     * read merged rounds an select all events 
+     * ---------------------------------------
+     */    
+function AA_getMergedEvents($round){ 
+    $sqlEvents = "";
+    $eventMerged = false;
+    $result = mysql_query("SELECT 
+                                xRundenset 
+                           FROM 
+                                rundenset
+                           WHERE    
+                                xRunde = $round
+                                AND xMeeting = ".$_COOKIE['meeting_id']);
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+        $rsrow = mysql_fetch_array($result); // get round set id
+        mysql_free_result($result);
+    }
+    
+    if($rsrow[0] > 0){   
+        $sql = "SELECT
+                    xWettkampf  
+                FROM
+                    rundenset 
+                LEFT JOIN 
+                    runde USING(xRunde)
+                WHERE
+                    xMeeting = ".$_COOKIE['meeting_id']."
+                AND
+                    xRundenset = ".$rsrow[0].";";
+        
+        $result = mysql_query($sql);
+        if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+        }else{
+            if(mysql_num_rows($result) > 0){ // merged rounds     
+                    $sqlEvents .= "(".$event;
+                    while($row = mysql_fetch_array($result)){
+                        $eventMerged = true;   
+                        $sqlEvents .= $row[0] . ",";
+                    }   
+                $sqlEvents = substr($sqlEvents,0,-1).")";  
+            }
+            mysql_free_result($result);
+        }
+    } 
+     if (!$eventMerged) {  
+           $sqlEvents = ""; 
+    }   
+    return  $sqlEvents;
+}   
+
+/**
+     * read merged rounds an select all events 
+     * ---------------------------------------
+     */    
+function AA_getMergedRounds($round){  
+    $sqlRounds = "";
+    $roundMerged = false;
+    $result = mysql_query("SELECT 
+                                xRundenset 
+                           FROM 
+                                rundenset
+                           WHERE    
+                                xRunde = $round
+                                AND xMeeting = ".$_COOKIE['meeting_id']);
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+        $rsrow = mysql_fetch_array($result); // get round set id
+        mysql_free_result($result);
+    }
+    
+    if($rsrow[0] > 0){   
+        $sql = "SELECT 
+                    xRunde 
+                FROM 
+                    rundenset
+                WHERE    
+                    xRundenset = $rsrow[0]
+                    AND xMeeting = ".$_COOKIE['meeting_id'];
+                    
+        $res = mysql_query($sql);
+        if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }else{
+              $sqlRounds .= "(".$row[0];   
+              while($row = mysql_fetch_array($res)){   // get merged rounds  
+                   $roundMerged = true;  
+                   $sqlRounds .= $row[0] . ","; 
+                }
+                $sqlRounds = substr($sqlRounds,0,-1).")";  
+            }
+            mysql_free_result($result);
+        }   
+    if (!$roundMerged) {  
+           $sqlRounds = ""; 
+    }  
+    return  $sqlRounds;
+
+}    
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>
