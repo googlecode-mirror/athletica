@@ -435,7 +435,7 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 </table>
 <br>
 <form action='meeting_relay_add.php' method='post' name='entry'>
-<table class='dialog'>
+<table class='dialog' width="50%">
 <tr>
 	<th class='dialog'><?php echo $strStartnumberLong; ?></th>
 	<td class='forms'>
@@ -462,7 +462,7 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 	</td>
 </tr>
 <tr>
-	<td colspan="2" class='dialog'><?php echo $strTeamNameRemark ?></td>
+	<td colspan="2" class='dialog'><?=$strTeamNameRemark?><br/><br/><?=$strRelayNrInfo?></td>
 </tr>
 <tr>
 	<th class='dialog'><?php echo $strTeam; ?></th>

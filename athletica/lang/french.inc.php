@@ -670,6 +670,14 @@ $strMaxFileSize6 = 'Rédémarrez l\'ordinateur.';
 $strMaxFileSize7 = 'Supprimez le fichier <b>php.ini</b>.';
 $strMaxFileSize8 = 'Renommez le fichier <b>%NAME%</b> en <b>php.ini</b>.';
 $strMaxFileSizeOK = '<b>Athletica a automatiquement adapté le fichier de configuration PHP.<br/>Redémarrez l’ordinateur pour que les changements soient effectifs.</b><br/><br/><b>ATTENTION:</b> Si vous avez des problèmes au démarrage d\'Athletica, vous pouvez rétablir l\'ancien fichier de configuration PHP comme suit:';
+
+$strNewDate = 'Nouvelle date de début';
+$strPayed = "payé";
+
 $strOf2 = "de"; 
-$strTo2 = "jusqu’à"; 
+$strTo2 = "jusqu'à"; 
+$strTrack1 = "Courses justq'à 400m"; 
+$strTrack2 = "Courses à partir de 400m"; 
+
+$strRelayNrInfo = 'Beginnen Sie immer mit der Staffel 1; Staffeln 2 und höher werden nur vergeben, wenn im gleichen Wettkampf mehrere Staffeln in der gleichen Kategorie und Disziplin starten';
 ?>
