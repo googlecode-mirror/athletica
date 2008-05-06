@@ -679,5 +679,5 @@ $strTo2 = "jusqu'à";
 $strTrack1 = "Courses justq'à 400m"; 
 $strTrack2 = "Courses à partir de 400m"; 
 
-$strRelayNrInfo = 'Beginnen Sie immer mit der Staffel 1; Staffeln 2 und höher werden nur vergeben, wenn im gleichen Wettkampf mehrere Staffeln in der gleichen Kategorie und Disziplin starten';
+$strRelayNrInfo = 'Commencez toujours par le relais 1; les relais 2 et suivants ne sont attribués que si dans la même compétitions plusieurs relais s’alignent dans la même catégorie et discipline';
 ?>

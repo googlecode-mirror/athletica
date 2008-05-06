@@ -41,7 +41,7 @@ class alge{
 	function set_configuration($meeting){
 		global $strOmegaPathWriteFailed, $strAlgeNoPath;
 		
-		if(@is_dir($_POST['path'])){
+		//if(@is_dir($_POST['path'])){
 			// test local path for writing
 			$fp = @fopen($_POST['path']."/test.txt",'w');
 			if(!$fp){
@@ -89,9 +89,9 @@ class alge{
 			}
 			
 			mysql_query("UNLOCK TABLES");
-		} else {
+		/*} else {
 			$GLOBALS['ERROR'] = $strAlgeNoPath;
-		}
+		}*/
 	}
 	
 	function get_configuration($meeting){

@@ -58,7 +58,9 @@ $sql = "SELECT b.*,
 			   k.xKategorie 
 		  FROM base_athlete AS b 
 	 LEFT JOIN kategorie AS k ON(b.license_cat = k.Code) 
-		 WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId.";";
+		 WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId." 
+	  ORDER BY lastname DESC, 
+			   firstname DESC;";
 		
 $res = mysql_query($sql);
 if(mysql_errno > 0){

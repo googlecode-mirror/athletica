@@ -1374,36 +1374,18 @@ $page->printPageTitle($strNewEntryFromBase);
 			document.getElementById('newlicensenr').value = res.getElementsByTagName("license")[0].firstChild.nodeValue;
 			document.getElementById('newname').value = unescape(res.getElementsByTagName("name")[0].firstChild.nodeValue);
 			document.getElementById('newname').value = n.replace(/\+/g, " ");
-			//document.getElementById('newname_hidden').value = unescape(res.getElementsByTagName("name")[0].firstChild.nodeValue);
-			//document.getElementById('newname').disabled = true;
 			document.getElementById('newfirstname').value = unescape(res.getElementsByTagName("firstname")[0].firstChild.nodeValue);
 			document.getElementById('newfirstname').value = f.replace(/\+/g, " ");
-			//document.getElementById('newfirstname_hidden').value = unescape(res.getElementsByTagName("firstname")[0].firstChild.nodeValue);
-			//document.getElementById('newfirstname').disabled = true;
 			document.getElementById('newyear').value = res.getElementsByTagName("year")[0].firstChild.nodeValue;
-			//document.getElementById('newyear_hidden').value = res.getElementsByTagName("year")[0].firstChild.nodeValue;
-			//document.getElementById('newyear').disabled = true;
 			document.getElementById('newday').value = res.getElementsByTagName("day")[0].firstChild.nodeValue;
-			//document.getElementById('newday_hidden').value = res.getElementsByTagName("day")[0].firstChild.nodeValue;
-			//document.getElementById('newday').disabled = true;
 			document.getElementById('newmonth').value = res.getElementsByTagName("month")[0].firstChild.nodeValue;
-			//document.getElementById('newmonth_hidden').value = res.getElementsByTagName("month")[0].firstChild.nodeValue;
-			//document.getElementById('newmonth').disabled = true;
 			document.getElementById('newathleteid').value = res.getElementsByTagName("id")[0].firstChild.nodeValue;
-			//document.getElementById('newclub').value = res.getElementsByTagName("club")[0].firstChild.nodeValue;
 			document.getElementById('newclub2').value = res.getElementsByTagName("club2")[0].firstChild.nodeValue;
 			document.getElementById('newclub').value = res.getElementsByTagName("club")[0].firstChild.nodeValue;
 			document.getElementById('clubtext').value = s.replace(/\+/g, " ");
-			//document.getElementById('clubtext_hidden').value = s.replace(/\+/g, " ");
-			//document.getElementById('clubtext').disabled = true;
 			document.getElementById('clubinfotext').value = ci.replace(/\+/g, " ").substring(0,-1); // last char is always a space
 			document.getElementById('countryselectbox').value = res.getElementsByTagName("country")[0].firstChild.nodeValue;
-			//document.getElementById('countryselectbox_hidden').value = res.getElementsByTagName("country")[0].firstChild.nodeValue;
-			//document.getElementById('countryselectbox').disabled = true;
 			document.getElementById('categoryselectbox').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;
-			//document.getElementById('categoryselectbox_hidden').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;
-			//document.getElementById('cat_hidden').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;
-			//document.getElementById('categoryselectbox').disabled = true;
 			if(res.getElementsByTagName("sex")[0].firstChild.nodeValue == 'm'){
 				document.getElementById('sexm').checked = true;
 				document.getElementById('sexm_hidden').value = 1;
@@ -1413,8 +1395,6 @@ $page->printPageTitle($strNewEntryFromBase);
 				document.getElementById('sexm_hidden').value = 0;
 				document.getElementById('sexw_hidden').value = 1;                     
 			}
-			//document.getElementById('sexm').disabled = true;
-			//document.getElementById('sexw').disabled = true;
 			
 			// try to insert top performances
 			var tp = res.getElementsByTagName("performance")[0];
@@ -1428,10 +1408,6 @@ $page->printPageTitle($strNewEntryFromBase);
 			document.entry.startnbr.focus();
 			document.entry.startnbr.select();
 			check_category();
-			
-			//document.getElementById('divfrombase').style.visibility = "visible";
-			//if(document.getElementById('newfrombase').checked == false){ document.getElementById('newfrombase').click(); }
-			//document.getElementById('newfrombase').focus();
 		}else if(num == 0){
 			top.frames[2].location.href = "status.php?msg=No athlete found";
 		}else{
@@ -1449,7 +1425,6 @@ $page->printPageTitle($strNewEntryFromBase);
 		
 		if(num <= 10 && num > 1){			
 			for(var i = 0; i<num; i++){
-				
 				var text = unescape(res.getElementsByTagName("name")[i].firstChild.nodeValue) +
 					" " + unescape(res.getElementsByTagName("firstname")[i].firstChild.nodeValue) +
 					" " + res.getElementsByTagName("day")[i].firstChild.nodeValue +

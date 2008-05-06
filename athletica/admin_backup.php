@@ -934,7 +934,8 @@ else if ($_POST['arg'] == 'restore')
 				if($zeitmessung['OMEGA_Pfad']!=''){
 					$path = stripslashes($zeitmessung['OMEGA_Pfad']);
 					
-					if(!@is_dir($path)){
+					$fp = @fopen($p."/test.txt",'w');
+					if(!$fp){
 						$error = true;
 						$err_this = true;
 						$timing_errors++;
@@ -946,7 +947,8 @@ else if ($_POST['arg'] == 'restore')
 				if($zeitmessung['ALGE_Pfad']!=''){
 					$path = stripslashes($zeitmessung['ALGE_Pfad']);
 					
-					if(!@is_dir($path)){
+					$fp = @fopen($p."/test.txt",'w');
+					if(!$fp){
 						$error = true;
 						$err_this = true;
 						$timing_errors++;

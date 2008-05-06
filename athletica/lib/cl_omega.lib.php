@@ -55,7 +55,7 @@ class omega{
 	function set_configuration($meeting){
 		global $strOmegaPathWriteFailed, $strOmegaNoPath;
 		
-		if(@is_dir($_POST['path'])){
+		//if(@is_dir($_POST['path'])){
 			// test local path for writing
 			$fp = @fopen($_POST['path']."/test.txt",'w');
 			if(!$fp){
@@ -104,9 +104,9 @@ class omega{
 			}
 			
 			mysql_query("UNLOCK TABLES");
-		} else {
+		/*} else {
 			$GLOBALS['ERROR'] = $strOmegaNoPath;
-		}
+		}*/
 	}
 	
 	/**
