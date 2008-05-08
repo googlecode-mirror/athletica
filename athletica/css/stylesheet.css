@@ -91,14 +91,27 @@ img {
 }
 
 input.perfmeter {
-	overflow:visible; width:10mm;
+	overflow:visible; 
+	width:10mm;
 }
 input.perftime {
-	overflow:visible; width:16mm;
+	overflow:visible; 
+	width:16mm;
 }
 input.perfheight {
-	overflow:visible; width:8mm;
+	overflow:visible; 
+	width:8mm;
 }
+input.perfmeter.manual {
+	color: blue;
+}
+input.perftime.manual {
+	color: blue;
+}
+input.perfheight.manual {
+	color: blue;
+}
+
 input.nbr {
 	overflow:visible; width:7mm;
 }

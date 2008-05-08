@@ -474,7 +474,8 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 					mysql_query("INSERT INTO start SET "
 									 . " xWettkampf='" . $event
 									 . "', xAnmeldung='" . $_POST['item'] . "'
-									 , Bestleistung = $perf");
+									 , Bestleistung = $perf
+									 , BaseEffort = 'y'");
 					if(mysql_errno() > 0)
 					{
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -822,6 +823,7 @@ else if ($_POST['arg']=="change_top")
 				start
 			SET
 				Bestleistung = $perf
+				, BaseEffort = 'n'
 			WHERE xStart = " . $_POST['event']
 		);
 
@@ -1527,6 +1529,7 @@ $dis2 = false;
 				SELECT
 					xStart
 					, Bestleistung
+					, BaseEffort
 				FROM
 					start
 				WHERE xWettkampf = $event_row[0]
@@ -1539,8 +1542,12 @@ $dis2 = false;
 			}
 			else				// no DB error
 			{
-				$start_row = mysql_fetch_row($r);         
+				$start_row = mysql_fetch_array($r);         
 			
+				//check if performance from base or manually entered
+				($start_row['BaseEffort']=='y' || $start_row['Bestleistung']==0)?$manual='':$manual=" manual"; 
+				
+				
 				// check if this is a valid selection (age on category)
 				//if($event_row[5] < $agelimit || (substr($event_row[6],0,1) != $sex && substr($event_row[6],3,1) != $sex)){
 				
@@ -1585,7 +1592,7 @@ $dis2 = false;
 					
 					// check if one of the combined events is selected
 					$start_comb = false;
-					$resStartComb = mysql_query("SELECT * FROM
+					$resStartComb = mysql_query("SELECT xStart FROM
 									start as s
 									, wettkampf as w
 								WHERE
@@ -1605,7 +1612,7 @@ $dis2 = false;
 							}
 							$comb = $event_row[9];
 							$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $comb");
-							$comb_row = mysql_Fetch_array($comb_res);
+							$comb_row = mysql_fetch_array($comb_res);
 							?>
 							<td nowrap="nowrap" class='dialog-top' colspan='2'><?php echo $span ?>
 								<input type="checkbox" value="<?php echo $event_row[8]."_".$comb ?>" name="combined[]"
@@ -1627,7 +1634,7 @@ $dis2 = false;
 								onclick='updateStarts(\"del_event\", $start_row[0], $event_row[0])'
 								value='$start_row[0]' checked/>
 								$event_row[1]</td><td>
-								<input class='perf$class' name='topperf_$start_row[0]'
+								<input class='perf$class$manual' name='topperf_$start_row[0]'
 								type='text' maxlength='12'
 								onchange='updateStarts(\"change_top\", $start_row[0], $event_row[0])'
 								value='$perf' /></td></tr>\n");
@@ -1646,7 +1653,7 @@ $dis2 = false;
 							}
 							$combClosed = $event_row[9];
 							$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $combClosed");
-							$comb_row = mysql_Fetch_array($comb_res);
+							$comb_row = mysql_fetch_array($comb_res);
 							?>
 							<tr>
 								<td class='dialog-top' colspan='6'>
@@ -1655,19 +1662,19 @@ $dis2 = false;
 									<?php echo $comb_row[0]; ?>
 								</td>
 							</tr>
-							<?php
+							<?php 
 						}
 					}
 				}else{
 					$info = (strlen($event_row[7])==0)?"":"(".$event_row[7].")";
-					if($start_row[0] != 0) {		// event selected                       
+					if($start_row[0] != 0) {		// event selected				   
 						printf("<td class=\"dialog-top\" nowrap=\"nowrap\">$span<input name='events[]' type='checkbox' id='$event_row[0]'"
 						. " onclick='updateStarts(\"del_event\", $start_row[0], $event_row[0])'"
 						. " value='$start_row[0]' checked/>$event_row[1] $info $span_end</td>\n");
 						
 						
 						printf("<td class=\"dialog-top\" nowrap=\"nowrap\">
-							<input class='perf$class' name='topperf_$start_row[0]'
+							<input class='perf$class$manual' name='topperf_$start_row[0]'
 							type='text' maxlength='12'
 							onchange='updateStarts(\"change_top\", $start_row[0], $event_row[0])'
 							value='$perf' /></td>\n");
