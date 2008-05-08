@@ -14,4 +14,6 @@ VALUES (
 );
 
 ALTER TABLE start 
- ADD COLUMN BaseEfforrt ENUM ('y','n') NOT NULL DEFAULT 'n' AFTER xStaffel;
+ ADD COLUMN BaseEffort ENUM ('y','n') NOT NULL DEFAULT 'n' AFTER xStaffel;
+
+ALTER TABLE Serienstart ADD COLUMN RundeZusammen int(11) NOT NULL default 0 AFTER xStart;
