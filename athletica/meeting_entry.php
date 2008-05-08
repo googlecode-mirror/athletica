@@ -1139,11 +1139,48 @@ function change_licensenr(){
 	
 }
 
+
+    function setPrint()
+    {     
+        document.printdialog.formaction.value = 'print'
+        document.printdialog.target = '_blank';     
+    }
+
+     
+
 </script>
+
 <?php
-$btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-$btn->printButton();
+//$btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+//$btn->printButton();
+
+
+
+//$btn1 = new GUI_Button("print_meeting_receipt.php?item=$row[0]", $strReceipt);
+//$btn1->printButton();
 ?>
+ <form action='print_meeting_receipt.php' method='get' name='printdialog'>
+<input type='hidden' name='formaction' value=''>
+ <table>
+<tr>
+    <td>
+       <?php
+         $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+         $btn->printButton();
+       
+       
+       ?>
+    </td>
+    <td>
+        <button name='print' type='submit' onClick='setPrint()'>
+            <?php echo $strReceipt; ?>
+        </button>
+    </td>
+    
+</tr>
+</table>
+<br>
+
 <table class='dialog'>
 <tr>
 	<form action='meeting_entry.php' method='post' name='startnbr'>
@@ -1782,9 +1819,28 @@ $dis2 = false;
 
 ?>
 <p/>
-<?php
-$btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-$btn->printButton();
 
+ 
+<table>
+<tr>
+    <td>
+       <?php
+         $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+         $btn->printButton();
+       
+       
+       ?>
+    </td>
+    <td>
+        <button name='print1' type='submit' onClick='setPrint()'>
+            <?php echo $strReceipt; ?>
+        </button>
+    </td>
+    
+</tr>
+</table>
+</form>    
+
+<?php    
 $page->endPage();
 ?>
