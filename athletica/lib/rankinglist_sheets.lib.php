@@ -11,9 +11,8 @@ if (!defined('AA_RANKINGLIST_SHEET_LIB_INCLUDED'))
 	define('AA_RANKINGLIST_SHEET_LIB_INCLUDED', 1);
 
 
-function AA_rankinglist_Sheets($category, $formaction, $cover, $cover_timing=false)
-{
-
+function AA_rankinglist_Sheets($category, $event, $formaction, $cover, $cover_timing=false, $heatSeparate)
+{  
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 
@@ -29,7 +28,7 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 }
 
 // start a new HTML display page
-if($formaction == 'view') {
+if($formaction == 'view') { 
 	$list = new GUI_TeamSheet($_COOKIE['meeting']);
 	$list->printPageTitle("$strClubSheets " . $_COOKIE['meeting']);
 }
@@ -40,14 +39,27 @@ else {
 		$list->printCover($strClubSheets, $cover_timing);
 	}
 }
+$selection = ''; 
+if ($event!='')
+    $mergedCat=AA_mergedCatEvent($category, $event);  
+else
+    $mergedCat=AA_mergedCat($category);   
 
-$selection = '';
-if(!empty($category)) {		// show every category
-	$selection = " AND k.xKategorie = $category";
+if(!empty($category)) {		// show every category  
+    if ($mergedCat=='') {
+	    $selection = " AND k.xKategorie = $category";
+    }
+    else  {
+        if ($heatSeparate){  
+            $selection = " AND k.xKategorie = $category"; 
+        }
+        else {  
+            $selection = " AND k.xKategorie IN $mergedCat"; 
+        }
+    }
 }
 
-// evaluation per category
-
+// evaluation per category      
 
 mysql_query("DROP TABLE IF EXISTS tempresult");
 if(mysql_errno() > 0) {		// DB error
@@ -71,8 +83,8 @@ $results = mysql_query("
 		k.xKategorie
 	ORDER BY
 		k.Anzeige
-");
-
+");  
+ 
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -90,7 +102,7 @@ else
 		}
 		// Team sheet: Single
 		else
-		{
+		{  
 			AA_sheets_processSingle($row[0], $row[1], $list);
 		}
 
@@ -108,7 +120,7 @@ $list->endPage();	// end HTML page for printing
 //
 
 function AA_sheets_processSingle($xCategory, $category, $list)
-{
+{  
 	require('./config.inc.php');
 
 	mysql_query("
@@ -140,8 +152,8 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 		WHERE t.xMeeting = " . $_COOKIE['meeting_id'] ."
 		AND t.xKategorie = $xCategory
 		AND v.xVerein = t.xVerein
-	");
-
+	");   
+    
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -233,8 +245,8 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 				ORDER BY
 					d.Anzeige
 					, pts DESC
-			");
-
+			");   
+            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}

@@ -10,10 +10,9 @@ if (!defined('AA_RANKINGLIST_TEAM_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_TEAM_LIB_INCLUDED', 1);
 
-
-function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser)
-{
-
+ 
+function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser, $event, $heatSeparate)  
+{  
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -52,7 +51,7 @@ elseif($formaction == "xml"){
 	$list = new XML_TeamRankingList($parser);
 }
 // start a new HTML print page
-elseif($formaction == "print") {
+elseif($formaction == "print") {                  
 	$list = new PRINT_TeamRankingList($_COOKIE['meeting']);
 	if($cover == true) {		// print cover page 
 		$list->printCover($GLOBALS['strResults']);
@@ -65,10 +64,25 @@ elseif($formaction == "exportpress"){
 	$list = new EXPORT_TeamRankingListDiplom($_COOKIE['meeting'], 'csv');
 }
 
-$selection = '';
-if(!empty($category)) {		// show every category
-	$selection = " AND w.xKategorie = $category";
-}
+$selection = ''; 
+if ($event!='')
+    $mergedCat=AA_mergedCatEvent($category, $event);  
+else
+    $mergedCat=AA_mergedCat($category); 
+  
+if(!empty($category)) {        // show every category  
+    if ($mergedCat=='') {
+        $selection = " AND k.xKategorie = $category";
+    }
+    else  {
+        if ($heatSeparate){ 
+            $selection = " AND k.xKategorie = $category"; 
+        }
+        else { 
+            $selection = " AND k.xKategorie IN $mergedCat"; 
+        }
+    }
+}   
 
 // evaluation per category
 global $cfgEventType, $strEventTypeSingleCombined, $strEventTypeClubMA, 
@@ -93,7 +107,7 @@ $results = mysql_query("
 		k.xKategorie
 	ORDER BY
 		k.Anzeige
-");
+");  
 
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

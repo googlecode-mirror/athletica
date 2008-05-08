@@ -176,7 +176,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 * @param	round			ID table 'runde'
 	 */
 	 
-	function AA_utils_calcRankingPoints($round){
+	function AA_utils_calcRankingPoints($round){ 
 		global $strConvtableRankingPoints, $cfgEventType;
 		global $strEventTypeSVMNL, $strEventTypeSingleCombined, $strEventTypeClubAdvanced
 			, $strEventTypeClubBasic, $strEventTypeClubTeam, $strEventTypeClubMixedTeam;
@@ -251,12 +251,12 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		//
 		// calculate points
 		//
-		if($valid){
+		if($valid){  
 			
 			// if svm, the ranking points have only to be distributed on the results that count afterwards for team
 			// so: only the best 2 athletes of the same team will get points
 			
-			if(!$bSVM){
+			if(!$bSVM){  
 				$res = mysql_query("
 					SELECT
 						serienstart.xSerienstart
@@ -269,7 +269,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					AND serienstart.Rang > 0
 					ORDER BY serienstart.Rang ASC
 				");
-			}else{
+			}else{   
 				$res = mysql_query("
 					SELECT
 						serienstart.xSerienstart
@@ -287,8 +287,8 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					AND serienstart.Rang > 0
 					ORDER BY serienstart.Rang ASC
 				");
-			}
-			
+			}     
+            
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
@@ -374,8 +374,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				}
 				
 				// update points
-				foreach($update as $key => $p){
-					
+				foreach($update as $key => $p){ 
 					mysql_query("UPDATE resultat SET
 							Punkte = $p
 						WHERE
@@ -465,12 +464,25 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
   	 * -------------------
     */
 	function AA_utils_changeRoundStatus($round, $status)
-	{
+	{   
 		require ('./lib/cl_round.lib.php');
 
-		$GLOBALS['AA_ERROR'] = '';
-		$rnd = new Round($round);
-		$rnd->setStatus($status);
+		$GLOBALS['AA_ERROR'] = '';   
+        
+        $mergedRounds=AA_getMergedRounds($round);
+  
+        if ($mergedRounds!='') {           
+            $sqlRounds="IN ". $mergedRounds;   
+            $arrRound=split('[,]', substr($mergedRounds,1,-1));
+            foreach ($arrRound as $round){ 
+              $rnd = new Round($round);
+              $rnd->setStatus($status); 
+            } 
+        }
+        else {  
+              $rnd = new Round($round);
+              $rnd->setStatus($status);
+        }  
 	}
 
 
@@ -534,7 +546,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			$row = mysql_fetch_row($res);
 			$status = $row[0];
 			mysql_free_result($res);
-		}		// ET DB error
+		}		// ET DB error    
 		return $status;
 	}
 

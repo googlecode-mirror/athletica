@@ -1510,7 +1510,7 @@ function AA_getEventTypes($round){
      * get sort display order from categories
      * --------------------------------------
      */                 
- function AA_getSortCat($catFrom, $catTo ){
+ function AA_getSortCat($catFrom, $catTo ){  
       $arrCat=array();   
       $arrCat[0]=false; 
       $result = mysql_query("SELECT k.xKategorie, k.Anzeige"
@@ -1525,15 +1525,15 @@ function AA_getEventTypes($round){
                     $arrCat[0]=true; 
                     $arrCat[$row[0]]=$row[1];
                 }
-            } 
+            }  
       return $arrCat;     
  }
 
 /**
-     * read merged rounds an select all events 
-     * ---------------------------------------
+     * read merged rounds and select all events 
+     * ----------------------------------------
      */    
-function AA_getMergedEvents($round){ 
+function AA_getMergedEvents($round){    
     $sqlEvents = "";
     $eventMerged = false;
     $result = mysql_query("SELECT 
@@ -1546,8 +1546,7 @@ function AA_getMergedEvents($round){
     if(mysql_errno() > 0){
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
     }else{
-        $rsrow = mysql_fetch_array($result); // get round set id
-        mysql_free_result($result);
+        $rsrow = mysql_fetch_array($result); // get round set id    
     }
     
     if($rsrow[0] > 0){   
@@ -1574,8 +1573,7 @@ function AA_getMergedEvents($round){
                         $sqlEvents .= $row[0] . ",";
                     }   
                 $sqlEvents = substr($sqlEvents,0,-1).")";  
-            }
-            mysql_free_result($result);
+            }      
         }
     } 
      if (!$eventMerged) {  
@@ -1585,7 +1583,7 @@ function AA_getMergedEvents($round){
 }   
 
 /**
-     * read merged rounds an select all events 
+     * read merged rounds an select all rounds
      * ---------------------------------------
      */    
 function AA_getMergedRounds($round){  
@@ -1601,8 +1599,7 @@ function AA_getMergedRounds($round){
     if(mysql_errno() > 0){
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
     }else{
-        $rsrow = mysql_fetch_array($result); // get round set id
-        mysql_free_result($result);
+        $rsrow = mysql_fetch_array($result); // get round set id   
     }
     
     if($rsrow[0] > 0){   
@@ -1624,15 +1621,402 @@ function AA_getMergedRounds($round){
                    $sqlRounds .= $row[0] . ","; 
                 }
                 $sqlRounds = substr($sqlRounds,0,-1).")";  
-            }
-            mysql_free_result($result);
+            }   
         }   
     if (!$roundMerged) {  
            $sqlRounds = ""; 
     }  
     return  $sqlRounds;
 
-}    
+}  
+
+/**
+     * read merged rounds and select all events with corresponding rounds
+     * -----------------------------------------------------------------
+     */    
+function AA_getMergedEventsFromEvent($event){   
+    $sqlEvents = "";
+    $eventMerged = false;    
+     
+        $sql = "SELECT  
+                     r.xRunde
+                FROM
+                    rundenset 
+                LEFT JOIN 
+                    runde as r USING(xRunde)
+                WHERE
+                    xMeeting = ".$_COOKIE['meeting_id']."
+                AND
+                    xWettkampf = ".$event;   
+       
+        $result = mysql_query($sql);
+        if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+        }else{
+            $row = mysql_fetch_array($result); // no merged rounds              
+            if ($row[0] > 0){    
+                  $result1 = mysql_query("SELECT 
+                                xRundenset 
+                           FROM 
+                                rundenset
+                           WHERE    
+                                xRunde = $row[0]
+                                AND xMeeting = ".$_COOKIE['meeting_id']);
+                  if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }else{
+                    $rsrow = mysql_fetch_array($result1); // get round set id
+                    mysql_free_result($result1);
+                  }  
+                  if($rsrow[0] > 0){   
+                    $sql1 = "SELECT
+                             xWettkampf  
+                          FROM
+                            rundenset 
+                            LEFT JOIN runde USING(xRunde)
+                          WHERE
+                            xMeeting = ".$_COOKIE['meeting_id']."
+                            AND xRundenset = ".$rsrow[0];
+        
+                    $result2 = mysql_query($sql1);
+                   
+                    if(mysql_errno() > 0){
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+                    }else{  
+                        if(mysql_num_rows($result2) > 0){ // merged rounds     
+                            $sqlEvents = "(";
+                            while($row = mysql_fetch_array($result2)){
+                                $eventMerged = true;   
+                                $sqlEvents .= $row[0] . ",";
+                            }   
+                            $sqlEvents = substr($sqlEvents,0,-1).")";  
+                        }  
+                    }
+                 }
+            }
+        }  
+        
+    if (!$eventMerged) {  
+           $sqlEvents = ""; 
+    }   
+   return  $sqlEvents;  
+    
+}     
+
+/**
+     * get the main round event or event of merged rounds
+     * --------------------------------------------------
+     * 
+     *  flagRound: true  --> the main round will be returned
+     *  flagRound: false  --> the main event will be returned
+     */    
+function AA_getMainRoundEvent($event,$flagRound){     
+    $mainRound = "";
+    $eventMerged = false;    
+   
+        $sql = "SELECT  
+                     xRundenset  
+                FROM
+                    rundenset 
+                LEFT JOIN 
+                    runde as r USING(xRunde)
+                WHERE
+                    xMeeting = ".$_COOKIE['meeting_id']."
+                AND
+                    xWettkampf = ".$event;   
+       
+        $result = mysql_query($sql);
+        if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+        }else{
+            $row = mysql_fetch_array($result); // no merged rounds              
+            if ($row[0] > 0){    
+                  $result1 = mysql_query("SELECT 
+                                xRunde  
+                           FROM 
+                                rundenset
+                           WHERE    
+                                xRundenset = $row[0]
+                                AND Hauptrunde = 1
+                                AND xMeeting = ".$_COOKIE['meeting_id']);
+                  if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }else{
+                    $rsrow = mysql_fetch_array($result1); // get round set id  
+                  }  
+                  if($rsrow[0] > 0){     
+                       if ($flagRound){
+                          $mainRound=$rsrow[0]; 
+                          $eventMerged=true;  
+                       }
+                       else {
+                            $sql1 = "SELECT
+                                        xWettkampf  
+                                     FROM
+                                        rundenset as rs 
+                                        LEFT JOIN runde as r ON (r.xRunde=rs.xRunde)
+                                     WHERE
+                                        xMeeting = ".$_COOKIE['meeting_id']."
+                                        AND r.xRunde = ".$rsrow[0];
+                            
+                            $result2 = mysql_query($sql1);  
+                         
+                            if(mysql_errno() > 0){
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }else{
+                                $erow = mysql_fetch_array($result2); // get round set id 
+                            }  
+                            if($erow[0] > 0){ 
+                                $mainRoundEvent=$erow[0];  
+                                $eventMerged=true;
+                            }
+                     }
+                 }
+            }
+        }   
+    if (!$eventMerged) {  
+           $main = ""; 
+    }
+    else {
+         if ($flagRound)    
+             $main=$mainRound;  
+         else
+            $main=$mainRoundEvent;   
+    
+    }    
+   return  $main;    
+}
+/**
+     * get main round 
+     * ---------------  
+     */    
+function AA_getMainRound($round){     
+    $mainRound = 0;   
+    $sql = "SELECT  
+                     xRundenset  
+            FROM
+                    rundenset    
+            WHERE
+                    xMeeting = ".$_COOKIE['meeting_id']."
+                    AND xRunde = ".$round;   
+       
+    $result = mysql_query($sql);
+    if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+    }else{
+            $row = mysql_fetch_array($result); // no merged rounds              
+            if ($row[0] > 0){    
+                  $result1 = mysql_query("SELECT 
+                                                xRunde  
+                                          FROM 
+                                                rundenset
+                                          WHERE    
+                                                xRundenset = $row[0]
+                                                AND Hauptrunde = 1
+                                                AND xMeeting = ".$_COOKIE['meeting_id']);
+                  if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }else{
+                    $rsrow = mysql_fetch_array($result1); // get round set id                         
+                    if($rsrow[0] > 0){  
+                          $mainRound=$rsrow[0]; 
+                    }
+                  }  
+            }
+        } 
+   return  $mainRound;    
+}
+
+/**
+     * check merged rounds
+     * -------------------
+     *  mergeMain: 0    not e merged round
+     *  mergeMain: 1    not main round 
+     *  mergeMain: 2    main round 
+     *  
+     */    
+function AA_checkMainRound($round){    
+    $mainRound = "";
+    $mergedMain = 0;    
+      
+        $sql = "SELECT  
+                     xRunde,
+                     Hauptrunde 
+                FROM
+                    rundenset   
+                WHERE
+                    xMeeting = ".$_COOKIE['meeting_id']."
+                    AND xRunde = ".$round;   
+       
+        $result = mysql_query($sql);
+        if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+        }else{
+            if (mysql_num_rows($result) > 0) {              
+                $row = mysql_fetch_array($result);  
+                if ($row[1] == 1)
+                    $mergedMain=2;                // main round
+                else
+                    $mergedMain=1;                // not main round   
+            }
+            else
+               $mergedMain=0;                     // not e merged round
+        }  
+   return  $mergedMain; 
+}  
+
+
+/**
+     * read merged rounds and select all category with corresponding rounds
+     * --------------------------------------------------------------------
+     */    
+function AA_mergedCatEvent($category,$event){    
+    $sqlCat = "";
+    $eventMerged = false;    
+    
+    $sql = "SELECT  
+                    r.xRunde
+            FROM
+                    rundenset 
+                    LEFT JOIN runde as r USING(xRunde)
+            WHERE
+                    xMeeting = ".$_COOKIE['meeting_id']."
+                    AND xWettkampf = ".$event;   
+       
+    $result = mysql_query($sql);
+    if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+    }else{
+            $row = mysql_fetch_array($result); // no merged rounds              
+            if ($row[0] > 0){    
+                  $result1 = mysql_query("SELECT 
+                                                xRundenset 
+                                          FROM 
+                                                rundenset
+                                          WHERE    
+                                                xRunde = $row[0]
+                                                AND xMeeting = ".$_COOKIE['meeting_id']);
+                  if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }else{
+                    $rsrow = mysql_fetch_array($result1); // get round set id   
+                  }  
+                  if($rsrow[0] > 0){   
+                    $sql1 = "SELECT
+                                    w.xKategorie  
+                             FROM
+                                    rundenset 
+                                    LEFT JOIN runde AS r USING(xRunde)
+                                    LEFT JOIN wettkampf AS w ON (w.xWettkampf=r.xWettkampf)
+                             WHERE
+                                    w.xMeeting = ".$_COOKIE['meeting_id']."
+                                    AND xRundenset = ".$rsrow[0];
+        
+                    $result2 = mysql_query($sql1);
+                   
+                    if(mysql_errno() > 0){
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+                    }else{  
+                        if(mysql_num_rows($result2) > 0){ // merged rounds     
+                            $sqlCat = "(";
+                            while($row = mysql_fetch_array($result2)){
+                                $eventMerged = true;   
+                                $sqlCat .= $row[0] . ",";
+                            }   
+                            $sqlCat = substr($sqlCat,0,-1).")";  
+                        }  
+                    }
+                 }
+            }
+        }  
+        
+    if (!$eventMerged) {  
+           $sqlCat = ""; 
+    }     
+    return  $sqlCat; 
+}  
+
+ /**
+     * read merged rounds and select all category with corresponding rounds
+     * --------------------------------------------------------------------
+     */    
+function AA_mergedCat($category){  
+    $sqlCat = "";    
+    $eventMerged = false;    
+      
+    $sql = "SELECT  
+                    r.xRunde
+            FROM
+                    rundenset AS rs
+                    LEFT JOIN runde as r ON (r.xRunde = rs.xRunde)
+                    LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
+            WHERE
+                    w.xMeeting = ".$_COOKIE['meeting_id']."
+                    AND w.xKategorie = " .$category;   
+       
+    $result = mysql_query($sql);
+    if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+    }else{  
+            $row = mysql_fetch_array($result); // no merged rounds              
+            if ($row[0] > 0){    
+                  $result1 = mysql_query("SELECT 
+                                                xRundenset 
+                                          FROM 
+                                                rundenset
+                                          WHERE    
+                                                xRunde = $row[0]
+                                                AND xMeeting = ".$_COOKIE['meeting_id']);
+                  if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }else{ 
+                    $rsrow = mysql_fetch_array($result1); // get round set id
+                    mysql_free_result($result1);
+                  }  
+                  if($rsrow[0] > 0){  
+                    $sql1 = "SELECT
+                                    w.xKategorie  
+                             FROM
+                                    rundenset 
+                                    LEFT JOIN runde AS r USING(xRunde)
+                                    LEFT JOIN wettkampf AS w ON (w.xWettkampf=r.xWettkampf)
+                             WHERE
+                                    w.xMeeting = ".$_COOKIE['meeting_id']."
+                                    AND xRundenset = ".$rsrow[0];
+        
+                    $result2 = mysql_query($sql1);
+                   
+                    if(mysql_errno() > 0){
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+                    }else{
+                        if(mysql_num_rows($result2) > 0){ // merged rounds     
+                            $sqlCat = "(";
+                            while($row = mysql_fetch_array($result2)){
+                                $eventMerged = true;   
+                                $sqlCat .= $row[0] . ",";
+                            }   
+                            $sqlCat = substr($sqlCat,0,-1).")";  
+                        }
+                        mysql_free_result($result);
+                    }
+                 }
+            }
+        }      
+    
+    if (!$eventMerged) {  
+           $sqlCat = ""; 
+    }   
+    return  $sqlCat;  
+}  
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

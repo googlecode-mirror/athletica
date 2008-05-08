@@ -11,7 +11,7 @@ if (!defined('AA_RESULTS_TRACK_LIB_INCLUDED'))
 	define('AA_RESULTS_TRACK_LIB_INCLUDED', 1);
 
 function AA_results_Track($round, $layout)
-{    
+{  
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_select.lib.php');
@@ -27,7 +27,8 @@ $presets = AA_results_getPresets($round);	// read GET/POST variables
 
 $relay = AA_checkRelay($presets['event']);	// check, if this is a relay event
 
-
+// $flagMain=AA_getMainRound($round);
+//   if ($flagMain) {
 //
 // terminate result processing
 //
@@ -503,7 +504,9 @@ if($_GET['arg'] == "time_measurement"){
 //
 AA_results_printHeader($presets['category'], $presets['event'], $round);
 
-
+$mergedMain=AA_checkMainRound($round);
+if ($mergedMain != 1) {
+    
 // read round data
 if($round > 0)
 {
@@ -1071,7 +1074,11 @@ if(!empty($presets['focus'])) {
 </body>
 </html>
 <?php
-
+}
+else
+{
+        AA_printErrorMsg($strErrMergedRound); 
+    } 
 }
 
 
