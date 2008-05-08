@@ -112,7 +112,8 @@ function AA_timetable_display($arg = 'monitor')
 				, r.Startzeit
 				, k.Anzeige
 				, d.Anzeige
-		");
+		");   
+    
 		if(mysql_errno() > 0)	// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -129,7 +130,7 @@ function AA_timetable_display($arg = 'monitor')
 <table class=timetable>
 			<?php
 			while ($row = mysql_fetch_row($res))
-			{
+			{   
 				$combGroup = "";	// combined group if set
 				$combined = false;	// is combined event
 				$teamsm = false;	// is team sm event
@@ -200,7 +201,7 @@ function AA_timetable_display($arg = 'monitor')
 				
 				// check round status and set correct link
 				if($arg == 'monitor')		// event monitor
-				{
+				{   
 					// check status
 					switch($row[1]) {
 					case($cfgRoundStatus['open']):
@@ -284,10 +285,10 @@ function AA_timetable_display($arg = 'monitor')
 					}
 				}
 
-
+                
 				// next event is in a different category: go to next cell
 				if($k != $row[3])
-				{
+				{  
 					if(key($cats) != 0) { 	// not first category
 						?>
 	</td>
@@ -303,10 +304,10 @@ function AA_timetable_display($arg = 'monitor')
 							break;
 						}
 					}
-
+                   
 					if(array_key_exists($row[10], $events) == TRUE 		// not first round (count qualified athletes)
 						&& $combined == false && $teamsm == false) 	// no combined event
-					{
+					{   
 						$starts = "-";
 						// get number of athletes/relays with valid result
 						$result = mysql_query("
@@ -329,7 +330,7 @@ function AA_timetable_display($arg = 'monitor')
 							mysql_free_result($result);
 						}
 					}elseif($combined || $teamsm){ // for combined rounds, count starts for correct group
-						
+						 
 						if($row[17] == 1){ // if this is a combined last event, every athlete starts
 							$starts = $row[5];
 						}elseif(empty($row[15])){ // if no group is set
@@ -352,11 +353,11 @@ function AA_timetable_display($arg = 'monitor')
 						}
 						
 					}elseif($roundSet > 0){
-						
+						   
 						if($roundSetMain == 0){
 							$starts = "m";
 						}else{
-							
+							  
 							$result = mysql_query("SELECT COUNT(*) FROM
 											rundenset AS rs
 											, runde AS r
@@ -373,11 +374,12 @@ function AA_timetable_display($arg = 'monitor')
 											rs.xRundenset = $roundSet
 										AND	r.xRunde = rs.xRunde
 										AND	w.xWettkampf = r.xWettkampf
-										AND	d.xDisziplin = w.xDisziplin
-										");
+										AND	d.xDisziplin = w.xDisziplin 
+                                        AND s.xWettkampf > 0  
+										"); 
 							if(mysql_errno() > 0) {		// DB error
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-							}else{
+							}else{ 
 								$start_row = mysql_fetch_array($result);
 								$starts = $start_row[0];
 								mysql_free_result($result);
@@ -401,7 +403,7 @@ function AA_timetable_display($arg = 'monitor')
 
 				// next event has same category: linebreak within cell
 				else		// same category
-				{
+				{   
 					if(array_key_exists($row[10], $events) == TRUE 		// not first round (count qualified athletes)
 						&& $combined == false && $teamsm == false) 	// no combined event, no team sm event
 					{
@@ -433,7 +435,7 @@ function AA_timetable_display($arg = 'monitor')
 						}elseif(empty($row[15])){ // if no group is set
 							$starts = $row[5];
 						}else{
-							$result = mysql_query("SELECT COUNT(*) FROM
+							$result = mysql_query("SELECT COUNT(*) FROM   
 											start as st
 											, anmeldung as a
 										WHERE	st.xAnmeldung = a.xAnmeldung
@@ -452,38 +454,39 @@ function AA_timetable_display($arg = 'monitor')
 					}elseif($roundSet > 0){
 						
 						if($roundSetMain == 0){
-							$starts = "m";
+							$starts = "m";   
 						}else{
 							
-							$result = mysql_query("SELECT COUNT(*) FROM
-											rundenset AS rs
-											, runde AS r
-											, wettkampf AS w
-											, disziplin AS d
-											LEFT JOIN start AS s
-												ON w.xWettkampf = s.xWettkampf
-												AND s.Anwesend = 0
-												AND ((d.Staffellaeufer = 0
-													AND s.xAnmeldung > 0)
-													OR (d.Staffellaeufer > 0
-													AND s.xStaffel > 0))
-										WHERE
-											rs.xRundenset = $roundSet
-										AND	r.xRunde = rs.xRunde
-										AND	w.xWettkampf = r.xWettkampf
-										AND	d.xDisziplin = w.xDisziplin
-										");
+							$result =mysql_query("SELECT COUNT(*) FROM
+                                            rundenset AS rs
+                                            , runde AS r
+                                            , wettkampf AS w
+                                            , disziplin AS d
+                                            LEFT JOIN start AS s
+                                                ON w.xWettkampf = s.xWettkampf
+                                                AND s.Anwesend = 0
+                                                AND ((d.Staffellaeufer = 0
+                                                    AND s.xAnmeldung > 0)
+                                                    OR (d.Staffellaeufer > 0
+                                                    AND s.xStaffel > 0))
+                                        WHERE
+                                            rs.xRundenset = $roundSet
+                                        AND    r.xRunde = rs.xRunde
+                                        AND    w.xWettkampf = r.xWettkampf
+                                        AND    d.xDisziplin = w.xDisziplin 
+                                        AND s.xWettkampf > 0  
+                                        "); 
 							if(mysql_errno() > 0) {		// DB error
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							}else{
-								$start_row = mysql_fetch_array($result);
+								$start_row = mysql_fetch_array($result);  
 								$starts = $start_row[0];
 								mysql_free_result($result);
 							}
 						}
 						
 					}
-					else {
+					else {   
 						$starts = $row[5];
 					}
 					?>
