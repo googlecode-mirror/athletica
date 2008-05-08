@@ -690,5 +690,7 @@ $strTrack1 = "Läufe bis 400m";
 $strTrack2 = "Läufe ab 400m";
 
 $strRelayNrInfo = 'Beginnen Sie immer mit der Staffel 1; Staffeln 2 und höher werden nur vergeben,<br/>wenn im gleichen Wettkampf mehrere Staffeln in der gleichen Kategorie und Disziplin starten';
+
 $strHeatsSeparate = " Serien trennen";
+$strUpdateEfforts = "Bestleistungen aktualisieren";
 ?>
