@@ -5,8 +5,8 @@
  *	print_rankinglist.php
  *	---------------------
  *	
- */
-  
+ */         
+    
 require('./lib/common.lib.php');
 require('./lib/rankinglist_sheets.lib.php');
 require('./lib/rankinglist_single.lib.php');
@@ -37,13 +37,18 @@ if(!empty($_GET['event'])) {
 
 $round = 0;
 if(!empty($_GET['round'])) {
-	$round = $_GET['round'];
+	$round = $_GET['round'];   
 }
 
 $type = 'single';
 if(!empty($_GET['type'])) {
 	$type = $_GET['type'];
 }
+
+$heatSeparate = false;     
+if($_GET['heatSeparate'] == "yes"){  
+    $heatSeparate = true;
+}      
 
 $team = 'ranking';
 if(!empty($_GET['team'])) {
@@ -92,11 +97,11 @@ $show_efforts = 'none';
 if(!empty($_GET['show_efforts'])){
 	$show_efforts = $_GET['show_efforts'];
 }
-
+    
 // Ranking list single event
 if($type == 'single')
 {  
-	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts);
+	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate);
 }
 
 // Ranking list combined events
@@ -107,20 +112,20 @@ else if($type == 'combined')
 
 // Ranking list teams events
 else if($type == 'team')
-{
-	@AA_rankinglist_Team($category, $formaction, $break, $cover);
+{   
+    @AA_rankinglist_Team($category, $formaction, $break, $cover, $parser=false, $event, $heatSeparate);  
 }
 
 // Team sheets
 else if($type == 'sheets')
-{
-	AA_rankinglist_Sheets($category, $formaction, $cover);
+{  
+	AA_rankinglist_Sheets($category, $event, $formaction, $cover,'',$heatSeparate);
 }
 
 // Ranking list team sm events
 else if($type == 'teamsm')
-{
+{  
 	AA_rankinglist_TeamSM($category, $event, $formaction, $break, $cover, $cover_timing, $date);
-}
+}                                         
 
 ?>

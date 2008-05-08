@@ -4,14 +4,14 @@
  *	event_enrolement.php
  *	--------------------
  *	
- */
-
+ */      
+     
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
 require('./lib/common.lib.php');
-
+                                        
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
@@ -245,8 +245,14 @@ if($_GET['arg'] == 'change')
 //
 else if($_GET['arg'] == 'terminate')
 {
-	mysql_query("LOCK TABLES round WRITE, wettkampf READ");
-	
+	mysql_query("LOCK TABLES rundenset READ, runde WRITE, wettkampf READ");
+    
+    $mergedEvents=AA_getMergedEvents($round); 
+    if ($mergedEvents!='')
+        $SqlEvents=" IN " .$mergedEvents;
+    else
+        $SqlEvents=" = " .$event;   
+    	
 	// get rounds which enrolement is pending for termination
 	if($comb > 0){	// combined event -> get all rounds
 		/*$result = mysql_query("
@@ -290,13 +296,13 @@ else if($_GET['arg'] == 'terminate')
 				xRunde
 			FROM
 				runde
-			WHERE xWettkampf = $event
+			WHERE xWettkampf  $SqlEvents
 			AND (Status = " . $cfgRoundStatus['enrolement_pending'] . "
 			OR Status = " . $cfgRoundStatus['open'] . ")
 			ORDER BY
 				Datum ASC
 				, Startzeit ASC
-		");
+		");        
 	}
 	if(mysql_errno() > 0)		// DB error
 	{
@@ -328,7 +334,7 @@ setcookie('sort_enrolement', $arg, time()+2419200);
 $page = new GUI_Page('event_enrolement', TRUE);
 $page->startPage();
 $page->printPageTitle($strEnrolement . ": " . $_COOKIE['meeting']);
-
+              
 $menu = new GUI_Menulist();
 $menu->addButton("dlg_print_event_enrolement.php?category=$category&event=$event&comb=$comb&catFrom=$catFrom&catTo=$catTo&discFrom=$discFrom&discTo=$discTo&mDate=$mDate", $strPrint." ...", '_self');
 $menu->addButton($cfgURLDocumentation . 'help/event/enrolement.html', $strHelp, '_blank');
@@ -500,7 +506,7 @@ if ($arg=="nbr") {
 <?php
 
 if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
-{
+{                                         
 	// check if enrolement pending for this event
 	if($comb > 0){ // combined event selected
 		/*$result = mysql_query("
@@ -552,15 +558,23 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			ORDER BY
 				Datum ASC
 				, Startzeit ASC
-		");
-	}
-
+		");  
+        
+	}    
+    
+    $mainEvent=AA_getMainRoundEvent($event,false);    
+    if ($mainEvent!=$event & $mainEvent!=''){
+        $flagMain=false;
+    }
+    else {
+          $flagMain=true;      
+       
 	if(mysql_errno() > 0)		// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else if(mysql_num_rows($result) > 0)  // data found
-	{
+	{    
 		$row = mysql_fetch_row($result);
 		$round=$row[0];
 
@@ -675,67 +689,18 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 ?>
 	</tr>
 
-<?php
+<?php  
 	
 	//
-	// read merged rounds an select all events
-	//
-	$sqlEvents = "";
-	$eventMerged = false;
-	$result = mysql_query("SELECT xRundenset FROM rundenset
-				WHERE	xRunde = $round
-				AND	xMeeting = ".$_COOKIE['meeting_id']);
-	if(mysql_errno() > 0){
-		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-	}else{
-		$rsrow = mysql_fetch_array($result); // get round set id
-		mysql_free_result($result);
-	}
-	
-	if($rsrow[0] > 0){
-		/*$result = mysql_query("	SELECT r.xWettkampf FROM
-						rundenset as s
-						, runde as r
-					WHERE
-						s.xMeeting = ".$_COOKIE['meeting_id']."
-					AND	s.xRundenset = $rsrow[0]
-					AND	r.xRunde = s.xRunde");*/
-		$sql = "SELECT
-					r.xWettkampf
-				FROM
-					rundenset AS s
-				LEFT JOIN 
-					runde AS r USING(xRunde)
-				WHERE
-					s.xMeeting = ".$_COOKIE['meeting_id']."
-				AND
-					s.xRundenset = ".$rsrow[0].";";
-		$result = mysql_query($sql);
-		if(mysql_errno() > 0){
-			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-			$sqlEvents .= " s.xWettkampf = ".$event." ";
-		}else{
-			if(mysql_num_rows($result) == 0){ // no merged rounds
-				$sqlEvents .= " s.xWettkampf = ".$event." ";
-			}else{
-				$eventMerged = true;
-				$sqlEvents .= "( s.xWettkampf = ".$event." ";
-				while($row = mysql_fetch_array($result)){
-					if($row[0] != $event){ // if there are additional events (merged rounds) add them as sql statement
-						$sqlEvents .= " OR s.xWettkampf = ".$row[0]." ";
-					}
-				}
-				$sqlEvents .= ") ";
-			}
-			mysql_free_result($result);
-		}
-	}else{
-	
-		if ($event > 0 )
-			{ 
-			$sqlEvents = " s.xWettkampf = ".$event." ";
-	}
-		 if ($catFrom > 0 && $discFrom > 0){  
+	// read merged rounds and select all events
+	//       
+    $sqlEvents=AA_getMergedEvents($round);
+    if ($sqlEvents=='' )
+        $sqlEvents = " s.xWettkampf = ".$event." "; 
+    else
+        $sqlEvents = " s.xWettkampf IN ".$sqlEvents." ";     
+   
+   if ($catFrom > 0 && $discFrom > 0){  
 			 $getSortDisc = AA_getSortDisc($discFrom,$discTo);            // sort display from category
 			 $getSortCat = AA_getSortCat($catFrom,$catTo);                // sort display from dicipline
 			 if ($getSortCat[0] && $getSortDisc[0]) {  
@@ -753,8 +718,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				  $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];   
 	
 			$sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";   
-		 }
-		 elseif ($catFrom > 0){    
+	}
+	elseif ($catFrom > 0){    
 				  $getSortCat = AA_getSortCat($catFrom,$catTo);          // sort display from category  
 				  if ($getSortCat[0]) {
 					if ($catTo > 0)     
@@ -767,8 +732,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id']; 
 					 
 				  $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
-		 }
-		 elseif ($discFrom > 0) {
+	}
+	elseif ($discFrom > 0) {
 					$getSortDisc = AA_getSortDisc($discFrom,$discTo);         // sort display from dicipline              
 					 if ($getSortDisc[0]){
 						if ($discTo > 0)                              
@@ -781,16 +746,18 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];  
 			
 					$sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin "; 
-		 }
-		 if ($mDate > 0){
+	}
+	if ($mDate > 0){
 			 if ($sqlEvents!='')
 				$sqlEvents.=" AND r.Datum = '" . $mDate . "' ";
 			 else
 				$sqlEvents.=" r.Datum = '" . $mDate . "' ";    
-		 }  
-	}
+	}  
 	
-	if($relay == FALSE) {   
+   }
+    if ($flagMain){
+	
+	if($relay == FALSE) {           
 			// single event
 		if($comb > 0){ // combined, select entries over each discipline
 			/*$query = "SELECT s.xStart"
@@ -1004,7 +971,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					".$argument.";";
 		$query = $sql;
 	}
-	//echo $query;
+	
 	$result = mysql_query($query);
 	
 	if(mysql_errno() > 0)		// DB error
@@ -1115,7 +1082,12 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		}
 	}
 	printf("</table>\n");
-	mysql_free_result($result);
+	mysql_free_result($result);   
+    }
+    else {
+        AA_printErrorMsg($strErrMergedRound); 
+    } 
+    
 }
 ?>
 

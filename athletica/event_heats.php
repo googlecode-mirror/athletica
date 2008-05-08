@@ -6,7 +6,7 @@
  *	---------------
  *	
  */
-
+     
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -39,13 +39,14 @@ if(!empty($_GET['heat'])) {
 
 $presets = AA_results_getPresets($round);
 
+
 $relay = AA_checkRelay($presets['event']);	// check, if this is a relay event
 
 $disctype = AA_getDisciplineType($round);	// get discipline type
 
 
-if($_POST['arg'] == 'seed') {			// heat seeding
-	AA_heats_seedEntries($presets['event']);
+if($_POST['arg'] == 'seed') {			// heat seeding     
+       AA_heats_seedEntries($presets['event']);  
 }
 
 else if($_POST['arg'] == 'seed_qual') {		// seed qualified athletes
@@ -60,8 +61,8 @@ else if($_GET['arg'] == 'heats_done') {	// heat seeding/qualification done
 	}
 }
 
-else if($_GET['arg'] == 'del_heats') {		// delete heats
-	AA_heats_delete($round);
+else if($_GET['arg'] == 'del_heats') {		// delete heats   
+	AA_heats_delete($round);      
 }
 
 else if($_POST['arg'] == 'add_start') {	// add new athlete/relay
@@ -100,7 +101,7 @@ else if($_GET['arg'] == 'seed_heat') {
 //
 //	Display heats
 //
-
+ 
 $page = new GUI_Page('event_heats');
 $page->startPage();
 $page->printPageTitle($strHeatSeeding . ": " . $_COOKIE['meeting']);
@@ -121,8 +122,7 @@ $menu->printMenu();
 
 
 	function clickTrack(o, item, heatID, heatName, position)
-	{
-		// Select Athlete
+	{   // Select Athlete
 		if ((selected == 0) && (item !=0))
 		{
 			// select athlete and keep the data
@@ -138,7 +138,7 @@ $menu->printMenu();
 			var text = document.createTextNode('<?php echo $strDelete; ?>');	
 			link.appendChild(text);	
 			link.href = "event_heats.php?arg=del_start&item=" + item
-				+ "&round=" + document.athlete.round.value;
+				+ "&round=" + document.athlete.round.value;   
 			var TD = o.insertCell(o.cells.length);
 			TD.className = 'nav';	
 			TD.appendChild(link);	
@@ -222,7 +222,7 @@ $menu->printMenu();
 
 <form action='event_heats.php#heat_' method='post' name='athlete'>
 	<input type='hidden' name='arg' value='change_pos'/>
-	<input type='hidden' name='round' value='<?php echo $round; ?>' />
+	<input type='hidden' name='round' value='<?php echo $round; ?>' />   
 	<input type='hidden' name='item' value=''/>
 	<input type='hidden' name='heat' value=''/>
 	<input type='hidden' name='pos' value=''/>
@@ -252,10 +252,19 @@ if($round > 0) {		// round selected
 </tr></table>
 
 <?php
-
+           
+$mergedMain=AA_checkMainRound($round);
+if ($mergedMain!=1){                    // main round or not merged round
+        
 // read round data
 if($round > 0)
-{
+{   $mergedRounds=AA_getMergedRounds($round);    // get merged rounds
+    if ($mergedRounds!=''){
+       $SqlRound=" IN " . $mergedRounds;
+    }
+    else {
+         $SqlRound=" = " . $round; 
+    }   
 	$status = AA_getRoundStatus($round);
 	$combined = AA_checkCombined(0, $round);
 	$svm = AA_checkSVM(0, $round); // decide whether to show club or team name
@@ -308,7 +317,7 @@ if($round > 0)
 		if($status == $cfgRoundStatus['heats_in_progress']) {
 			AA_printWarningMsg($strHeatsInWork);
 		}
-
+ 
 //
 // display all heats
 //
@@ -372,6 +381,7 @@ if($round > 0)
 						, s.Film
 						, a.BestleistungMK
 						, IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
+                        , r.xRunde  
 					FROM
 						runde AS r
 					LEFT JOIN 
@@ -393,11 +403,13 @@ if($round > 0)
 					LEFT JOIN 
 						region AS re ON(at.xRegion = re.xRegion) 
 					WHERE 
-						r.xRunde = ".$round."
+						r.xRunde ".$SqlRound."
 					ORDER BY
-						  heatid ASC
+						  s.xSerie,
+                          heatid ASC
 						, ss.Position ASC;";
 			$query = $sql;
+              
 		}
 		else {								// relay event
 			/*$query = ("SELECT r.Bahnen"
@@ -464,13 +476,13 @@ if($round > 0)
 					LEFT JOIN
 						team AS t ON(sf.xTeam = t.xTeam)
 					WHERE 
-						r.xRunde = ".$round."
+						r.xRunde ".$SqlRound."  
 					ORDER BY
 						  heatid ASC
 						, ss.Position ASC;";
 			$query = $sql;
 		}
-
+        
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0)		// DB error
@@ -516,7 +528,7 @@ if($round > 0)
 			
 			
 			while($row = mysql_fetch_row($result))
-			{
+			{ 
 				$tracknumber = $relay ? $row[12] : $row[15];
 				
 				$p++;						// increment position counter
@@ -556,7 +568,7 @@ if($round > 0)
 		<th class='dialog'>
 
 			<input type='hidden' name='arg' value='change_heat_name' />
-			<input type='hidden' name='round' value='<?php echo $round; ?>' />
+			<input type='hidden' name='round' value='<?php echo $round; ?>' />  
 			<input type='hidden' name='item' value='<?php echo $row[3]; ?>' />
 			<input class='nbr' type='text' name='id' maxlength='2'
 				value='<?php echo $row[4]; ?>'
@@ -571,7 +583,7 @@ if($round > 0)
 		<form action='event_heats.php#heat_<?php echo $row[4]; ?>' method='post'
 			name='inst_selection_<?php echo $h; ?>'>
 		<input type='hidden' name='arg' value='change_inst' />
-		<input type='hidden' name='round' value='<?php echo $round; ?>' />
+		<input type='hidden' name='round' value='<?php echo $round; ?>' />    
 		<input type='hidden' name='item' value='<?php echo $row[3]; ?>' />
 			<?php
 				$dd = new GUI_InstallationDropDown("document.inst_selection_$h.submit()", $row[5]);
@@ -590,7 +602,7 @@ if($round > 0)
 		<form action='event_heats.php#heat_<?php echo $row[4]; ?>' method='post'
 			name='film_number_<?php echo $h; ?>'>
 		<input type='hidden' name='arg' value='change_film' />
-		<input type='hidden' name='round' value='<?php echo $round; ?>' />
+		<input type='hidden' name='round' value='<?php echo $round; ?>' />    
 		<input type='hidden' name='item' value='<?php echo $row[3]; ?>' />
 		<input type="text" name="film" value="<?php echo $filmnr ?>" size=3 onchange="document.film_number_$h.submit()">
 		</form>
@@ -779,6 +791,11 @@ if($round > 0)
 		$btn->printButton();
 	}
 }		// ET round selected
+}
+else {
+     AA_printErrorMsg($strErrMergedRound);     
+}
+
 
 $page->endPage();
 ?>

@@ -6,7 +6,7 @@
  *	----------------------
  *	
  */
-   
+   // echo " event_rankinglists";
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
@@ -132,13 +132,14 @@ if($presets['event'] > 0) {		// event selected
 <input type='hidden' name='round' value='<?php echo $round; ?>'>
 <input type='hidden' name='formaction' value=''>
 
-<table class='dialog'>
+<table class='dialog'>  
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='single' id='type'  checked >
 			<?php echo $strSingleEvent; ?></input>
 	</th>
 </tr>
+
 <?php
 if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 	|| ($dtype == $cfgDisciplineType[$strDiscTypeJumpNoWind])
@@ -151,10 +152,23 @@ if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 		<input type='radio' name='type' value='single_attempts' id='type' >
 			<?php echo $strSingleEventAttempts; ?></input>
 	</th>
-</tr>
-
+</tr>  
 <?php
 }
+
+if (isset($eventTypeCat['combined'])){?> 
+   
+<tr> 
+    <td class='dialog'>
+        &nbsp;&nbsp;  
+        <input type='checkbox' name='heatSeparate' value='yes'>
+            <?php echo $strHeatsSeparate ?></input>
+    </td>
+</tr>
+
+
+<?php
+}   
 
 // Rankginglists for club and combined-events
 //if(empty($presets['event'])){// no event selected
@@ -219,10 +233,24 @@ if(empty($round) && isset($eventTypeCat['teamsm'])){	// team sm ranking minimum 
 </tr>
 <?php
 }
+if (!isset($eventTypeCat['combined'])){?> 
+   
 
+<tr> 
+    <td class='dialog'>
+        &nbsp;&nbsp;  
+        <input type='checkbox' name='heatSeparate' value='yes'>
+            <?php echo $strHeatsSeparate ?></input>
+    </td>
+</tr>
+
+
+<?php
+}
 if(empty($presets['event']))	// show page break only event not selected
 {										
 ?>
+
 <tr>
 	<th class='dialog'>
 		<?php echo $strPageBreak; ?>

@@ -6,7 +6,7 @@
  *	-----------------
  *	
  */
-
+    
 require('./lib/common.lib.php');
 require('./lib/heats.lib.php');
 require('./lib/results.lib.php');
@@ -31,14 +31,14 @@ if(!empty($_GET['round'])){
 else if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
-
+  
 //
 // update rank manually
 //
 if($_POST['arg'] == 'save_rank')
 {
 	if((!empty($_POST['rank'])) || ($_POST['rank']==0))
-	{
+	{   
 		mysql_query("LOCK TABLES serienstart WRITE");
 
 		mysql_query("UPDATE serienstart SET"
@@ -74,7 +74,7 @@ else if($_POST['arg'] == 'set_qual')
 	if(!empty($_POST['qual_perf'])) {
 		$qual_perf = $_POST['qual_perf'];
 	}
-
+  
 	mysql_query("LOCK TABLES runde WRITE");
 
 	mysql_query("UPDATE runde SET"
@@ -97,7 +97,7 @@ else if($_POST['arg'] == 'set_qual')
 else if($_POST['arg'] == 'change_qual')
 {
 	if((!empty($_POST['qual'])) || ($_POST['qual']==0))
-	{
+	{   
 		mysql_query("LOCK TABLES serienstart WRITE, resultat READ, serie READ");
 
 		$sql = "UPDATE serienstart 
@@ -224,7 +224,7 @@ else if($_POST['arg'] == 'add_start') {	// add new athlete/relay
 	}
 }
 
-else if($_GET['arg'] == 'del_start') {	// delete athlete/relay
+else if($_GET['arg'] == 'del_start') {	// delete athlete/relay  
 	AA_heats_deleteStart();
 	if(!empty($GLOBALS['AA_ERROR'])) {
 		AA_printErrorMsg($GLOBALS['AA_ERROR']);
@@ -236,8 +236,7 @@ elseif($_GET['arg'] == "del_results"){ // delete all results
 	AA_results_deleteResults($round);
 	
 }
-
-
+ 
 //
 //	form layout (depending on discipline type)
 //
@@ -250,7 +249,7 @@ if(($layout == $cfgDisciplineType[$strDiscTypeNone])
 	|| ($layout == $cfgDisciplineType[$strDiscTypeTrackNoWind])
 	|| ($layout == $cfgDisciplineType[$strDiscTypeDistance])
 	|| ($layout == $cfgDisciplineType[$strDiscTypeRelay]))
-{
+{    
 	AA_results_Track($round, $layout);
 }
 // technical disciplines, with or withour wind
@@ -266,3 +265,8 @@ else if($layout == $cfgDisciplineType[$strDiscTypeHigh])
 {
 	AA_results_High($round, $layout);
 }
+
+ //  }
+ //  else {    
+ //       AA_printErrorMsg($strErrMergedRound); 
+ //   } 

@@ -52,10 +52,15 @@ if ((($_GET['catFrom'] > 0)  ||  ($_GET['discFrom'] > 0 || $_GET['mDate'] != '')
          . " AND w.xMeeting = " . $_COOKIE['meeting_id'];    
     }
 }
-else {     
-    if(!empty($_GET['event'])) {
-	    $argument = "w.xWettkampf = " . $_GET['event'];
-    }
+else { 
+    if(!empty($_GET['event'])) {   
+        $sqlEvents=AA_getMergedEventsFromEvent($_GET['event']);
+    
+        if ($sqlEvents=='' )
+            $argument = " w.xWettkampf = " . $_GET['event']." "; 
+        else
+            $argument = " w.xWettkampf IN ".$sqlEvents." ";   
+    } 
     else if(!empty($_GET['category'])) {
 	    $argument = "w.xKategorie = " . $_GET['category']
 				. " AND w.xMeeting = " . $_COOKIE['meeting_id']
@@ -100,6 +105,7 @@ $result = mysql_query("SELECT d.Name"
 					. " AND d.xDisziplin = w.xDisziplin"
 					. " AND k.xKategorie = w.xKategorie"
 					. " ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit");
+                    
       
 if(mysql_errno() > 0)		// DB error
 {
@@ -374,7 +380,7 @@ else
 							AA_formatYearOfBirth($row[3]), $row[4], $row[7], $perf);
 				  }
 				  else
-				  {     echo " row 4=$row[4]";    echo " row 9=$row[9]"; echo "row 5=$row[5]";  
+				  {     
 						$doc->printLine($row[4],  $row[5] . " " . $row[6],
 							AA_formatYearOfBirth($row[7]), $row[2], $row[8], "", $row[3], $row[9]);
 						//$doc->printLine('', $row[0], '', $row[1]);
