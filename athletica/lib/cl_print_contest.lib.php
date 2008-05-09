@@ -308,12 +308,13 @@ class PRINT_ContestRelay extends PRINT_Contest
 
 
 	function printHeatLine($track=0, $relay="", $club="", $country="")
-	{
+	{   
 ?>
 	<tr>
 		<td class='contest_track_track'><?php echo $track; ?></td>
 		<td class='contest_track_relay'><?php echo $relay; ?></td>
-		<td class='contest_track_result'></td>
+		<td class='contest_track_country' text-valign='top'><?php echo $club; ?></td>
+        <td class='contest_track_result' text-valign='top'></td> 
 		<td class='contest_track_rank'></td>
 	</tr>
 <?php
