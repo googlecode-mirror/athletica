@@ -684,11 +684,11 @@ $strRelayNrInfo = 'Commencez toujours par le relais 1; les relais 2 et suivants 
 $strHeatsSeparate = " Séparer les séries";
 $strUpdateEfforts = "Actualiser les meilleures performances";
 $strNoBaseData = "jamais / inconnu";
-$strBaseData = "Stand der Stammdaten:";
+$strBaseData = "État des données de base:";
 
-$strEffortsUpdateInfo1 = "Diese Funktion aktualisiert die Meldeleistungen der Anmeldungen.";
-$strEffortsUpdateInfo2 = "Die Resultate werden aus den Stammdaten gelesen. Um  aktuellen Daten zu erhalten, sollte vor diesem Vorgang ein Stammdaten-Update durchgef&uuml;hrt werden.";
-$strEffortsUpdateInfo3 = "Verhalten bei manuell eingetragenen Meldeleistungen:";
+$strEffortsUpdateInfo1 = "Cette fonction actualise les performances d’inscription des inscriptions.";
+$strEffortsUpdateInfo2 = "Les résultats sont lus dans les données de base. Pour recevoir les données actuelles, il faudrait effectuer une mise à jour des données de base avant ce processus.";
+$strEffortsUpdateInfo3 = "Comportement en cas de performances d’inscriptions inscrites manuellement:";
 $strOverwrite = "Écraser";
-$strLeaveBehind = "Stehen lassen";
+$strLeaveBehind = "Laisser";
 ?>
