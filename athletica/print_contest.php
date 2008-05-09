@@ -345,9 +345,9 @@ else
 					. " AND st.xStart = ss.xStart"
 					. " AND sf.xStaffel = st.xStaffel"
 					. " AND v.xVerein = sf.xVerein"
-					. " ORDER BY heatid, ss.Position");
+					. " ORDER BY heatid, ss.Position");   
 		}
-
+        
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0)		// DB error
@@ -463,7 +463,7 @@ else
 						$doc->printHeatLine($b, $strEmpty);
 						$b++;
 					}
-
+                    
 					if($relay == FALSE) {
 						$doc->printHeatLine($row[4], $row[6], "$row[7] $row[8]"
 								, AA_formatYearOfBirth($row[9]), $row[10], $row[12], $row[14]);
@@ -482,17 +482,16 @@ else
 												. ", start AS ss"
 												. ", staffelathlet AS sta"
 												. ", start AS st"
-												. ", region AS re"
+												. " LEFT JOIN region AS re On (at.xRegion = re.xRegion) "
 												. " WHERE ss.xStaffel = " . $row[6]
 												. " AND sta.xStaffelstart = ss.xStart"
 												. " AND sta.xAthletenstart = st.xStart"
 												. " AND st.xAnmeldung = a.xAnmeldung"
-												. " AND a.xAthlet = at.xAthlet"
-												. " AND at.xRegion = re.xRegion"
+												. " AND a.xAthlet = at.xAthlet"  												
 												. " AND sta.xRunde = ".$row[10]
 												. " ORDER BY sta.Position
-													LIMIT $maxRunners");
-
+													LIMIT $maxRunners");    
+                                              
 						if(mysql_errno() > 0)		// DB error
 						{
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -505,11 +504,12 @@ else
 								$team = $team . "<br />&nbsp;&nbsp;&nbsp;"
 										. $athl_row[2] . ". "
 										. $athl_row[0] . " "
-										. $athl_row[1] . (($row[3]!='' && $row[3]!='-') ? ', '.$row[3] : '');	
+										. $athl_row[1] . (($row[3]!='' && $row[3]!='-') ? ', '.$row[3] : '');
+                               
 							}
 							mysql_free_result($res);
-						}
-						$doc->printHeatLine($row[4], $row[12].". ".$team, $row[8]);
+						}    
+                        $doc->printHeatLine($row[4], $row[12].". ".$team, $row[8]);  
 					}
 				}
 
