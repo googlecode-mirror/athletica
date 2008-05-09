@@ -31,11 +31,12 @@ $page->printPageTitle($strEntries . ": " . $_COOKIE['meeting']);
 
 $menu = new GUI_Menulist();
 $menu->addButton("meeting_entry_add.php", $strNewEntry, "detail");
-$menu->addButton("meeting_entries_startnumbers.php", "$strStartnumbers ...", "detail");
+$menu->addButton("meeting_entries_efforts.php", $strUpdateEfforts, "detail");
+$menu->addButton("meeting_entries_startnumbers.php", "$strStartnumbers", "detail");
 $menu->addButton("meeting_entries_setteams.php", "$strTeamsAutoAssign", "detail");
 $menu->addButton("meeting_entries_setgroups.php", $strCombinedGroupsAutoAssign, "detail");
 $menu->addButton('meeting_entries_print.php', "$strPrint ...", "detail");
-$menu->addButton('meeting_entries_receipt.php', "$strReceipt ...", "detail"); 
+$menu->addButton('meeting_entries_receipt.php', "$strReceipt", "detail"); 
 //$menu->addButton('meeting_entries_export.php', "$strExport (Excel)", "detail");
 $menu->addButton($cfgURLDocumentation . 'help/meeting/entries.html', $strHelp, '_blank');
 $menu->addSearchfield('meeting_entries_search.php', 'detail');

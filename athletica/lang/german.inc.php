@@ -693,4 +693,12 @@ $strRelayNrInfo = 'Beginnen Sie immer mit der Staffel 1; Staffeln 2 und höher we
 
 $strHeatsSeparate = " Serien trennen";
 $strUpdateEfforts = "Bestleistungen aktualisieren";
+$strNoBaseData = "nie / unbekannt";
+$strBaseData = "Stand der Stammdaten:";
+
+$strEffortsUpdateInfo1 = "Diese Funktion aktualisiert die Meldeleistungen der Anmeldungen.";
+$strEffortsUpdateInfo2 = "Die Resultate werden aus den Stammdaten gelesen. Um  aktuellen Daten zu erhalten, sollte vor diesem Vorgang ein Stammdaten-Update durchgef&uuml;hrt werden.";
+$strEffortsUpdateInfo3 = "Verhalten bei manuell eingetragenen Meldeleistungen:";
+$strOverwrite = "Überschreiben";
+$strLeaveBehind = "Stehen lassen";
 ?>

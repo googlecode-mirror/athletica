@@ -319,9 +319,21 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 		
 		if(mysql_num_rows($res) > 0){
 			$row = mysql_fetch_array($res);
-			mysql_query("UPDATE anmeldung SET BestleistungMK = '".$row[0]."' WHERE xAnmeldung = ".$_POST['item']);
+			mysql_query("UPDATE 
+							anmeldung 
+						SET 
+							BestleistungMK = '".$row[0]."' 
+							, BaseEffortMK = 'y'
+						WHERE 
+							xAnmeldung = ".$_POST['item']);
 		}else{
-			mysql_query("UPDATE anmeldung SET BestleistungMK = 0 WHERE xAnmeldung = ".$_POST['item']);
+			mysql_query("UPDATE 
+							anmeldung 
+						SET 
+							BestleistungMK = 0 
+							, BaseEffortMK = 'y'
+						WHERE 
+							xAnmeldung = ".$_POST['item']);
 		}
 	}
 	
@@ -431,8 +443,6 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error() . $sql);
 						}else{ 
 							$rowPerf = mysql_fetch_array($res); 
-							 
-							
 							$perf = $rowPerf['notification_effort']; 
 							
 							if(($rowCodes['Typ'] == $cfgDisciplineType[$strDiscTypeTrack])
@@ -847,11 +857,13 @@ else if ($_POST['arg']=="change_topcomb")
 	$perf = $_POST['topcomb_'.$item];
 	
 	mysql_query("LOCK TABLES anmeldung WRITE");
-	
-	mysql_query("UPDATE anmeldung SET
+	$sql = "UPDATE anmeldung SET
 				BestleistungMK = '$perf'
+				, BaseEffortMK = 'n'
 			WHERE
-				xAnmeldung = $item");
+				xAnmeldung = $item";
+	mysql_query($sql);
+	//echo $sql;
 	if(mysql_errno() > 0)
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1045,6 +1057,7 @@ $result = mysql_query("
 		, at.Lizenztyp
 		, at.Athleticagen
 		, a.Vereinsinfo
+		, a.BaseEffortMK
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -1140,13 +1153,13 @@ function change_licensenr(){
 }
 
 
-    function setPrint()
-    {     
-        document.printdialog.formaction.value = 'print'
-        document.printdialog.target = '_blank';     
-    }
+	function setPrint()
+	{     
+		document.printdialog.formaction.value = 'print'
+		document.printdialog.target = '_blank';     
+	}
 
-     
+	 
 
 </script>
 
@@ -1163,20 +1176,20 @@ function change_licensenr(){
 <input type='hidden' name='formaction' value=''>
  <table>
 <tr>
-    <td>
-       <?php
-         $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-         $btn->printButton();
-       
-       
-       ?>
-    </td>
-    <td>
-        <button name='print' type='submit' onClick='setPrint()'>
-            <?php echo $strReceipt; ?>
-        </button>
-    </td>
-    
+	<td>
+	   <?php
+		 $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+		 $btn->printButton();
+	   
+	   
+	   ?>
+	</td>
+	<td>
+		<button name='print' type='submit' onClick='setPrint()'>
+			<?php echo $strReceipt; ?>
+		</button>
+	</td>
+	
 </tr>
 </table>
 <br>
@@ -1582,7 +1595,7 @@ $dis2 = false;
 				$start_row = mysql_fetch_array($r);         
 			
 				//check if performance from base or manually entered
-				($start_row['BaseEffort']=='y' || $start_row['Bestleistung']==0)?$manual='':$manual=" manual"; 
+				($start_row['BaseEffort']=='y' || $start_row['Bestleistung']=='0')?$manual='':$manual=" manual"; 
 				
 				
 				// check if this is a valid selection (age on category)
@@ -1650,6 +1663,9 @@ $dis2 = false;
 							$comb = $event_row[9];
 							$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $comb");
 							$comb_row = mysql_fetch_array($comb_res);
+							
+							//check if performance from base or manually entered
+							($row[26]=='y' || $row[26]=='0')? $manualMK='':$manualMK=' manual'; 
 							?>
 							<td nowrap="nowrap" class='dialog-top' colspan='2'><?php echo $span ?>
 								<input type="checkbox" value="<?php echo $event_row[8]."_".$comb ?>" name="combined[]"
@@ -1658,8 +1674,7 @@ $dis2 = false;
 								<?php echo $comb_row[0]; ?><?php echo $span_end ?>
 							</td>
 							<td class='dialog-top' colspan='2'>
-								<input type="text" name="topcomb_<?php echo $row[0] ?>" value="<?php echo $row[21] ?>" size="5"
-									onchange="updateStarts('change_topcomb', <?php echo $row[0] ?>, <?php echo $event_row[0] ?>)">
+								<input class="perfmeter<?=$manualMK;?>" type="text" name="topcomb_<?php echo $row[0] ?>" value="<?php echo $row[21] ?>" size="5"   									onchange="updateStarts('change_topcomb', <?php echo $row[0] ?>, <?php echo $event_row[0] ?>)">
 							</td>
 							<td class='dialog' colspan='2' id='td_<?php echo $event_row[8]."_".$comb ?>'>
 								<table>
@@ -1823,20 +1838,20 @@ $dis2 = false;
  
 <table>
 <tr>
-    <td>
-       <?php
-         $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-         $btn->printButton();
-       
-       
-       ?>
-    </td>
-    <td>
-        <button name='print1' type='submit' onClick='setPrint()'>
-            <?php echo $strReceipt; ?>
-        </button>
-    </td>
-    
+	<td>
+	   <?php
+		 $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+		 $btn->printButton();
+	   
+	   
+	   ?>
+	</td>
+	<td>
+		<button name='print1' type='submit' onClick='setPrint()'>
+			<?php echo $strReceipt; ?>
+		</button>
+	</td>
+	
 </tr>
 </table>
 </form>    

@@ -2461,7 +2461,8 @@ function XML_reg_start($parser, $name, $attr){
 													xWettkampf = $xDis1
 													, Bezahlt = '$paid'
 													, xAnmeldung = $xReg
-													, Bestleistung = '".$perf."'");
+													, Bestleistung = '".$perf."' 
+													, BaseEffort = 'y'");
 										if(mysql_errno() > 0){
 											XML_db_error("16-".mysql_errno().": ".mysql_error());
 										}
@@ -2555,6 +2556,8 @@ function XML_reg_start($parser, $name, $attr){
 					if(mysql_num_rows($result) == 0){
 						
 						// insert into table start
+						
+						// !!!!!!!!!!!!! insert of performance from base not implemented yet !!!!!!!!!!!!!!!!
 						
 						mysql_query("
 							INSERT INTO start SET
