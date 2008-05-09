@@ -365,6 +365,17 @@ else if ($_POST['arg'] == 'restore')
 		// as of 1.8 the table omega_konfiguration is named zeitmessung
 		$content = str_replace("omega_konfiguration", "zeitmessung", $content);
 		
+		// dds
+		$search = array(
+			",\n(, '', '', , , '', , )", // serie
+			",\n(, , , , '', , )", // serienstart
+			",\n(, '', '', , , '', , )", // serie
+			",\n(, '', , '', '', , , )", // start
+		);
+		$content = str_replace($search, '', $content);
+		
+		$glb_content = $content;
+		
 		while(strlen($content) > 0)
 		{
 			$content = strstr($content, "TRUNCATE");
@@ -380,7 +391,8 @@ else if ($_POST['arg'] == 'restore')
 		}
 		
 		rewind($fd);
-		$content = fread($fd, filesize($_FILES['bkupfile']['tmp_name']));
+		//$content = fread($fd, filesize($_FILES['bkupfile']['tmp_name']));
+		$content = $glb_content;
 		
 		if($shortVersion < 1.9){ // replace certain things in older backups
 			// as of 1.7 the field xMehrkampfcode is named as Mehrkampfcode
