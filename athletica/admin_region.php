@@ -163,10 +163,10 @@ if ($_GET['sort']=="name") {
 			<input class='text' name='name' type='text' maxlength='50'
 				value="(<?php echo $strNew; ?>)" ></td>
 		<td class='forms'>
-			<input name='display' type='text' size="4" maxlength='4'
+			<input name='display' type='text' size="6" maxlength='6'
 				value='' ></td>
 		<td class='forms'>
-			<input name='sortvalue' type='text' size="4" maxlength='4'
+			<input name='sortvalue' type='text' size="6" maxlength='6'
 				value='' ></td>
 		<td class='forms'>
 			<button type='submit'>
@@ -215,7 +215,7 @@ while ($row = mysql_fetch_row($result))
 					onChange='submitForm(document.region<?php echo $i; ?>)'>
 			</td>
 			<td class='forms'>
-				<input name='display' type='text' maxlength='4' size="4"
+				<input name='display' type='text' maxlength='6' size="6"
 					value="<?php echo $row[2]; ?>"
 					onChange='submitForm(document.region<?php echo $i; ?>)'>
 			</td>

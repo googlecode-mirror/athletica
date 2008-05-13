@@ -159,6 +159,7 @@ if($round > 0)
 	$sql = "SELECT 
 				  d.Seriegroesse
 				, d.Typ 
+				, d.Strecke
 			FROM 
 				disziplin AS d 
 			LEFT JOIN 
@@ -176,6 +177,7 @@ if($round > 0)
 		$row = mysql_fetch_row($res);
 		$size = $row[0];
 		$type = $row[1];
+		$distance = $row[2];
 		mysql_free_result($res);
 	}		// ET DB error
 	
@@ -204,7 +206,11 @@ if($round > 0)
 		else
 		{
 			$row = mysql_fetch_row($res);
-			$tracks = $row[0];
+			if ($distance <= 110 && $distance != 0){ //short tracks
+				$tracks = $row[1];
+			} else {
+				$tracks = $row[0];
+			}
 			mysql_free_result($res);
 		}		// ET DB error
 	}

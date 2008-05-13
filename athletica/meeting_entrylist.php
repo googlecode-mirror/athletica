@@ -47,7 +47,7 @@ if ($arg=="nbr") {
 	$argument="at.Name, at.Vorname";
 	$img_name="img/sort_act.gif";
 } else if ($arg=="verein") {
-	$argument="v.Name";
+	$argument="v.Sortierwert";
 	$img_verein="img/sort_act.gif";
 } else {
 	$argument="a.Startnummer";

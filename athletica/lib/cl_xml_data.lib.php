@@ -1500,6 +1500,7 @@ function XML_base_end($parser, $name){
 									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
 									,'O')";
 					mysql_query($sql);
+					
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
 					}else{
@@ -1509,7 +1510,7 @@ function XML_base_end($parser, $name){
 
 				foreach($iperf as $row){
 					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
-					mysql_query("	INSERT IGNORE INTO
+					$sql = "	INSERT IGNORE INTO
 								base_performance (
 									id_athlete
 									, discipline
@@ -1535,7 +1536,9 @@ function XML_base_end($parser, $name){
 									,'".trim($row['NOTIFICATIONEFFORT'])."'
 									,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
 									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
-									,'I')");
+									,'I')";
+					mysql_query($sql);
+
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
 					}else{
@@ -1569,50 +1572,48 @@ function XML_base_end($parser, $name){
 			if(mysql_errno() > 0){
 				XML_db_error(mysql_errno().": ".mysql_error());
 			}else{
-				
-				mysql_query("DELETE FROM base_performance WHERE id_athlete = $xAthlete");
-				if(mysql_errno() > 0){
-					XML_db_error(mysql_errno().": ".mysql_error());
-				}else{
-
-//echo "<pre> PERFORMANCE " . $athlete['LASTNAME']. " ".  $athlete['FIRSTNAME'] .":\n\n";
-//print_r($perf);				
-					foreach($perf as $row){
-						if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
-						$sql = "	INSERT IGNORE INTO
-									base_performance (
-										id_athlete
-										, discipline
-										, best_effort
-										, best_effort_date
-										, best_effort_event
-										, season_effort
-										, season_effort_date
-										, season_effort_event
-										, notification_effort
-										, notification_effort_date
-										, notification_effort_event
-										, season)
-									VALUES (
-										'".$xAthlete."'
-										,'".$row['SPORTDISCIPLINE']."'
-										,'".trim($row['BESTEFFORT'])."'
-										,'".trim($row['BESTEFFORT_DATE'])."'
-										,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
-										,'".trim($row['SEASONEFFORT'])."'
-										,'".trim($row['SEASONEFFORT_DATE'])."'
-										,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
-										,'".trim($row['NOTIFICATIONEFFORT'])."'
-										,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
-										,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
-										,'O')";
+				foreach($perf as $row){
+					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
 									
-									/* would be nice... unfortunately not supported in MySQL4 ... now deleting before insert
-									ON DUPLICATE KEY UPDATE
-										best_effort = '".trim($row['BESTEFFORT'])."'
-										, season_effort = '".trim($row['SEASONEFFORT'])."'
-										, notification_effort = '".trim($row['NOTIFICATIONEFFORT']). "'"; */ 
-										
+					mysql_query("DELETE FROM base_performance WHERE id_athlete = $xAthlete AND discipline = '". $row['SPORTDISCIPLINE'] ."'");
+					
+					if(mysql_errno() > 0){
+						XML_db_error(mysql_errno().": ".mysql_error());
+					} else {
+						$sql = "	INSERT IGNORE INTO
+								base_performance (
+									id_athlete
+									, discipline
+									, best_effort
+									, best_effort_date
+									, best_effort_event
+									, season_effort
+									, season_effort_date
+									, season_effort_event
+									, notification_effort
+									, notification_effort_date
+									, notification_effort_event
+									, season)
+								VALUES (
+									'".$xAthlete."'
+									,'".$row['SPORTDISCIPLINE']."'
+									,'".trim($row['BESTEFFORT'])."'
+									,'".trim($row['BESTEFFORT_DATE'])."'
+									,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
+									,'".trim($row['SEASONEFFORT'])."'
+									,'".trim($row['SEASONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
+									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
+									,'O')";
+								
+								/* would be nice... unfortunately not supported in MySQL4 ... now deleting before insert
+								ON DUPLICATE KEY UPDATE
+									best_effort = '".trim($row['BESTEFFORT'])."'
+									, season_effort = '".trim($row['SEASONEFFORT'])."'
+									, notification_effort = '".trim($row['NOTIFICATIONEFFORT']). "'"; */ 
+									
 						mysql_query($sql);
 						if(mysql_errno() > 0){
 							XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
@@ -1620,38 +1621,43 @@ function XML_base_end($parser, $name){
 							//ok
 						}
 					}
-//echo "<pre> PERFORMANCEINDOOR $athlete[LASTNAME]) $athlete[FIRSTNAME] :\n\n";
-//print_r($iperf);				
-					foreach($iperf as $row){
-						if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
+				}
+
+				foreach($iperf as $row){
+					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
+					mysql_query("DELETE FROM base_performance WHERE id_athlete = $xAthlete AND discipline = '". $row['SPORTDISCIPLINE'] ."'");
+					
+					if(mysql_errno() > 0){
+						XML_db_error(mysql_errno().": ".mysql_error());
+					} else {
 						$sql = "	INSERT IGNORE INTO
-									base_performance (
-										id_athlete
-										, discipline
-										, best_effort
-										, best_effort_date
-										, best_effort_event
-										, season_effort
-										, season_effort_date
-										, season_effort_event
-										, notification_effort
-										, notification_effort_date
-										, notification_effort_event
-										, season)
-									VALUES (
-										'".$xAthlete."'
-										,'".$row['SPORTDISCIPLINE']."'
-										,'".trim($row['BESTEFFORT'])."'
-										,'".trim($row['BESTEFFORT_DATE'])."'
-										,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
-										,'".trim($row['SEASONEFFORT'])."'
-										,'".trim($row['SEASONEFFORT_DATE'])."'
-										,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
-										,'".trim($row['NOTIFICATIONEFFORT'])."'
-										,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
-										,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
-										,'I')";
-																			
+								base_performance (
+									id_athlete
+									, discipline
+									, best_effort
+									, best_effort_date
+									, best_effort_event
+									, season_effort
+									, season_effort_date
+									, season_effort_event
+									, notification_effort
+									, notification_effort_date
+									, notification_effort_event
+									, season)
+								VALUES (
+									'".$xAthlete."'
+									,'".$row['SPORTDISCIPLINE']."'
+									,'".trim($row['BESTEFFORT'])."'
+									,'".trim($row['BESTEFFORT_DATE'])."'
+									,'".addslashes(trim($row['BESTEFFORT_EVENT']))."'
+									,'".trim($row['SEASONEFFORT'])."'
+									,'".trim($row['SEASONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['SEASONEFFORT_EVENT']))."'
+									,'".trim($row['NOTIFICATIONEFFORT'])."'
+									,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
+									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
+									,'I')";
+																		
 						mysql_query($sql);
 						if(mysql_errno() > 0){
 							XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
