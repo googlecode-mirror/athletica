@@ -139,7 +139,7 @@ if ($res){
 					<tr>
 						<td><p><?=$strEffortsUpdateInfo1?></p>
 						  <p><?=$strEffortsUpdateInfo2?></p>
-						  <p><?= $strBaseData?> <b><?=$date;?></b><br />
+						  <p><?= $strBaseData?> <b><?=substr($date,8,2). '.'. substr($date,5,2).'.'.substr($date,0,4);?></b><br />
 							<br />
 						  </p>
 						  <p><?=$strEffortsUpdateInfo3?></p>
