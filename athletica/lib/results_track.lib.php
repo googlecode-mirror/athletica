@@ -36,8 +36,8 @@ if($_GET['arg'] == 'results_done')
 {   
 	$eval = AA_results_getEvaluationType($round);  
 	$combined = AA_checkCombined(0,$round); 
-    $eventType=AA_getEventTypes($round);
-   	
+	$eventType=AA_getEventTypes($round);
+	
 	mysql_query("
 		LOCK TABLES
 			rundentyp READ
@@ -50,12 +50,12 @@ if($_GET['arg'] == 'results_done')
 	");
 
 	if ( ($eval == $cfgEvalType[$strEvalTypeAll])  ||  
-                          ($eval == $cfgEvalType[$strEvalTypeHeat] &&   (isset($eventType['club']))) ) 
-    {	// eval all heats together
+						  ($eval == $cfgEvalType[$strEvalTypeHeat] &&   (isset($eventType['club']))) ) 
+	{	// eval all heats together
 		$heatorder = "";
 	}
 	else      
-    {	// default: rank results per heat
+	{	// default: rank results per heat
 		$heatorder = "serie.xSerie, ";
 	}     
 	
@@ -93,7 +93,7 @@ if($_GET['arg'] == 'results_done')
 			$heatorder
 			resultat.Leistung ASC
 	");     
-    
+	
 	if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -111,21 +111,21 @@ if($_GET['arg'] == 'results_done')
 						. " Rang = 0"
 						. " WHERE xSerienstart = " . $row[1]);
 			}else{  
-                            
-                if ( !($eval == $cfgEvalType[$strEvalTypeHeat] &&  (isset($eventType['club']))) ){ 
-                     if(($eval != $cfgEvalType[$strEvalTypeAll])    // new heat
-                        &&($heat != $row[2]))
-                        {
-                        $i = 0;        // restart ranking   (not SVM with single heat)
-                        $perf = 0;
-                     }                 
-                }   				
-	              
+							
+				if ( !($eval == $cfgEvalType[$strEvalTypeHeat] &&  (isset($eventType['club']))) ){ 
+					 if(($eval != $cfgEvalType[$strEvalTypeAll])    // new heat
+						&&($heat != $row[2]))
+						{
+						$i = 0;        // restart ranking   (not SVM with single heat)
+						$perf = 0;
+					 }                 
+				}   				
+				  
 				$i++;							// increment ranking
 				if($perf < $row[0]) {	// compare with previous performance
 					$rank = $i;				// next rank (only if not same performance)
 				}
-                
+				
 				mysql_query("UPDATE serienstart SET"
 								. " Rang = " . $rank
 								. " WHERE xSerienstart = " . $row[1]);
@@ -270,7 +270,7 @@ if(($_GET['arg'] == 'results_done')
 		}	// ET DB error
 		mysql_query("UNLOCK TABLES");
 	}	// ET top athletes
-    
+	
 	// qualify top performing athletes for next round
 	if($qual_perf > 0)
 	{
@@ -392,101 +392,101 @@ if(($_GET['arg'] == 'results_done')
 || ($_POST['arg'] == 'save_rank')){
 	
 	AA_utils_calcRankingPoints($round);    
-    
-    // only for SVM with heat single --> set back the ranks per heat    
-    if ($eval == $cfgEvalType[$strEvalTypeHeat] &&   (isset($eventType['club']))) {  
-    
-    mysql_query("
-        LOCK TABLES
-            rundentyp READ
-            , runde READ
-            , serie READ
-            , resultat READ   
-            , serienstart WRITE
-    ");
-    // if this is a combined event, rank all rounds togheter
-    
-    $heatorder = "serie.xSerie, ";  
-    
-    $roundSQL = "";
-    if($combined){
-        $roundSQL = "AND serie.xRunde IN (";
-        $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
-        while($row_c = mysql_fetch_array($res_c)){
-            $roundSQL .= $row_c[0].",";
-        }
-        $roundSQL = substr($roundSQL,0,-1).")";
-    }else{
-        $roundSQL = "AND serie.xRunde = $round";
-    }
-    
-    $result = mysql_query("
-        SELECT
-            resultat.Leistung
-            , serienstart.xSerienstart
-            , serienstart.xSerie
-            , serienstart.xStart
-            , serie.Wind
-        FROM
-            resultat
-            , serienstart
-            , serie
-        WHERE resultat.xSerienstart = serienstart.xSerienstart
-        
-        AND serienstart.xSerie = serie.xSerie
-        $roundSQL
-        ORDER BY
-            $heatorder
-            resultat.Leistung ASC
-    ");     
-    
-    if(mysql_errno() > 0) {        // DB error
-            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-    }
-    else
-    {
-        $heat = 0;
-        $perf = 0;
-        $i = 0;
-        $rank = 0;
-        while($row = mysql_fetch_row($result))
-        {
-            // check on codes < 0
-            if($row[0] < 0){
-                mysql_query("UPDATE serienstart SET"
-                        . " Rang = 0"
-                        . " WHERE xSerienstart = " . $row[1]);
-            }else{   
-              
-                if(($eval != $cfgEvalType[$strEvalTypeAll])    // new heat
-                    &&($heat != $row[2]))
-                {
-                    $i = 0;        // restart ranking
-                    $perf = 0;
-                }
-                 
-                $i++;                            // increment ranking
-                if($perf < $row[0]) {    // compare with previous performance
-                    $rank = $i;                // next rank (only if not same performance)
-                }
-                mysql_query("UPDATE serienstart SET"
-                                . " Rang = " . $rank
-                                . " WHERE xSerienstart = " . $row[1]);
-    
-                if(mysql_errno() > 0) {
-                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                }   
-                  
-                $heat = $row[2];        // keep current heat ID
-                $perf = $row[0];        // keep current performance   
-            }
-        }
-        mysql_free_result($result);
-    }
-    mysql_query("UNLOCK TABLES");    
+	
+	// only for SVM with heat single --> set back the ranks per heat    
+	if ($eval == $cfgEvalType[$strEvalTypeHeat] &&   (isset($eventType['club']))) {  
+	
+	mysql_query("
+		LOCK TABLES
+			rundentyp READ
+			, runde READ
+			, serie READ
+			, resultat READ   
+			, serienstart WRITE
+	");
+	// if this is a combined event, rank all rounds togheter
+	
+	$heatorder = "serie.xSerie, ";  
+	
+	$roundSQL = "";
+	if($combined){
+		$roundSQL = "AND serie.xRunde IN (";
+		$res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
+		while($row_c = mysql_fetch_array($res_c)){
+			$roundSQL .= $row_c[0].",";
+		}
+		$roundSQL = substr($roundSQL,0,-1).")";
+	}else{
+		$roundSQL = "AND serie.xRunde = $round";
+	}
+	
+	$result = mysql_query("
+		SELECT
+			resultat.Leistung
+			, serienstart.xSerienstart
+			, serienstart.xSerie
+			, serienstart.xStart
+			, serie.Wind
+		FROM
+			resultat
+			, serienstart
+			, serie
+		WHERE resultat.xSerienstart = serienstart.xSerienstart
+		
+		AND serienstart.xSerie = serie.xSerie
+		$roundSQL
+		ORDER BY
+			$heatorder
+			resultat.Leistung ASC
+	");     
+	
+	if(mysql_errno() > 0) {        // DB error
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+	}
+	else
+	{
+		$heat = 0;
+		$perf = 0;
+		$i = 0;
+		$rank = 0;
+		while($row = mysql_fetch_row($result))
+		{
+			// check on codes < 0
+			if($row[0] < 0){
+				mysql_query("UPDATE serienstart SET"
+						. " Rang = 0"
+						. " WHERE xSerienstart = " . $row[1]);
+			}else{   
+			  
+				if(($eval != $cfgEvalType[$strEvalTypeAll])    // new heat
+					&&($heat != $row[2]))
+				{
+					$i = 0;        // restart ranking
+					$perf = 0;
+				}
+				 
+				$i++;                            // increment ranking
+				if($perf < $row[0]) {    // compare with previous performance
+					$rank = $i;                // next rank (only if not same performance)
+				}
+				mysql_query("UPDATE serienstart SET"
+								. " Rang = " . $rank
+								. " WHERE xSerienstart = " . $row[1]);
+	
+				if(mysql_errno() > 0) {
+					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+				}   
+				  
+				$heat = $row[2];        // keep current heat ID
+				$perf = $row[0];        // keep current performance   
+			}
+		}
+		mysql_free_result($result);
+	}
+	mysql_query("UNLOCK TABLES");    
    
-    }  // end:   only for SVM with heat single --> set back the ranks per heat
-      
+	}  // end:   only for SVM with heat single --> set back the ranks per heat
+	  
 }
 
 //
@@ -506,12 +506,12 @@ AA_results_printHeader($presets['category'], $presets['event'], $round);
 
 $mergedMain=AA_checkMainRound($round);
 if ($mergedMain != 1) {
-    
+	
 // read round data
 if($round > 0)
 {
 	$status = AA_getRoundStatus($round);
-       
+	   
 	// No action yet
 	if(($status == $cfgRoundStatus['open'])
 		|| ($status == $cfgRoundStatus['enrolement_done'])
@@ -929,7 +929,11 @@ if($round > 0)
 					$perf = '';
 					$resrow = mysql_fetch_row($res);
 					if($resrow != NULL) {		// result found
-						$perf = AA_formatResultTime($resrow[1]);
+						$secflag = false;
+						if(substr($resrow[1],0,2) >= 60){
+							$secflag = true;
+						}
+						$perf = AA_formatResultTime($resrow[1], false, $secflag);
 					}
 
 					if($status != $cfgRoundStatus['results_done'])
@@ -1077,8 +1081,8 @@ if(!empty($presets['focus'])) {
 }
 else
 {
-        AA_printErrorMsg($strErrMergedRound); 
-    } 
+		AA_printErrorMsg($strErrMergedRound); 
+	} 
 }
 
 
