@@ -6,7 +6,7 @@
  *	-----------------
  *	
  */
-	  
+	    
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -836,7 +836,7 @@ else if ($_POST['arg']=="change_top")
 				, BaseEffort = 'n'
 			WHERE xStart = " . $_POST['event']
 		);
-
+             
 		if(mysql_errno() > 0)
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1155,44 +1155,35 @@ function change_licensenr(){
 
 	function setPrint()
 	{     
-		document.printdialog.formaction.value = 'print'
+		document.printdialog.formaction.value = 'print'        
 		document.printdialog.target = '_blank';     
 	}
 
 	 
 
 </script>
-
-<?php
-//$btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-//$btn->printButton();
-
-
-
-//$btn1 = new GUI_Button("print_meeting_receipt.php?item=$row[0]", $strReceipt);
-//$btn1->printButton();
-?>
- <form action='print_meeting_receipt.php' method='get' name='printdialog'>
-<input type='hidden' name='formaction' value=''>
- <table>
-<tr>
-	<td>
-	   <?php
-		 $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-		 $btn->printButton();
-	   
-	   
-	   ?>
-	</td>
-	<td>
-		<button name='print' type='submit' onClick='setPrint()'>
-			<?php echo $strReceipt; ?>
-		</button>
-	</td>
-	
-</tr>
+ 
+<table>
+ <tr>
+    <td > 
+         <?php   
+         $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+         $btn->printButton();
+         ?> 
+    </td>    
+    <td>
+        <form action='print_meeting_receipt.php' method='get' name='printdialog'>
+            <input type='hidden' name='formaction' value=''>
+            <input type='hidden' name='item' value='<?php echo $row[0]; ?>'>
+            <button name='print' type='submit' onClick='setPrint()' valign="bottom">
+                <?php echo $strReceipt; ?>
+            </button> 
+    </td>
+    </form> 
+   </tr>  
 </table>
-<br>
+
+  
 
 <table class='dialog'>
 <tr>
@@ -1596,7 +1587,7 @@ $dis2 = false;
 			
 				//check if performance from base or manually entered
 				($start_row['BaseEffort']=='y' || $start_row['Bestleistung']=='0')?$manual='':$manual=" manual"; 
-				
+				 
 				
 				// check if this is a valid selection (age on category)
 				//if($event_row[5] < $agelimit || (substr($event_row[6],0,1) != $sex && substr($event_row[6],3,1) != $sex)){
@@ -1833,29 +1824,10 @@ $dis2 = false;
 }
 
 ?>
-<p/>
-
- 
-<table>
-<tr>
-	<td>
-	   <?php
-		 $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-		 $btn->printButton();
-	   
-	   
-	   ?>
-	</td>
-	<td>
-		<button name='print1' type='submit' onClick='setPrint()'>
-			<?php echo $strReceipt; ?>
-		</button>
-	</td>
+<p/> 
+<?php
+$btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+$btn->printButton(); 
 	
-</tr>
-</table>
-</form>    
-
-<?php    
 $page->endPage();
 ?>
