@@ -36,7 +36,8 @@ function AA_timetable_display($arg = 'monitor')
 		WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
 		AND w.xKategorie = k.xKategorie
 		ORDER BY
-			k.Anzeige
+			k.Anzeige,
+            k.Kurzname
 	");
 
 	if(mysql_errno() > 0)	// DB error
@@ -111,6 +112,7 @@ function AA_timetable_display($arg = 'monitor')
 				r.Datum
 				, r.Startzeit
 				, k.Anzeige
+                , k.Kurzname
 				, d.Anzeige
 		");   
     
