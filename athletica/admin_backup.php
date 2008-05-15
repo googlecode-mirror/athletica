@@ -367,11 +367,35 @@ else if ($_POST['arg'] == 'restore')
 		
 		// dds
 		$search = array(
+			",\n(, '', '', '', '', '', '', , , , )", // anmeldung
+			",\n(, '', '', '', , , , '', '', '', '', '', , '')", // athlet
+			",\n(, '', '', , , , , '', '', '', , )", // disziplin
+			",\n(, '', '', , '', '', '')", // kategorie
+			",\n(, , '', '', , '', '', , '', '', , '', '', , '', '', , '', '', )", // layout
+			",\n(, '', '', '', '', '', , '', '', '', '', , , '', '', '', '')", // meeting
+			",\n(, '', '')", // omega_typ
+			",\n(, '', '', )", // region
+			",\n(, , '', , )", // resultat
+			",\n(, '', '', '', '', , , '', '', '', '', '', '', '', , )", // runde
+			",\n(, '', '', )", // rundenlog
+			",\n(, , , '')", // rundenset
+			",\n(, '', '', '', '')", // rundentyp
 			",\n(, '', '', , , '', , )", // serie
 			",\n(, , , , '', , )", // serienstart
-			",\n(, '', '', , , '', , )", // serie
+			",\n(, '', , , , , '', )", // staffel
+			",\n(, , , )", // staffelathlet
 			",\n(, '', , '', '', , , )", // start
+			",\n(, '', '', '', '', '')", // stadion
+			",\n(, '', '', , , , )", // team
+			",\n(, '', , , , )", // teamsm
+			",\n(, )", // teamsmathlet
+			",\n(, '', '', '', '')", // verein
+			",\n(, '')", // wertungstabelle
+			",\n(, , , '', '', )", // wertungstabelle_punkte
+			",\n(, '', '', '', '', '', '', '', '', '', , , , , '', '', , )", // wettkampf
+			",\n(, '', '', '', '', '', '', '', '', '', '', '', '', '', '', )" // zeitmessung
 		);
+			
 		$content = str_replace($search, '', $content);
 		
 		$glb_content = $content;
