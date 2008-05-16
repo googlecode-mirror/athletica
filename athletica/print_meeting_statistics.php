@@ -104,7 +104,22 @@ $doc->printSubTitle($strStartsPerDisc);
 $doc->startList();
 $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
+ mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table    
+  
+ $query_tmp="CREATE TEMPORARY TABLE result_tmp select 
+                            MIN(r.Startzeit) AS Startzeit, r.xWettkampf from runde as r  
+                            group by r.xWettkampf 
+ ";   
+ $res_tmp = mysql_query($query_tmp);     
+ 
+ if(mysql_errno() > 0)        // DB error
+    {
+    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+ }
+ else  
+     {   
 // read all events
+/*
 $sql = "
 	SELECT
 		k.Name
@@ -144,7 +159,53 @@ $sql = "
 		, w.Mehrkampfcode
 		, d.Anzeige
 ";
-//echo $sql;
+*/
+$sql = "
+    SELECT
+        k.Name
+        , d.Name
+        , IF(s.xWettkampf IS NULL,0,COUNT(*))
+        , w.xWettkampf
+        , SUM(s.Anwesend)
+        , IF(w.Mehrkampfcode > 0, dd.Name,w.Info) as DiszInfo
+        , wk.Name
+        , IF(w.Typ = ".$cfgEventType[$strEventTypeSingleCombined].",w.Mehrkampfcode, 0)
+        , IF(s.xAnmeldung > 0, an.xKategorie, st.xKategorie) AS Cat
+        , w.Mehrkampfcode
+        , r.Status
+        , r.xRundentyp
+        , t.Startzeit  
+    FROM
+        disziplin AS d
+        , kategorie AS wk
+        , wettkampf AS w
+    LEFT JOIN start AS s
+        ON w.xWettkampf = s.xWettkampf
+        AND ((d.Staffellaeufer = 0
+                AND s.xAnmeldung > 0)
+            OR (d.Staffellaeufer > 0
+                AND s.xStaffel > 0))
+    LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung)
+    LEFT JOIN staffel AS st ON (s.xStaffel = st.xStaffel)
+    LEFT JOIN kategorie AS k ON ( k.xKategorie = 
+        IF(an.xKategorie > 0, an.xKategorie, st.xKategorie))
+    LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname)    
+    LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)    
+    LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
+    WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
+    AND d.xDisziplin= w.xDisziplin
+    AND wk.xKategorie = w.xKategorie
+    AND r.Startzeit = t.Startzeit  
+    GROUP BY
+        Cat, s.xWettkampf
+    ORDER BY
+        k.Anzeige
+        , k.Kurzname DESC
+        , w.Typ
+        , w.Mehrkampfcode
+        , d.Anzeige
+";
+
 $result = mysql_query($sql);
 
 if(mysql_errno() > 0)		// DB error
@@ -175,9 +236,14 @@ else if(mysql_num_rows($result) > 0)  // data found
 		}else{
 			$mkCode = 0;
 		}
-		
-		$row2 = $row[2] - $row[4];	// calculating started athletes:
-									// registrations - athletes with s.Anwesend = 1 (didn't show up at apell)
+		if ($row[10]==$cfgRoundStatus['open'] 
+                    || $row[10]== $cfgRoundStatus['enrolement_pending']
+                    || $row[10]== $cfgRoundStatus['enrolement_done']
+                    || $row[10]== $cfgRoundStatus['heats_done']) 
+            $row2 = 0;                  // no started athletes when enrolement open or pending
+        else 
+		    $row2 = $row[2] - $row[4];	// calculating started athletes:
+									    // registrations - athletes with s.Anwesend = 1 (didn't show up at apell)
 		
 		$Info = ($row[5]!="") ? ' ('.$row[5].')': '';
 		$disc = $row[1] ." ". $row[6] . $Info;
@@ -211,6 +277,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	}
 	mysql_free_result($result);
 }
+}
 $doc->endList();
 
 
@@ -222,6 +289,7 @@ $doc->startList();
 $doc->printHeaderLine($strClub, $strFee, $strDeposit, $strEntries, $strStarted);
 
 // read all starts per club and add fee and deposit
+/*
 $result = mysql_query("
 	SELECT
 		v.xVerein
@@ -239,6 +307,7 @@ if(mysql_errno() > 0)		// DB error
 }
 else if(mysql_num_rows($result) > 0)  // data found
 {
+*/
 	$tf = 0;		// total fees
 	$td = 0;		// total deposit
 	$ts = 0;		// total starts
@@ -365,7 +434,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			$doc->printLine($row[1], $f, $d);
 		}	// ET data for this club
 	}*/
-	
+/*	
 	while ($row = mysql_fetch_row($result)){
 		$clubs[$row[0]]['name'] = $row[1];
 		$clublist .= "$row[0],";
@@ -373,9 +442,10 @@ else if(mysql_num_rows($result) > 0)  // data found
 	$clublist = substr($clublist, 0, -1);
 	
 	if(count($clubs) > 0){
-		
+*/		
 		// get fee, deposit for this club's athletes
 		// and entries
+      /*  
 		$sql ="
 			SELECT
 				at.xVerein
@@ -406,8 +476,41 @@ else if(mysql_num_rows($result) > 0)  // data found
 				, w.Typ
 				, w.Mehrkampfcode
 		";
+       */ 
+         $sql ="
+            SELECT  
+                v.xVerein,                 
+                SUM(w.Startgeld), 
+                SUM(w.Haftgeld), 
+                count(*),
+                SUM(s.Anwesend), 
+                IF(w.Typ = ".$cfgEventType[$strEventTypeSingleCombined].",w.Mehrkampfcode, 0),   
+                w.xKategorie,
+                v.Name,
+                s.xWettkampf, 
+                w.Mehrkampfcode, 
+                s.xStaffel, 
+                s.xAnmeldung, 
+                a.xAthlet, 
+                at.Name, 
+                at.Vorname , 
+                d.xDisziplin  , 
+                d.Name 
+            FROM
+                start AS s
+                LEFT  JOIN anmeldung AS a ON (s.xAnmeldung=a.xAnmeldung) 
+                LEFT JOIN athlet as at ON (a.xAthlet=at.xAthlet)
+                LEFT JOIN wettkampf as w ON (s.xWettkampf=w.xWettkampf)
+                LEFT JOIN disziplin as d On (w.xDisziplin=d.xDisziplin)
+                LEFT JOIN verein as v ON (at.xVerein=v.xVerein) 
+                LEFT JOIN Staffel as st ON (s.xStaffel = st.xStaffel)  
+            where s.xStaffel = 0    
+            GROUP BY v.xVerein , w.xWettkampf                    
+            ORDER BY v.xVerein, w.Mehrkampfcode
+        ";
+        
 		$res = mysql_query($sql);
-		//echo "<pre>$sql</pre>";
+		
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}else{
@@ -420,6 +523,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 					$mkCode = 0;
 				}
 				if($club != $row[0]){
+                    $clubs[$row[0]]['name'] = $row[7];  
 					$club = $row[0];
 					$mkCode = 0;
 				}
@@ -445,7 +549,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			mysql_free_result($res);
 		}
 		
-		// get fee, deposit for this club's relays
+	/*	// get fee, deposit for this club's relays
 		$res = mysql_query("
 			SELECT
 				st.xVerein
@@ -529,9 +633,10 @@ else if(mysql_num_rows($result) > 0)  // data found
 			if($club['fee'] > 0 || $club['deposit'] > 0){
 
 				//calculate fee-reduction for second and more disciplines per athlete
-				$sql ="SELECT
+				/*
+                $sql ="SELECT
 						athlet.xVerein
-						, (count(start.xWettkampf)-1) * (StartgeldReduktion/100) as ReductionAmount
+						, (count(start.xWettkampf)-1) * (StartgeldReduktion/100) as ReductionAmount    
 					FROM
 						athlet
 						INNER JOIN anmeldung 
@@ -548,27 +653,83 @@ else if(mysql_num_rows($result) > 0)  // data found
 						AND anmeldung.xMeeting = " . $_COOKIE['meeting_id'] . "
 					GROUP BY athlet.xVerein, athlet.xAthlet
 					HAVING (count(start.xWettkampf) >1)";
-				$res = mysql_query($sql);
+                */
+                
+                $sql="SELECT
+                        athlet.xVerein
+                       , (count(s.xWettkampf)-1) * (StartgeldReduktion/100) as ReductionAmount                                                                                        
+                        ,athlet.Name
+                        ,athlet.Vorname
+                        , t.Startzeit
+                        , SUM(if (r.Status=4 OR r.Status=3,1,0)) as started
+                        , SUM(s.Anwesend)  as anwesend
+                        , SUM(if (r.Status=4 OR r.Status=3,wettkampf.Haftgeld=0,wettkampf.Haftgeld) )  AS Haftgeld
+                        , SUM(wettkampf.Startgeld) AS Startgeld
+                        , count(s.xWettkampf) as enrolement
+                        , meeting.Haftgeld 
+                    FROM
+                        athlet
+                        INNER JOIN anmeldung 
+                        ON (athlet.xAthlet = anmeldung.xAthlet)
+                        INNER JOIN start As s
+                        ON (anmeldung.xAnmeldung = s.xAnmeldung)
+                        INNER JOIN wettkampf 
+                        ON (s.xWettkampf = wettkampf.xWettkampf)
+                        INNER JOIN meeting 
+                        ON (wettkampf.xMeeting = meeting.xMeeting)
+                        LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf)   
+                        LEFT JOIN result_tmp as t ON (s.xWettkampf=t.xWettkampf) 
+                    WHERE  ((athlet.xVerein = '$xVerein')
+                        AND    (wettkampf.Mehrkampfcode =0
+                        OR wettkampf.Mehrkampfende =1))
+                        AND anmeldung.xMeeting =  " . $_COOKIE['meeting_id'] . " 
+                         AND r.Startzeit = t.Startzeit  
+                    GROUP BY athlet.xVerein, athlet.xAthlet";
+                
+				$res = mysql_query($sql);    
+                
 				$reduction = 0;
-				while($row = mysql_fetch_array($res)){
+                $starts = 0;
+               // $fee = 0;
+               // $deposit = 0;
+               // $entries = 0;
+                
+				while($row = mysql_fetch_array($res)){ 
 					$reduction += $row['ReductionAmount'];
+                    $starts+=$row['started'] -$row['anwesend'];
+                    $m_deposit= $row['Haftgeld']/100;
+                    //$fee+=$row['Startgeld']-$row['ReductionAmount'] ;
+                    //$deposit+=$row['Haftgeld'];
+                    //$entries+=$row['enrolement'];
+                    
 				}
+                $deposit=($club['entries'] - $starts) * $m_deposit;  
+                
 				$tf += $club['fee']-$reduction ;
-				$td += $club['deposit'];
+				//$td += $club['deposit'];
 				$te += $club['entries'];
-				$ts += $club['starts'];
+				//$ts += $club['starts'];
+                
+               // $tf += $fee;
+                $td += $deposit;
+               // $te += $entries;
+                $ts += $starts;
 				
-				$doc->printLine($club['name'], $club['fee']-$reduction, $club['deposit'], $club['entries'], $club['starts']);
-			}
+				//$doc->printLine($club['name'], $club['fee']-$reduction, $club['deposit'], $club['entries'], $club['starts']);
+			    $doc->printLine($club['name'], $club['fee']-$reduction, $deposit, $club['entries'],  $starts);                                              
+               // $doc->printLine($club['name'],$fee, $deposit, $entries, $starts);   
+            }
 		}
 		
-	}
+	//}
 	
 	// add grand total
 	$doc->printTotalLine($strTotal, $tf, $td, $te, $ts);
+    
 	mysql_free_result($result);
-}
-
+//}
+    mysql_query("DROP TABLE IF EXISTS result_tmp");   
+    
 $doc->endList();
 $doc->endPage();	// end HTML page
 ?>
