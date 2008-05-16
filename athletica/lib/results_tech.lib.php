@@ -11,8 +11,7 @@ if (!defined('AA_RESULTS_TECH_LIB_INCLUDED'))
 	define('AA_RESULTS_TECH_LIB_INCLUDED', 1);
 
 function AA_results_Tech($round, $layout)
-{
-
+{                          
 require('./lib/cl_gui_button.lib.php');
 
 require('./config.inc.php');
@@ -507,6 +506,9 @@ if(($_GET['arg'] == 'results_done')
 //
 AA_results_printHeader($presets['category'], $presets['event'], $round);
 
+$mergedMain=AA_checkMainRound($round);
+if ($mergedMain != 1) {
+
 // read round data
 if($round > 0)
 {
@@ -956,6 +958,12 @@ if(!empty($presets['focus'])) {
 </html>
 
 <?php
+}
+else
+{
+        AA_printErrorMsg($strErrMergedRound); 
+    } 
+
 }	// End Function AA_results_Tech
 
 }	// AA_RESULTS_TECH_LIB_INCLUDED
