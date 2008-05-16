@@ -625,7 +625,7 @@ else {
 				if ($flagSubtitle){
 					?>
 					<tr>
-						<td colspan="3">
+						<td colspan="4">
 					<?php
 					if ($heatSeparate) 
 						if ($relay)
