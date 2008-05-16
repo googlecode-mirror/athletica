@@ -469,6 +469,9 @@ if(($_GET['arg'] == 'results_done')
 //
 AA_results_printHeader($presets['category'], $presets['event'], $round);
 
+$mergedMain=AA_checkMainRound($round);
+if ($mergedMain != 1) {
+
 // read round data
 if($round > 0)
 {
@@ -807,6 +810,11 @@ if($round > 0)
 </html>
 
 <?php
+}
+else
+{
+        AA_printErrorMsg($strErrMergedRound); 
+    } 
 }	// end function AA_results_High
 
 
