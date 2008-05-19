@@ -584,7 +584,7 @@ function AA_heats_seedQualifiedAthletes($event)
                             // . " AND s.xRunde = " . $prev_rnd        
         }
     }
-    else {
+    else {  
 	$result = mysql_query("SELECT ss.xStart"
 							. ", IF(ss.Qualifikation<=2, 0, 1)"
 							. ", IF(ss.Qualifikation<=2, ss.Rang, 0)"
@@ -595,20 +595,20 @@ function AA_heats_seedQualifiedAthletes($event)
 							. " WHERE ss.Qualifikation > 0"
 							. " AND ss.Qualifikation != 9"
 							. " AND s.xSerie = ss.xSerie"
-							. " AND s.xRunde  " . $sqlRounds
+							. " AND s.xRunde  =" . $prev_rnd
 							. " AND r.xSerienstart = ss.xSerienstart"
 							. " ORDER BY " . $order);
                             
-                            // . " AND s.xRunde = " . $prev_rnd         
+                            // . " AND s.xRunde = " . $prev_rnd    
     }
-
+         
 	if(mysql_errno() > 0)		// DB error
-	{
+	{    
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	// athletes for this event found
 	else if(mysql_num_rows($result) > 0)
-	{             
+	{         
 		mysql_query("LOCK TABLES resultat READ, runde WRITE, rundenset READ,serie WRITE"
 							. ", serienstart WRITE");
 
@@ -618,7 +618,7 @@ function AA_heats_seedQualifiedAthletes($event)
 			AA_printErrorMsg($strRound . $strErrNotValid);
 		}
 		else
-		{
+		{   
 			// check if there are any results for this round
 			$res = mysql_query("SELECT xResultat"
 									. " FROM resultat"
@@ -628,6 +628,7 @@ function AA_heats_seedQualifiedAthletes($event)
 									. " AND serienstart.xSerie = serie.xSerie"
 									. " AND resultat.xSerienstart = serienstart.xSerienstart");
 
+                                    
 			if(mysql_errno() > 0)		// DB error
 			{
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -641,7 +642,7 @@ function AA_heats_seedQualifiedAthletes($event)
 			{
 				mysql_free_result($res);
 				$OK = TRUE;
-
+                  
 				//
 				// Delete already seeded starts per heat
 				//
