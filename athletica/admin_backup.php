@@ -367,36 +367,66 @@ else if ($_POST['arg'] == 'restore')
 		
 		// dds
 		$search = array(
+			"VALUES\n(, '', '', '', '', '', '', , , , ),", // anmeldung
 			",\n(, '', '', '', '', '', '', , , , )", // anmeldung
+			"VALUES\n(, '', '', '', , , , '', '', '', '', '', , ''),", // athlet
 			",\n(, '', '', '', , , , '', '', '', '', '', , '')", // athlet
+			"VALUES\n(, '', '', , , , , '', '', '', , ),", // disziplin
 			",\n(, '', '', , , , , '', '', '', , )", // disziplin
+			"VALUES\n(, '', '', , '', '', ''),", // kategorie
 			",\n(, '', '', , '', '', '')", // kategorie
+			"VALUES\n(, , '', '', , '', '', , '', '', , '', '', , '', '', , '', '', ),", // layout
 			",\n(, , '', '', , '', '', , '', '', , '', '', , '', '', , '', '', )", // layout
+			"VALUES\n(, '', '', '', '', '', , '', '', '', '', , , '', '', '', ''),", // meeting
 			",\n(, '', '', '', '', '', , '', '', '', '', , , '', '', '', '')", // meeting
+			"VALUES\n(, '', ''),", // omega_typ
 			",\n(, '', '')", // omega_typ
+			"VALUES\n(, '', '', ),", // region
 			",\n(, '', '', )", // region
+			"VALUES\n(, , '', , ),", // resultat
 			",\n(, , '', , )", // resultat
+			"VALUES\n(, '', '', '', '', , , '', '', '', '', '', '', '', , ),", // runde
 			",\n(, '', '', '', '', , , '', '', '', '', '', '', '', , )", // runde
+			"VALUES\n(, '', '', ),", // rundenlog
 			",\n(, '', '', )", // rundenlog
+			"VALUES\n(, , , ''),", // rundenset
 			",\n(, , , '')", // rundenset
+			"VALUES\n(, '', '', '', ''),", // rundentyp
 			",\n(, '', '', '', '')", // rundentyp
+			"VALUES\n(, '', '', , , '', , ),", // serie
 			",\n(, '', '', , , '', , )", // serie
+			"VALUES\n(, , , , '', , ),", // serienstart
 			",\n(, , , , '', , )", // serienstart
+			"VALUES\n(, '', , , , , '', ),", // staffel
 			",\n(, '', , , , , '', )", // staffel
+			"VALUES\n(, , , ),", // staffelathlet
 			",\n(, , , )", // staffelathlet
+			"VALUES\n(, '', , '', '', , , ),", // start
 			",\n(, '', , '', '', , , )", // start
+			"VALUES\n(, '', '', '', '', ''),", // stadion
 			",\n(, '', '', '', '', '')", // stadion
+			"VALUES\n(, '', '', , , , ),", // team
 			",\n(, '', '', , , , )", // team
+			"VALUES\n(, '', , , , ),", // teamsm
 			",\n(, '', , , , )", // teamsm
+			"VALUES\n(, ),", // teamsmathlet
 			",\n(, )", // teamsmathlet
+			"VALUES\n(, '', '', '', ''),", // verein
 			",\n(, '', '', '', '')", // verein
+			"VALUES\n(, ''),", // wertungstabelle
 			",\n(, '')", // wertungstabelle
+			"VALUES\n(, , , '', '', ),", // wertungstabelle_punkte
 			",\n(, , , '', '', )", // wertungstabelle_punkte
+			"VALUES\n(, '', '', '', '', '', '', '', '', '', , , , , '', '', , ),", // wettkampf
 			",\n(, '', '', '', '', '', '', '', '', '', , , , , '', '', , )", // wettkampf
-			",\n(, '', '', '', '', '', '', '', '', '', '', '', '', '', '', )" // zeitmessung
+			"VALUES\n(, '', '', '', '', '', '', '', '', '', '', '', '', '', '', ),", // zeitmessung
+			",\n(, '', '', '', '', '', '', '', '', '', '', '', '', '', '', )", // zeitmessung
 		);
-			
-		$content = str_replace($search, '', $content);
+		
+		foreach($search as $s){
+			$replace = (eregi('^VALUES', $s)) ? 'VALUES' : '';
+			$content = str_replace($s, $replace, $content);
+		}
 		
 		$glb_content = $content;
 		
