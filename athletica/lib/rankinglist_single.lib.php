@@ -5,7 +5,7 @@
  *	rankinglist single events
  *	
  */
-
+    
 if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_SINGLE_LIB_INCLUDED', 1);
@@ -31,7 +31,10 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 // set up ranking list selection
 $selection = '';
 $eventMerged = false;
-$catMerged = false; 
+$catMerged = false;
+$flagSubtitle=false;
+$flagInfoLine1=false; 
+$flagInfoLine2=false;
  
 if($round > 0) {	// show a specific round  
    
@@ -57,7 +60,7 @@ else if ($event == 0) {	// show all disciplines for a specific category
 				$catMerged=true; 
 		 }
 		 else
-				$selection = "w.xKategorie =" . $category . " AND ";   
+				$selection = "w.xKategorie =" . $category . " AND ";    
 }                            
 else if($round == 0) {	// show all rounds for a specific event    
 	$eventMerged=false;  
@@ -67,7 +70,7 @@ else if($round == 0) {	// show all rounds for a specific event
 		 $eventMerged=true; 
 	}
 	else
-		  $selection = "w.xWettkampf =" . $event . " AND ";   
+		  $selection = "w.xWettkampf =" . $event . " AND ";  
 }  
  
  if (($catMerged & !$heatSeparate) || ($eventMerged & !$heatSeparate)) { 
@@ -143,9 +146,9 @@ $results = mysql_query("
 		, d.Anzeige
 		, r.Datum
 		, r.Startzeit        
-		, rus.Hauptrunde DESC    
+		, rus.Hauptrunde DESC     
 ");  
-	 
+	
 }        
 
 if(mysql_errno() > 0) {		// DB error
@@ -307,7 +310,9 @@ else {
 				$info = "$strQualification: "
 							. $row[5] . " $strQualifyTop, "
 							. $row[6] . " $strQualifyPerformance";
-				$list->printInfoLine($info);
+                $flagInfoLine1=true;         // set flag to print later the qualification mode if round selected  
+                $info_save1=$info;
+				//$list->printInfoLine($info);
 				$qual_mode = TRUE;
 			}
 
@@ -320,7 +325,9 @@ else {
 					$info = $info . $qt['token'] . " ="
 							. $qt['text'] . "&nbsp;&nbsp;&nbsp;";
 				}
-				$list->printInfoLine($info);
+                $flagInfoLine2=true;         // set flag to print later the qualification descriptions if required
+                $info_save2=$info; 
+				//$list->printInfoLine($info);
 				$qual_mode = TRUE;
 			}
 			$evnt = $row[4];	// keep event ID
@@ -370,7 +377,7 @@ else {
 	   
 		$sqlSeparate='';    
 		if (($catMerged || $eventMerged) & $heatSeparate) {   
-			 if ($row[13] > 0) {
+			 if ($row[13] > 0) {                 
 				$sqlSeparate=" AND ss.RundeZusammen = " . $row[13];   
 			 }  
 		} 
@@ -601,7 +608,7 @@ else {
 							 ".$order_perf.", 
 							 sf.Name;";
 		}    
-	  
+	   
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -617,16 +624,12 @@ else {
 			$id = '';
 			$r = '';
 			$count_rank=0;
-			$list->startList();
+			//$list->startList();
 			
 			// process every result
 			while($row_res = mysql_fetch_array($res))
-			{    
-				if ($flagSubtitle){
-					?>
-					<tr>
-						<td colspan="4">
-					<?php
+			{   
+				if ($flagSubtitle){  
 					if ($heatSeparate) 
 						if ($relay)
 							$list->printSubTitle($row_res[16], $row[2], $roundName); 
@@ -634,13 +637,17 @@ else {
 						 $list->printSubTitle($row_res[19], $row[2], $roundName);   
 					else
 						$list->printSubTitle($row[1], $row[2], $roundName);   
-					$flagSubtitle=false;
-						?>
-						</td>
-					</tr>
-					<?php
+					$flagSubtitle=false; 
 				}
-			   
+                if ($flagInfoLine1){   
+                    $list->printInfoLine($info_save1);
+                    $flagInfoLine1=false;  
+			    }
+                 if ($flagInfoLine2){  
+                    $list->printInfoLine($info_save2);
+                    $flagInfoLine2=false;  
+                }
+                 
 				$row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : $row_res[3]);
 				
 				if($row_res[0] != $id)	// athlete not processed yet
@@ -691,8 +698,9 @@ else {
 
 						if ($show_efforts == 'sb_pb'){
 							$base_perf = true;
-						}
-						
+						}     
+					 
+                        $list->startList();  
 						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode);
 
 						$heat = $row_res[5];		// keep heat description
