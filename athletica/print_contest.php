@@ -48,15 +48,14 @@ if(!empty($_POST['qual_perf'])) {
 	$qual_perf = $_POST['qual_perf'];
 }
 
-
-	
+ 
 AA_utils_changeRoundStatus($round, $cfgRoundStatus['heats_done']);
 if(!empty($GLOBALS['AA_ERROR'])) {
 	AA_printErrorMsg($GLOBALS['AA_ERROR']);
 }
 
 AA_utils_logRoundEvent($round, $strHeatsPrinted);
-
+                                   
 
 //
 // get nbr of heats
@@ -72,9 +71,8 @@ else {
 	$row = mysql_fetch_row($res);
 	$tot_heats = $row[0];
 }
-mysql_free_result($res);
-
-
+mysql_free_result($res);            
+ 
 
 //
 // Update qualification parameters
@@ -91,7 +89,7 @@ mysql_query("
 		, Bahnen = $tracks
 	WHERE xRunde = $round
 ");
-
+   
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -328,6 +326,7 @@ else
 					. ", r.xRunde"
 					. ", s.Film"
 					. ", sf.Startnummer"
+                    . ", ss.RundeZusammen"   
 					. " FROM runde AS r"
 					. ", serie AS s"
 					. ", serienstart AS ss"
@@ -346,8 +345,7 @@ else
 					. " AND sf.xStaffel = st.xStaffel"
 					. " AND v.xVerein = sf.xVerein"
 					. " ORDER BY heatid, ss.Position");   
-		}
-        
+		}       
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0)		// DB error
@@ -471,7 +469,11 @@ else
 					else
 					{	
 						$team = $row[7];		// relay name
-
+                        if ($row[13] > 0)
+                            $sqlRound=$row[13];     // merged round
+                        else
+                            $sqlRound=$row[10]; 
+                            
 						// get the relay athletes
 						$res = mysql_query("SELECT at.Name"
 												. ", at.Vorname"
@@ -488,7 +490,7 @@ else
 												. " AND sta.xAthletenstart = st.xStart"
 												. " AND st.xAnmeldung = a.xAnmeldung"
 												. " AND a.xAthlet = at.xAthlet"  												
-												. " AND sta.xRunde = ".$row[10]
+												. " AND sta.xRunde = ". $sqlRound
 												. " ORDER BY sta.Position
 													LIMIT $maxRunners");    
                                               
