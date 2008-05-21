@@ -655,7 +655,13 @@ else if(mysql_num_rows($result) > 0)  // data found
 					GROUP BY athlet.xVerein, athlet.xAthlet
 					HAVING (count(start.xWettkampf) >1)";
                 */
-                
+                $tf = 0;
+                $td = 0;
+                $te = 0;
+                $ts = 0;
+                $i = 0;  
+                $club = 0;  
+                        
                 $sql="SELECT
                         athlet.xVerein AS clubnr
                         , v.Name AS club
