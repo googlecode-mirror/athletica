@@ -385,24 +385,41 @@ else if ($_POST['arg'] == 'restore')
 			",\n(, '', '', )", // region
 			"VALUES\n(, , '', , ),", // resultat
 			",\n(, , '', , )", // resultat
+			"INSERT INTO resultat \n(`xResultat`, `Leistung`, `Info`, `Punkte`, `xSerienstart`) VALUES\n(, , '', , );", // resultat
+			"INSERT INTO resultat \n(`xResultat`, `Leistung`, `Info`, `Punkte`, `xSerienstart`) VALUES\n);", // resultat
 			"VALUES\n(, '', '', '', '', , , '', '', '', '', '', '', '', , ),", // runde
 			",\n(, '', '', '', '', , , '', '', '', '', '', '', '', , )", // runde
+			"INSERT INTO runde \n(`xRunde`, `Datum`, `Startzeit`, `Appellzeit`, `Stellzeit`, `Status`, `Speakerstatus`, `StatusZeitmessung`, `StatusUpload`, `QualifikationSieger`, `QualifikationLeistung`, `Bahnen`, `Versuche`, `Gruppe`, `xRundentyp`, `xWettkampf`) VALUES\n(, '', '', '', '', , , '', '', '', '', '', '', '', , );", // runde
+			"INSERT INTO runde \n(`xRunde`, `Datum`, `Startzeit`, `Appellzeit`, `Stellzeit`, `Status`, `Speakerstatus`, `StatusZeitmessung`, `StatusUpload`, `QualifikationSieger`, `QualifikationLeistung`, `Bahnen`, `Versuche`, `Gruppe`, `xRundentyp`, `xWettkampf`) VALUES\n);", // runde
 			"VALUES\n(, '', '', ),", // rundenlog
 			",\n(, '', '', )", // rundenlog
+			"INSERT INTO rundenlog \n(`xRundenlog`, `Zeit`, `Ereignis`, `xRunde`) VALUES\n(, '', '', );", // rundenlog
+			"INSERT INTO rundenlog \n(`xRundenlog`, `Zeit`, `Ereignis`, `xRunde`) VALUES\n);", // rundenlog
 			"VALUES\n(, , , ''),", // rundenset
 			",\n(, , , '')", // rundenset
 			"VALUES\n(, '', '', '', ''),", // rundentyp
 			",\n(, '', '', '', '')", // rundentyp
 			"VALUES\n(, '', '', , , '', , ),", // serie
 			",\n(, '', '', , , '', , )", // serie
+			"INSERT INTO serie \n(`xSerie`, `Bezeichnung`, `Wind`, `Film`, `Status`, `Handgestoppt`, `xRunde`, `xAnlage`) VALUES\n(, '', '', , , '', , );", // serie
+			"INSERT INTO serie \n(`xSerie`, `Bezeichnung`, `Wind`, `Film`, `Status`, `Handgestoppt`, `xRunde`, `xAnlage`) VALUES\n);", // serie
 			"VALUES\n(, , , , '', , ),", // serienstart
 			",\n(, , , , '', , )", // serienstart
+			"INSERT INTO serienstart \n(`xSerienstart`, `Position`, `Bahn`, `Rang`, `Qualifikation`, `xSerie`, `xStart`, `RundeZusammen`) VALUES\n(, , , , '', , );", // serienstart
+			"INSERT INTO serienstart \n(`xSerienstart`, `Position`, `Bahn`, `Rang`, `Qualifikation`, `xSerie`, `xStart`, `RundeZusammen`) VALUES\n);", // serienstart
+			"INSERT INTO serienstart \n(`xSerienstart`, `Position`, `Bahn`, `Rang`, `Qualifikation`, `xSerie`, `xStart`) VALUES\n(, , , , '', , );", // serienstart
+			"INSERT INTO serienstart \n(`xSerienstart`, `Position`, `Bahn`, `Rang`, `Qualifikation`, `xSerie`, `xStart`) VALUES\n);", // serienstart
 			"VALUES\n(, '', , , , , '', ),", // staffel
 			",\n(, '', , , , , '', )", // staffel
 			"VALUES\n(, , , ),", // staffelathlet
 			",\n(, , , )", // staffelathlet
+			"INSERT INTO staffelathlet \n(`xStaffelstart`, `xAthletenstart`, `xRunde`, `Position`) VALUES\n(, , , )", // staffelathlet
 			"VALUES\n(, '', , '', '', , , ),", // start
 			",\n(, '', , '', '', , , )", // start
+			"INSERT INTO start \n(`xStart`, `Anwesend`, `Bestleistung`, `Bezahlt`, `Erstserie`, `xWettkampf`, `xAnmeldung`, `xStaffel`, `BaseEffort`) VALUES\n(, '', , '', '', , , );", // start
+			"INSERT INTO start \n(`xStart`, `Anwesend`, `Bestleistung`, `Bezahlt`, `Erstserie`, `xWettkampf`, `xAnmeldung`, `xStaffel`, `BaseEffort`) VALUES\n);", // start
+			"INSERT INTO start \n(`xStart`, `Anwesend`, `Bestleistung`, `Bezahlt`, `Erstserie`, `xWettkampf`, `xAnmeldung`, `xStaffel`) VALUES\n(, '', , '', '', , , );", // start
+			"INSERT INTO start \n(`xStart`, `Anwesend`, `Bestleistung`, `Bezahlt`, `Erstserie`, `xWettkampf`, `xAnmeldung`, `xStaffel`) VALUES\n);", // start
 			"VALUES\n(, '', '', '', '', ''),", // stadion
 			",\n(, '', '', '', '', '')", // stadion
 			"VALUES\n(, '', '', , , , ),", // team
@@ -411,6 +428,8 @@ else if ($_POST['arg'] == 'restore')
 			",\n(, '', , , , )", // teamsm
 			"VALUES\n(, ),", // teamsmathlet
 			",\n(, )", // teamsmathlet
+			"INSERT INTO teamsmathlet \n(`xTeamsm`, `xAnmeldung`) VALUES\n(, )", // teamsmathlet
+			"INSERT INTO teamsmathlet \n(`xTeamsm`, `xAnmeldung`) VALUES\n)", // teamsmathlet
 			"VALUES\n(, '', '', '', ''),", // verein
 			",\n(, '', '', '', '')", // verein
 			"VALUES\n(, ''),", // wertungstabelle
