@@ -6,6 +6,7 @@
  *	-------------------
  *	
  */
+
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -113,7 +114,7 @@ if($round > 0)
 		$XXXPerHeat = $strRelaysPerHeat;
 		$XXXWithResult = $strRelaysWithResult;
 	}
-
+    
 	// read all rounds per event, sorted by time
 	$count == 0;
 	$prev_rnd = 0;
@@ -173,7 +174,7 @@ if($round > 0)
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else
-	{
+	{  
 		$row = mysql_fetch_row($res);
 		$size = $row[0];
 		$type = $row[1];
@@ -277,7 +278,7 @@ if($round > 0)
 	// if this is a team sm event -> basic seeding
 	//
 	if($count == 1 || $combined || $teamsm)
-	{
+	{   
 		// get number of athletes/relays present
 		$present = 0;
 		if($relay == FALSE) {		// single event
@@ -297,7 +298,8 @@ if($round > 0)
 					  WHERE 
 						  ".$sqlEvents."
 					  AND
-						  s.Anwesend = 0;";
+						  s.Anwesend = 0 AND s.xStaffel>0;";
+           
 		}
 		if($combined && $cLast == 0 && !empty($cGroup)){	// combined event and not last discipline, count athletes of correct group
 			$query = "SELECT
@@ -448,8 +450,7 @@ if($round > 0)
 	// qualification from previous round
 	//
 	else			
-	{
-
+	{  
 		// get number of athletes/relays with valid result
 		/*$res = mysql_query("SELECT COUNT(*)"
 								. " FROM serienstart AS ss"
