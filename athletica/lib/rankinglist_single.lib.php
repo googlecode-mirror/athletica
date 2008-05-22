@@ -5,7 +5,7 @@
  *	rankinglist single events
  *	
  */
-    
+	
 if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_SINGLE_LIB_INCLUDED', 1);
@@ -310,8 +310,8 @@ else {
 				$info = "$strQualification: "
 							. $row[5] . " $strQualifyTop, "
 							. $row[6] . " $strQualifyPerformance";
-                $flagInfoLine1=true;         // set flag to print later the qualification mode if round selected  
-                $info_save1=$info;
+				$flagInfoLine1=true;         // set flag to print later the qualification mode if round selected  
+				$info_save1=$info;
 				//$list->printInfoLine($info);
 				$qual_mode = TRUE;
 			}
@@ -325,8 +325,8 @@ else {
 					$info = $info . $qt['token'] . " ="
 							. $qt['text'] . "&nbsp;&nbsp;&nbsp;";
 				}
-                $flagInfoLine2=true;         // set flag to print later the qualification descriptions if required
-                $info_save2=$info; 
+				$flagInfoLine2=true;         // set flag to print later the qualification descriptions if required
+				$info_save2=$info; 
 				//$list->printInfoLine($info);
 				$qual_mode = TRUE;
 			}
@@ -639,15 +639,15 @@ else {
 						$list->printSubTitle($row[1], $row[2], $roundName);   
 					$flagSubtitle=false; 
 				}
-                if ($flagInfoLine1){   
-                    $list->printInfoLine($info_save1);
-                    $flagInfoLine1=false;  
-			    }
-                 if ($flagInfoLine2){  
-                    $list->printInfoLine($info_save2);
-                    $flagInfoLine2=false;  
-                }
-                 
+				if ($flagInfoLine1){   
+					$list->printInfoLine($info_save1);
+					$flagInfoLine1=false;  
+				}
+				 if ($flagInfoLine2){  
+					$list->printInfoLine($info_save2);
+					$flagInfoLine2=false;  
+				}
+				 
 				$row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : $row_res[3]);
 				
 				if($row_res[0] != $id)	// athlete not processed yet
@@ -700,7 +700,7 @@ else {
 							$base_perf = true;
 						}     
 					 
-                        $list->startList();  
+						$list->startList();  
 						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode);
 
 						$heat = $row_res[5];		// keep heat description
@@ -1016,7 +1016,9 @@ else {
 							}
 							$text_at = substr($text_at, 0, (strlen($text_at)-2));
 							
-							$list->printAthletesLine("( ".$text_at.")");
+							
+							$text_at = (trim($text_at)!='') ? '('.$text_at.')' : '';
+							$list->printAthletesLine($text_at);
 						}
 					}
 					
