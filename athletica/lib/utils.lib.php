@@ -29,9 +29,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 
 	/**
 	 * Calculate points for a given performance
- 	 *
+	 *
 	 * @param	event			ID table 'wettkampf'
- 	 * @param	perf			performance (in cm or 1/100sec)	
+	 * @param	perf			performance (in cm or 1/100sec)	
 	 * @return	int			points	
 	 */
 
@@ -104,13 +104,13 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					}
 					
 					$sqlpt = "SELECT Punkte 
-							    FROM wertungstabelle_punkte 
+								FROM wertungstabelle_punkte 
 							   WHERE xWertungstabelle = ".$row[1]." 
-							     AND xDisziplin = ".$row[3]." 
-							     AND Leistung ".$operator." ".$perf." 
-							     AND Geschlecht = '".$sex."'
-						    ORDER BY Leistung ".$sort." 
-						  	   LIMIT 1;";
+								 AND xDisziplin = ".$row[3]." 
+								 AND Leistung ".$operator." ".$perf." 
+								 AND Geschlecht = '".$sex."'
+							ORDER BY Leistung ".$sort." 
+							   LIMIT 1;";
 					$querypt = mysql_query($sqlpt);
 					
 					$datei = fopen('test.txt', 'w+');
@@ -172,7 +172,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	
 	/**
 	 * Calculate ranking points for a given round
- 	 *
+	 *
 	 * @param	round			ID table 'runde'
 	 */
 	 
@@ -288,7 +288,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					ORDER BY serienstart.Rang ASC
 				");
 			}     
-            
+			
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
@@ -398,7 +398,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	{
 		$GLOBALS['AA_ERROR'] = '';
 
-  		$db = mysql_pconnect( $GLOBALS['cfgDBhost'].':'.$GLOBALS['cfgDBport'], $GLOBALS['cfgDBuser'], $GLOBALS['cfgDBpass']);
+		$db = mysql_pconnect( $GLOBALS['cfgDBhost'].':'.$GLOBALS['cfgDBport'], $GLOBALS['cfgDBuser'], $GLOBALS['cfgDBpass']);
 		if ($db == FALSE)
 		{
 			$GLOBALS['AA_ERROR'] = $GLOBALS['strNoDBConnx'];
@@ -460,29 +460,29 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 
 
 	/**
- 	 * change round status
-  	 * -------------------
-    */
+	 * change round status
+	 * -------------------
+	*/
 	function AA_utils_changeRoundStatus($round, $status)
 	{   
 		require ('./lib/cl_round.lib.php');
 
 		$GLOBALS['AA_ERROR'] = '';   
-        
-        $mergedRounds=AA_getMergedRounds($round);
+		
+		$mergedRounds=AA_getMergedRounds($round);
   
-        if ($mergedRounds!='') {           
-            $sqlRounds="IN ". $mergedRounds;   
-            $arrRound=split('[,]', substr($mergedRounds,1,-1));
-            foreach ($arrRound as $round){ 
-              $rnd = new Round($round);
-              $rnd->setStatus($status); 
-            } 
-        }
-        else {  
-              $rnd = new Round($round);
-              $rnd->setStatus($status);
-        }  
+		if ($mergedRounds!='') {           
+			$sqlRounds="IN ". $mergedRounds;   
+			$arrRound=split('[,]', substr($mergedRounds,1,-1));
+			foreach ($arrRound as $round){ 
+			  $rnd = new Round($round);
+			  $rnd->setStatus($status); 
+			} 
+		}
+		else {  
+			  $rnd = new Round($round);
+			  $rnd->setStatus($status);
+		}  
 	}
 
 
@@ -523,9 +523,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 
 
 	/**
- 	 * get round status
-  	 * ----------------
-    */
+	 * get round status
+	 * ----------------
+	*/
 	function AA_utils_getRoundStatus($round)
 	{
 		$status = 0;
@@ -555,9 +555,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 
 
 	/**
- 	 * log round event
-  	 * ---------------
-    */
+	 * log round event
+	 * ---------------
+	*/
 	function AA_utils_logRoundEvent($round, $txt)
 	{
 		$GLOBALS['AA_ERROR'] = '';

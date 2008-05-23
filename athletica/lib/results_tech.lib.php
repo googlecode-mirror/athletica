@@ -888,7 +888,7 @@ if($round > 0)
 				onChange='checkSubmit(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
 			<input class='nbr' type='text' name='wind' maxlength='5'
 				value='<?php echo $info; ?>'
-				onChange='submitResult(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
+				onChange='submitResult(sdocument.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
 <?php
 							}
 							// technical disciplines without wind
@@ -961,8 +961,8 @@ if(!empty($presets['focus'])) {
 }
 else
 {
-        AA_printErrorMsg($strErrMergedRound); 
-    } 
+		AA_printErrorMsg($strErrMergedRound); 
+	} 
 
 }	// End Function AA_results_Tech
 
