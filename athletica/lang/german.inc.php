@@ -701,4 +701,5 @@ $strEffortsUpdateInfo2 = "Die Resultate werden aus den Stammdaten gelesen. Um  a
 $strEffortsUpdateInfo3 = "Verhalten bei manuell eingetragenen Meldeleistungen:";
 $strOverwrite = "Überschreiben";
 $strLeaveBehind = "Stehen lassen";
+$strMergeRoundsErr = "Ungleiche Anzahl Runden. Zusammenfassung nicht möglich";
 ?>
