@@ -1988,9 +1988,9 @@ if ($_POST['arg']=="add")
 			<?php
 	   
 			if ($_POST['arg']=="change_clubSearch")         
-				$dd = new GUI_ClubDropDown($club, false, 'document.clubSearch.submit()', false);  
+				$dd = new GUI_ClubDropDown($club, true, 'document.clubSearch.submit()', false);  
 			else
-				$dd = new GUI_ClubDropDown(0, false, 'document.clubSearch.submit()', false);  
+				$dd = new GUI_ClubDropDown(0, true, 'document.clubSearch.submit()', false);  
 			?>
 			  
 			</form>  
