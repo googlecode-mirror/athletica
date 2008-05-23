@@ -64,7 +64,7 @@ else if ($_POST['arg']=="del_event")
 	AA_meeting_deleteEvent();
 }
 else if ($_POST['arg']=="add_round")
-{
+{   
 	list($_POST['hr'], $_POST['min']) = AA_formatEnteredTime($_POST['time']);
 	
 	$result = mysql_query("
@@ -112,14 +112,15 @@ else if ($_POST['arg']=='change_round')
 // process round merge requests
 //
 elseif($_POST['arg'] == "merge_add"){
-	
+	         
 	if(!empty($_POST['mainRound']) && !empty($_POST['round'])){
 		
-		mysql_query("LOCK TABLES rundenset WRITE, serie READ");
-		
+		//mysql_query("LOCK TABLES rundenset WRITE, serie READ");
+        mysql_query("LOCK TABLES rundenset WRITE, rundenset as rs READ ,serie READ, runde AS r Read, Wettkampf AS w READ, meeting READ ");
+   	
 		$mr = $_POST['mainRound'];
 		$r = $_POST['round'];
-		$rs = $_POST['roundSet'];
+		$rs = $_POST['roundSet'];     
 		
 		if(AA_checkReference("serie", "xRunde", $mr) != 0
 			|| AA_checkReference("serie", "xRunde", $r) != 0)
@@ -127,52 +128,60 @@ elseif($_POST['arg'] == "merge_add"){
 			$GLOBALS['AA_ERROR'] = $strErrHeatsAlreadySeeded;
 		}else{
 			
-			// round set not yet created
-			if(empty($rs)){
-				// get next roundset number
-				$res = mysql_query("SELECT MAX(xRundenset) FROM rundenset");
-				$max = 0;
-				if(mysql_num_rows($res) > 0){
-					$row = mysql_fetch_array($res);
-					$max = $row[0];
-				}
-				$max++;
+            $c1=AA_countRound($r);
+            $c2=AA_countRound($mr); 
+            if ( $c1==$c2)  {
+            
+			    // round set not yet created
+			    if(empty($rs)){
+				    // get next roundset number
+				    $res = mysql_query("SELECT MAX(xRundenset) FROM rundenset");
+				    $max = 0;
+				    if(mysql_num_rows($res) > 0){
+					    $row = mysql_fetch_array($res);
+					    $max = $row[0];
+				    }
+				    $max++;
 				
-				mysql_query("INSERT INTO rundenset SET
+				    mysql_query("INSERT INTO rundenset SET
 						xRundenset = $max
 						, Hauptrunde = 1
 						, xRunde = $mr
 						, xMeeting = ".$_COOKIE['meeting_id']);
-				if(mysql_errno() > 0){
-					$GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
-				}else{
-					$rs = $max;
-				}
-			}
-			
-			// insert new round
-			if($rs > 0){
-				mysql_query("INSERT INTO rundenset SET
+				    if(mysql_errno() > 0){
+					    $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
+				    }else{
+					    $rs = $max;
+				    }
+			    }
+			      
+			    // insert new round  
+			    if($rs > 0){ 
+				    mysql_query("INSERT INTO rundenset SET
 						xRundenset = $rs
 						, Hauptrunde = 0
 						, xRunde = $r
 						, xMeeting = ".$_COOKIE['meeting_id']);
-				if(mysql_errno() > 0){
-					$GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
-				}
-			}
-		}
-		
-		mysql_query("UNLOCK TABLES");
-		
+				    if(mysql_errno() > 0){
+					    $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
+				    }
+			    } 
+                AA_getAllRoundsforChecked($event,$action='add',$r);     // set checked automatic
+            }
+            else {   
+                AA_printErrorMsg($strMergeRoundsErr);    
+            }   
+		}   
+		mysql_query("UNLOCK TABLES");  
 	}
 	
 }elseif($_POST['arg'] == "merge_del"){
-	
+	               
 	if(!empty($_POST['mainRound']) && !empty($_POST['round']) && !empty($_POST['roundSet'])){
 		
-		mysql_query("LOCK TABLES rundenset WRITE, serie READ");
-		
+		//mysql_query("LOCK TABLES rundenset WRITE, serie READ");
+		mysql_query("LOCK TABLES rundenset WRITE, rundenset as rs READ,serie READ, runde AS r Read, Wettkampf AS w READ, meeting READ ");
+        
 		$mr = $_POST['mainRound'];
 		$r = $_POST['round'];
 		$rs = $_POST['roundSet'];
@@ -206,18 +215,13 @@ elseif($_POST['arg'] == "merge_add"){
 						if(mysql_errno() > 0){
 							$GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
 						}
-					}
-					
-				}
-				
-			}
-			
-		}
-		
-		mysql_query("UNLOCK TABLES");
-		
-	}
-	
+					}  
+				}  
+			} 
+            AA_getAllRoundsforChecked($event,$action='del',$r);      // delete corresponding rounds checked
+		} 
+		mysql_query("UNLOCK TABLES");  
+	}    
 }
 
 // Check if any error returned
@@ -440,7 +444,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 <?php
 	mysql_free_result($result);
 }		// ET DB error
-
+ 
 $roundsArr = array(); // initialize round array
 
 // show category selection
@@ -467,7 +471,7 @@ $result = mysql_query("
 		r.Datum
 		, r.Startzeit
 ");
-
+     
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
