@@ -691,4 +691,5 @@ $strEffortsUpdateInfo2 = "Les résultats sont lus dans les données de base. Pour 
 $strEffortsUpdateInfo3 = "Comportement en cas de performances d’inscriptions inscrites manuellement:";
 $strOverwrite = "Écraser";
 $strLeaveBehind = "Laisser";
+$strMergeroundsErr = 'Nombre de tours différent. Regroupement possible.';
 ?>
