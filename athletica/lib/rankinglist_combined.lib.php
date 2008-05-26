@@ -27,7 +27,10 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
   
-  
+$contestcat = " ";
+if (!empty($category)){         // show every category
+    $contestcat = " AND w.xKategorie = $category";
+}  
 
 
 // get athlete info per contest category
@@ -73,10 +76,8 @@ $results = mysql_query("
 		w.xKategorie
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
-");
-     
- 
-/*           
+");         
+  /*           
    $results= mysql_query("SELECT  
         a.xAnmeldung
         , at.Name
@@ -280,7 +281,7 @@ else
                 , ru.Datum
                 , ru.Startzeit
         ");   
-     
+                     
       /*  
 		$res = mysql_query("
 			SELECT
