@@ -211,8 +211,7 @@ function AA_heats_seedEntries($event)
                 . " AND s.Anwesend = 0"
                 . " AND s.xAnmeldung > 0"
                 . " ORDER BY $order";       
-    }
-	
+    }    
 	$result = mysql_query($query);  
 	$entries = mysql_num_rows($result);		// keep nbr of entries       
    
@@ -425,12 +424,12 @@ function AA_heats_seedEntries($event)
                                                 . ", RundeZusammen = " . $row[2]);   
                                     }
                                     else {
-									$sql = "INSERT INTO serienstart SET"
+									    $sql = "INSERT INTO serienstart SET"
 												. " Position = " . $pos
 												. ", Bahn = " . $pos
 												. ", xSerie = " . $heats[$i]
 												. ", xStart = " . $row[0];
-									mysql_query($sql);
+									    mysql_query($sql);
                                     }
 									
 									if(mysql_errno() > 0) {		// DB error
@@ -930,8 +929,34 @@ function AA_heats_seedHeat($heat){
  * ---------------------
  */
 function AA_heats_addStart($round)
-{        
+{  
 	require('./lib/common.lib.php');
+    
+    $eventMerged=false; 
+    $mround=0;
+    $mergedRounds=AA_getMergedRounds($round);
+    if ($mergedRounds != '') {
+        $eventMerged=true;  
+        $sql="select 
+                r.xRunde 
+              FROM 
+                start as st
+                LEFT JOIN runde AS r ON (r.xWettkampf=st.xWettkampf)
+              WHERE 
+                st.xStart= " .  $_POST['start'] . "
+                AND r.xRunde IN " . $mergedRounds; 
+        
+        $result = mysql_query($sql);
+        if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            
+        }else{
+            $row = mysql_fetch_array($result); 
+            if ($row[0] > 0) {
+                $mround=$row[0];    
+            }
+        }   
+    }     
 
 	if(empty($_POST['heat']) || empty($_POST['start']) || empty($_POST['pos'])) {
 		AA_printErrorMsg($GLOBALS['strErrEmptyFields']);
@@ -947,7 +972,7 @@ function AA_heats_addStart($round)
 			$xSerie = 0;
 			// heat does not yet exist
 			if($_POST['heat'] == 'new')
-			{
+			{  
 				// check if round still valid
 				if(AA_checkReference("runde", "xRunde", $round) != 0)
 				{
@@ -981,19 +1006,29 @@ function AA_heats_addStart($round)
 				}
 			}
 			else if(AA_checkReference("serie", "xSerie", $_POST['heat']) > 0)
-			{
+			{   
 				$xSerie = $_POST['heat'];
 			}
 
 			if($xSerie > 0)	// valid heat
 			{
 				// update heat start with new heat / position
-				mysql_query("
-					INSERT serienstart SET
-						xSerie = $xSerie
-						, xStart = " . $_POST['start'] . "
-						, Position = '" . $_POST['pos'] . "'
+                if ($eventMerged){
+                        mysql_query("INSERT serienstart SET
+                                    xSerie = $xSerie
+                                    , xStart = " . $_POST['start'] . "
+                                    , Position = '" . $_POST['pos'] . "'
+                                    , RundeZusammen = '" . $mround . "'    
+                             ");         
+                }
+                else {
+				        mysql_query("INSERT serienstart SET
+						            xSerie = $xSerie
+						            , xStart = " . $_POST['start'] . "
+						            , Position = '" . $_POST['pos'] . "'
+                                   
 				");
+                }
 				
 				if(mysql_errno() > 0){
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1484,15 +1519,21 @@ function AA_heats_delete($round)
  * ------------------------------------
  */
 function AA_heats_printNewStart($event, $round, $action)
-{
-	include('./config.inc.php');
-
+{  
+	include('./config.inc.php');    
+                                           
+    $mergedRounds=AA_getMergedRounds($round);   
+    if ($mergedRounds!='')
+        $SqlRounds=" IN " .$mergedRounds;
+    else
+        $SqlRounds=" = " .$round;     
+   
 	// set up key list containing this round's starts
 	$result = mysql_query("SELECT ss.xStart"
 								. " FROM runde AS r"
 								. ", serie AS s"
 								. ", serienstart AS ss"
-								. " WHERE r.xRunde = " . $round
+								. " WHERE r.xRunde " . $SqlRounds
 								. " AND s.xRunde = r.xRunde"
 								. " AND ss.xSerie = s.xSerie");
 	if(mysql_errno() > 0) {		// DB error
@@ -1511,6 +1552,12 @@ function AA_heats_printNewStart($event, $round, $action)
 	}
 
 	$relay = AA_checkRelay($event);
+    
+    $mergedEvents=AA_getMergedEventsFromEvent($event);   
+    if ($mergedEvents!='')
+        $SqlEvents=" IN " .$mergedEvents;
+    else
+        $SqlEvents=" = " .$event;   
 
 	// get athletes entered for this event but not qualified for this round
 	if($relay == FALSE) {		// single event
@@ -1522,7 +1569,7 @@ function AA_heats_printNewStart($event, $round, $action)
 					. ", anmeldung AS a"
 					. ", athlet AS at"
 					. ", verein AS v"
-					. " WHERE st.xWettkampf = " . $event
+					. " WHERE st.xWettkampf " . $SqlEvents
 					. " AND st.xStart NOT IN (" . $keys
 					. ") AND a.xAnmeldung = st.xAnmeldung"
 					. " AND at.xAthlet = a.xAthlet"
@@ -1536,13 +1583,13 @@ function AA_heats_printNewStart($event, $round, $action)
 					. " FROM start AS st"
 					. ", staffel AS sf"
 					. ", verein AS v"
-					. " WHERE st.xWettkampf = " . $event
+					. " WHERE st.xWettkampf " . $SqlEvents
 					. " AND st.xStart NOT IN (" . $keys
 					. ") AND sf.xStaffel = st.xStaffel"
 					. " AND v.xVerein = sf.xVerein"
 					. " ORDER BY sf.Name");
 	}
-
+   
 	$result = mysql_query($query);
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1550,7 +1597,7 @@ function AA_heats_printNewStart($event, $round, $action)
 	else
 	{
 		if(mysql_num_rows($result) > 0)	// any athletes found
-		{
+		{  
 ?>
 <form action='<?php echo $action; ?>' method='post'>
 <table>
@@ -1558,7 +1605,7 @@ function AA_heats_printNewStart($event, $round, $action)
 		<th class='dialog'><?php echo $GLOBALS['strNew']; ?></th>
 		<td class='dialog'>
 		<input name='arg' type='hidden' value='add_start' />
-		<input type='hidden' name='round' value='<?php echo $round; ?>' />
+		<input type='hidden' name='round' value='<?php echo $round; ?>' />   
 		<?php echo $title; ?>:</td>
 		<td class='forms'>
 <?php
