@@ -29,25 +29,6 @@ if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
 
-/*$res = mysql_query("SELECT r.xWettkampf"
-								. ", rt.Name"
-								. ", d.Name"
-								. ", k.Name"
-								. ", rt.Typ"
-								. ", r.Gruppe"
-								. ", w.Typ"
-								. ", w.Mehrkampfende"
-								. " FROM runde AS r"
-								. ", wettkampf AS w"
-								. ", disziplin AS d"
-								. ", kategorie AS k"
-								. " LEFT JOIN rundentyp AS rt"
-								. " ON r.xRundentyp = rt.xRundentyp"
-								. " WHERE r.xRunde = " . $round
-								. " AND r.xWettkampf = w.xWettkampf"
-								. " AND w.xDisziplin = d.xDisziplin"
-								. " AND w.xKategorie = k.xKategorie");*/
-
 $sql = "SELECT 
 			  r.xWettkampf
 			, rt.Name
@@ -114,7 +95,7 @@ if($round > 0)
 		$XXXPerHeat = $strRelaysPerHeat;
 		$XXXWithResult = $strRelaysWithResult;
 	}
-    
+	
 	// read all rounds per event, sorted by time
 	$count == 0;
 	$prev_rnd = 0;
@@ -299,7 +280,7 @@ if($round > 0)
 						  ".$sqlEvents."
 					  AND
 						  s.Anwesend = 0 AND s.xStaffel>0;";
-           
+		   
 		}
 		if($combined && $cLast == 0 && !empty($cGroup)){	// combined event and not last discipline, count athletes of correct group
 			$query = "SELECT
@@ -421,7 +402,11 @@ if($round > 0)
 		$presets = AA_results_getPresets($round);
 		$svmContest = AA_checkSVM($presets['event']);
 		
-		if($svmContest){
+		if($svmContest && 
+			($type == $cfgDisciplineType[$strDiscTypeJump])
+			|| ($type == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+			|| ($type == $cfgDisciplineType[$strDiscTypeHigh])
+			|| ($type == $cfgDisciplineType[$strDiscTypeThrow])){
 			?>
 			<input type="hidden" name="mode" value="0"/>
 			<?php
@@ -452,12 +437,6 @@ if($round > 0)
 	else			
 	{  
 		// get number of athletes/relays with valid result
-		/*$res = mysql_query("SELECT COUNT(*)"
-								. " FROM serienstart AS ss"
-								. ", serie AS s"
-								. " WHERE ss.Qualifikation > 0"
-								. " AND s.xSerie = ss.xSerie"
-								. " AND s.xRunde = " . $prev_rnd);*/
 		$sql = "SELECT
 					COUNT(*)
 				FROM

@@ -261,48 +261,6 @@ class EXPORT_RankingListPress extends EXPORT_Page
 		$this->wind = $wind;
 		$this->heatwind = $heatwind;
 		$this->title = $title;
-		
-		/*$params = array();
-		
-		if(!empty($this->title))
-		{
-			$params[] = $this->title;
-			if(!empty($this->heatwind)) {
-				$params[] = $GLOBALS['strWind'] . ": " .$this->heatwind;
-			}
-			
-			if(!empty($time)){
-				$params[] = $time;
-			}
-		}
-		
-		$this->printCsvLine($params);
-		$params = array();
-		
-		$year = '';
-		$ioc = '';
-		if($this->relay == FALSE) {
-			$year = $GLOBALS['strYearShort'];
-			$ioc = $GLOBALS['strIocShort'];
-		}
-
-		$points = '';
-		if($this->points == TRUE) {
-			$points = $GLOBALS['strPoints'];
-		}
-		
-		$wind = '';
-		if($this->wind == TRUE) {
-			$wind = $GLOBALS['strWind'];
-		}
-		
-		$params[] = $GLOBALS['strRank'];
-		$params[] = $GLOBALS['strName'];
-		$params[] = $year;
-		$params[] = $GLOBALS['strPerformance'];
-		$params[] = $GLOBALS['strPoints'];
-		
-		$this->printCsvLine($params);*/
 	}
 	
 	

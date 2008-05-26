@@ -317,21 +317,6 @@ $sql = "SELECT
 			verein AS v USING(xVerein) 
 		ORDER BY
 			$argument";
-/*$result = mysql_query("
-	SELECT
-		a.xAthlet
-		, a.Name
-		, a.Vorname
-		, a.Jahrgang
-		, v.Name
-		, v.xVerein
-	FROM
-		athlet AS a
-		, verein AS v
-	WHERE a.xVerein = v.xVerein
-	ORDER BY
-		$argument
-");*/
 $result = mysql_query($sql);
 
 if(mysql_errno() > 0)

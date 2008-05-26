@@ -888,7 +888,7 @@ if($round > 0)
 				onChange='checkSubmit(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
 			<input class='nbr' type='text' name='wind' maxlength='5'
 				value='<?php echo $info; ?>'
-				onChange='submitResult(sdocument.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
+				onChange='submitResult(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
 <?php
 							}
 							// technical disciplines without wind

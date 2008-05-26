@@ -914,12 +914,19 @@ if($round > 0)
 <?php
 				}
 
-				$res = mysql_query("SELECT rs.xResultat"
-					. ", rs.Leistung"
-					. ", rs.Info"
-					. " FROM resultat AS rs"
-					. " WHERE rs.xSerienstart = " . $row[8]
-					. " ORDER BY rs.Leistung ASC");
+				$sql = "SELECT rs.xResultat, 
+							   rs.Leistung, 
+							   rs.Info, 
+							   d.Strecke 
+						  FROM resultat AS rs 
+					 LEFT JOIN serienstart AS ss USING(xSerienstart) 
+					 LEFT JOIN serie AS se USING(xSerie) 
+					 LEFT JOIN runde AS ru USING(xRunde) 
+					 LEFT JOIN wettkampf AS w USING(xWettkampf) 
+					 LEFT JOIN disziplin AS d USING(xDisziplin) 
+						 WHERE rs.xSerienstart = ".$row[8]." 
+					  ORDER BY rs.Leistung ASC;";
+				$res = mysql_query($sql);
 
 				if(mysql_errno() > 0) {		// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -927,12 +934,13 @@ if($round > 0)
 				else
 				{
 					$perf = '';
-					$resrow = mysql_fetch_row($res);
+					$resrow = mysql_fetch_array($res);
 					if($resrow != NULL) {		// result found
-						$secflag = false;
+						/*$secflag = false;
 						if(substr($resrow[1],0,2) >= 60){
 							$secflag = true;
-						}
+						}*/
+						$secflag = (intval($resrow['Strecke'])<=400);
 						$perf = AA_formatResultTime($resrow[1], false, $secflag);
 					}
 
