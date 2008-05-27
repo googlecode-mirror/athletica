@@ -992,8 +992,13 @@ else {
 					// 
 					// if relay, show started ahtletes in right order under the result
 					//
-					if($relay){
-						
+					if($relay){  
+						       
+                         if ($row_res[14] > 0)
+                            $sqlRound=$row_res[14];     // merged round
+                        else
+                            $sqlRound=$row[0]; 
+                                 
 						$res_at = mysql_query("
 								SELECT at.Vorname, at.Name, at.Jahrgang FROM
 									staffelathlet as sfat
@@ -1002,7 +1007,7 @@ else {
 									LEFT JOIN athlet as at USING(xAthlet)
 								WHERE
 									sfat.xStaffelstart = $row_res[11]
-								AND	sfat.xRunde = $row[0]
+								AND	sfat.xRunde = $sqlRound 
 								ORDER BY
 									sfat.Position
 								LIMIT $row[10]
@@ -1040,7 +1045,7 @@ else {
 									resultat 
 								WHERE xSerienstart = $row_res[0]
 								".$query_sort."
-								");
+								");  
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}else{
@@ -1057,10 +1062,10 @@ else {
 								}else{
 									$text_att .= ($row_att['Leistung']=='-') ? '-' : AA_formatResultMeter($row_att['Leistung']);
 									if($row_att['Info'] != "-" && !empty($row_att['Info']) && $row[3] != $cfgDisciplineType[$strDiscTypeThrow]){
-										$text_att .= " , ".$row_att['Info'];
+										$text_att .= " , ".$row_att['Info'];   
 									}
 									$text_att .= " / ";
-								}
+								}   
 							}
 							$text_att = substr($text_att, 0, (strlen($text_att)-2));
 							
