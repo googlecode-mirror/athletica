@@ -352,9 +352,6 @@ class omega{
 				
 				$date = date('j. M Y', strtotime($row['Datum']));
 				
-				/*$tmp .= "\r\n".$row['Film'].";1;1;"
-					.$row['xDisziplin'].";".$row['xOMEGA_Typ'].";\"".$row['Code']."\";\""
-					.$date."\";\"".$row['Startzeit']."\";0;0";*/
 				$tmp .= "\r\n".$row['Film'].";1;1;"
 					.$row['xDisziplin'].";".$row['xOMEGA_Typ'].";\"".$row['Kurzname']."\";\""
 					.$date."\";\"".$row['Startzeit']."\";0;0";
