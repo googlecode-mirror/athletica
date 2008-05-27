@@ -129,7 +129,7 @@ $result = mysql_query("SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 							. " AND w.xWettkampf = r.xWettkampf"
 							. " AND k.xKategorie = w.xKategorie"
 							. " AND d.xDisziplin = w.xDisziplin");
-
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -172,7 +172,8 @@ else
 	$layout = $row[7];			// sheet layout type
 	
 	$silent = ($row[13]==0);
-	
+	$my_wind=$row[8];
+   
 	switch($layout) {
 		case($cfgDisciplineType[$strDiscTypeNone]):
 			$doc = new PRINT_Contest($_COOKIE['meeting']);
@@ -545,7 +546,7 @@ else
 					// new heat
 					if(($id != $row[3]) || ($h == 0))
 					{
-						if($h != 0)	{		// not first heat
+						if($h != 0)	{		// not first heat          
 							$doc->printEndHeat();                            
 							$doc->insertPageBreak();
 						}
@@ -571,10 +572,11 @@ else
 					}
 					// new page after 8 athl. (tech) or 10 athl. (tech, no wind)
 			
-			  //      else if((($layout == 4) && ($b > 8)) 
-						//	|| ($b > 10))
-					 else if($b > 10)    
-					{
+			       else if((($layout == 4) && ($b > 6) && ($my_wind==1) ) 
+                            || ($layout == 4) && ($b > 9) && ($my_wind==0)
+							|| ($b > 10))
+					   
+					{     
 						// insert page break an repeat heat info
 						$doc->printEndHeat();
 					   
@@ -583,7 +585,7 @@ else
 						$doc->printHeatTitle("$heat $strCont", $row[5]);
 						$b = 1;
 					}
-
+                   
 					$doc->printHeatLine($row[6], "$row[7] $row[8]"
 							, AA_formatYearOfBirth($row[9]), $row[10], $row[14]);
 				}
