@@ -451,8 +451,6 @@ class omega{
 			while($row = mysql_fetch_assoc($res)){
 				
 				if($row['xStaffel'] > 0){
-					/*$tmp .= "\r\n".$row['Film'].";1;1"
-						.";".$row['Position'].";".$row['xStaffel'].";999".$row['Staffelnummer'];*/
 					$tmp .= "\r\n".$row['Film'].";1;1"
 						.";".$row['Position'].";".$row['xStaffel'].";".$row['Staffelnummer'];
 				}else{
