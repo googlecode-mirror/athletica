@@ -172,7 +172,7 @@ else
 	$layout = $row[7];			// sheet layout type
 	
 	$silent = ($row[13]==0);
-	$my_wind=$row[8];
+	$wind=$row[8];
    
 	switch($layout) {
 		case($cfgDisciplineType[$strDiscTypeNone]):
@@ -572,8 +572,8 @@ else
 					}
 					// new page after 8 athl. (tech) or 10 athl. (tech, no wind)
 			
-			       else if((($layout == 4) && ($b > 6) && ($my_wind==1) ) 
-                            || ($layout == 4) && ($b > 9) && ($my_wind==0)
+			       else if((($layout == 4) && ($b > 6) && ($wind==1) ) 
+                            || ($layout == 4) && ($b > 9) && ($wind==0)
 							|| ($b > 10))
 					   
 					{     
