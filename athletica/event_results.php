@@ -6,7 +6,7 @@
  *	-----------------
  *	
  */
-    
+	
 require('./lib/common.lib.php');
 require('./lib/heats.lib.php');
 require('./lib/results.lib.php');
@@ -143,20 +143,6 @@ else if($_POST['arg'] == 'change_qual')
 				
 			}elseif($_POST['oldqual'] == $cfgQualificationType['perf']['code'] //.. on performance
 				|| $_POST['oldqual'] == $cfgQualificationType['perf_rand']['code']){
-				
-				/*$result = mysql_query("SELECT serienstart.xSerienstart"
-									. ", resultat.Leistung"
-									. ", serienstart.Qualifikation"
-									. " FROM resultat"
-									. ", serienstart"
-									. ", serie"
-									. " WHERE resultat.xSerienstart = serienstart.xSerienstart"
-									. " AND resultat.Leistung > 0"
-									. " AND serienstart.Qualifikation = 0"
-									. " AND serienstart.xSerie = serie.xSerie"
-									. " AND serie.xRunde = " . $round
-									. " ORDER BY resultat.Leistung ASC"
-									. ", RAND()");*/
 					$sql = "SELECT 
 								  serienstart.xSerienstart
 								, resultat.Leistung

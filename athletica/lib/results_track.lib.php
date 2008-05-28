@@ -64,17 +64,17 @@ if($_GET['arg'] == 'results_done')
 	// if this is a combined event, rank all rounds togheter
 	$roundSQL = "";
 	if($combined){
-		$roundSQL = "AND serie.xRunde IN (";
+		$roundSQL = "WHERE serie.xRunde IN (";
 		$res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
 		while($row_c = mysql_fetch_array($res_c)){
 			$roundSQL .= $row_c[0].",";
 		}
 		$roundSQL = substr($roundSQL,0,-1).")";
 	}else{
-		$roundSQL = "AND serie.xRunde = $round";
+		$roundSQL = "WHERE serie.xRunde = $round";
 	}
 	
-	$result = mysql_query("
+	/*$result = mysql_query("
 		SELECT
 			resultat.Leistung
 			, serienstart.xSerienstart
@@ -92,7 +92,20 @@ if($_GET['arg'] == 'results_done')
 		ORDER BY
 			$heatorder
 			resultat.Leistung ASC
-	");     
+	");  */   
+	$sql = "SELECT DISTINCT 
+				   resultat.Leistung, 
+				   serienstart.xSerienstart, 
+				   serienstart.xSerie, 
+				   serienstart.xStart, 
+				   serie.Wind 
+			  FROM resultat 
+		 LEFT JOIN serienstart USING(xSerienstart) 
+		 LEFT JOIN serie USING(xSerie) 
+			 ".$roundSQL." 
+		  ORDER BY ".$heatorder."
+				   resultat.Leistung ASC;";
+	$result = mysql_query($sql);
 	
 	if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
