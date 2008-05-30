@@ -254,7 +254,7 @@ else
                 , w.Windmessung
                 , st.xStart
                 , CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
-                , w.Mehrkampfreihenfolge                 
+                , w.Mehrkampfreihenfolge 
             FROM
                 start AS st USE INDEX (Anmeldung)
                 , serienstart AS ss 
@@ -280,7 +280,7 @@ else
                 , ru.Datum
                 , ru.Startzeit
         ");     
-                                 
+                          
       /*  
 		$res = mysql_query("
 			SELECT
@@ -369,8 +369,12 @@ else
                        if($pt_row[4] > 0) {       // any points for this event 
                            $points = $points + $pt_row[4];      // calculate points   
 					        $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
-					        $sep = ", ";   
+					        $sep = ", ";     
                        }
+                        elseif ($pt_row[4] == 0 && $pt_row[2] >= 0){          //  athlete with 0 points                                   
+                                $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+                                $sep = ", ";       
+                        }  
                        else{ 
                          $count_disc--;   
                          $pointTxt="" ;   
