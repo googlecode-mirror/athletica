@@ -5,7 +5,7 @@
  *	meeting_entry_add.php
  *	---------------------
  *	
- */        
+ */                 
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -343,7 +343,7 @@ if($_POST['arg']=="change_athlete"){
 // clear form
 //
 if ($_POST['arg']=="cancel")
-{
+{   
 	$club = 0;
 	$clubtext = "";
 	$category = 0;
@@ -2253,7 +2253,7 @@ if(!empty($club2) && false){ // not yet in use
 			</button>
 		</td>
 		<td class='forms'>
-			<button type='submit' onclick='document.forms[1].arg.value="cancel"'>
+			<button type='submit' onclick='document.forms[2].arg.value="cancel"'>
 				<?php echo $strCancel; ?>
 			</button>
 		</td>
@@ -2406,13 +2406,13 @@ if(!empty($club2) && false){ // not yet in use
 			</button>
 		</td>
 		<td class='forms'>
-			<button type='submit' onclick='document.forms[1].arg.value="cancel"'>
+			<button type='submit' onclick='document.forms[2].arg.value="cancel"'>
 				<?php echo $strCancel; ?>
 			</button>
 		</td>
 	</tr>
 </table>
-</form>	
+</form> 	
 
 <!-- this select box is used for a IE trick ( in function base_search_show() ) -->
 <input type="checkbox" onclick="base_select(this)"
