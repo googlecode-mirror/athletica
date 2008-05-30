@@ -64,9 +64,8 @@ if($_GET['arg'] == 'assign')
 		}                                         
 		
 		                                   
-		// check on assign per category. if contest cat is choosen process in a special way
-		       
-	   if($_GET['assign']=="percontestcat"){  
+		// check on assign per category. if contest cat is choosen process in a special way 
+	   if($_GET['assign']=="percontestcat"){    
 			if(isset($_GET['persvmteam'])){
 				$argument = "t.Name, ".$argument;
 			}
@@ -99,7 +98,10 @@ if($_GET['arg'] == 'assign')
                     DISTINCT (a.xAnmeldung) ,
                     w.xKategorie , 
                     at.xVerein , 
-                    a.xTeam 
+                    a.xTeam, 
+                    at.Name, 
+                    at.Vorname,
+                    t.Name 
                 FROM 
                     anmeldung AS a
                     LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet        
@@ -113,7 +115,7 @@ if($_GET['arg'] == 'assign')
                     ORDER BY      
                          $argument
                "); 
-     
+             
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -130,32 +132,36 @@ if($_GET['arg'] == 'assign')
 			  {
 				// set per category from, to
 				
-				if ($k != $row[1]){			// new category
+				if ($k != $row[1]){			// new category  
 					$nbr = $_GET["of2_$row[1]"];
-					$nbr==0?1:$nbr;
-					$limit = $_GET["to2_$row[1]"];
+                    $limit = $_GET["to2_$row[1]"];  
+					//$nbr==0?1:$nbr;
+                    $nbr=($nbr==0 && $limit>0)?1:$nbr;  
+					
 				}elseif($t != $row[3]			// new team
 					&& $teamgap > 0
 					&& $t > 0
 					&& isset($_GET['persvmteam']))
 				{
-					$nbr += $teamgap;
+					if ($nbr > 0) {
+                        $nbr += $teamgap;  
+                    }
 				}else{
 					$nbr++;
 					if(($limit > 0 && $nbr > $limit) || $limit == 0){
 						$nbr = 0;
 						$limit = 0;
 					}
-				}
+				}     
 				
-				mysql_query("
-					UPDATE anmeldung SET
-						Startnummer='$nbr'
-					WHERE xAnmeldung = $row[0]
-				");
+                mysql_query("
+					    UPDATE anmeldung SET
+						    Startnummer='$nbr'
+					        WHERE xAnmeldung = $row[0]
+				            ");
 				
 				if(mysql_errno() > 0) {
-					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+					    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 				
 				$k = $row[1];	// keep current category
@@ -171,10 +177,17 @@ if($_GET['arg'] == 'assign')
        
         // assign startnumbers per disciplines
         //       
-          elseif ($_GET['assign']=="perdiscipline"){  
+          elseif ($_GET['assign']=="perdiscipline"){   
                 if(isset($_GET['persvmteam'])){
-                   $argument = "t.Name, ".$argument;
-                }   
+                   $argument = "t.Name, ".$argument;    
+                }      
+                
+                if((!empty($_GET['teamgap'])) || ($_GET['teamgap'] == '0'))  {
+                $teamgap = $_GET['teamgap'];    // nbr gap between each team
+            }
+            else {
+                $teamgap = 10;    // default
+            }  
     
             //
             // Read athletes
@@ -195,11 +208,38 @@ if($_GET['arg'] == 'assign')
             if (!empty($_GET["of_track1"]) || !empty($_GET["of_track2"]) ||  !empty($_GET["of_tech"]) || 
                        !empty($_GET["to_track1"]) || !empty($_GET["to_track2"]) ||  !empty($_GET["to_tech"] )){  
                 
-                if ( (!empty($_GET["of_track1"]) || !empty($_GET["to_track1"]) ) )
-                    $desc='ASC';   
-                else    
-                    $desc='DESC';   
-                           
+              //  if ( (!empty($_GET["of_track1"]) || !empty($_GET["to_track1"]) ) )
+              //      $desc='ASC';   
+              //  else    
+              //      $desc='ASC';  
+                    
+                // Assign startnumbers
+                    $track1=false;
+                    $track2=false; 
+                    $tech=false; 
+                
+                    $nbr_track1 = $_GET["of_track1"];
+                    $limit_track1 = $_GET["to_track1"]; 
+                    $nbr_track1=($nbr_track1==0 && $limit_track1>0)?1:$nbr_track1;
+                    if ($nbr_track1 > 0)
+                        $track1=true;   
+                    
+                    $nbr_track2 = $_GET["of_track2"];
+                    $limit_track2 = $_GET["to_track2"];    
+                    $nbr_track2=($nbr_track2==0 && $limit_track2>0)?1:$nbr_track2; 
+                    if ($nbr_track2 > 0)
+                        $track2=true;     
+              
+                    $nbr_tech = $_GET["of_tech"] ;
+                    $limit_tech = $_GET["to_tech"]; 
+                    $nbr_tech=($nbr_tech==0 && $limit_tech>0)?1:$nbr_tech;  
+                    if ($nbr_tech > 0)
+                        $tech=true; 
+                        
+                    $nbr_track1-=1;  
+                    $nbr_track2-=1;  
+                    $nbr_tech-=1;  
+                        
                 $sql_d="SELECT 
                                 DISTINCT at.Name, 
                                 at.Vorname,
@@ -211,8 +251,9 @@ if($_GET['arg'] == 'assign')
                                      ),2, 3 ) ) as discSort,
                                 w.xDisziplin, 
                                 at.xVerein,
-                                a.xTeam
-                                , d.Typ
+                                t.Name,
+                                d.Typ ,
+                                t.xTeam
                         FROM 
                                 anmeldung AS a
                                 LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet
@@ -224,10 +265,10 @@ if($_GET['arg'] == 'assign')
                                 USING ( xDisziplin )
                                 LEFT JOIN team AS t ON t.xTeam = a.xTeam
                         WHERE 
-                                a.xMeeting = " . $_COOKIE['meeting_id'] . " 
+                                a.xMeeting = " . $_COOKIE['meeting_id'] . "                                   
                         GROUP BY a.xAnmeldung,  discSort 
-                        ORDER BY " . $argument . " , discSort " . $desc;  
-                            
+                        ORDER BY  " . $argument . ", discSort ";       
+                       
                 $result_d=mysql_query($sql_d);    
                 
                 if(mysql_errno() > 0)        // DB error
@@ -236,98 +277,167 @@ if($_GET['arg'] == 'assign')
                 }
                 else if(mysql_num_rows($result_d) > 0)  // data found
                     {   
-                    $t = 0;         // current team  
-              
-                    // Assign startnumbers
-                    $nbr_track1 = $_GET["of_track1"] - 1 ;
-                    $nbr_track1==0?1:$nbr;
-                    $limit_track1 = $_GET["to_track1"];
+                    $t = 0;         // current team     
                     
-                    $nbr_track2 = $_GET["of_track2"] - 1 ;
-                    $nbr_track2==0?1:$nbr;
-                    $limit_track2 = $_GET["to_track2"];
-              
-                    $nbr_tech = $_GET["of_tech"] - 1 ;
-                    $nbr_tech==0?1:$nbr;
-                    $limit_tech = $_GET["to_tech"];
-               
+                    $teamChangeTrack1=false; 
+                    $teamChangeTrack2=false;
+                    $teamChangeTech=false;
                     while ($row_d = mysql_fetch_row($result_d))
-                    {   
-                        if ($name_enrol != $row_d[0] . $row_d[1] . $row_d[2]) {
-                     
-                        if($t != $row_d[6]            // new team
+                    { 
+                       if ($name_enrol == $row_d[0] . $row_d[1] . $row_d[2]) {
+                            if ($d==1)
+                                $dprev=$d; 
+                       }
+                       else
+                          $dprev='';
+                          
+                      
+                       if($t != $row_d[8]            // new team
                             && $teamgap > 0
                             && $t > 0
                             && isset($_GET['persvmteam']))
-                            {  
-                    
-                            if ( $row_d[3]== 1)             // discipline track under 400 m
-                                {
-                                $nbr_track1 += $teamgap;    
-                            }
-                            elseif ($row_d[3]== 2)   
-                                {                          // discipline track over 400 m  
-                                $nbr_track2 += $teamgap; 
-                            }
-                            else {
-                                $nbr_tech2 += $teamgap;     // discipline tech 
-                            } 
-                        }else{ 
-                            if ( $row_d[3]== 1)        // discipline track under 400 m  
+                            {   
+                                 $teamChangeTrack1=true;
+                                 $teamChangeTrack2=true; 
+                                 $teamChangeTech=true;   
+                       } 
+                         
+                         
+                       if ( $row_d[3]== 1)        // discipline track under 400 m  
                                 {      
-                                $nbr_track1++;
+                                 if ($teamChangeTrack1)
+                                      $nbr_track1 += $teamgap;  
+                                 else
+                                    $nbr_track1++;
+                                    
                                 if(($limit_track1 > 0 && $nbr_track1 > $limit_track1) || $limit_track1 == 0){
                                     $nbr_track1 = 0;
                                     $limit_track1 = 0;
-                                }
-                         }
-                         else if ( $row_d[3]== 2)        // discipline track over 400 m      
+                                }   
+                            $teamChangeTrack1=false;     
+                       }
+                       else if ( $row_d[3]== 2)        // discipline track over 400 m      
                                 {      
-                                $nbr_track2++;
                                 if(($limit_track2 > 0 && $nbr_track2 > $limit_track2) || $limit_track2 == 0){
                                     $nbr_track2 = 0;
                                     $limit_track2 = 0;
+                                    if ( ($name_enrol == $row_d[0] . $row_d[1] . $row_d[2]) )  
+                                         if ($d==1 && $track1 ) {
+                                            $noUpdate=true;   
+                                         }      
                                 }
-                         }
-                          else {                         // discipline tech  
-                                $nbr_tech++;
+                                else {
+                                     if ( ($name_enrol != $row_d[0] . $row_d[1] . $row_d[2])   ) { 
+                                          if ($teamChangeTrack2)
+                                                $nbr_track2 += $teamgap; 
+                                          else 
+                                                $nbr_track2++;   
+                                     }
+                                     else  
+                                        if ($d==1 && $track1 )  {
+                                            $noUpdate=true;          // nbr already set for athlete in other discipline                                            
+                                        }
+                                        else {   
+                                            if ($teamChangeTrack2)
+                                                $nbr_track2 += $teamgap; 
+                                          else 
+                                                $nbr_track2++;    
+                                        }
+                                }     
+                          $teamChangeTrack2=false; 
+                       }
+                       else {                        // discipline tech   
                                 if(($limit_tech > 0 && $nbr_tech > $limit_tech) || $limit_tech == 0){
                                     $nbr_tech = 0;
                                     $limit_tech = 0;
-                                }   
-                          } 
-                         }  
-                         if ( $row_d[3]== 1)              // discipline track under 400 m 
-                            {            
+                                     
+                                    if ( ($name_enrol == $row_d[0] . $row_d[1] . $row_d[2]) )  {
+                                         
+                                         if ( ($d==1 && $track1) || ($d==2 && $track2) || ($dprev==1 && $track1)) {
+                                            $noUpdate=true;   
+                                         }  
+                                    }           
+                                }
+                                 else {  
+                                     if ( ($name_enrol != $row_d[0] . $row_d[1] . $row_d[2]) ) { 
+                                           if ($teamChangeTech)
+                                                $nbr_tech += $teamgap; 
+                                          else 
+                                                $nbr_tech++;   
+                                     }                                     
+                                     else {  
+                                        if ($d==1 && $track1 || $d==2 && $track2  || $dprev==1 && $track1)  {
+                                            $noUpdate=true;          // nbr already set for athlete in other discipline                                           
+                                        }
+                                        else {   
+                                             if ($teamChangeTech)
+                                                $nbr_tech += $teamgap; 
+                                          else 
+                                                $nbr_tech++;   
+                                        }
+                                     }
+                                }     
+                               $teamChangeTech=false;   
+                       } 
+                      
+                        
+                                        // update discipline track under 400 m 
+                      if ( $row_d[3]== 1 )   
+                            {   
                             mysql_query("
                                 UPDATE anmeldung SET
                                     Startnummer='$nbr_track1'
                                     WHERE xAnmeldung = $row_d[2]
-                                    ");    
+                                    ");  
+                            if(mysql_errno() > 0) {
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }  
+                         }                                                     
+                                        // update discipline track over 400 m 
+                         elseif ( $row_d[3]== 2 )  
+                            {                                        
+                            
+                             if (!$noUpdate) {
+                                  mysql_query("
+                                        UPDATE anmeldung SET
+                                        Startnummer='$nbr_track2'
+                                        WHERE xAnmeldung = $row_d[2]
+                                        ");  
+                                  if(mysql_errno() > 0) {
+                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                  }
+                             }
+                             else   
+                                 $noUpdate=false;  
                          }
-                         elseif ( $row_d[3]== 2)              // discipline track over 400 m 
-                            {            
-                            mysql_query("
-                                UPDATE anmeldung SET
-                                    Startnummer='$nbr_track2'
-                                    WHERE xAnmeldung = $row_d[2]
-                                    ");    
-                         }
-                         else {                                // discipline tech  
-                            mysql_query("
-                                UPDATE anmeldung SET
-                                    Startnummer='$nbr_tech'
-                                    WHERE xAnmeldung = $row_d[2]
-                                    ");   
-                  
+                                    //  update discipline tecg 
+                          elseif ( $row_d[3]== 3 ) 
+                          {                                                                                                                                       // discipline tech  
+                            if (!$noUpdate) {  
+                                mysql_query("
+                                    UPDATE anmeldung SET
+                                        Startnummer='$nbr_tech'
+                                        WHERE xAnmeldung = $row_d[2]
+                                        "); 
+                                if(mysql_errno() > 0) {
+                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                }  
+                             }
+                             else   
+                                 $noUpdate=false; 
                          }    
                  
                         if(mysql_errno() > 0) {
                             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                        }  
-                        $t = $row_d[6];    // keep current team  
-                        $name_enrol= $row_d[0] . $row_d[1] . $row_d[2]; 
-                        }    
+                        } 
+                           
+                      
+                        $t = $row_d[8];    // keep current team     
+                        $d = $row_d[3];    // keep current discipline typ   
+                       
+                        $name_enrol= $row_d[0] . $row_d[1] . $row_d[2];     // keep name, prename, enrolement   
+                        
+                           
                  }   
                  mysql_free_result($result_d);
             }   
@@ -339,7 +449,7 @@ if($_GET['arg'] == 'assign')
 		// assign per athletes category
 		//
 		else{     
-            if($_GET['assign']=="percategory"){  
+            if($_GET['assign']=="percategory"){   
 				if(isset($_GET['persvmteam'])){
 					$argument = "t.Name, ".$argument;
 				}
@@ -348,7 +458,7 @@ if($_GET['arg'] == 'assign')
 			
 			// assignment rules
 			if(!empty($_GET['start'])) {
-			  $nbr = $_GET['start'] - 1;		// first number
+			  $nbr = $_GET['start'] - 1;		// first number    
 			}
 			else {
 				$nbr = $cfgNbrStartWith - 1;	// default
@@ -373,8 +483,7 @@ if($_GET['arg'] == 'assign')
 			}
 			else {
 				$teamgap = 10;	// default
-			}
-			
+			}    
 			//
 			// Read athletes
 			//
@@ -395,6 +504,9 @@ if($_GET['arg'] == 'assign')
                     , a.xKategorie
                     , at.xVerein
                     , a.xTeam
+                    , at.Name
+                    , at.Vorname
+                    , t.Name
                 FROM
                     anmeldung AS a
                     LEFT JOIN athlet AS at USING (xAthlet)
@@ -404,7 +516,7 @@ if($_GET['arg'] == 'assign')
                 WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                 ORDER BY
                     $argument
-           ");  
+           ");     
             
 			if(mysql_errno() > 0)		// DB error
 			{
@@ -420,41 +532,50 @@ if($_GET['arg'] == 'assign')
 			  // Assign startnumbers
 			  while ($row = mysql_fetch_row($result))
 			  {     
-                    if(empty($_GET['assign'])){
+                    if(empty($_GET['assign'])){ 
                         
                         if (($v != $row[2])         // new club
-                        && ($clubgap > 0)           // gap between clubs
-                        && ($v > 0)                 // not first row
-                        && ($_GET['sort']=="club")) // gap after cat
+                            && ($clubgap > 0)           // gap between clubs
+                            && ($v > 0)                 // not first row
+                            && ($_GET['sort']=="club")) // gap after cat
                              
-                    {
-                      $nbr = $nbr + $clubgap;    // calculate next number
+                    {  
+                      if ($nbr>0) {  
+                        $nbr = $nbr + $clubgap;    // calculate next number
+                      }
                     }
                     else if (($k != $row[1])        // new category
                         && ($catgap > 0)                // gap between categories
                         && ($k > 0)                        // not first row
                         && ($_GET['sort']=="cat"))    // gap after cat
                           
-                    {
-                      $nbr = $nbr + $catgap;                // calculate next number
+                    { 
+                      if ($nbr>0) {  
+                        $nbr = $nbr + $catgap;                // calculate next number
+                      }
                     }
                     else {
-                        $nbr++;
+                        $nbr++;   
                     }
                  }
                  else   
-                    {  
+                    {    
 				 // set per category from, to    
 					if ($k != $row[1]){			// new category
 						$nbr = $_GET["of_$row[1]"];
-						$nbr==0?1:$nbr;
-						$limit = $_GET["to_$row[1]"];
+                        $limit = $_GET["to_$row[1]"];  
+						//$nbr==0?1:$nbr;
+                        $nbr=($nbr==0 && $limit>0)?1:$nbr;
+                         
+						
 					}elseif($t != $row[3]			// new team
 						&& $teamgap > 0
 						&& $t > 0
 						&& isset($_GET['persvmteam']))
 					{
-						$nbr += $teamgap;
+						if ($nbr>0) {
+                            $nbr += $teamgap;      
+                        }
 					}else{
 						$nbr++;
 						if(($limit > 0 && $nbr > $limit) || $limit == 0){
@@ -462,8 +583,8 @@ if($_GET['arg'] == 'assign')
 							$limit = 0;
 						}
 					}   
-                 }
-                    	
+                 }    
+                                                    
 				mysql_query("
 					UPDATE anmeldung SET
 						Startnummer='$nbr'
@@ -746,8 +867,8 @@ if(mysql_errno() > 0){
 
 // check track disziplines in this meeting under 400 m
 $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeTrack] . ","  
-                           . $cfgDisciplineType[$strDiscTypeTrackNoWind] . ","  
-                           . $cfgDisciplineType[$strDiscTypeRelay] . ")";    
+                           . $cfgDisciplineType[$strDiscTypeTrackNoWind]  . ")";   
+                             
         
 $res = mysql_query("    SELECT
                 DISTINCT (w.xDisziplin)  , d.Name , d.Typ
@@ -783,7 +904,8 @@ if(mysql_errno() > 0){
 
 
 // check track disziplines in this meeting  over 400m
-$selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeDistance] . ")";   
+$selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeDistance]  . ","   
+                            . $cfgDisciplineType[$strDiscTypeRelay] . ")";   
         
 $res = mysql_query("    SELECT
                 DISTINCT (w.xDisziplin)  , d.Name , d.Typ
