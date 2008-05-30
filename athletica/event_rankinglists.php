@@ -5,8 +5,7 @@
  *	event_rankinglists.php
  *	----------------------
  *	
- */
-   // echo " event_rankinglists";
+ */       
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
@@ -155,7 +154,7 @@ if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 </tr>  
 <?php
 }
-
+  
 if (isset($eventTypeCat['combined'])){?> 
    
 <tr> 
@@ -167,9 +166,9 @@ if (isset($eventTypeCat['combined'])){?>
 </tr>
 
 
-<?php
+<?php 
 }   
-
+ 
 // Rankginglists for club and combined-events
 //if(empty($presets['event'])){// no event selected
 
@@ -213,13 +212,19 @@ if (isset($eventTypeCat['club'])){?>
 			<?php echo $strClubRanking; ?></input>
 	</td>
 </tr>
-
+ <tr>
+    <th class='dialog'>
+        <input type='radio' name='type' value='teamAll'>
+            <?php echo  $strClubRanking . " (" . $strAll . ")";?> </input>
+        
+    </th>
+</tr>
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='sheets'>
 			<?php echo $strClubSheets; ?></input>
 	</td>
-</tr>
+</tr>  
 
 <?php
 }
