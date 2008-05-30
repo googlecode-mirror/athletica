@@ -11,8 +11,8 @@ if (!defined('AA_RANKINGLIST_TEAM_LIB_INCLUDED'))
 	define('AA_RANKINGLIST_TEAM_LIB_INCLUDED', 1);
 
  
-function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser, $event, $heatSeparate)  
-{  
+function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser, $event, $heatSeparate, $type)  
+{           
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -89,7 +89,7 @@ global $cfgEventType, $strEventTypeSingleCombined, $strEventTypeClubMA,
 	$strEventTypeClubMB, $strEventTypeClubMC, $strEventTypeClubFA, 
 	$strEventTypeClubFB, $strEventTypeClubBasic, $strEventTypeClubAdvanced, 
 	$strEventTypeClubTeam, $strEventTypeClubCombined, $strEventTypeTeamSM;
-	
+	 
 $results = mysql_query("
 	SELECT
 	  	k.xKategorie
@@ -107,8 +107,8 @@ $results = mysql_query("
 		k.xKategorie
 	ORDER BY
 		k.Anzeige
-");  
-
+");
+    
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -119,12 +119,12 @@ else
 	{
 		// Club rankinglist:Combined 
 		if ($row[2] == $cfgEventType[$strEventTypeClubCombined])
-		{
-			processCombined($row[0], $row[1], $list);
+		{  
+			processCombined($row[0], $row[1], $list, $type);
 		}
 		// Club rankinglist: Single
 		else
-		{
+		{    
 			processSingle($row[0], $row[1], $list);
 		}
 	}
@@ -754,8 +754,8 @@ function processSingle($xCategory, $category, $list)
 //	process club combined events
 //
 
-function processCombined($xCategory, $category, $list)
-{
+function processCombined($xCategory, $category, $list, $type)
+{  
 	global $rFrom, $rTo, $limitRank;
 	require('./config.inc.php');
 
@@ -786,13 +786,18 @@ function processCombined($xCategory, $category, $list)
 		ORDER BY
 			t.xTeam
 	");
-
+    
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else
-	{
-		$evaluation = 5;	// nbr of athletes included in total result
+	{  
+        $evaluationPt = 5;              //  nbr of athletes fot calcualte points  
+		if ($type=='teamAll')   
+           $evaluation = 99999999;      //  all athletes    
+        else                                                                                                     
+           $evaluation = 5;	            // nbr of athletes included in total result
+       
 		$a = 0;
 		$club = '';
 		$info = '';
@@ -829,10 +834,10 @@ function processCombined($xCategory, $category, $list)
 
 				// nbr of athletes to include in team result
 				$total = 0;
-				for($i=0; $i < $evaluation; $i++) {
+				for($i=0; $i < $evaluationPt; $i++) {
 					$total = $total + $athleteList[$i]['points'];
-				}
-
+				}    
+                
 				$teamList[] = array(
 					"points"=>$total
 					, "team"=>$team
@@ -859,6 +864,7 @@ function processCombined($xCategory, $category, $list)
 					, MAX(r.Punkte) AS pts
 					, s.Wind
 					, w.Windmessung
+                    , st.xAnmeldung
 				FROM
 					start AS st USE INDEX (Anmeldung)
 					, serienstart AS ss 
@@ -881,8 +887,8 @@ function processCombined($xCategory, $category, $list)
 				ORDER BY
 					ru.Datum
 					, ru.Startzeit
-			");
-		
+			");    
+            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -917,7 +923,7 @@ function processCombined($xCategory, $category, $list)
 
 					// calculate points
 					$points = $points + $pt_row[4];	// accumulate points
-
+                    
 					if($pt_row[4] > 0) {					// any points for this event
 						$info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ")";
 						$sep = ", ";
@@ -948,8 +954,8 @@ function processCombined($xCategory, $category, $list)
 			// last team
 			usort($athleteList, "cmp");	// sort athletes by points
 
-			$total = 0;
-			for($i=0; $i < $evaluation; $i++) {
+			$total = 0;    
+			for($i=0; $i < $evaluationPt; $i++) {
 				$total = $total + $athleteList[$i]['points'];
 			}
 
@@ -965,7 +971,7 @@ function processCombined($xCategory, $category, $list)
 		$list->printSubTitle("$category", "", "");
 		$list->startList();
 		$list->printHeaderLine();
-
+        
 		usort($teamList, "cmp");
 		$rank = 1;									// initialize rank
 		$r = 0;										// start value for ranking
@@ -992,12 +998,12 @@ function processCombined($xCategory, $category, $list)
 			$i = 0;
 			$xmlinfo = "";
 			foreach($team['athletes'] as $athlete)
-			{
+			{   
 				if($i >= $evaluation) {	// show only athletes included in end result
 					break;
 				}
 				$i++;
-
+               
 				$list->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points']);
 				if($GLOBALS['xmladdon']){
 					$xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
