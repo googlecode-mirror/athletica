@@ -242,20 +242,19 @@ else
 		$comb = $row[7];
 		$combName = $row[8];
 		
-		// events   
-         
+		// events      
         $res = mysql_query("
             SELECT
                 d.Kurzname
                 , d.Typ
-                , MAX(IF ((r.Info='-') && (d.Typ = 6),r.Leistung=0,r.Leistung))  
+              , MAX(IF ((r.Info='-') && (d.Typ = 6) ,0,r.Leistung)) 
                 , r.Info
-                , MAX(IF ((r.Info='-') && (d.Typ = 6),r.Punkte=0,r.Punkte)) AS pts  
+                , MAX(IF ((r.Info='-') && (d.Typ = 6),0,r.Punkte)) AS pts    
                 , s.Wind
                 , w.Windmessung
                 , st.xStart
                 , CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
-                , w.Mehrkampfreihenfolge
+                , w.Mehrkampfreihenfolge                 
             FROM
                 start AS st USE INDEX (Anmeldung)
                 , serienstart AS ss 
@@ -271,7 +270,7 @@ else
             AND ru.xRunde = s.xRunde
             AND w.xWettkampf = st.xWettkampf
             AND d.xDisziplin = w.xDisziplin
-            AND r.Info != '" . $cfgResultsHighOut . "'
+            AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (r.Info !=  '" . $cfgResultsHighOut . "') )                                                                                
             AND w.xKategorie = $row[9]
             AND w.Mehrkampfcode = $row[7]
             GROUP BY
@@ -280,8 +279,8 @@ else
                 w.Mehrkampfreihenfolge ASC
                 , ru.Datum
                 , ru.Startzeit
-        ");   
-                     
+        ");     
+                                 
       /*  
 		$res = mysql_query("
 			SELECT
@@ -326,8 +325,7 @@ else
 		else
 		{   $count_disc=0;
 			while($pt_row = mysql_fetch_row($res))
-			{    
-          
+			{           
 				$lastTime = $pt_row[8];
 				
 				if($pt_row[1] == $cfgDisciplineType[$strDiscTypeJump]){
@@ -364,8 +362,8 @@ else
 				else {
 					$perf = AA_formatResultTime($pt_row[2], true);
 				}
-             
-				 // show only points for number of choosed disciplines if the diszipline is done			 
+                 
+				 // show only points for number of choosed disciplines if the diszipline is done	  
                 $count_disc++;    
                    if ($count_disc<=$disc_nr)  {
                        if($pt_row[4] > 0) {       // any points for this event 
@@ -374,16 +372,26 @@ else
 					        $sep = ", ";   
                        }
                        else{ 
-                         $count_disc--; 
+                         $count_disc--;   
+                         $pointTxt="" ;   
+                         foreach($cfgInvalidResult as $value)    // translate value
+                                {
+                                 if($value['code'] == $perf) {
+                                    $pointTxt = $value['short'];
+                                 }
+                         }  
+                         $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pointTxt)";                      
+                         $sep = ", ";  
+                         
                          //if($perf == null){ $perf = '0'; }
                             //$info = $info . $sep . $pt_row[0] . "&nbsp;(" . "0, 0)";
                             //$sep = ", ";  
                        } 
-                   }   
+                   }           
 			}	// END WHILE combined events
 			mysql_free_result($res);
-		}
-
+		}     
+      
 		$a = $row[0];
 		$name = $row[1] . " " . $row[2];
 		$year = AA_formatYearOfBirth($row[3]);
