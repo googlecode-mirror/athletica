@@ -73,7 +73,7 @@ $results = mysql_query("
 	GROUP BY
 		a.xAnmeldung
 	ORDER BY
-		w.xKategorie
+		k.Anzeige
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 ");         
