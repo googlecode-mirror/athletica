@@ -387,11 +387,7 @@ else {
 		$max_rank = 999999999;  
 		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";		
 		
-		if($relay == FALSE) {
-			if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack] )
-						|| ($row[3] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
-						|| ($row[3] == $cfgDisciplineType[$strDiscTypeDistance]))
-						{   
+		if($relay == FALSE) {  
 			/*$query = "
 				SELECT
 					ss.xSerienstart
@@ -438,6 +434,7 @@ else {
 					, at.Name
 					, at.Vorname";*/
 							
+				
 				$query = "SELECT ss.xSerienstart, 
 							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
 							 ss.Qualifikation, 
@@ -446,53 +443,6 @@ else {
 							 s.Bezeichnung, 
 							 s.Wind, 
 							 r.Punkte, 
-							 IF('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)), 
-							 at.Name, 
-							 at.Vorname, 
-							 at.Jahrgang, 
-							 LPAD(s.Bezeichnung, 5, '0') AS heatid, 
-							 IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land, 
-							 at.xAthlet, 
-							 ru.Datum, 
-							 ru.Startzeit ,
-							 ss.RundeZusammen, 
-							 ru.xRunde,
-							 k.Name                            
-						FROM serie AS s USE INDEX(Runde)
-				   LEFT JOIN serienstart AS ss USING(xSerie) 
-				   LEFT JOIN resultat AS r USING(xSerienstart) 
-				   LEFT JOIN start AS st ON(ss.xStart = st.xStart) 
-				   LEFT JOIN anmeldung AS a USING(xAnmeldung) 
-				   LEFT JOIN athlet AS at USING(xAthlet) 
-				   LEFT JOIN verein AS v USING(xVerein) 
-				   LEFT JOIN region AS re ON(at.xRegion = re.xRegion) 
-				   LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-				   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
-					LEFT JOIN wettkampf AS w On (w.xWettkampf= st.xWettkampf) 
-					LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie)  
-					   WHERE ".$roundSQL." 
-					   ".$limitRankSQL." 
-					   ".$valid_result."  
-					   ".$sqlSeparate."   
-					ORDER BY ".$order_heat." 
-							 rank, 
-							 leistung_neu 
-							 ".$order_perf.", 
-							 at.Name, 
-							 at.Vorname;";      
-						}
-						
-				   else {                                          // disciplines technique
-						 $sql_leistung="MAX(" .$sql_leistung . ")"; 
-						 
-						 $query = "SELECT ss.xSerienstart, 
-							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
-							 ss.Qualifikation, 
-							 ".$sql_leistung." AS leistung_neu, 
-							 r.Info, 
-							 s.Bezeichnung, 
-							 s.Wind, 
-							 MAX(r.Punkte), 
 							 IF('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)), 
 							 at.Name, 
 							 at.Vorname, 
@@ -520,15 +470,13 @@ else {
 					   WHERE ".$roundSQL." 
 					   ".$limitRankSQL." 
 					   ".$valid_result." 
-					   ".$sqlSeparate." 
-					GROUP BY at.Name,at.Vorname   
+					   ".$sqlSeparate."  
 					ORDER BY ".$order_heat." 
 							 rank, 
-							 leistung_neu 
-							 ".$order_perf.", 
-							 at.Name, 
-							 at.Vorname;";  
-				   }   
+                             at.Name, 
+                             at.Vorname,
+							 leistung_neu " 
+							 .$order_perf;     
 		}
 		else {						// relay event
 			/*$query = "
@@ -608,7 +556,7 @@ else {
 							 ".$order_perf.", 
 							 sf.Name;";
 		}    
-	   
+	         
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -624,11 +572,12 @@ else {
 			$id = '';
 			$r = '';
 			$count_rank=0;
+            $perf_save = '';  
 			//$list->startList();
 			
 			// process every result
 			while($row_res = mysql_fetch_array($res))
-			{   
+			{                      
 				if ($flagSubtitle){  
 					if ($heatSeparate) 
 						if ($relay)
@@ -705,8 +654,9 @@ else {
 
 						$heat = $row_res[5];		// keep heat description
 						$h++;						// increment if evaluation per heat
-					}
-					$count_rank++;
+					}   
+                    $count_rank++;
+                    
 					// rank
 					if(($row_res[1]==$max_rank) 		// invalid result
 						|| ($r == $row_res[1])) {		// same rank as previous
@@ -982,13 +932,17 @@ else {
 						}		
 					}
 					if ($heatSeparate) 
-						$rank=$count_rank;
+						{$rank=$count_rank;    
+                         if ($perf==$perf_save || $row_res[3] < 0)        // same rank or invalid result
+                             $rank='';  
+                        }
+                        
 					
 					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode);
 					if($secondResult){
 						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);
 					}
-						
+					$perf_save=$perf;	                                // keep performance
 					// 
 					// if relay, show started ahtletes in right order under the result
 					//
@@ -1080,7 +1034,7 @@ else {
 				if ($relay)
 					 $catM = $row_res[16];      // keep merged category relay
 				else
-					$catM = $row_res[19];       // keep merged category
+					$catM = $row_res[19];       // keep merged category   
 			}	// END WHILE result lines
 			
 			mysql_free_result($res);
