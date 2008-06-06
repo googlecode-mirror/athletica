@@ -438,9 +438,9 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	var $timeinfo;
 	
 	function printTitle()
-	{
+	{  
 		// page break check (at least one further line left)
-		if(($this->lpp - $this->linecnt) < 3)		
+		if(($this->lpp - $this->linecnt) < 8)		
 		{
 			$this->insertPageBreak();
 		}
@@ -459,7 +459,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	}
 
 	function printHeaderLine($relay, $svm)
-	{
+	{   
 		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
 			printf("</table>");
