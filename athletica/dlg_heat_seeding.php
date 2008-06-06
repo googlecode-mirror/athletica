@@ -403,10 +403,10 @@ if($round > 0)
 		$svmContest = AA_checkSVM($presets['event']);
 		
 		if($svmContest && 
-			($type == $cfgDisciplineType[$strDiscTypeJump])
-			|| ($type == $cfgDisciplineType[$strDiscTypeJumpNoWind])
-			|| ($type == $cfgDisciplineType[$strDiscTypeHigh])
-			|| ($type == $cfgDisciplineType[$strDiscTypeThrow])){
+			($type == $cfgDisciplineType[$strDiscTypeJump]
+			|| $type == $cfgDisciplineType[$strDiscTypeJumpNoWind]
+			|| $type == $cfgDisciplineType[$strDiscTypeHigh]
+			|| $type == $cfgDisciplineType[$strDiscTypeThrow])){
 			?>
 			<input type="hidden" name="mode" value="0"/>
 			<?php
