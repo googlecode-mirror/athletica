@@ -87,13 +87,10 @@ class Result
 			}
 
 			// get eventID
-			$res = mysql_query("
-				SELECT
-					r.xWettkampf
-				FROM
-					runde AS r
-				WHERE r.xRunde = " . $this->round
-			);
+			$sql = "SELECT r.xWettkampf 
+					  FROM runde AS r 
+					 WHERE r.xRunde = ".$this->round.";";
+			$res = mysql_query($sql);
 
 			if(mysql_errno() > 0) {		// DB error
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
@@ -106,13 +103,6 @@ class Result
 			}
 
 			// calculate points for this performance
-			/*$sql_sex = "SELECT Geschlecht 
-						  FROM athlet 
-					 LEFT JOIN anmeldung USING(xAthlet) 
-					 LEFT JOIN start USING(xAnmeldung) 
-					 LEFT JOIN serienstart USING(xStart) 
-						 WHERE xSerienstart = ".$this->startID.";";
-			$query_sex = mysql_query($sql_sex);*/
 			$sql_sex = "SELECT Geschlecht 
 						  FROM kategorie 
 					 LEFT JOIN wettkampf USING(xKategorie) 
@@ -157,13 +147,12 @@ class Result
 			}
 			else
 			{
-				mysql_query("
-					UPDATE resultat SET
-						Leistung = " . $this->performance . "
-						, Info = '" . $this->info . "'
-						, Punkte = " . $this->points . "
-					WHERE xResultat = " . $this->resultID
-				);
+				$sql = "UPDATE resultat 
+						   SET Leistung = ".$this->performance.", 
+							   Info = '".$this->info."', 
+							   Punkte = ".$this->points." 
+						 WHERE xResultat = ".$this->resultID.";";
+				mysql_query($sql);
 
 				if(mysql_errno() > 0) {
 					$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
@@ -178,13 +167,12 @@ class Result
 		}
 		else // no result provided -> add result
 		{
-			mysql_query("
-				INSERT INTO resultat SET
-					Leistung = " . $this->performance . "
-					, Info= '" . $this->info . "'
-					, Punkte = " . $this->points . "
-					, xSerienstart = " . $this->startID
-			);
+			$sql = "INSERT INTO resultat 
+							SET Leistung = ".$this->performance.", 
+								Info = '".$this->info."', 
+								Punkte = ".$this->points.", 
+								xSerienstart = ".$this->startID.";";
+			mysql_query($sql);
 
 			if(mysql_errno() > 0) {
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();

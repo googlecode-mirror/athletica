@@ -1,0 +1,1 @@
+ALTER IGNORE TABLE serienstart ADD KEY xStart (xStart);

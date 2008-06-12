@@ -133,7 +133,7 @@ class alge{
 	function make_filename($round = 0, $heat = 0){
 		
 		if($round > 0){
-			$res = mysql_query("SELECT 
+			/*$res = mysql_query("SELECT 
 						TIME_FORMAT(r.Startzeit, '%H%i')
 						, d.Kurzname
 						, k.Name
@@ -148,7 +148,19 @@ class alge{
 					AND	r.xWettkampf = w.xWettkampf
 					AND	d.xDisziplin = w.xDisziplin
 					AND	rt.xRundentyp = r.xRundentyp
-					AND	k.xKategorie = w.xKategorie");
+					AND	k.xKategorie = w.xKategorie");*/
+			$sql = "SELECT TIME_FORMAT(r.Startzeit, '%H%i'), 
+						   d.Kurzname, 
+						   k.Name, 
+						   rt.Name 
+					  FROM wettkampf AS w 
+				 LEFT JOIN runde AS r USING(xWettkampf) 
+				 LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
+				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
+					 WHERE r.xRunde = ".$round.";";
+			$res = mysql_query($sql);
+			
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}else{
@@ -158,7 +170,7 @@ class alge{
 				
 			}
 		}elseif($heat > 0){
-			$res = mysql_query("SELECT 
+			/*$res = mysql_query("SELECT 
 						TIME_FORMAT(r.Startzeit, '%H%i')
 						, d.Kurzname
 						, k.Name
@@ -177,7 +189,22 @@ class alge{
 					AND	s.xRunde = r.xRunde
 					AND	d.xDisziplin = w.xDisziplin
 					AND	rt.xRundentyp = r.xRundentyp
-					AND	k.xKategorie = w.xKategorie");
+					AND	k.xKategorie = w.xKategorie");*/
+			$sql = "SELECT TIME_FORMAT(r.Startzeit, '%H%i'), 
+						   d.Kurzname, 
+						   k.Name, 
+						   rt.Name, 
+						   s.Bezeichnung, 
+						   s.Film 
+					  FROM wettkampf AS w 
+				 LEFT JOIN runde AS r USING(xWettkampf) 
+				 LEFT JOIN serie AS s USING(xRunde) 
+				 LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
+				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
+					 WHERE s.xSerie = ".$heat.";";
+			$res = mysql_query($sql);
+
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}else{
@@ -210,7 +237,7 @@ class alge{
 		$file = $this->make_filename($round);
 		
 		// get each heat with race informations
-		$sql = "SELECT 
+		/*$sql = "SELECT 
 				s.xSerie
 				, m.Name
 				, m.Ort
@@ -240,7 +267,28 @@ class alge{
 			AND	s.xRunde = r.xRunde
 			AND	rt.xRundentyp = r.xRundentyp
 			AND	w.Zeitmessung = 1
-			";
+			";*/
+			$sql = "SELECT s.xSerie, 
+						   m.Name, 
+						   m.Ort, 
+						   d.Kurzname, 
+						   k.Name, 
+						   rt.Name, 
+						   w.xWettkampf, 
+						   d.Strecke, 
+						   s.Film, 
+						   s.Bezeichnung, 
+						   sta.Name 
+					  FROM meeting AS m 
+				 LEFT JOIN wettkampf AS w USING(xMeeting) 
+				 LEFT JOIN disziplin AS d USING(xDisziplin) 
+				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
+				 LEFT JOIN runde AS r ON(w.xWettkampf = r.xWettkampf) 
+				 LEFT JOIN serie AS s USING(xRunde) 
+				 LEFT JOIN rundendtyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN stadion AS sta ON(m.xStadion = sta.xStadion) 
+					 WHERE r.xRunde = ".$round." 
+					   AND w.Zeitmessung = 1;";
 		$resHeat = mysql_query($sql);
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -269,7 +317,7 @@ Name=$fileHeat
 					
 					// starts for each race (*.txt file)
 					$tmp = "";
-					$sql = "SELECT
+					/*$sql = "SELECT
 							a.Startnummer
 							, ss.Bahn
 							, at.Name
@@ -292,7 +340,22 @@ Name=$fileHeat
 						AND	st.xStart = ss.xStart
 						AND	a.xAnmeldung = st.xAnmeldung
 						AND	at.xAthlet = a.xAthlet
-						AND	v.xVerein = at.xVerein";
+						AND	v.xVerein = at.xVerein";*/
+					$sql = "SELECT a.Startnummer, 
+								   ss.Bahn, 
+								   at.Name, 
+								   at.Vorname, 
+								   v.Name, 
+								   at.Jahrgang 
+							  FROM runde AS r 
+						 LEFT JOIN wettkampf AS w USING(xWettkampf) 
+						 LEFT JOIN serie AS s ON(r.xRunde = s.xRunde) 
+						 LEFT JOIN serienstart AS ss USING(xSerie) 
+						 LEFT JOIN start AS st USING(xStart) 
+						 LEFT JOIN anmeldung AS a USING(xAnmeldung) 
+						 LEFT JOIN athlet AS at USING(xAthlet) 
+						 LEFT JOIN verein AS v USING(xVerein) 
+							 WHERE s.xSerie = ".$rowHeat[0].";";
 					$res = mysql_query($sql);
 					if(mysql_errno() > 0){
 						AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -314,7 +377,7 @@ Name=$fileHeat
 					
 					// starts for each race (*.txt file)
 					$tmp = "";
-					$sql = "SELECT
+					/*$sql = "SELECT
 							sf.Startnummer
 							, ss.Bahn
 							, sf.Name
@@ -335,7 +398,21 @@ Name=$fileHeat
 						AND	ss.xSerie = s.xSerie
 						AND	st.xStart = ss.xStart
 						AND	sf.xStaffel = st.xStaffel
-						AND	v.xVerein = sf.xVerein";
+						AND	v.xVerein = sf.xVerein";*/
+					$sql = "SELECT sf.Startnummer, 
+								   ss.Bahn, 
+								   sf.Name, 
+								   '-', 
+								   v.Name, 
+								   '-' 
+							  FROM runde AS r 
+						 LEFT JOIN wettkampf AS w USING(xWettkampf) 
+						 LEFT JOIN serie AS s ON(r.xRunde = s.xRunde) 
+						 LEFT JOIN serienstart AS ss USING(xSerie) 
+						 LEFT JOIN start AS st USING(xStart) 
+						 LEFT JOIN staffel AS sf USING(xStaffel) 
+						 LEFT JOIN verein AS v USING(xVerein) 
+							 WHERE s.xSerie = ".$rowHeat[0].";";
 					$res = mysql_query($sql);
 					if(mysql_errno() > 0){
 						AA_printErrorMsg(mysql_errno().": ".mysql_error());
