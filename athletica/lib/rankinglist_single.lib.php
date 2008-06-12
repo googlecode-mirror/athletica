@@ -388,51 +388,6 @@ else {
 		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";		
 		
 		if($relay == FALSE) {  
-			/*$query = "
-				SELECT
-					ss.xSerienstart
-					, IF(ss.Rang=0, $max_rank,ss.Rang) AS rank
-					, ss.Qualifikation
-					, ".$sql_leistung." AS leistung_neu
-					, r.Info
-					, s.Bezeichnung
-					, s.Wind
-					, r.Punkte
-					, IF('$svm', t.Name, 
-						IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
-						)
-					, at.Name
-					, at.Vorname
-					, at.Jahrgang
-					, LPAD(s.Bezeichnung,5,'0') as heatid
-					, IF(at.xRegion = 0, at.Land, re.Anzeige) as Land
-					, at.xAthlet
-				FROM
-					serie AS s USE INDEX (Runde)
-					, serienstart AS ss
-					, resultat AS r
-					, start AS st
-					, anmeldung AS a
-					, athlet AS at
-					, verein AS v
-					LEFT JOIN region as re ON at.xRegion = re.xRegion
-					LEFT JOIN team AS t ON a.xTeam = t.xTeam
-				WHERE $roundSQL
-				AND ss.xSerie = s.xSerie
-				AND r.xSerienstart = ss.xSerienstart
-				AND st.xStart = ss.xStart
-				AND a.xAnmeldung = st.xAnmeldung
-				AND at.xAthlet = a.xAthlet
-				AND v.xVerein = at.xVerein
-				$limitRankSQL
-				$valid_result
-				ORDER BY
-					$order_heat
-					rank
-					, leistung_neu "
-					. $order_perf ."
-					, at.Name
-					, at.Vorname";*/
 							
 				
 				$query = "SELECT ss.xSerienstart, 
@@ -473,50 +428,12 @@ else {
 					   ".$sqlSeparate."  
 					ORDER BY ".$order_heat." 
 							 rank, 
-                             at.Name, 
-                             at.Vorname,
+							 at.Name, 
+							 at.Vorname,
 							 leistung_neu " 
 							 .$order_perf;     
 		}
 		else {						// relay event
-			/*$query = "
-				SELECT
-					ss.xSerienstart
-					, IF(ss.Rang=0, $max_rank,ss.Rang) AS rank
-					, ss.Qualifikation
-					, ".$sql_leistung." AS leistung_neu
-					, r.Info
-					, s.Bezeichnung
-					, s.Wind
-					, r.Punkte
-					, if('$svm', t.Name, v.Name)
-					, sf.Name
-					, LPAD(s.Bezeichnung,5,'0') as heatid
-					, st.xStart
-				FROM
-					serie AS s USE INDEX (Runde)
-					, serienstart AS ss
-					, resultat AS r
-					, start AS st
-					, staffel AS sf
-					, verein AS v
-					LEFT JOIN team AS t ON sf.xTeam = t.xTeam
-				WHERE s.xRunde = $row[0]
-				AND ss.xSerie = s.xSerie
-				AND r.xSerienstart = ss.xSerienstart
-				AND st.xStart = ss.xStart
-				AND sf.xStaffel = st.xStaffel
-				AND v.xVerein = sf.xVerein
-				$limitRankSQL
-				$valid_result
-				GROUP BY
-					r.xSerienstart
-				ORDER BY
-					$order_heat
-					rank
-					, r.Leistung "
-					. $order_perf ."
-					, sf.Name";*/
 				   
 			$query = "SELECT ss.xSerienstart, 
 							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
@@ -556,7 +473,7 @@ else {
 							 ".$order_perf.", 
 							 sf.Name;";
 		}    
-	         
+			 
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -572,7 +489,7 @@ else {
 			$id = '';
 			$r = '';
 			$count_rank=0;
-            $perf_save = '';  
+			$perf_save = '';  
 			//$list->startList();
 			
 			// process every result
@@ -655,8 +572,8 @@ else {
 						$heat = $row_res[5];		// keep heat description
 						$h++;						// increment if evaluation per heat
 					}   
-                    $count_rank++;
-                    
+					$count_rank++;
+					
 					// rank
 					if(($row_res[1]==$max_rank) 		// invalid result
 						|| ($r == $row_res[1])) {		// same rank as previous
@@ -933,10 +850,10 @@ else {
 					}
 					if ($heatSeparate) 
 						{$rank=$count_rank;    
-                         if ($perf==$perf_save || $row_res[3] < 0)        // same rank or invalid result
-                             $rank='';  
-                        }
-                        
+						 if ($perf==$perf_save || $row_res[3] < 0)        // same rank or invalid result
+							 $rank='';  
+						}
+						
 					
 					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode);
 					if($secondResult){
@@ -947,12 +864,12 @@ else {
 					// if relay, show started ahtletes in right order under the result
 					//
 					if($relay){  
-						       
-                         if ($row_res[14] > 0)
-                            $sqlRound=$row_res[14];     // merged round
-                        else
-                            $sqlRound=$row[0]; 
-                                 
+							   
+						 if ($row_res[14] > 0)
+							$sqlRound=$row_res[14];     // merged round
+						else
+							$sqlRound=$row[0]; 
+								 
 						$res_at = mysql_query("
 								SELECT at.Vorname, at.Name, at.Jahrgang FROM
 									staffelathlet as sfat

@@ -78,14 +78,6 @@ else if($_POST['arg']=="change_combtype"){
 			   
 				  mysql_query("LOCK TABLES kategorie READ, disziplin READ"
 					. ", wettkampf WRITE");
-					
-			//	mysql_query("
-			//		UPDATE wettkampf
-			//			SET Mehrkampfcode = ".$_POST['combinedtype']."
-			//		WHERE xKategorie = ".$_POST['cat']."
-			//		AND Mehrkampfcode = ".$_POST['comb']."
-			//		AND xMeeting = ".$_COOKIE['meeting_id']."
-			//		");
 			
 				// delete combined event
 				
