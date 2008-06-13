@@ -128,7 +128,7 @@ $result = mysql_query("SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 							. " WHERE r.xRunde = " . $round
 							. " AND w.xWettkampf = r.xWettkampf"
 							. " AND k.xKategorie = w.xKategorie"
-							. " AND d.xDisziplin = w.xDisziplin");
+							. " AND d.xDisziplin = w.xDisziplin");   
  
 if(mysql_errno() > 0)		// DB error
 {
@@ -229,11 +229,11 @@ else
 	$doc->info = "$row[9]";
 	
 	$et = '';	// set enrolement and manipulation time
-	if($row[13] != '00:00'){
-		$et = "($strEnrolementTime $row[13]";
-	}
 	if($row[14] != '00:00'){
-		$et .= ", $strManipulationTime $row[14]";
+		$et = "($strEnrolementTime $row[14]";
+	}
+	if($row[15] != '00:00'){
+		$et .= ", $strManipulationTime $row[15]";
 	}
 	if(!empty($et)){ $et.=")"; }
 	$doc->time = "$row[0], $row[1]";
@@ -503,12 +503,11 @@ else
 						{
 
 							while($athl_row = mysql_fetch_row($res))
-							{
+							{   
 								$team = $team . "<br />&nbsp;&nbsp;&nbsp;"
 										. $athl_row[2] . ". "
 										. $athl_row[0] . " "
-										. $athl_row[1] . (($row[3]!='' && $row[3]!='-') ? ', '.$row[3] : '');
-                               
+										. $athl_row[1] . (($athl_row[3]!='' && $athl_row[3]!='-') ? ', '.$athl_row[3] : '');   
 							}
 							mysql_free_result($res);
 						}    
