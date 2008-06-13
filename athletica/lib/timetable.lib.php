@@ -26,7 +26,7 @@ function AA_timetable_display($arg = 'monitor')
 {
 	require('./config.inc.php');
 	require('./lib/common.lib.php');
-
+     
 	$result = mysql_query("
 		SELECT DISTINCT
 			k.Kurzname
@@ -39,7 +39,7 @@ function AA_timetable_display($arg = 'monitor')
 			k.Anzeige,
             k.Kurzname
 	");
-
+    
 	if(mysql_errno() > 0)	// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -55,7 +55,7 @@ function AA_timetable_display($arg = 'monitor')
 			$cats[] = $row[0];		// category array
 		}
 		mysql_free_result($result);
-
+       
 		// all rounds ordered by date/time
 		// - count nbr of present athletes or relays (don't include
 		//   athletes starting in relays)
@@ -115,7 +115,7 @@ function AA_timetable_display($arg = 'monitor')
                 , k.Kurzname
 				, d.Anzeige
 		");   
-    
+        
 		if(mysql_errno() > 0)	// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -254,11 +254,11 @@ function AA_timetable_display($arg = 'monitor')
 					switch($row[1]) {
 					case($cfgRoundStatus['open']):
 					case($cfgRoundStatus['enrolement_pending']):
-					case($cfgRoundStatus['enrolement_done']):
-					case($cfgRoundStatus['heats_in_progress']):
+					case($cfgRoundStatus['enrolement_done']): 	
+				 	case($cfgRoundStatus['heats_in_progress']):  			
 						$class = "";
 						$href = "speaker_entries.php?round=$row[0]";
-						break;
+						break;  				    
 					case($cfgRoundStatus['heats_done']):
 						$class = "st_heats_done";
 						$href = "speaker_results.php?round=$row[0]";
@@ -309,7 +309,7 @@ function AA_timetable_display($arg = 'monitor')
                    
 					if(array_key_exists($row[10], $events) == TRUE 		// not first round (count qualified athletes)
 						&& $combined == false && $teamsm == false) 	// no combined event
-					{   
+					{    
 						$starts = "-";
 						// get number of athletes/relays with valid result
 						$result = mysql_query("
@@ -322,7 +322,7 @@ function AA_timetable_display($arg = 'monitor')
 							AND s.xSerie = ss.xSerie
 							AND s.xRunde =" . $events[$row[10]]
 						);
-
+                          
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}
@@ -337,14 +337,15 @@ function AA_timetable_display($arg = 'monitor')
 							$starts = $row[5];
 						}elseif(empty($row[15])){ // if no group is set
 							$starts = $row[5];
-						}else{
+						}else{      
 							$result = mysql_query("SELECT COUNT(*) FROM
 											start as st
 											, anmeldung as a
 										WHERE	st.xAnmeldung = a.xAnmeldung
 										AND	st.xWettkampf = $row[10]
-										AND	a.Gruppe = $row[15]");
-							if(mysql_errno() > 0) {		// DB error
+										AND	a.Gruppe = '$row[15]'");  
+									
+							if(mysql_errno() > 0) {	  echo " Error"; 	// DB error
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							}else{
 								$start_row = mysql_fetch_array($result);
@@ -442,7 +443,7 @@ function AA_timetable_display($arg = 'monitor')
 											, anmeldung as a
 										WHERE	st.xAnmeldung = a.xAnmeldung
 										AND	st.xWettkampf = $row[10]
-										AND	a.Gruppe = $row[15]");
+										AND	a.Gruppe = '$row[15]'");
 							if(mysql_errno() > 0) {		// DB error
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							}else{
