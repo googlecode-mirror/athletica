@@ -93,6 +93,8 @@ if (isset($_POST['updateEfforts'])){
 				$pt = new PerformanceTime(trim($perf));
 				$perf = $pt->getPerformance();
 			}
+		   	else 				
+		   		$perf = (ltrim($perf,"0"))*100;  
 														  
 			if($perf != NULL) {	// invalid performance
 				$sql = "UPDATE start SET 
