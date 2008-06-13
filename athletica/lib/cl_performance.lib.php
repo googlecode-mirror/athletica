@@ -250,9 +250,11 @@ class PerformanceAttempt extends Performance
 
 			if(count($t) == 1) 	 // one element: negative value or zero
 			{
-				// negative value
-				if(($t[0] <= $GLOBALS['cfgInvalidResult']['DNS']['code'])
-					&& ($t[0] >= $GLOBALS['cfgInvalidResult']['DSQ']['code']))
+				// negative value   
+				if((($t[0] <= $GLOBALS['cfgInvalidResult']['DNS']['code'])
+					&& ($t[0] >= $GLOBALS['cfgInvalidResult']['NRS']['code']) )
+					||  ($t[0] == $GLOBALS['cfgInvalidResult']['WAI']['code']))
+				   //	&& ($t[0] >= $GLOBALS['cfgInvalidResult']['DSQ']['code']))   
 				{
 					$meter = $t[0];
 				}
