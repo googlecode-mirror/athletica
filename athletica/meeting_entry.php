@@ -6,7 +6,7 @@
  *	-----------------
  *	
  */
-	    
+		
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -175,7 +175,22 @@ if($_POST['arg'] == "change_licensenr"){
 if($_POST['arg'] == "change_licensetype"){
 	
 	if($_POST['licensetype'] == 1){ // should not become true if javascript went right
-		AA_printErrorMsg($strErrLicenseNotEntered);
+		$sql = "SELECT Lizenznummer 
+				  FROM athlet 
+				 WHERE xAthlet = ".$_POST['athlete'].";";
+		$query = mysql_query($sql);
+		
+		$row = mysql_fetch_assoc($query);
+		
+		if(intval($row['Lizenznummer'])>0){
+			$sql2 = "UPDATE athlet 
+						SET Lizenztyp = 1, 
+							Athleticagen = 'n' 
+					  WHERE xAthlet = ".$_POST['athlete'].";";
+			$query2 = mysql_query($sql2);
+		} else {
+			AA_printErrorMsg($strErrLicenseNotEntered);
+		}
 	}else{
 		
 		// a license type of 2 or 3 forces athletica gen 'yes' and license numer '0'
@@ -836,7 +851,7 @@ else if ($_POST['arg']=="change_top")
 				, BaseEffort = 'n'
 			WHERE xStart = " . $_POST['event']
 		);
-             
+			 
 		if(mysql_errno() > 0)
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1165,21 +1180,21 @@ function change_licensenr(){
  
 <table>
  <tr>
-    <td > 
-         <?php   
-         $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
-         $btn->printButton();
-         ?> 
-    </td>    
-    <td>
-        <form action='print_meeting_receipt.php' method='get' name='printdialog'>
-            <input type='hidden' name='formaction' value=''>
-            <input type='hidden' name='item' value='<?php echo $row[0]; ?>'>
-            <button name='print' type='submit' onClick='setPrint()' valign="bottom">
-                <?php echo $strReceipt; ?>
-            </button> 
-    </td>
-    </form> 
+	<td > 
+		 <?php   
+		 $btn = new GUI_Button("meeting_entry.php?arg=del&item=$row[0]", $strDelete);
+		 $btn->printButton();
+		 ?> 
+	</td>    
+	<td>
+		<form action='print_meeting_receipt.php' method='get' name='printdialog'>
+			<input type='hidden' name='formaction' value=''>
+			<input type='hidden' name='item' value='<?php echo $row[0]; ?>'>
+			<button name='print' type='submit' onClick='setPrint()' valign="bottom">
+				<?php echo $strReceipt; ?>
+			</button> 
+	</td>
+	</form> 
    </tr>  
 </table>
 

@@ -71,7 +71,8 @@ class Action_saveResult extends Action_default
 			
 			// if this is a track (wind / nowind) format results in seconds e.g. 80,123 secs
 			if(($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
-			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])){
+			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])
+			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']])){
 				$this->reply = $result->save($_POST['perf'], '', true);
 			}else{
 				$this->reply = $result->save($_POST['perf']);
