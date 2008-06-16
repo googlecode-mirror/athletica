@@ -1,11 +1,3 @@
-ALTER IGNORE TABLE anmeldung ADD KEY Bezahlt (Bezahlt);
-ALTER IGNORE TABLE athlet ADD KEY Bezahlt (Bezahlt);
-ALTER IGNORE TABLE athlet ADD KEY xRegion (xRegion);
-ALTER IGNORE TABLE athlet ADD KEY xVerein2 (xVerein2);
-ALTER IGNORE TABLE base_performance ADD KEY discipline (discipline);ALTER IGNORE TABLE base_performance ADD KEY category (category);
-ALTER IGNORE TABLE kategorie ADD KEY Code (Code);
-ALTER IGNORE TABLE runde ADD KEY xRundentyp (xRundentyp);
-ALTER IGNORE TABLE serie ADD KEY Status (Status);
 ALTER IGNORE TABLE serienstart ADD KEY xSerie (xSerie);
 ALTER IGNORE TABLE serienstart ADD KEY xStart (xStart);
 
