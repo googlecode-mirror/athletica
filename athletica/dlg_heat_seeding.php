@@ -282,7 +282,7 @@ if($round > 0)
 						  s.Anwesend = 0 AND s.xStaffel>0;";
 		   
 		}
-		if($combined && $cLast == 0 && !empty($cGroup)){	// combined event and not last discipline, count athletes of correct group
+		if($combined && $cLast == 0 && !empty($cGroup)){	// combined event and not last discipline, count athletes of correct group			
 			$query = "SELECT
 						  COUNT(*)
 					  FROM
@@ -292,7 +292,7 @@ if($round > 0)
 					  WHERE 
 						  s.xWettkampf = ".$event."
 					  AND
-						  a.Gruppe = ".$cGroup." 
+						  a.Gruppe = '".$cGroup."' 
 					  AND 
 						  s.Anwesend = 0;";
 		}elseif(($combined && $cLast == 1) 
@@ -312,7 +312,7 @@ if($round > 0)
 					  WHERE 
 						  s.xWettkampf = ".$event."
 					  AND
-						  a.Gruppe = ".$cGroup."
+						  a.Gruppe = '".$cGroup."'
 					  AND 
 						  s.Anwesend = 0;";
 		}
