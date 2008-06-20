@@ -169,8 +169,7 @@ elseif($_POST['arg']=="delete_discipline"){
 }
 // configure rounds with start time
 elseif($_POST['arg']=="change_starttime"){
-	// date, item, roundtype, hr, min, g
-	
+	// date, item, roundtype, hr, min, g     
 	if(empty($_POST['g'])){
 		$st = $_POST['starttime'];
 	}else{
@@ -212,8 +211,27 @@ elseif($_POST['arg']=="change_starttime"){
 	$tmp = $tmp - $stdMtime;
 	$_POST['mtime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
 	
-	if($_POST['round'] > 0){
+
+   	$groupexist=false;
+ 
+    $res_grp = mysql_query("SELECT  
+								r.xRunde
+							FROM
+								runde as r
+							WHERE	xWettkampf = $_POST[eventgroup]
+							AND r.Gruppe ='' ");   
+	   
+	if (mysql_num_rows($res_grp)>0){
+		$row_grp=mysql_fetch_array($res_grp);
+		$groupexist=true; 
+	}   
+     
+	if($_POST['round'] > 0  || $groupexist){
 		$tt = new Timetable();
+	  	if  ($groupexist){
+	  	    $tt->round=$row_grp[0];
+	  	    $tt->grp=$_POST['eventgroup']; 
+	   	}
 		$tt->change();
 	}else{
 		$tt = new Timetable();
@@ -395,6 +413,7 @@ $sql = "SELECT
 			  w.Mehrkampfcode DESC
 			, w.Mehrkampfreihenfolge
 			, d.Anzeige;";
+ 
 $result = mysql_query($sql);   
  
 if(mysql_errno() > 0) {	// DB error
@@ -689,7 +708,8 @@ else			// no DB error
 						AND 
 							a.Gruppe != ''
 						ORDER BY
-							g ASC;";                   
+							g ASC;";  
+			          
 				$res_c = mysql_query($sql);
 				if(mysql_errno() > 0){
 					AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -909,7 +929,8 @@ else			// no DB error
 								, r.xRunde
 							FROM
 								runde as r
-							WHERE	xWettkampf = $row[0]");
+							WHERE	xWettkampf = $row[0]");  
+				 
 				while($row_c = mysql_fetch_array($res_c)){
 					$times[$row_c[2]] = $row_c;
 					$date = $row_c[1];
@@ -927,6 +948,10 @@ else			// no DB error
 					document.event_<?php echo $row[0] ?>.round.value='<?php echo $times[$g][3] ?>';
 					document.event_<?php echo $row[0] ?>.submit()" 
 				name="starttime[<?php echo $g ?>]" id="starttime_<?php echo $oldx."_".$oldg ?>">
+	 	
+				 	<input name='eventgroup' type='hidden' value='<?php echo $row[0]; ?>' /> 
+				 	<input name='combGroup'  type='hidden' value='<?php echo $row[7]; ?>' />  	 
+					 
 			</td>
 					<?php
 					$oldg = $g;
@@ -1054,7 +1079,7 @@ else			// no DB error
 					AND 
 						a.Gruppe != ''
 					ORDER BY
-						g ASC;";
+						g ASC;";    
 			$res_c = mysql_query($sql);
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
