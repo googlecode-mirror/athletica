@@ -104,8 +104,8 @@ class Timetable
 								, xRundentyp=" . $this->type . "
 								, xWettkampf=" . $this->event."
 								$sqlEtime
-								$sqlMtime
-								, Gruppe = '".$this->group."'"
+								$sqlMtime 
+							  	, Gruppe = '".$this->group."'"     
 						);
 					}
 				}
@@ -117,7 +117,7 @@ class Timetable
 			mysql_query("UNLOCK TABLES");
 		}
 	}
-
+     
 	/*		delete()
 	 *  	--------
 	 *		delete an event round
@@ -202,6 +202,7 @@ class Timetable
 							Datum = '" . $this->date . "'
 							, Startzeit = '".$this->hour.":".$this->min.":00"."'
 							, xRundentyp = " . $this->type . "
+							, Gruppe = " . $this->group . "  
 							$sqlEtime
 							$sqlMtime
 						WHERE xRunde = " . $this->round
