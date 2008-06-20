@@ -6,7 +6,11 @@
  *	-----------------
  *	
  */
+<<<<<<< .mine
+	      
+=======
 		
+>>>>>>> .r260
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -450,10 +454,8 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 									 WHERE base_athlete.license = ".$_POST['license']." 
 									   AND base_performance.discipline = ".$rowCodes['DiszCode'] ." 
 									   AND season = '".$saison."';";
-							$res = mysql_query($sql); 
-
-						}
-						//echo $sql;
+							$res = mysql_query($sql);  
+						}      
 						if(mysql_errno() > 0){
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error() . $sql);
 						}else{ 
@@ -517,36 +519,37 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 // Process delete-request if required
 //
 else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
-{
-	
+{  
 	$item = $_POST['item'];
 	$events = array();
-	
+	$evt = array();
 	if($_POST['arg']=="del_event"){
 		$events[] = $_POST['event'];
 	}else{ // delete a combined event, get starts for each discipline
 		list($cCat, $cCode) = split('_', $_POST['event']);
-		$res_comb = mysql_query("SELECT xStart FROM
+		$res_comb = mysql_query("SELECT xStart, a.Gruppe, w.xWettkampf FROM
 						start as s
 					LEFT JOIN wettkampf as w USING (xWettkampf)
+					LEFT JOIN anmeldung as a ON (a.xAnmeldung=s.xAnmeldung)
 					WHERE	w.Mehrkampfcode = $cCode
 					AND	w.xKategorie = $cCat
 					AND	s.xAnmeldung = $item
 					AND	w.xMeeting = ".$_COOKIE['meeting_id']
-					);
+					); 
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-		}else{
-			while($row_comb = mysql_Fetch_array($res_comb)){
+		}else{ 
+			while($row_comb = mysql_Fetch_array($res_comb)){  
 				$events[] = $row_comb[0];
+				$group = $row_comb[1];                 // keep group
+				$evt[] = $row_comb[2]; 
 			}
 		}
-	}
+	} 
 	
 	mysql_query("LOCK TABLES serienstart READ, staffelathlet READ, start WRITE");
 	foreach($events as $start){
-		// Meeting does not exist (anymore)
-		//echo $start;
+		// Meeting does not exist (anymore)  
 		if((AA_checkReference("serienstart", "xStart", $start) == 0)	
 			&& (AA_checkReference("staffelathlet", "xAthletenstart", $start) == 0))	
 		{
@@ -560,15 +563,79 @@ else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
 		else {
 			AA_printErrorMsg($strErrAthleteSeeded);
 		}
-	}
-	mysql_query("UNLOCK TABLES");
+	}   
+	
+	mysql_query("UNLOCK TABLES");    
+ 
+	$groupexist=AA_checkGroup($group,$cCat,$cCode);
+ 
+  	if (!$groupexist){
+		foreach ($evt as $k => $value_evt){
+			$sql_t= "SELECT 
+						xRunde 
+				 FROM
+						runde as r 
+				 WHERE	r.xWettkampf = $value_evt"; 
+					
+			$delGroup=false;	
+			
+			$res_t = mysql_query($sql_t);	
+			if (mysql_num_rows( $res_t) > 1){      // no update if more than one group
+				$delGroup=true;
+			}
+	       	$sql_r = "SELECT 
+	       					xRunde 
+	       			  FROM
+							runde as r 
+					  WHERE	r.xWettkampf = $value_evt 
+					  AND	r.Gruppe = ''";   
+			
+			$res_r = mysql_query($sql_r);
+			if(mysql_errno() > 0){
+				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			}else{ 
+	   		  	if  (mysql_num_rows($res_r)==0){  
+	
+	    			$sql_ru = "SELECT xRunde FROM
+								runde as r 
+								WHERE	r.xWettkampf = $value_evt
+								AND	r.Gruppe = " . $group;   
+			 	
+			 		$res_ru = mysql_query($sql_ru);
+			 		if(mysql_errno() > 0){
+			 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			 		}else{ 
+			 			   if (mysql_num_rows($res_ru)>0) {
+			 			   $row_ru = mysql_fetch_array($res_ru);
+			 			   
+			 			   if ($delGroup){      
+			 			        
+			 			  		mysql_query("DELETE FROM runde
+												WHERE xRunde = $row_ru[0]");
+						  		if(mysql_errno() > 0) {
+						  				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+						  		}  
+			 			   }
+			 			   else {    
+			 			  		mysql_query("UPDATE runde SET
+												Gruppe = ''
+												WHERE xRunde = $row_ru[0]");
+						  		if(mysql_errno() > 0) {
+						  				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+						  		} 
+						   }  
+						} 
+	    			}
+	   			} 
+			}
+		}
+	}  
 }
-
-
 
 //
 // Process change_cat-request if required
 //
+
 else if ($_POST['arg']=="change_cat")
 {
 	$category = $_POST['category'];
@@ -892,16 +959,156 @@ else if ($_POST['arg']=="change_topcomb")
 // Process change_cgroup-request if required
 //
 else if ($_POST['arg']=="change_cgroup")
-{
+{  
+    mysql_query("LOCK TABLES anmeldung as a READ, start as s READ, 
+    						 runde as r READ, wettkampf as w READ, runde as r Write "); 
+    
+	$r=0;
+	$sql_g="SELECT a.Gruppe, a.xKategorie  
+   		       FROM
+   			   		anmeldung  AS a   
+   			   WHERE
+   			   		a.xAnmeldung=" . $_POST['item'] . "
+   					AND a.xMeeting=" .$_COOKIE['meeting_id'];   
+   		
+	$res_g=mysql_query(	$sql_g);
 	
-	mysql_query("UPDATE anmeldung SET
-			Gruppe = '".strtoupper($_POST['combinedgroup'])."'
-		WHERE xAnmeldung = ".$_POST['item']."");
+	if(mysql_errno() > 0)
+		{
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+		}else{
+			  $row_g = mysql_fetch_array($res_g);     // get previous group     
+			 
+	     	  $sql_r="SELECT DISTINCT 
+         						r.xRunde, 
+         						r.Datum, 
+         						r.Startzeit, 
+         						r.Appellzeit, 
+         						r.Stellzeit, 
+         						r.Status,
+         						r.Speakerstatus, 
+         						r.StatusZeitmessung, 
+         						r.StatusUpload, 
+         						r.QualifikationSieger, 
+         						r.QualifikationLeistung,
+         						r.Bahnen,
+         						r.Versuche,
+         						r.Gruppe,
+         						r.xRundentyp,  			
+         						r.xWettkampf,
+         						w.Mehrkampfcode,
+         						w.xKategorie         						         						
+   		       			  FROM
+   			   			  		anmeldung  as a
+   								LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
+   								LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)
+   								LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)  
+   			   			  WHERE
+   			   			  		a.xAnmeldung=" . $_POST['item'] . "
+   								AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
+   								AND r.Gruppe='" . $row_g[0] ."'"; 
+   				
+	          $res_r=mysql_query(	$sql_r);
 	
-	if(mysql_errno() > 0){
-		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-	}
+			  if(mysql_errno() > 0)
+						{
+						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			  }else{
+					
+					$categoryGroup='';
+					$cat_arr=array();
+					$comb_arr=array(); 
+					$i=0;
+					   	
+			  		while($row_r=mysql_fetch_row($res_r)) {  
+			  			if ($categoryGroup!=$row_r[17] || $combGroup!=$row_r[16]){
+			  				$cat_arr[$i]= $row_r[17]; 
+			  				$comb_arr[$i]= $row_r[16]; 
+			  				$categoryGroup= $row_r[17];
+			  				$combGroup=$row_r[16]; 
+			  				$sqlEvent[$i]="(".$row_r[15].",";
+			  				$i++;
+			  				$groupexist=AA_checkGroup(strtoupper($_POST['combinedgroup']),  $row_r[17], $row_r[16]);    
+						}
+						else {
+							$sqlEvent[$i-1].=$row_r[15].",";  
+						}
+						  	   
+						if (!$groupexist) {
+							// insert 
+						  	mysql_query("
+									INSERT INTO runde
+					   					   	SET	Datum = '".$row_r[1]."'
+											, Startzeit = '".$row_r[2]."' 
+											, Appellzeit = '".$row_r[3]."'  
+											, Stellzeit = '".$row_r[4]."'  
+											, Status = '".$row_r[5]."'  
+											, Speakerstatus = '".$row_r[6]."'  
+											, StatusZeitmessung = '".$row_r[7]."'  
+											, StatusUpload = '".$row_r[8]."'  
+											, QualifikationSieger = '".$row_r[9]."'  
+											, QualifikationLeistung = '".$row_r[10]."' 
+											, Bahnen = '".$row_r[11]."' 	
+											, Versuche = '".$row_r[12]."' 		
+										   	, Gruppe = '".strtoupper($_POST['combinedgroup'])."'  
+										   	, xRundentyp = '".$row_r[14]."' 	
+											, xWettkampf = '".$row_r[15]."'  
+										   	");  
+						} 
+			  		}      // end while
+			  		   
+			  		for ($z=0;$z<count($sqlEvent);$z++){   
+			  			$sqlEvent[$z]=substr($sqlEvent[$z],0,-1).")";  
+			  		}  
+					   
+			  		mysql_query("UPDATE anmeldung SET
+			  			 			Gruppe = '".strtoupper($_POST['combinedgroup'])."'
+									WHERE xAnmeldung = ".$_POST['item']."");
+			  				
+			  		if(mysql_errno() > 0){
+			  		   	 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			  		}
+			  		   	 
+			  		// check to delete 
+			  		if ($row_g[0]!='') {  
+			  			for ($k=0;$k<count($cat_arr);$k++){  
+			  		   		$groupexist=AA_checkGroup($row_g[0], $cat_arr[$k],$comb_arr[$k]);   
+			     	       
+			  		  		if (!$groupexist) {   
+			  		  			
+			  		  				$sql_ru="SELECT  
+         										r.xRunde						
+   		       			  					FROM
+   			   			  						anmeldung  as a
+   												LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
+   												LEFT JOIN runde as r ON (r.xWettkampf=s.xWettkampf)
+   												LEFT JOIN wettkampf as w ON (w.xWettkampf=s.xWettkampf)  
+   			   			  					WHERE
+   			   			  						r.xWettkampf IN " .  $sqlEvent[$r] . "
+   												AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
+   												AND r.Gruppe='" . $row_g[0] ."'"; 
+   										
+	                				$res_ru=mysql_query($sql_ru);
 	
+									if(mysql_errno() > 0)
+					   					{
+											AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+									}else{ 
+			  								while($row_ru=mysql_fetch_row($res_ru)) {  
+			  					  				// delete 
+			  			    				   	mysql_query("DELETE FROM runde" 
+											  				. " WHERE xRunde = ".$row_ru[0]);  
+			  			      				}  
+							        }	
+							}
+					  		else {
+					  			$r++;  
+					  		}  
+						}  	
+					} 	 
+			  } 
+	}   
+	mysql_query("UNLOCK TABLES");     
 }
 
 //
@@ -1085,7 +1292,7 @@ $result = mysql_query("
 	AND a.xKategorie = k.xKategorie
 	
 ");
-
+      		
  if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
