@@ -2381,7 +2381,37 @@ function AA_countRound($round){
 	 }
    return $count;
 }  
-  
+   /**	
+	 * Check if group exist for this category and combined
+	 * ---------------------------------------------------
+	 */   
+function AA_checkGroup($group,$cat,$comb){	
+   
+   $groupexist=false;
+   $qGroup="SELECT
+					DISTINCT(a.Gruppe) as g
+	         FROM
+			 		wettkampf AS w
+					LEFT JOIN start AS st USING(xWettkampf)
+					LEFT JOIN anmeldung As a USING(xAnmeldung)
+			 WHERE
+			 		w.Mehrkampfcode = ".$comb ."
+					AND w.xKategorie = ".$cat ."              
+					AND w.xMeeting = ".$_COOKIE['meeting_id']."
+					AND a.Gruppe = '" . $group ."' 
+					ORDER BY g ASC;";
+	        
+	$res = mysql_query($qGroup);
+  	if(mysql_errno() > 0)
+		{
+		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+	}else{
+		if (mysql_num_rows($res) > 0) {
+			$groupexist=true;
+		}
+	}
+	return $groupexist;    
+}						  
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>
