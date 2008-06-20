@@ -83,7 +83,7 @@ if(isset($_GET['pagebreak'])){
 $doc = new PRINT_EnrolementPage($_COOKIE['meeting']);
        
 // get event title data
-$result = mysql_query("SELECT d.Name"
+$result = mysql_query("SELECT DISTINCT d.Name"
 					. ", k.Name"
 					. ", DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 					. ", TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')"
@@ -100,13 +100,15 @@ $result = mysql_query("SELECT d.Name"
 					. ", wettkampf AS w"
 					. ", runde AS r"
 					. " LEFT JOIN disziplin as dm ON w.Mehrkampfcode = dm.Code"
+				    . " LEFT JOIN start AS s ON(s.xWettkampf=w.xWettkampf)"  
+   					. " INNER JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)"   
 					. " WHERE " . $argument
 					. " AND r.xWettkampf = w.xWettkampf"
 					. " AND d.xDisziplin = w.xDisziplin"
 					. " AND k.xKategorie = w.xKategorie"
-					. " ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit");
-                    
-      
+					. " ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit");   
+           
+
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -120,9 +122,13 @@ else
 	
 	while($row = mysql_fetch_row($result))   
 	{   
-        $discHeader=($row[0]!='') ? $row[0] : $row[11];                              
-		if($row[4] != $event)	// only first round per event
+        $discHeader=($row[0]!='') ? $row[0] : $row[11];   
+		if($row[4] != $event)	// only first round per event      
 		{
+			
+			if($combined && $xComb == $row[10]){
+			  continue;
+		  	}
 			// change round status only if nothing done yet
 			if($row[6] == $cfgRoundStatus['open']) {	
 				AA_utils_changeRoundStatus($row[5],
@@ -148,11 +154,7 @@ else
 		  $svm = AA_checkSVM($event);
 		  if($svm){
 			  $sortAddition = "t.Name, ";
-		  }
-		  
-		  if($combined && $xComb == $row[10]){
-			  continue;
-		  }
+		  }  
           
 		  $xComb = $row[10];
 		  
