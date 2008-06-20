@@ -430,8 +430,8 @@ else
 		$r = 0;										// start value for ranking
 		$p = 0;
 		foreach($points_arr as $key => $val)
-		{
-			$r++;
+		{  
+			$r++;                           
 			
 			if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
 				continue;
@@ -439,8 +439,19 @@ else
 			
 			if($p != $val) {	// not same points as previous athlete
 				$rank = $r;		// next rank
-			}
-			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]); 			
+			}  
+		 	$pos1 = strpos($info_arr[$key],"-1");  
+		 	$pos2 = strpos($info_arr[$key],"-2");  
+		 	$pos3 = strpos($info_arr[$key],"-3");  
+		 	$pos4 = strpos($info_arr[$key],"-4"); 
+		 	$pos5 = strpos($info_arr[$key],"-");  
+		 	 
+		    // not set rank for invalid results
+		 	if ($pos1!==false  || $pos2!==false || $pos3!==false || $pos4!==false || $pos5!==false){
+		 	    $rank='';   
+				$r--;  
+		 	}  
+			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
             $list->printInfo($info_arr[$key]);
 			$p = $val;			// keep current points
 			// insert points into combined top performance of entry
