@@ -67,7 +67,7 @@ class GUI_EntryPage extends GUI_ListPage
 
 
 	function printSubTitle($title)
-	{
+	{   
 		?>
 <h2><?php echo $title; ?></h2>
 		<?php
@@ -228,8 +228,8 @@ class GUI_ClubCatEntryPage extends GUI_EntryPage
 
 
 	function printLine($nbr, $name, $year, $disc)
-	{
-?>
+	{ 
+?>                     
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
 		<td><?php echo $name; ?></td>
@@ -275,7 +275,7 @@ class GUI_ClubCatDiscEntryPage extends GUI_EntryPage
 		<td class='forms_right'><?php echo $nbr; ?></td>
 		<td><?php echo $name; ?></td>
 		<td class='forms_ctr'><?php echo $year; ?></td>
-		<td class='forms_ctr><?php echo $perf; ?></td>
+		<td class='forms_ctr'><?php echo $perf; ?></td>
 	</tr>
 <?php
 		$this->switchRowClass();
