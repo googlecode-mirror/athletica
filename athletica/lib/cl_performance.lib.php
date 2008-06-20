@@ -19,6 +19,8 @@ class Performance
 {
 	var $performance;
 
+
+	
 	function Performance($performance)
 	{
 		$this->setPerformance($performance);
@@ -213,20 +215,25 @@ class PerformanceAttempt extends Performance
 	}
 
 	function validatePerformance($performance, $secFlag = false)
-	{
+	{  
 		// format meter value: replace all separators by comma
 		// (e.g. 10.52 -> 10,52)
 		$meter = strtr($performance, $GLOBALS['cfgResultsSepTrans']);
 		$tok = strtok($meter, $GLOBALS['cfgResultsSeparator']);
 		
 		// get tokanized performance if entered without separators
-		if(strpos($time, $GLOBALS['cfgResultsSeparator']) === false){
-			$performance = substr($performance,0,-2).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-2);
+		if(strpos($time, $GLOBALS['cfgResultsSeparator']) === false){  
 			
+		   	if ($performance == $GLOBALS['cfgInvalidResult']['WAI']['code'])
+		   	  	{$performance = substr($performance,0,-3).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-3);
+		  		}
+		  	else {
+		    	$performance = substr($performance,0,-2).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-2);
+		 	}     
 			$meter = strtr($performance, $GLOBALS['cfgResultsSepTrans']);
 			$tok = strtok($meter, $GLOBALS['cfgResultsSeparator']);
 		}
-		
+	   
 		$i=0;
 		$num = TRUE;
 
@@ -254,7 +261,7 @@ class PerformanceAttempt extends Performance
 				if((($t[0] <= $GLOBALS['cfgInvalidResult']['DNS']['code'])
 					&& ($t[0] >= $GLOBALS['cfgInvalidResult']['NRS']['code']) )
 					||  ($t[0] == $GLOBALS['cfgInvalidResult']['WAI']['code']))
-				   //	&& ($t[0] >= $GLOBALS['cfgInvalidResult']['DSQ']['code']))   
+				  // 	&& ($t[0] >= $GLOBALS['cfgInvalidResult']['DSQ']['code']))   
 				{
 					$meter = $t[0];
 				}
@@ -284,10 +291,9 @@ class PerformanceAttempt extends Performance
 			if((count($t) == 1) 	 // one element: may be '-'
 				&& ($t[0] == $GLOBALS['cfgMissedAttempt']['code']))
 			{
-				$meter = $GLOBALS['cfgMissedAttempt']['db'];
+			   	$meter = $GLOBALS['cfgMissedAttempt']['db'];
 			}
-		}
-
+		}    
 		return $meter;
 	}
 
