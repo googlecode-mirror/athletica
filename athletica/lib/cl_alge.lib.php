@@ -31,7 +31,7 @@ class alge{
 	
 	var $si; // silent, no errors
 	
-	function alge($noerror = false){
+	function alge($noerror = false){    	
 		$this->si = $noerror;
 		$this->get_configuration($_COOKIE['meeting_id']);
 		
@@ -234,8 +234,7 @@ class alge{
 					, verein as v READ, meeting as m READ
 					, stadion as sta, staffel as sf READ");
 		
-		$file = $this->make_filename($round);
-		
+		$file = $this->make_filename($round);  
 		// get each heat with race informations
 		/*$sql = "SELECT 
 				s.xSerie
@@ -285,10 +284,10 @@ class alge{
 				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
 				 LEFT JOIN runde AS r ON(w.xWettkampf = r.xWettkampf) 
 				 LEFT JOIN serie AS s USING(xRunde) 
-				 LEFT JOIN rundendtyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
 				 LEFT JOIN stadion AS sta ON(m.xStadion = sta.xStadion) 
 					 WHERE r.xRunde = ".$round." 
-					   AND w.Zeitmessung = 1;";
+					   AND w.Zeitmessung = 1;";      		
 		$resHeat = mysql_query($sql);
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
