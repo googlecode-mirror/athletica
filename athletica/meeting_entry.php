@@ -546,7 +546,8 @@ else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
 		}
 	} 
 	
-	mysql_query("LOCK TABLES serienstart READ, staffelathlet READ, start WRITE");
+	mysql_query("LOCK TABLES serienstart READ, staffelathlet READ, start WRITE, runde AS r READ, 
+							 runde WRITE, wettkampf AS w READ, start AS st READ, anmeldung AS a READ");
 	foreach($events as $start){
 		// Meeting does not exist (anymore)  
 		if((AA_checkReference("serienstart", "xStart", $start) == 0)	
@@ -562,12 +563,13 @@ else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
 		else {
 			AA_printErrorMsg($strErrAthleteSeeded);
 		}
-	}   
-	
-	mysql_query("UNLOCK TABLES");    
- 
-	$groupexist=AA_checkGroup($group,$cCat,$cCode);
- 
+	}  
+    
+    $groupexist=false;  
+   	if($_POST['arg']=="del_combined"){
+		$groupexist=AA_checkGroup($group,$cCat,$cCode);
+	}         
+   
 	if (!$groupexist){
 		foreach ($evt as $k => $value_evt){
 			$sql_t= "SELECT 
@@ -581,25 +583,25 @@ else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
 			$res_t = mysql_query($sql_t);	
 			if (mysql_num_rows( $res_t) > 1){      // no update if more than one group
 				$delGroup=true;
-			}
+			}   
 			$sql_r = "SELECT 
 							xRunde 
 					  FROM
 							runde as r 
 					  WHERE	r.xWettkampf = $value_evt 
 					  AND	r.Gruppe = ''";   
-			
+		
 			$res_r = mysql_query($sql_r);
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{ 
 				if  (mysql_num_rows($res_r)==0){  
-	
+	                  
 					$sql_ru = "SELECT xRunde FROM
 								runde as r 
 								WHERE	r.xWettkampf = $value_evt
-								AND	r.Gruppe = " . $group;   
-				
+								AND	r.Gruppe = '" . $group ."'";   
+				    
 					$res_ru = mysql_query($sql_ru);
 					if(mysql_errno() > 0){
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -608,7 +610,7 @@ else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
 						   $row_ru = mysql_fetch_array($res_ru);
 						   
 						   if ($delGroup){      
-								
+								         
 								mysql_query("DELETE FROM runde
 												WHERE xRunde = $row_ru[0]");
 								if(mysql_errno() > 0) {
@@ -628,7 +630,8 @@ else if ($_POST['arg']=="del_event" || $_POST['arg']=="del_combined")
 				} 
 			}
 		}
-	}  
+	} 
+	mysql_query("UNLOCK TABLES");  
 }
 
 //
@@ -1006,7 +1009,7 @@ else if ($_POST['arg']=="change_cgroup")
 								a.xAnmeldung=" . $_POST['item'] . "
 								AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
 								AND r.Gruppe='" . $row_g[0] ."'"; 
-				
+			
 			  $res_r=mysql_query(	$sql_r);
 	
 			  if(mysql_errno() > 0)
@@ -1017,25 +1020,27 @@ else if ($_POST['arg']=="change_cgroup")
 					$categoryGroup='';
 					$cat_arr=array();
 					$comb_arr=array(); 
+					$sqlEvent=array();
 					$i=0;
-						
-					while($row_r=mysql_fetch_row($res_r)) {  
-						if ($categoryGroup!=$row_r[17] || $combGroup!=$row_r[16]){
-							$cat_arr[$i]= $row_r[17]; 
-							$comb_arr[$i]= $row_r[16]; 
-							$categoryGroup= $row_r[17];
-							$combGroup=$row_r[16]; 
-							$sqlEvent[$i]="(".$row_r[15].",";
-							$i++;
-							$groupexist=AA_checkGroup(strtoupper($_POST['combinedgroup']),  $row_r[17], $row_r[16]);    
-						}
-						else {
-							$sqlEvent[$i-1].=$row_r[15].",";  
-						}
+				
+					while($row_r=mysql_fetch_row($res_r)) { 
+						if ($row_r[16] > 0){  // combined event
+							if ($categoryGroup!=$row_r[17] || $combGroup!=$row_r[16]){  
+								$cat_arr[$i]= $row_r[17]; 
+								$comb_arr[$i]= $row_r[16]; 
+								$categoryGroup= $row_r[17];
+								$combGroup=$row_r[16]; 
+								$sqlEvent[$i]="(".$row_r[15].",";
+								$i++;
+								$groupexist=AA_checkGroup(strtoupper($_POST['combinedgroup']),  $row_r[17], $row_r[16]);    
+							}
+							else { 
+								$sqlEvent[$i-1].=$row_r[15].",";  
+							}       							
 							   
-						if (!$groupexist) {
-							// insert 
-							mysql_query("
+							if (!$groupexist) {  
+								// insert 
+								mysql_query("
 									INSERT INTO runde
 											SET	Datum = '".$row_r[1]."'
 											, Startzeit = '".$row_r[2]."' 
@@ -1053,10 +1058,11 @@ else if ($_POST['arg']=="change_cgroup")
 											, xRundentyp = '".$row_r[14]."' 	
 											, xWettkampf = '".$row_r[15]."'  
 											");  
+							}
 						} 
 					}      // end while
 					   
-					for ($z=0;$z<count($sqlEvent);$z++){   
+					for ($z=0;$z<count($sqlEvent);$z++){  
 						$sqlEvent[$z]=substr($sqlEvent[$z],0,-1).")";  
 					}  
 					   
