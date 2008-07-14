@@ -188,7 +188,7 @@ function AA_heats_seedEntries($event)
                     . " FROM start as s, anmeldung as a"
                     . " WHERE s.xWettkampf = " . $event
                     . " AND s.xAnmeldung = a.xAnmeldung"
-                    . " AND a.Gruppe = $cGroup"
+                    . " AND a.Gruppe = '$cGroup'"
                     . " AND s.Anwesend = 0"
                     . " AND s.xAnmeldung > 0"
                     . " ORDER BY $order";
@@ -207,7 +207,7 @@ function AA_heats_seedEntries($event)
                 . " FROM start as s, anmeldung as a"
                 . " WHERE s.xWettkampf = " . $event
                 . " AND s.xAnmeldung = a.xAnmeldung"
-                . " AND a.Gruppe = $cGroup"
+                . " AND a.Gruppe = '$cGroup'"
                 . " AND s.Anwesend = 0"
                 . " AND s.xAnmeldung > 0"
                 . " ORDER BY $order";       
