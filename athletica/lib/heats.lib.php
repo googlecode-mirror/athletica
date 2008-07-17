@@ -1177,8 +1177,8 @@ function AA_heats_changeFilm(){
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 			}else{
-				// film already exists
-				AA_printErrorMsg($strErrFilmExists);
+				// film already exists   			     
+				AA_printErrorMsg($GLOBALS['strErrFilmExists']);   
 			}
 		}
 		
