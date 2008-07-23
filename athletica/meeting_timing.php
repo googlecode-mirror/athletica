@@ -74,7 +74,7 @@ $page->printPageTitle($strTiming);
 
 $menu = new GUI_Menulist();
 $menu->addButton($cfgURLDocumentation . 'help/meeting/timing.html', $strHelp, '_blank');
-$menu->addButton($cfgURLDocumentation . 'help/administration/dh_over_network.pdf', $strOmegaManual, '_blank');
+$menu->addButton($cfgURLDocumentation . 'help/meeting/athletica_netzwerk.pdf', $strOmegaManual, '_blank');
 $menu->printMenu();
 
 if(!empty($GLOBALS['ERROR'])){

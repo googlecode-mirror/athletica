@@ -237,40 +237,40 @@ else if(mysql_num_rows($result) > 0)  // data found
 	while ($row = mysql_fetch_row($result))
 	{   
 		// print previous athlete, if any   
-	    $pl=false;    
+		$pl=false;    
 	 
 	   if ($_GET['clubgroup']=="yes" 
-	   		   	&& $_GET['contestcatgroup']=="yes" 
-	   			&& $_GET['discgroup']=="yes"){
-	   	   if (($a != $row[0] && $a > 0)  ||   ($v != $row[7]  && $a > 0)  || ($a == $row[0] && $d!= $row[9] && $a > 0)) {	 	   	  
-	           $pl=true;	
-	       }  	   			
+				&& $_GET['contestcatgroup']=="yes" 
+				&& $_GET['discgroup']=="yes"){
+		   if (($a != $row[0] && $a > 0)  ||   ($v != $row[7]  && $a > 0)  || ($a == $row[0] && $d!= $row[9] && $a > 0)) {	 	   	  
+			   $pl=true;	
+		   }
 	   }
 	   elseif ($_GET['clubgroup']=="yes" 
-	   		   	&& $_GET['catgroup']=="yes" 
-	   			&& $_GET['discgroup']=="yes"){
-	   	   if (($a != $row[0] && $a > 0)  ||   ($v != $row[7]  && $a > 0) || ($a == $row[0] && $d!= $row[9] && $a > 0)) {	
-	           $pl=true;	
-	       }  	   			
+				&& $_GET['catgroup']=="yes" 
+				&& $_GET['discgroup']=="yes"){
+		   if (($a != $row[0] && $a > 0)  ||   ($v != $row[7]  && $a > 0) || ($a == $row[0] && $d!= $row[9] && $a > 0)) {	
+			   $pl=true;	
+		   }
 	   }
 	   elseif ($_GET['clubgroup']=="yes" 
-	   		   	&& $_GET['catgroup']=="yes" 
-	   		   	&& $_GET['contestcatgroup']=="yes" 
-	   			&& $_GET['discgroup']=="yes"){
-	   	   if (($a != $row[0] && $a > 0)  ||   ($v != $row[7]  && $a > 0) || ($a == $row[0] && $d!= $row[9] && $a > 0)) {	
-	           $pl=true;	
-	       } 	   			
+				&& $_GET['catgroup']=="yes" 
+				&& $_GET['contestcatgroup']=="yes" 
+				&& $_GET['discgroup']=="yes"){
+		   if (($a != $row[0] && $a > 0)  ||   ($v != $row[7]  && $a > 0) || ($a == $row[0] && $d!= $row[9] && $a > 0)) {	
+			   $pl=true;	
+		   }
 	   }
 	   elseif ( $_GET['contestcatgroup']=="yes" 
-	   			&& $_GET['discgroup']=="yes"){
-	       if (($a != $row[0] && $a > 0)  ||   ($dd != $row[9]  && $a > 0)) {
-	           $pl=true;	
-	       } 
+				&& $_GET['discgroup']=="yes"){
+		   if (($a != $row[0] && $a > 0)  ||   ($dd != $row[9]  && $a > 0)) {
+			   $pl=true;	
+		   }
 	   }
 	   else {
-	         if($a != $row[0] && $a > 0){
-	           $pl=true;	
-	         } 
+			 if($a != $row[0] && $a > 0){
+			   $pl=true;	
+			 } 
 	   }  
 	 
 		 if ($pl) {   
@@ -305,10 +305,10 @@ else if(mysql_num_rows($result) > 0)  // data found
 			}                                     
 		  
 		  if ($_GET['discgroup']=="yes" 
-		   					&& $_GET['clubgroup']=="yes" 
-		   					&& $_GET['contestcatgroup']==""  
-		   					&& $_GET['catgroup']=="") {   
-		   		$nbr = "";
+							&& $_GET['clubgroup']=="yes" 
+							&& $_GET['contestcatgroup']==""  
+							&& $_GET['catgroup']=="") {   
+				$nbr = "";
 				$name = "";
 				$year = "";
 				$cat = "";
@@ -318,11 +318,12 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$sep = "";
 				$ioc = "";
 				$paid = "";
+				$m = "";
 		  }  
 		  elseif (($_GET['discgroup']=="yes") 
-		   					&& ( ($_GET['catgroup']=="yes") 
-		   								||  ($_GET['contestcatgroup']=="yes") 
-		   								||  ($_GET['clubgroup']=="yes"))){
+							&& ( ($_GET['catgroup']=="yes") 
+										||  ($_GET['contestcatgroup']=="yes") 
+										||  ($_GET['clubgroup']=="yes"))){
 		  }
 		  else { 
 				$nbr = "";
@@ -335,6 +336,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$sep = "";
 				$ioc = "";
 				$paid = "";
+				$m = "";
 		  }  
 		}
 	
@@ -496,7 +498,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		$l++;			// increment line count
 		$a = $row[0];
 		$m = $row[19];    // keep combined
-	  	$dd = $row[9];     // keep discipline
+		$dd = $row[9];     // keep discipline
 	}
 	
 	// print last athlete, if any
