@@ -1538,7 +1538,7 @@ function XML_base_end($parser, $name){
 									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
 									,'I')";
 					mysql_query($sql);
-
+					
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
 					}else{
@@ -1569,13 +1569,15 @@ function XML_base_end($parser, $name){
 						, account_info = '".trim($athlete['LASTKNOWNACCOUNTINFO'])."'
 					WHERE
 						id_athlete = $xAthlete");
+			
 			if(mysql_errno() > 0){
 				XML_db_error(mysql_errno().": ".mysql_error());
 			}else{
 				foreach($perf as $row){
 					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
-									
-					mysql_query("DELETE FROM base_performance WHERE id_athlete = $xAthlete AND discipline = '". $row['SPORTDISCIPLINE'] ."'");
+
+					$sql =  "DELETE FROM base_performance WHERE id_athlete = $xAthlete AND discipline = '". $row['SPORTDISCIPLINE'] ."' AND season = 'O'";							
+					mysql_query($sql);
 					
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
@@ -1625,7 +1627,8 @@ function XML_base_end($parser, $name){
 
 				foreach($iperf as $row){
 					if(empty($row['SPORTDISCIPLINE'])){ continue; } //prevent from empty entrys
-					mysql_query("DELETE FROM base_performance WHERE id_athlete = $xAthlete AND discipline = '". $row['SPORTDISCIPLINE'] ."'");
+					$sql="DELETE FROM base_performance WHERE id_athlete = $xAthlete AND discipline = '". $row['SPORTDISCIPLINE'] ."' AND season = 'I'";
+					mysql_query($sql);
 					
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());

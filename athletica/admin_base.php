@@ -181,7 +181,7 @@ if($_POST['arg'] == "login"){
 			."&glc=".urlencode($glc)."&type=".urlencode($type);
 		
 		$result = $http->send_post($webserverDomain, '/meetings/athletica/login.php', $post, 'ini');		
-		//TEST mit neuem XML aus Ordner basdata_test
+		//TEST mit XML aus Ordner basdata_test
 		//$result = $http->send_post($webserverDomain, '/meetings/athletica/login_test.php', $post, 'ini');
 		
 		if(!$result){
