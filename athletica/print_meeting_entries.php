@@ -5,8 +5,7 @@
  *	print_meeting_entries.php
  *	-------------------------
  *	
- */           
-   
+ */                            
 require('./lib/cl_gui_entrypage.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
 require('./lib/cl_export_entrypage.lib.php');
@@ -30,6 +29,7 @@ $disc_clause="";
 $club_clause="";
 $contestcat_clause="";
 $athlete_clause="";
+$licType_clause=""; 
 
 // basic sort argument (default: sort by name)
 if ($_GET['sort'] == "nbr") {
@@ -63,6 +63,14 @@ if($_GET['discipline'] > 0) {		// discipline selected
 if($_GET['club'] > 0) {		// club selected
 	$club_clause = " AND v.xVerein = " . $_GET['club'];
 } 
+if($_GET['licenseType'] > 0) {		// licensetype selected
+		if ($_GET['licenseType']==1){
+		     $licType_clause = " AND at.Lizenztyp IN (0, " . $_GET['licenseType']. ") ";   
+		}
+		else {
+			$licType_clause = " AND at.Lizenztyp = " . $_GET['licenseType'];
+		}
+}      
 if($_GET['category'] > 0){
 	$contestcat_clause = " AND w.xKategorie = " .$_GET['category']; 
 }  
@@ -212,13 +220,14 @@ $result = mysql_query("
 	$club_clause
 	$contestcat_clause
 	$date_clause
-	$athlete_clause  
+	$athlete_clause 
+	$licType_clause  
 	$limitNrSQL
 	ORDER BY
 		$argument
 	
 ");  
-	  
+   
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

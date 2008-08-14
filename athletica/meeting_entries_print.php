@@ -161,6 +161,40 @@ $page->printPageTitle($strPrint);
                 ?>
             </tr>
             <tr>
+	                <?php  	                
+	              
+	                $sql = "SELECT 
+	                            DISTINCT(Lizenztyp)  
+	                        FROM                
+	                            athlet as at
+	                            LEFT JOIN anmeldung AS a ON (a.xAthlet = at.xAthlet)                             
+	                        WHERE xMeeting = ".$_COOKIE['meeting_id'];      
+	                        
+	                $query = mysql_query($sql);    
+	               
+	                    ?>   
+	                    <td class='dialog'>
+	                    <?php echo $strLicenseType; ?></input>
+	                    </td>    
+	                    <td class='forms'>   
+	                         <select name='licenseType'> 
+	                          <option value="-">-</option>   
+	                    <?php  
+	                       while($row = mysql_fetch_array($query)){    
+	                             foreach ($cfgLicenseType as $key => $value) {
+	                                  if ($value==$row[0]){   
+	                                      ?>
+	                            		  <option value="<?=$row[0]?>"><?php echo $key;  ?></option>   
+	                    				  <?php
+	                                   }
+	                             } 
+	                       }
+	                    ?>
+	                    		</select>      
+	                    </td>
+	                 </tr>
+
+            <tr>
                 <?php 
                 
                 $tage = 1;
