@@ -702,4 +702,5 @@ $strEffortsUpdateInfo3 = "Verhalten bei manuell eingetragenen Meldeleistungen:";
 $strOverwrite = "Überschreiben";
 $strLeaveBehind = "Stehen lassen";
 $strMergeRoundsErr = "Ungleiche Anzahl Runden. Zusammenfassung nicht möglich.";
+$strEnrolmErr = "Anmeldung nicht möglich. Bitte ergänzen Sie zuerst den Zeitplan.";   
 ?>
