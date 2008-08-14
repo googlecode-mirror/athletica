@@ -2411,7 +2411,40 @@ function AA_checkGroup($group,$cat,$comb){
 		}
 	}
 	return $groupexist;    
-}						  
+}	
+
+/**
+     * check if relay name exist in same category and discipline
+     * ---------------------------------------------------------
+     */   
+function AA_checkRelayName($category,$event,$relayName){  
+    $checkName=false;      
+   	$sql="SELECT 
+ 			st.Name, 
+ 			st.xKategorie,  			
+ 			w.xDisziplin
+         FROM
+    	 	staffel AS st
+    		LEFT JOIN start AS s ON (s.xStaffel = st.xStaffel)
+    		LEFT JOIN wettkampf AS w ON (s.xWettkampf = w.xWettkampf)
+  		 WHERE
+  		 	st.Name = '" . $relayName ."'
+  			AND st.xKategorie = " . $category ."  
+  			AND w.xWettkampf =  " . $event;
+  	
+  	$res = mysql_query($sql);  
+
+    if(mysql_errno() > 0){  
+          AA_printErrorMsg(mysql_errno() . ": " . mysql_error());  
+    }
+    else {       
+        if (mysql_num_rows($res) == 1) {
+           $checkName=true;                      // there exist already this relay name
+	  	}   
+	}    
+   return $checkName;	
+}					  
+						  
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>
