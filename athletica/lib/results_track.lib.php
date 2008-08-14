@@ -11,7 +11,7 @@ if (!defined('AA_RESULTS_TRACK_LIB_INCLUDED'))
 	define('AA_RESULTS_TRACK_LIB_INCLUDED', 1);
 
 function AA_results_Track($round, $layout)
-{  
+{   
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_select.lib.php');
@@ -106,7 +106,7 @@ if($_GET['arg'] == 'results_done')
 		  ORDER BY ".$heatorder."
 				   resultat.Leistung ASC;";
 	$result = mysql_query($sql);
-	
+
 	if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -123,6 +123,7 @@ if($_GET['arg'] == 'results_done')
 				mysql_query("UPDATE serienstart SET"
 						. " Rang = 0"
 						. " WHERE xSerienstart = " . $row[1]);
+			   				
 			}else{  
 							
 				if ( !($eval == $cfgEvalType[$strEvalTypeHeat] &&  (isset($eventType['club']))) ){ 
@@ -132,16 +133,16 @@ if($_GET['arg'] == 'results_done')
 						$i = 0;        // restart ranking   (not SVM with single heat)
 						$perf = 0;
 					 }                 
-				}   				
-				  
+				}  	
+					  
 				$i++;							// increment ranking
 				if($perf < $row[0]) {	// compare with previous performance
-					$rank = $i;				// next rank (only if not same performance)
+					$rank = $i;				// next rank (only if not same performance)   
 				}
 				
-				mysql_query("UPDATE serienstart SET"
+				mysql_query("UPDATE serienstart SET"                                
 								. " Rang = " . $rank
-								. " WHERE xSerienstart = " . $row[1]);
+								. " WHERE xSerienstart = " . $row[1]);    
 	
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -403,12 +404,12 @@ if(($_GET['arg'] == 'results_done')
 //
 if(($_GET['arg'] == 'results_done')
 || ($_POST['arg'] == 'save_rank')){
-	
+
 	AA_utils_calcRankingPoints($round);    
-	
+ 	
 	// only for SVM with heat single --> set back the ranks per heat    
 	if ($eval == $cfgEvalType[$strEvalTypeHeat] &&   (isset($eventType['club']))) {  
-	
+	          
 	mysql_query("
 		LOCK TABLES
 			rundentyp READ
@@ -434,12 +435,13 @@ if(($_GET['arg'] == 'results_done')
 	}
 	
 	$result = mysql_query("
-		SELECT
+		SELECT 
 			resultat.Leistung
 			, serienstart.xSerienstart
 			, serienstart.xSerie
 			, serienstart.xStart
 			, serie.Wind
+			, serienstart.Rang			
 		FROM
 			resultat
 			, serienstart
@@ -452,7 +454,7 @@ if(($_GET['arg'] == 'results_done')
 			$heatorder
 			resultat.Leistung ASC
 	");     
-	
+   
 	if(mysql_errno() > 0) {        // DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -477,29 +479,32 @@ if(($_GET['arg'] == 'results_done')
 					$i = 0;        // restart ranking
 					$perf = 0;
 				}
-				 
-				$i++;                            // increment ranking
-				if($perf < $row[0]) {    // compare with previous performance
-					$rank = $i;                // next rank (only if not same performance)
-				}
-				mysql_query("UPDATE serienstart SET"
+			   	if ($row[5] != 0) {  // rank     
+			   	    
+					$i++;                            // increment ranking
+					if($perf < $row[0]) {    // compare with previous performance
+						$rank = $i;                // next rank (only if not same performance)
+						}
+					mysql_query("UPDATE serienstart SET"
 								. " Rang = " . $rank
-								. " WHERE xSerienstart = " . $row[1]);
+								. " WHERE xSerienstart = " . $row[1]);     
 	
-				if(mysql_errno() > 0) {
-					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-				}   
-				  
+					if(mysql_errno() > 0) {
+						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+						}   
+			   	}       
+			   
 				$heat = $row[2];        // keep current heat ID
 				$perf = $row[0];        // keep current performance   
 			}
 		}
 		mysql_free_result($result);
 	}
+	
 	mysql_query("UNLOCK TABLES");    
    
 	}  // end:   only for SVM with heat single --> set back the ranks per heat
-	  
+   	  
 }
 
 //
@@ -507,7 +512,7 @@ if(($_GET['arg'] == 'results_done')
 //  - save directly in database
 //
 if($_GET['arg'] == "time_measurement"){
-	
+
 	AA_timing_getResultsManual($round);
 	
 }

@@ -36,7 +36,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 */
 
 	function AA_utils_calcPoints($event, $perf, $fraction = 0, $sex = 'M')
-	{
+	{  
 		global $strConvtableRankingPoints;
 		
 		$GLOBALS['AA_ERROR'] = '';
@@ -191,6 +191,8 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		$bSVM = false; // set if contest type has a result limitation for only best athletes
 				// e.g.: for svm NL only the 2 best athletes of a team are counting -> distribute points on these athletes
 		$countMaxRes = 0; // set to the maximum of countet results in case of an svm contest
+		      
+		$relay = AA_checkRelay('',$round);  
 		
 		$res = mysql_query("
 			SELECT
@@ -212,15 +214,18 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			$row = mysql_fetch_array($res);
 			mysql_free_result($res);
 			
-			$rpt = $GLOBALS['cvtTable'][$strConvtableRankingPoints];
+			$rpt = $GLOBALS['cvtTable'][$strConvtableRankingPoints];  		
 			if($row[0] == $rpt){
-				
+			   
 				// if mode is team
 				if($row[2] > $cfgEventType[$strEventTypeSingleCombined]){
-					$bSVM = true;
+					$bSVM = true;    				
 					switch($row[2]){
-						case $cfgEventType[$strEventTypeSVMNL]:
-							$countMaxRes = 2;
+						case $cfgEventType[$strEventTypeSVMNL]:   
+							if ($relay)
+								$countMaxRes = 1; 
+							else
+								$countMaxRes = 2;
 							break;
 						case $cfgEventType[$strEventTypeClubBasic]:
 							$countMaxRes = 1;
@@ -238,7 +243,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 							$countMaxRes = 1;
 					}
 				}
-				
+			  
 				//list($pStart, $pStep) = explode(" ", $GLOBALS['cvtFormulas'][$rpt][$row[1]]);
 				list($pStart, $pStep) = explode(" ", $row[1]);
 				$pStep = str_replace('-', '', $pStep);
@@ -251,12 +256,12 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		//
 		// calculate points
 		//
-		if($valid){  
-			
+		if($valid){   
+		   
 			// if svm, the ranking points have only to be distributed on the results that count afterwards for team
-			// so: only the best 2 athletes of the same team will get points
+			// so: only the best 2 athletes of the same team will get points    
 			
-			if(!$bSVM){  
+			if(!$bSVM){ 				
 				$res = mysql_query("
 					SELECT
 						serienstart.xSerienstart
@@ -269,26 +274,26 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					AND serienstart.Rang > 0
 					ORDER BY serienstart.Rang ASC
 				");
-			}else{   
-				$res = mysql_query("
-					SELECT
-						serienstart.xSerienstart
-						, serienstart.Rang
-						, IF(anmeldung.xTeam > 0, anmeldung.xTeam, staffel.xTeam)
-					FROM
-						serienstart
-						, serie
-						, start
-						LEFT JOIN staffel ON start.xStaffel = staffel.xStaffel
-						LEFT JOIN anmeldung ON start.xAnmeldung = anmeldung.xAnmeldung
-					WHERE serienstart.xSerie = serie.xSerie
-					AND serienstart.xStart = start.xStart
-					AND serie.xRunde = $round
-					AND serienstart.Rang > 0
-					ORDER BY serienstart.Rang ASC
-				");
+		 }else{     		  
+				 	$res = mysql_query("
+						SELECT 
+							serienstart.xSerienstart
+							, serienstart.Rang
+							, IF(anmeldung.xTeam > 0, anmeldung.xTeam, staffel.xTeam)
+						FROM
+							serienstart
+							, serie
+							, start
+							LEFT JOIN staffel ON start.xStaffel = staffel.xStaffel
+							LEFT JOIN anmeldung ON start.xAnmeldung = anmeldung.xAnmeldung
+						WHERE serienstart.xSerie = serie.xSerie
+						AND serienstart.xStart = start.xStart
+						AND serie.xRunde = $round
+						AND serienstart.Rang > 0
+						ORDER BY serienstart.Rang ASC
+						");   				   
 			}     
-			
+			 
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
@@ -310,10 +315,20 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 							$cClubs[$row[2]]++;
 						}else{
 							$cClubs[$row[2]] = 1;
-						}
-						
+						}  
+					            
 						// skip result if more than MaxRes athletes of a team are on top
-						if(isset($cClubs[$row[2]]) && $cClubs[$row[2]] > $countMaxRes){
+						if(isset($cClubs[$row[2]]) && $cClubs[$row[2]] > $countMaxRes){   
+						 
+					     	mysql_query("UPDATE serienstart SET"
+						  						. " Rang = 0"
+						  	   					. "	WHERE "
+						  						. "	xSerienstart = " . $row[0]);    
+						   
+						  	if(mysql_errno() > 0) {   								
+						  				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+						  	}
+							          						
 							mysql_query("UPDATE resultat SET
 									Punkte = 0
 								WHERE
@@ -326,7 +341,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					}
 					
 					if($point > 0){
-						
+						 
 						if($rank != $row[1] && $i > 0){
 							
 							$p = $pts / $i; // divide points for athletes with the same rank
@@ -337,13 +352,13 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 							$i = 1;
 							$pts = $point;
 							$rank = $row[1];
-							$tmp = array();
-							
-						}else{
-							
+							$tmp = array(); 
+							    						
+						}else{ 
+						 							
 							$i++;
-							$pts += $point;
-							
+							$pts += $point; 
+							   							
 						}
 						
 						$tmp[] = $row[0];
@@ -387,7 +402,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				
 			}
 		} // endif $valid
-		
+	  	
 	}
 	
 	/**

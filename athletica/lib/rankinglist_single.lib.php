@@ -435,8 +435,8 @@ else {
 		}
 		else {						// relay event
 				   
-			$query = "SELECT ss.xSerienstart, 
-							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
+			$query = "SELECT ss.xSerienstart,           						
+							 IF(r.Leistung < 0 , $max_rank, if (ss.Rang=0, $max_rank-1, ss.Rang)) AS rank, 
 							 ss.Qualifikation, 
 							 ".$sql_leistung." AS leistung_neu, 
 							 r.Info, 
@@ -471,7 +471,7 @@ else {
 							 rank, 
 							 r.Leistung 
 							 ".$order_perf.", 
-							 sf.Name;";
+							 sf.Name;";        				 
 		}    
 			 
 		$res = mysql_query($query);
@@ -494,7 +494,7 @@ else {
 			
 			// process every result
 			while($row_res = mysql_fetch_array($res))
-			{                      
+			{                     
 				if ($flagSubtitle){  
 					if ($heatSeparate) 
 						if ($relay)
@@ -575,7 +575,7 @@ else {
 					$count_rank++;
 					
 					// rank
-					if(($row_res[1]==$max_rank) 		// invalid result
+					if(($row_res[1]==$max_rank || $row_res[1]==$max_rank-1) 		// invalid result
 						|| ($r == $row_res[1])) {		// same rank as previous
 						$rank='';
 					}
