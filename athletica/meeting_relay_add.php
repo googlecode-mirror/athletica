@@ -5,12 +5,11 @@
  *	meeting_relay_add.php
  *	---------------------
  *	
- */
-
+ */           
 require('./lib/cl_gui_page.lib.php');
 
 require('./lib/common.lib.php');
-require('./lib/cl_performance.lib.php');
+require('./lib/cl_performance.lib.php');  
 
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
@@ -105,12 +104,15 @@ if ($_POST['arg']=="add")
 								, kategorie READ
 								, meeting READ
 								, team READ
-								, runde READ
+								, runde READ 							
 								, verein READ
 								, wettkampf READ
+								, wettkampf AS w READ 
 								, staffel WRITE
+								, staffel AS st READ  
 								, staffelathlet WRITE
 								, start WRITE
+								, start AS s READ  
 								, anmeldung READ
 							");
 
@@ -207,113 +209,124 @@ if ($_POST['arg']=="add")
 									
 									$xStaffelSQL = ", xStaffel = ".$_POST['id'].", Athleticagen ='n' ";
 								}
+								// check if relay name exist    
 								
-								mysql_query("
-									INSERT INTO staffel
-									SET 
-										Name=\"". $_POST['name'] . "\"
-										, xVerein=" . $_POST['club'] . "
-										, xTeam=" . $_POST['team'] . "
-										, xMeeting=" . $_COOKIE['meeting_id'] . "
-										, xKategorie= $category
-										, Startnummer = '$nbr'
-										$xStaffelSQL
-								");
-								if(mysql_errno() == 0) 		// no error
-								{
-									$xStaffel = mysql_insert_id();	// get new ID
-									// check if event already started
-									$res = mysql_query("
-										SELECT
-											disziplin.Name
-										FROM
-											disziplin
-											, runde
-											, wettkampf
-										WHERE runde.xWettkampf=". $_POST['event'] ."
-										AND runde.Status > 0
-										AND wettkampf.xWettkampf = ". $_POST['event'] ."
-										AND disziplin.xDisziplin = wettkampf.xDisziplin
-									");
-
-									if(mysql_errno() > 0) {
-										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-									}
-									// OK to add
-									else {
-										if (mysql_num_rows($res) > 0) {
-											$row = mysql_fetch_row($res);
-											AA_printErrorMsg($strWarningEventInProgress . $row[0]);
-										}
-
-										$perf = 0;
-										if(!empty($_POST['topperf']))
+								$checkRelayName=AA_checkRelayName($category,$event,$_POST['name']); 									   							
+								if (!$checkRelayName) {   // relay name doesn't exist       
+							
+									mysql_query("
+										INSERT INTO staffel
+										SET 
+											Name=\"". $_POST['name'] . "\"
+											, xVerein=" . $_POST['club'] . "
+											, xTeam=" . $_POST['team'] . "
+											, xMeeting=" . $_COOKIE['meeting_id'] . "
+											, xKategorie= $category
+											, Startnummer = '$nbr'
+											$xStaffelSQL
+											");
+									if(mysql_errno() == 0) 		// no error
 										{
-											$pt = new PerformanceTime($_POST['topperf']);
-											$perf = $pt->getPerformance();
-										}
-										if($perf == NULL) {	// invalid performance
-											$perf = 0;
-										}
-
-										mysql_query("
-											INSERT INTO start SET 
-												xWettkampf = " . $_POST['event'] . "
-												, xStaffel = $xStaffel
-												, Bestleistung = $perf
-										");
+										$xStaffel = mysql_insert_id();	// get new ID
+										// check if event already started
+										$res = mysql_query("
+											SELECT
+												disziplin.Name
+											FROM
+												disziplin
+												, runde
+												, wettkampf
+											WHERE runde.xWettkampf=". $_POST['event'] ."
+											AND runde.Status > 0
+											AND wettkampf.xWettkampf = ". $_POST['event'] ."
+											AND disziplin.xDisziplin = wettkampf.xDisziplin
+											");
 
 										if(mysql_errno() > 0) {
 											AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 										}
-										// Add athletes
-										else
-										{
-											// get each round for this event
-											$xRounds = array();
-											$res_rnd = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$_POST['event']);
+										// OK to add
+										else {
+											if (mysql_num_rows($res) > 0) {
+												$row = mysql_fetch_row($res);
+												AA_printErrorMsg($strWarningEventInProgress . $row[0]);
+											}
+
+											$perf = 0;
+											if(!empty($_POST['topperf']))
+												{
+												$pt = new PerformanceTime($_POST['topperf']);
+												$perf = $pt->getPerformance();
+											}
+											if($perf == NULL) {	// invalid performance
+												$perf = 0;
+											}
+
+											mysql_query("
+												INSERT INTO start SET 
+													xWettkampf = " . $_POST['event'] . "
+													, xStaffel = $xStaffel
+													, Bestleistung = $perf
+												");
+
 											if(mysql_errno() > 0) {
 												AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-											}else{
-												while($row_rnd = mysql_fetch_Array($res_rnd)){
-													$xRounds[] = $row_rnd[0];
-												}
 											}
-											if(count($xRounds) == 0){
-												AA_printErrorMsg($strRelayDefineRounds);
-											}
-											
-											$xStart = mysql_insert_id();	// get new ID
-											$c = 0;
-											if($_POST['starts'] > 0)	// any athletes
-											{
-												foreach($_POST['starts'] as $start)
+											// Add athletes
+											else
 												{
-													foreach($xRounds as $xRound){
-														if($_POST['positions'][$c] > 0)
-														{
-															mysql_query("
-																INSERT INTO staffelathlet
-																SET
-																	xStaffelstart = $xStart
-																	, xAthletenstart = $start
-																	, Position='". $_POST['positions'][$c] . "'
-																	, xRunde = '$xRound'
-															");
-														}
+												// get each round for this event
+												$xRounds = array();
+												$res_rnd = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$_POST['event']);
+												if(mysql_errno() > 0) {
+													AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+												}else{
+													while($row_rnd = mysql_fetch_Array($res_rnd)){
+														$xRounds[] = $row_rnd[0];
 													}
-													$c++;		// next athlete
 												}
-											}		// ET any athletes
-										}		// ET DB error add start
-									}		// ET event already started	
-								}		// Duplicate entry
-								else if(mysql_errno() == $cfgDBerrorDuplicate) {
-									AA_printErrorMsg($strErrDuplicateRelay);
+												if(count($xRounds) == 0){
+													AA_printErrorMsg($strRelayDefineRounds);
+												}
+											
+												$xStart = mysql_insert_id();	// get new ID
+												$c = 0;
+												if($_POST['starts'] > 0)	// any athletes
+													{
+													foreach($_POST['starts'] as $start)
+														{
+														foreach($xRounds as $xRound){
+															if($_POST['positions'][$c] > 0)
+																{
+																mysql_query("
+																	INSERT INTO staffelathlet
+																	SET
+																		xStaffelstart = $xStart
+																		, xAthletenstart = $start
+																		, Position='". $_POST['positions'][$c] . "'
+																		, xRunde = '$xRound'
+																	");
+															}
+														}
+														$c++;		// next athlete
+													}
+												}		// ET any athletes
+											}		// ET DB error add start
+										}		// ET event already started	
+									}		 // Duplicate entry
+									else if(mysql_errno() == $cfgDBerrorDuplicate) {
+										AA_printErrorMsg($strErrDuplicateRelay);
+									}
+									else {	// general DB error   									
+										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+									}		// ET DB error add relay
 								}
-								else {	// general DB error
-									AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-								}		// ET DB error add relay
+								else
+									{  
+									AA_printErrorMsg($strErrDuplicateRelay);   										 
+								}
+								   //	}		// ET Entries valid
+
 
 							}		// ET Entries valid
 						}		// ET Event valid
@@ -322,6 +335,7 @@ if ($_POST['arg']=="add")
 			}		// ET Meeting valid
 		}		// ET Category valid
 		// Check if any error returned from DB
+		
 		mysql_query("UNLOCK TABLES");
 	}
 }
@@ -367,11 +381,41 @@ if(AA_checkControl() == 0){
 <?php
 
 if(($category != 0) && ($event != 0) && ($club != 0))		// category and event selected
-{
+{            
 	?>
-<br>
-<table class="dialog">
-<tr>
+<?php
+		 //
+			// check timetable 
+			// 
+			$query="SELECT 
+						ru.Startzeit 
+			        FROM 
+			        	wettkampf AS w
+			            INNER JOIN runde AS ru ON (ru.xWettkampf = w.xWettkampf)
+			        WHERE 
+			        	w.xWettkampf = $event 
+			            AND w.xMeeting = " . $_COOKIE['meeting_id'] . " 
+			        ORDER BY ru.Startzeit";
+			        
+			$res_ru=mysql_query($query);
+			
+			if(mysql_errno() > 0){
+				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			}else{
+			   	 $c=mysql_num_rows($res_ru);
+				 if ( (strcmp($row_ru[0],'00:00:00'))==0  || $c==0) {   
+				 		AA_printErrorMsg($strEnrolmErr);                           // timetable not fill out
+				 }
+				 else {
+				 	
+			          // timetable ok
+			
+		   	?>	
+			
+			 <br>
+			 <table class="dialog">
+			 	<tr>
+
 	<th class='dialog' colspan="6"><?php echo $strRelayFromBase ?></th>
 </tr>
 	<?php
@@ -399,7 +443,7 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}else{
 			
-			while($row = mysql_fetch_assoc($res)){
+			while($row = mysql_fetch_assoc($res)){ 
 				?>
 <tr>
 	<form action='meeting_relay_add.php' method='post' name='entry'>
@@ -458,7 +502,7 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 		<input name='event' type='hidden' value='<?php echo $event; ?>' />
 		<input name='club' type='hidden' value='<?php echo $club; ?>' />
 		<input class='text' name='name' type='text'
-			maxlength='40' value='' />
+			maxlength='40' value='<?php echo $_POST['name']; ?>' />
 	</td>
 </tr>
 <tr>
@@ -550,6 +594,9 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 </form>	
 
 <?php
+			}       // end timetable ok
+	 }        // 
+
 }			// ET category selected
 ?>
 
