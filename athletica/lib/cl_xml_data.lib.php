@@ -52,13 +52,13 @@ $account = array();
 $relay = array();
 $svm = array();
 $cName = "";
-// type result
+// type result                                        
 
 class XML_data{
 	var $opentags = array();
 	var $gzfp;
 	
-	function load_xml($file, $type){
+	function load_xml($file, $type){     	   
 		global $strErrXmlParse, $strErrFileNotFound;
 		
 		
@@ -82,18 +82,18 @@ class XML_data{
 		$xml_parser = xml_parser_create();
 		xml_parser_set_option($xml_parser,XML_OPTION_TARGET_ENCODING,"ISO-8859-1");
 		xml_set_element_handler($xml_parser, "XML_".$type."_start", "XML_".$type."_end");
-		xml_set_character_data_handler($xml_parser, "XML_".$type."_data");
-		
+		xml_set_character_data_handler($xml_parser, "XML_".$type."_data");   	
+	
 		if(strtolower(substr($file,(strlen($file)-3))) == ".gz"){
 			if (!($fp = @gzopen($file, "r"))) {
 				AA_printErrorMsg($strErrFileNotFound.": ".$file);
 			}
-			
+			                                                   	   			
 			$tb = @filesize($file); // file size uncompressed
 			$tb = $tb/6*100; // file compression factor (approximately)
 			$cb = 0;
 			$c = 5;
-			
+		
 			while ($data = gzgets($fp, 4096)) {
 				$cb += strlen($data);
 				if($tb != 0){ $perc = (($cb / $tb)*100); }
@@ -107,16 +107,16 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					ob_flush();
 					flush();
 					$c += 5;
-				}
+				}   		
 				if (!xml_parse($xml_parser, $data, gzeof($fp))) {
 					XML_db_error(sprintf($strErrXmlParse.": %s, %d",
 						xml_error_string(xml_get_error_code($xml_parser)),
 						xml_get_current_line_number($xml_parser)));
-				}
+				}     	
 			}
 			xml_parser_free($xml_parser);
 			
-			gzclose($fp);
+			gzclose($fp);  
 		}else{
 			if (!($fp = @fopen($file, "r"))) {
 				AA_printErrorMsg($strErrFileNotFound.": ".$file);
@@ -1417,8 +1417,8 @@ function XML_base_end($parser, $name){
 	global $bAthlete, $bPerf, $biPerf, $bAccount, $bRelay, $bSvm, $athlete, $iperf, $perf, $account, $relay, $svm, $cName;
 	
 	// end tags
-	switch ($name){
-		case "ATHLETE":
+	switch ($name){  
+		case "ATHLETE":      
 		$bAthlete = false;
 		//print_r($athlete);
 		//flush();
@@ -1438,8 +1438,8 @@ function XML_base_end($parser, $name){
 		$sql = "SELECT id_athlete FROM base_athlete WHERE license = '".trim($athlete['LICENSE'])."';";
 		$res = mysql_query($sql);
 		
-		if(mysql_num_rows($res) == 0){
-			
+		if(mysql_num_rows($res) == 0){   
+		   
 			//if(empty($athlete['LICENSE'])){ break; }
 			mysql_query("	INSERT IGNORE INTO
 						base_athlete (
@@ -1632,7 +1632,7 @@ function XML_base_end($parser, $name){
 					
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
-					} else {
+					} else {  
 						$sql = "	INSERT IGNORE INTO
 								base_performance (
 									id_athlete
@@ -1689,25 +1689,25 @@ function XML_base_end($parser, $name){
 		if($query2 && mysql_num_rows($query2)==1){
 			$row2 = mysql_fetch_assoc($query2);
 			
-			$club = $row2['account_code'];
+			$club = $row2['account_code']; 		
 			$club2 = $row2['second_account_code'];
 			$athlete_id = $row2['id_athlete'];
 			$result2 = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club."'");
 			if(mysql_errno() > 0){
 				XML_db_error("6-".mysql_errno() . ": " . mysql_error());
-			}else{
-				$rowClub1 = mysql_fetch_array($result2);
-				$club = $rowClub1[0];
-				if(!empty($club2)){
-					$result2 = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club2."'");
-					if(mysql_errno() > 0){
-						XML_db_error("7-".mysql_errno() . ": " . mysql_error());
-						$club2 = 0; // prevents from insert error in next statement
-					}else{
-						$rowClub2 = mysql_fetch_array($result2);
-						$club2 = $rowClub2[0];
-					}
-				}
+			}else{    			   
+					$rowClub1 = mysql_fetch_array($result2);
+					$club = $rowClub1[0];
+			   		if(!empty($club2)){
+						$result2 = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club2."'");
+						if(mysql_errno() > 0){
+							XML_db_error("7-".mysql_errno() . ": " . mysql_error());
+							$club2 = 0; // prevents from insert error in next statement
+						}else{
+							$rowClub2 = mysql_fetch_array($result2);
+							$club2 = $rowClub2[0];
+						}
+					}   
 			}
 			mysql_free_result($result2);
 			
@@ -1740,7 +1740,7 @@ function XML_base_end($parser, $name){
 		case "PERFORMANCEINDOOR":
 		$biPerf = false;
 		break;
-		case "ACCOUNT":
+		case "ACCOUNT":    
 		$bAccount = false;
 		
 		// trim xml nodes for eliminating whitespaces at the end <<--- !!!!! important
@@ -1816,13 +1816,28 @@ function XML_base_end($parser, $name){
 					die();
 				}*/
 				if(mysql_num_rows($result) == 0){
-					// insert
-					$sql = "INSERT INTO verein 
+				   	$result2 = mysql_query("SELECT xVerein FROM verein WHERE TRIM(Name) = '".trim(addslashes($account['ACCOUNTNAME']))."'");
+				    if(mysql_num_rows($result2) > 0){ 
+				    	   $row2 = mysql_fetch_array($result2); 
+				    	   $xVerein = $row2[0];  
+				           // update
+				   		   $sql = "UPDATE verein 
+				   			   SET Name = '".trim(addslashes($account['ACCOUNTNAME']))."', 
+				   				   Sortierwert = '".trim(addslashes($account['ACCOUNTSHORT']))."', 
+				   				   xCode = '".trim($account['ACCOUNTCODE'])."', 
+				   				   Geloescht = 0 
+							 WHERE xVerein = ".$xVerein.";";
+				   	mysql_query($sql);
+				   	}
+				   	else { 				  
+						// insert     
+						$sql = "INSERT INTO verein 
 									SET Name = '".trim(addslashes($account['ACCOUNTNAME']))."', 
 										Sortierwert = '".trim(addslashes($account['ACCOUNTSHORT']))."', 
 										xCode = '".trim($account['ACCOUNTCODE'])."';";
-					mysql_query($sql);
-					$xVerein = mysql_insert_id();
+						mysql_query($sql); 				   
+						$xVerein = mysql_insert_id();
+				  	}
 				}else{
 					$row = mysql_fetch_array($result);
 					$xVerein = $row[0];
