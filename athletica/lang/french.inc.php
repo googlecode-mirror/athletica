@@ -692,4 +692,7 @@ $strEffortsUpdateInfo3 = "Comportement en cas de performances d’inscriptions ins
 $strOverwrite = "Écraser";
 $strLeaveBehind = "Laisser";
 $strMergeroundsErr = 'Nombre de tours différent. Regroupement possible.';
+$strEnrolmErr = "Inscription pas possible. Veuillez d'abord compléter l'horaire.";
+$strAthleteCat = "Catégorie d'athlètes"; 
+
 ?>
