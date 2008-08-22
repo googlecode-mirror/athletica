@@ -88,7 +88,7 @@ class XML_data{
 			if (!($fp = @gzopen($file, "r"))) {
 				AA_printErrorMsg($strErrFileNotFound.": ".$file);
 			}
-			                                                   	   			
+																			
 			$tb = @filesize($file); // file size uncompressed
 			$tb = $tb/6*100; // file compression factor (approximately)
 			$cb = 0;
@@ -1699,7 +1699,7 @@ function XML_base_end($parser, $name){
 			}else{    			   
 					$rowClub1 = mysql_fetch_array($result2);
 					$club = $rowClub1[0];
-			   		if(!empty($club2)){
+					if(!empty($club2)){
 						$result2 = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club2."'");
 						if(mysql_errno() > 0){
 							XML_db_error("7-".mysql_errno() . ": " . mysql_error());
@@ -1747,7 +1747,7 @@ function XML_base_end($parser, $name){
 		// trim xml nodes for eliminating whitespaces at the end <<--- !!!!! important
 		$account['ACCOUNTCODE'] = trim($account['ACCOUNTCODE']);
 		$account['ACCOUNTNAME'] = trim($account['ACCOUNTNAME']);
-		$account['ACCOUNTSHORT'] = trim($account['ACCOUNTSHORT']);
+		$account['ACCOUNTSHORT'] = (trim($account['ACCOUNTSHORT'])!='') ? trim($account['ACCOUNTSHORT']) : $account['ACCOUNTNAME'];
 		$account['ACCOUNTTYPE'] = trim($account['ACCOUNTTYPE']);
 		$account['LG'] = trim($account['LG']);
 		
@@ -1809,6 +1809,7 @@ function XML_base_end($parser, $name){
 			//
 			// update table "verein"
 			//
+			
 			if(trim($account['ACCOUNTTYPE']) != ""){
 				$xVerein = "";
 				$result = mysql_query("SELECT xVerein FROM verein WHERE TRIM(xCode) = '".trim(addslashes($account['ACCOUNTCODE']))."'");
@@ -1817,20 +1818,20 @@ function XML_base_end($parser, $name){
 					die();
 				}*/
 				if(mysql_num_rows($result) == 0){
-				   	$result2 = mysql_query("SELECT xVerein FROM verein WHERE TRIM(Name) = '".trim(addslashes($account['ACCOUNTNAME']))."'");
-				    if(mysql_num_rows($result2) > 0){ 
-				    	   $row2 = mysql_fetch_array($result2); 
-				    	   $xVerein = $row2[0];  
-				           // update
-				   		   $sql = "UPDATE verein 
-				   			   SET Name = '".trim(addslashes($account['ACCOUNTNAME']))."', 
-				   				   Sortierwert = '".trim(addslashes($account['ACCOUNTSHORT']))."', 
-				   				   xCode = '".trim($account['ACCOUNTCODE'])."', 
-				   				   Geloescht = 0 
+					$result2 = mysql_query("SELECT xVerein FROM verein WHERE TRIM(Name) = '".trim(addslashes($account['ACCOUNTNAME']))."'");
+					if(mysql_num_rows($result2) > 0){ 
+						   $row2 = mysql_fetch_array($result2); 
+						   $xVerein = $row2[0];  
+						   // update
+						   $sql = "UPDATE verein 
+							   SET Name = '".trim(addslashes($account['ACCOUNTNAME']))."', 
+								   Sortierwert = '".trim(addslashes($account['ACCOUNTSHORT']))."', 
+								   xCode = '".trim($account['ACCOUNTCODE'])."', 
+								   Geloescht = 0 
 							 WHERE xVerein = ".$xVerein.";";
-				   	mysql_query($sql);
-				   	}
-				   	else { 				  
+					mysql_query($sql);
+					}
+					else { 				  
 						// insert     
 						$sql = "INSERT INTO verein 
 									SET Name = '".trim(addslashes($account['ACCOUNTNAME']))."', 
@@ -1838,7 +1839,7 @@ function XML_base_end($parser, $name){
 										xCode = '".trim($account['ACCOUNTCODE'])."';";
 						mysql_query($sql); 				   
 						$xVerein = mysql_insert_id();
-				  	}
+					}
 				}else{
 					$row = mysql_fetch_array($result);
 					$xVerein = $row[0];
