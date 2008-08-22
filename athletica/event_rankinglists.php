@@ -5,7 +5,7 @@
  *	event_rankinglists.php
  *	----------------------
  *	
- */       
+ */         
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
@@ -30,7 +30,7 @@ if(!empty($_GET['round'])){
 else if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
-  
+     
 $presets = AA_results_getPresets($round);
 
 $eventTypeCat = AA_getEventTypesCat();	
@@ -52,7 +52,73 @@ if(!empty($presets['event'])){
 		$dtype = $row[0];
 	}
 }
+   
+if (!empty($_POST['arg'] )) {
+	if ($_POST['arg'] =='change_catFrom') {  
+		$catFrom=$_POST['category'];
+		$catTo=$_POST['category']; 
+		$presets['category']='';
+	}    
+	else if ($_POST['arg'] =='change_discFrom') {
+		$discFrom=$_POST['discipline'];
+		$discTo=$_POST['discipline'];  
+	}  
+	else if ($_POST['arg'] =='change_heatFrom') { 
+			$heatFrom=$_POST['heatFrom'];
+			$heatTo=$_POST['heatFrom'];  
+	}     
+}          
+ 
+if (!empty($_POST['arg'] )) {
+	 if ($_POST['arg'] =='change_catTo') { 	            
+		$catTo=$_POST['category']; 
+		 $presets['category']='';  
+	}	
+	else  if ($_POST['arg'] =='change_discTo') {
+		$discTo=$_POST['discipline'];  
+	}  
+	else if ($_POST['arg'] =='change_heatTo') { 
+			$heatTo=$_POST['heatTo'];
+	}       
+} 
+                                   
 
+if  (!empty($_POST['catFrom']) && $_POST['arg'] !='change_catFrom'){
+	 $catFrom=$_POST['catFrom']; 	
+}
+if  (!empty($_POST['catTo']) && $_POST['arg'] !='change_catTo'){     
+	 $catTo=$_POST['catTo'];      
+}
+if  (!empty($_POST['discFrom']) && $_POST['arg'] !='change_discFrom') {
+	 $discFrom=$_POST['discFrom'];  
+}
+if  (!empty($_POST['discTo']) && $_POST['arg'] !='change_discTo'){
+	 $discTo=$_POST['discTo'];   
+} 
+if  (!empty($_POST['heatFrom']) && $_POST['arg'] !='change_heatFrom') {
+	 $heatFrom=$_POST['heatFrom'];   
+}
+if  (!empty($_POST['heatTo']) && $_POST['arg'] !='change_heatTo'){
+	 $heatTo=$_POST['heatTo'];   
+}
+
+
+if  (!empty($_GET['catFrom'])) {
+	 $catFrom=$_GET['catFrom'];  
+	 
+}
+if  (!empty($_GET['catTo'])) {  
+	 $catTo=$_GET['catTo']; 
+	 
+}
+if  (!empty($_GET['discFrom'])) {
+	 $discFrom=$_GET['discFrom'];  
+}
+if  (!empty($_GET['discTo'])) {
+	 $discTo=$_GET['discTo'];  
+} 
+
+         
 //
 //	Display print form
 //
@@ -114,7 +180,7 @@ $menu->printMenu();
 			, $presets['category'], $presets['event'], 'post'); ?>
 	</td>
 <?php
-if($presets['event'] > 0) {		// event selected
+if($presets['event'] > 0) {		// event selected        
 ?>
 	<td>
 		<?php AA_printRoundSelection('event_rankinglists.php'
@@ -122,23 +188,111 @@ if($presets['event'] > 0) {		// event selected
 	</td>
 <?php
 }
-?>
-	
-<form action='print_rankinglist.php' method='get' name='printdialog'>
 
+ if($round > 0) {		// round selected        
+?>
+	<td>
+		<?php AA_printHeatSelectionDropDownFrom('event_rankinglists.php'
+			, $presets['category'] , $presets['event'], $round, $heatFrom, $heatTo); ?>
+	</td>   
+<?php   
+}
+
+if($heatFrom > 0) {		// heat from selected   
+?>
+	<td>
+		<?php AA_printHeatSelectionDropDownTo('event_rankinglists.php'
+			, $presets['category'] , $presets['event'], $round, $heatFrom, $heatTo); ?>
+	</td>  
+<?php    
+}
+ 
+?>
+ </tr>
+</table>   
+ 
+<br>
+<table>   
+
+	<tr>       
+				<th class='dialog'><?php echo $strCategory . " "; echo $strOf2;?></th>
+				 <form action='event_rankinglists.php' method='post' name='catFrom' > 
+					<input name='arg' type='hidden' value='change_catFrom' /> 
+					 <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+					  <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' /> 
+					  <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+					   <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' /> 
+					   <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />       
+<?php
+				$dd = new GUI_CategoryDropDown($catFrom,'document.catFrom.submit()', false);
+				?>
+				</form>
+				 <th class='dialog'><?php echo $strCategory. " "; echo $strTo2; ?></th>
+				 <form action='event_rankinglists.php' method='post' name='catTo' > 
+				 <input name='arg' type='hidden' value='change_catTo' /> 
+				 <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' />  
+				 <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+				  <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' />  
+				   <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />   
+				   <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />    
+				<?php
+				$dd = new GUI_CategoryDropDown($catTo,'document.catTo.submit()', false);
+				?>
+				 </form>   
+			</tr>
+	<tr>
+
+				<th class='dialog'><?php echo $strDiscipline. " "; echo $strOf2;?></th>
+				 <form action='event_rankinglists.php' method='post' name='discFrom' > 
+					<input name='arg' type='hidden' value='change_discFrom' /> 
+					 <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+					 <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />  
+					  <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+					   <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' /> 
+					   <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />       
+				<?php     
+				$dd = new GUI_DisciplineDropDown($discFrom,'','','','document.discFrom.submit()');
+				?>
+				 </form> 
+				 <th class='dialog'><?php echo $strDiscipline. " "; echo $strTo2; ?></th> 
+				  <form action='event_rankinglists.php' method='post' name='discTo' > 
+					<input name='arg' type='hidden' value='change_discTo' /> 
+					 <input name='catFrom' type='hidden' value='<?php echo $catFrom; ?>' /> 
+					  <input name='catTo' type='hidden' value='<?php echo $catTo; ?>' />    
+					 <input name='discTo' type='hidden' value='<?php echo $discTo; ?>' />   
+					  <input name='discFrom' type='hidden' value='<?php echo $discFrom; ?>' /> 
+					  <input name='mDate' type='hidden' value='<?php echo $mDate; ?>' />     
+				
+				<?php
+				$dd = new GUI_DisciplineDropDown($discTo,'','','','document.discTo.submit()');   
+				?>
+				 </form>   
+	</tr>  	
+	</table> 	
+	
+	<table>
+		<tr>    
+
+ 
+<form action='print_rankinglist.php' method='get' name='printdialog'>  
 <input type='hidden' name='category' value='<?php echo $presets['category']; ?>'>
 <input type='hidden' name='event' value='<?php echo $presets['event']; ?>'>
 <input type='hidden' name='round' value='<?php echo $round; ?>'>
-<input type='hidden' name='formaction' value=''>
-
+<input type='hidden' name='heatFrom' value='<?php echo $heatFrom; ?>'>
+<input type='hidden' name='heatTo' value='<?php echo $heatTo ?>'>
+<input type='hidden' name='formaction' value=''>   
+<input type='hidden' name='catFrom' value='<?php echo $catFrom; ?>'> 
+<input type='hidden' name='catTo' value='<?php echo $catTo; ?>'>  
+<input type='hidden' name='discFrom' value='<?php echo $discFrom; ?>'>  
+<input type='hidden' name='discTo' value='<?php echo $discTo; ?>'>    
 <table class='dialog'>  
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='single' id='type'  checked >
 			<?php echo $strSingleEvent; ?></input>
 	</th>
-</tr>
-
+</tr>   
+         
 <?php
 if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 	|| ($dtype == $cfgDisciplineType[$strDiscTypeJumpNoWind])
@@ -151,7 +305,7 @@ if(($dtype == $cfgDisciplineType[$strDiscTypeJump])
 		<input type='radio' name='type' value='single_attempts' id='type' >
 			<?php echo $strSingleEventAttempts; ?></input>
 	</th>
-</tr>  
+</tr> 
 <?php
 }
   
@@ -164,10 +318,10 @@ if (isset($eventTypeCat['combined'])){?>
             <?php echo $strHeatsSeparate ?></input>
     </td>
 </tr>
-
+                          
 
 <?php 
-}   
+}
  
 // Rankginglists for club and combined-events
 //if(empty($presets['event'])){// no event selected
@@ -252,6 +406,19 @@ if (!isset($eventTypeCat['combined'])){?>
 
 <?php
 }
+?>
+<tr>
+	<th class='dialog'><?php echo $strSortBy; ?></th>
+
+</tr>
+<tr>
+	<td class='dialog'>
+	 &nbsp;&nbsp; 
+		<input type='checkbox' name='athleteCat' value='yes'>
+			<?php echo $strAthleteCat; ?></input>
+	</td>
+</tr>    
+<?php 
 if(empty($presets['event']))	// show page break only event not selected
 {										
 ?>

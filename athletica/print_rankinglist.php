@@ -39,7 +39,31 @@ $round = 0;
 if(!empty($_GET['round'])) {
 	$round = $_GET['round'];   
 }
-
+  
+  
+$catFrom = 0;
+if(!empty($_GET['catFrom'])) {
+	$catFrom = $_GET['catFrom'];
+}
+$catTo = 0;
+if(!empty($_GET['catTo'])) {
+	$catTo = $_GET['catTo'];
+}
+$discFrom = 0;
+if(!empty($_GET['discFrom'])) {
+	$discFrom = $_GET['discFrom'];
+}
+$discTo = 0;
+if(!empty($_GET['discTo'])) {
+	$discTo = $_GET['discTo'];
+} 
+if(!empty($_GET['heatFrom'])) {
+	$heatFrom = $_GET['heatFrom'];
+}
+if(!empty($_GET['heatTo'])) {
+	$heatTo = $_GET['heatTo'];
+}     
+ 
 $type = 'single';
 if(!empty($_GET['type'])) {
 	$type = $_GET['type'];
@@ -97,23 +121,28 @@ $show_efforts = 'none';
 if(!empty($_GET['show_efforts'])){
 	$show_efforts = $_GET['show_efforts'];
 }
+
+$athleteCat = false;     
+if($_GET['athleteCat'] == "yes"){  
+    $athleteCat = true;
+}      
     
 // Ranking list single event
 if($type == 'single')
-{  
-	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate);
-}
+{   
+	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo,$athleteCat );
+}                                                                                                                                                                                                     
 
 // Ranking list combined events
 else if($type == 'combined')
 {                                                                                                          
-	AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing, $date, $disc_nr);
+	AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing, $date, $disc_nr,$catFrom,$catTo);
 }                                                                                                  
 
 // Ranking list teams events
 else if($type == 'team' || $type == 'teamAll')
 {   
-    @AA_rankinglist_Team($category, $formaction, $break, $cover, $parser=false, $event, $heatSeparate,$type);  
+    @AA_rankinglist_Team($category, $formaction, $break, $cover, $parser=false, $event, $heatSeparate,$type, $catFrom, $catTo);  
 }                                                                                                                   
 
 // Team sheets
