@@ -431,7 +431,7 @@ th.rank_wind { width:50px; text-align:right;
 				border-bottom:1px solid #000000; }
 
 /* list item */
-td.rank_rank {	text-align:right; padding-left:0px; padding-right:15px;
+td.rank_rank {	text-align:right; padding-left:0px; padding-right:8px;
 				padding-top:2px; padding-bottom:0px; }
 td.rank_name { padding-left:0px; padding-right:5px;
 				padding-top:2px; padding-bottom:0px; }
