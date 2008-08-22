@@ -923,6 +923,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$wind = strtr($row_results['Info'],",",".");
 							}else{
 								$perf = AA_alabusTime($row_results['Leistung']);
+								$perf=substr($perf,0,-1);  
 								$perfRounded = AA_formatResultTime($row_results['Leistung'], true);
 								$this->write_xml_finished("timeResult",$perf);
 								$wind = strtr($row_results['Wind'],",",".");
