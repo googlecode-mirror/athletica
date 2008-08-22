@@ -10,8 +10,8 @@ if (!defined('AA_RANKINGLIST_COMBINED_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_COMBINED_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disc_nr)
-{       
+function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disc_nr,$catFrom,$catTo)
+{     
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -25,13 +25,25 @@ if(AA_connectToDB() == FALSE)	{ // invalid DB connection
 
 if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
-}
+}   
   
 $contestcat = " ";
 if (!empty($category)){         // show every category
     $contestcat = " AND w.xKategorie = $category";
-}  
+} 
 
+if($catFrom > 0) { 
+     $getSortCat=AA_getSortCat($catFrom,$catTo);
+	 if ($getSortCat[0]) {
+	 	if ($catTo > 0){
+			$contestcat = " AND k.Anzeige >=" . $getSortCat[$catFrom] . " AND k.Anzeige <=" . $getSortCat[$catTo] ." "; 
+		}	 
+		else {
+			$contestcat = " AND k.Anzeige =" . $getSortCat[$catFrom] ." ";
+		}
+	 }
+} 
+                                    
 
 // get athlete info per contest category
 
@@ -49,7 +61,7 @@ $results = mysql_query("
 		, w.xKategorie
 		, ka.Code
 		, ka.Name
-		, ka.Alterslimite
+		, ka.Alterslimite  		
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -72,11 +84,12 @@ $results = mysql_query("
 	AND ka.xKategorie = a.xKategorie 
 	GROUP BY
 		a.xAnmeldung
-	ORDER BY
+	ORDER BY    	 
 		k.Anzeige
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
-");         
+"); 
+                 
   /*           
    $results= mysql_query("SELECT  
         a.xAnmeldung
@@ -161,13 +174,13 @@ else
 	}
 	
 	while($row = mysql_fetch_row($results))
-	{  
+	{   
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
-		{
+		{              		
 			$points_arr[] = $points;
-			$name_arr[] = $name;
+			$name_arr[] = $name;   		
 			$year_arr[] = $year;
 			$club_arr[] = $club;
 			$info_arr[] = $info;
@@ -177,7 +190,7 @@ else
 			$points = 0;
 			$sep = '';
 		}
-
+       
 		// print previous before processing new category
 		if(!empty($cat)				// not first result row
 			&& 	(($row[4] != $cat || $row[7] != $comb) 	// not the same category, or not the same combined contest
@@ -202,12 +215,13 @@ else
 			$list->startList();
 			$list->printHeaderLine($lastTime);
 
-			arsort($points_arr, SORT_NUMERIC);	// sort descending by points
+		    arsort($points_arr, SORT_NUMERIC);	// sort descending by points
 			$rank = 1;									// initialize rank
 			$r = 0;										// start value for ranking
 			$p = 0;
+		        		
 			foreach($points_arr as $key => $val)
-			{
+			{   
 				$r++;
 				
 				if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
@@ -221,7 +235,7 @@ else
 				$list->printInfo($info_arr[$key]);
 				$p = $val;			// keep current points
 				// insert points into combined top performance of entry
-				mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);
+				mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);			
 			}
 			unset($points_arr);
 			unset($name_arr);
@@ -280,7 +294,7 @@ else
                 , ru.Datum
                 , ru.Startzeit
         ");     
-                          
+       
       /*  
 		$res = mysql_query("
 			SELECT
@@ -325,7 +339,7 @@ else
 		else
 		{   $count_disc=0;
 			while($pt_row = mysql_fetch_row($res))
-			{           
+			{        
 				$lastTime = $pt_row[8];
 				
 				if($pt_row[1] == $cfgDisciplineType[$strDiscTypeJump]){
@@ -400,7 +414,7 @@ else
 		$name = $row[1] . " " . $row[2];
 		$year = AA_formatYearOfBirth($row[3]);
 		$club = $row[5];
-		$ioc = $row[6];
+		$ioc = $row[6];   		
 	}	// END WHILE athlete per category
 
 	if(!empty($a))		// add last athlete if any
@@ -428,9 +442,10 @@ else
 		arsort($points_arr, SORT_NUMERIC);	// sort descending by points
 		$rank = 1;									// initialize rank
 		$r = 0;										// start value for ranking
-		$p = 0;
+		$p = 0;     
+		 	   
 		foreach($points_arr as $key => $val)
-		{  
+		{    
 			$r++;                           
 			
 			if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
@@ -440,23 +455,18 @@ else
 			if($p != $val) {	// not same points as previous athlete
 				$rank = $r;		// next rank
 			}  
-		 	$pos1 = strpos($info_arr[$key],"-1");  
-		 	$pos2 = strpos($info_arr[$key],"-2");  
-		 	$pos3 = strpos($info_arr[$key],"-3");  
-		 	$pos4 = strpos($info_arr[$key],"-4"); 
-		 	$pos5 = strpos($info_arr[$key],"-");  
-		 	 
-		    // not set rank for invalid results
-		 	if ($pos1!==false  || $pos2!==false || $pos3!==false || $pos4!==false || $pos5!==false){
+		   	    		 	 
+		    // not set rank for invalid results   		 
+		   if (preg_match("@\(-[1-4]{0,1}@", $info_arr[$key])){  	
 		 	    $rank='';   
 				$r--;  
-		 	}  
+		 	}     		  
 			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
             $list->printInfo($info_arr[$key]);
 			$p = $val;			// keep current points
 			// insert points into combined top performance of entry
-			mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);
-		}
+			mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);		
+		}   		
 	}
 
 	mysql_free_result($results);

@@ -126,8 +126,8 @@ class GUI_Select
 	 *		key:		item to be checked
 	 */
 	function selectOption($key)
-	{
-		$this->checked = $key;
+	{   
+		$this->checked = $key;                   
 	}
 
 	/*	printList()
@@ -963,9 +963,9 @@ class GUI_HeatSelect
 	 *	-----------
 	 */
 	function GUI_HeatSelect($round=0)
-	{
-		$this->round = $round;
-		$this->select = new GUI_Select('heat', 1);
+	{  
+		$this->round = $round;    
+	    $this->select = new GUI_Select('heat', 1);   		
 		$this->select->addOptionNone();				// empty item
 	}
 
@@ -1001,13 +1001,129 @@ class GUI_HeatSelect
 		if($key == 0) {
 			$key = '-';
 		}
-		$this->select->selectOption($key);
-		$this->select->addOptionNew();
+		$this->select->selectOption($key); 
+		$this->select->addOptionNew();  	  
 		$this->select->printList();
 	}
 } // END CLASS Gui_HeatSelect
 
+ /********************************************
+ * CLASS GUI_HeatSelectFrom
+ * Prints a heat drop down list by using the GUI_Select class.
+ *******************************************/
 
+class GUI_HeatSelectFrom
+{
+	var $select;
+	var $round;
+	
+	/*	Constructor
+	 *	-----------
+	 */
+	function GUI_HeatSelectFrom($round=0)
+	{  
+		$this->round = $round;   		
+		$this->select = new GUI_Select('heatFrom', 1, 'document.heat_selectionFrom.submit()'); 
+		$this->select->addOptionNone();				// empty item
+	}
+
+	/*	printList()
+	 *	-----------
+	 * Finally, print the <SELECT> list
+	 * To preselect an item, provide its ID
+	 *		key:	primary key of db table
+	 */
+	function printList($key=0,$optNew=true)
+	{
+		require('./config.inc.php');
+
+		// get items from DB
+		$this->select->addOptionsFromDB("
+			SELECT
+				s.xSerie
+				, s.Bezeichnung
+				, LPAD(s.Bezeichnung,5,'0') as heatid
+			FROM
+				runde AS r
+				, serie AS s
+			WHERE r.xRunde = " . $this->round . "
+			AND s.xRunde = r.xRunde
+			ORDER BY
+				heatid
+		");
+
+		if(!empty($GLOBALS['AA_ERROR']))
+		{
+			AA_printErrorMsg($GLOBALS['AA_ERROR']);
+		}
+		if($key == 0) {
+			$key = '-';
+		}
+		$this->select->selectOption($key);
+		if ($optNew)
+			$this->select->addOptionNew();
+		$this->select->printList();
+	}
+} // END CLASS Gui_HeatSelectFrom
+
+ /********************************************
+ * CLASS GUI_HeatSelectTo
+ * Prints a heat drop down list by using the GUI_Select class.
+ *******************************************/
+
+class GUI_HeatSelectTo
+{
+	var $select;
+	var $round;
+	
+	/*	Constructor
+	 *	-----------
+	 */
+	function GUI_HeatSelectTo($round=0)
+	{  
+		$this->round = $round;  		
+		$this->select = new GUI_Select('heatTo', 1, 'document.heat_selectionTo.submit()'); 
+		$this->select->addOptionNone();				// empty item
+	}
+
+	/*	printList()
+	 *	-----------
+	 * Finally, print the <SELECT> list
+	 * To preselect an item, provide its ID
+	 *		key:	primary key of db table
+	 */
+	function printList($key=0,$optNew=true)
+	{
+		require('./config.inc.php');
+
+		// get items from DB
+		$this->select->addOptionsFromDB("
+			SELECT
+				s.xSerie
+				, s.Bezeichnung
+				, LPAD(s.Bezeichnung,5,'0') as heatid
+			FROM
+				runde AS r
+				, serie AS s
+			WHERE r.xRunde = " . $this->round . "
+			AND s.xRunde = r.xRunde
+			ORDER BY
+				heatid
+		");
+
+		if(!empty($GLOBALS['AA_ERROR']))
+		{
+			AA_printErrorMsg($GLOBALS['AA_ERROR']);
+		}
+		if($key == 0) {
+			$key = '-';
+		}
+		$this->select->selectOption($key);
+		if ($optNew)
+			$this->select->addOptionNew();
+		$this->select->printList();
+	}
+} // END CLASS Gui_HeatSelectTo
 
 
 /********************************************
@@ -1162,7 +1278,7 @@ class GUI_RoundSelect
 	 *		key:	primary key of db table
 	 */
 	function printList($key=0)
-	{
+	{   
 		require('./config.inc.php');
 
 		// get items from DB
@@ -1194,9 +1310,7 @@ class GUI_RoundSelect
 		$this->select->printList();
 	}
 } // END CLASS Gui_RoundSelect
-
-
-
+        
 
 /********************************************
  * CLASS GUI_RoundtypeSelect

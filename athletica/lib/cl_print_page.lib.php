@@ -66,7 +66,7 @@ class PRINT_Page extends GUI_Page
 </script>
 
 <?php $this->printPageHeader() ?>
- 
+              
 <div style="height:<?php echo $cfgPageContentHeight ?>mm;"> <!-- content div will position the footer on bottom -->
 <table class='frame'>
 <tr class='frame'>
@@ -226,7 +226,7 @@ class PRINT_Page extends GUI_Page
 <tr class='frame'>
 	<td class='frame'>
 <?php
-		$this->linecnt = 0;
+		$this->linecnt = 0;      		
 	}
 
 	/**
@@ -496,7 +496,7 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printSubTitle($category='', $discipline='', $round='')
-	{
+	{     
 		if(!empty($category)) {
 			$this->cat = $category;
 		}
@@ -510,13 +510,16 @@ class PRINT_RankingList extends PRINT_Page
 			$this->round = '';
 		}
 	
-		if(empty($category)) {
-			$this->round = $this->round . " " . $GLOBALS['strCont'];
+		if(empty($category)) { 
+			$this->round = $this->round . " " . $GLOBALS['strCont'];         
 		}
 
 		if(($this->lpp - $this->linecnt) < 8)		// page break check
-		{
+		{   
+		   	printf("</table>");      
 			$this->insertPageBreak();
+		   	printf("<table class='rank'>");       
+			
 		}
 		$this->linecnt = $this->linecnt + 3;	// needs 3 lines (see style sheet)
 ?>
@@ -545,7 +548,7 @@ class PRINT_RankingList extends PRINT_Page
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
 		, $wind=FALSE, $heatwind='', $time="", $svm = false)
-	{
+	{  
 		$this->relay = $relay;
 		$this->points = $points;
 		$this->wind = $wind;
@@ -557,15 +560,15 @@ class PRINT_RankingList extends PRINT_Page
 			$lines = 3;	
 		}
 
-		if(($this->lpp - $this->linecnt) < ($lines+3))		// page break check
-		{
-			printf("</table>");
+		if(($this->lpp - $this->linecnt) < ($lines+6))		// page break check
+		{  
+		   	printf("</table>");
 			$this->insertPageBreak();
-			printf("<table class='rank'>");
+		   	printf("<table class='rank'>");
 		}
 
 		if(!empty($this->title))
-		{
+		{  
 ?>
 	<tr>
 		<th class='rank_heat' colspan='2'><?php echo $this->title; ?></td>
@@ -638,30 +641,28 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function startList()
-	{
+	{  
 		printf("<table class='rank'>");
 	}
 
 
 	function printLine($rank, $name, $year, $club, $perf
 		, $wind, $points, $qual, $ioc)
-	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
-		{
-			printf("</table>");
-			$this->insertPageBreak();
-			$this->printSubTitle();
-			printf("<table class='rank'>");
+	{   	    
+		if(($this->lpp - $this->linecnt) < 5)		// page break check
+		{    
+			printf("</table>");			   			
+			$this->insertPageBreak(); 
+			$this->printSubTitle();  			 	
+			printf("<table class='rank'>");  
 			$this->printHeaderLine($this->relay, $this->pointinfo, $this->windinfo);
+			
 		}
 		$this->linecnt++;			// increment line count
-		$pt = '';
-		if(!empty($rank)) {
-			$pt = ".";
-		}
+	   	
 ?>
 	<tr>
-		<td class='rank_rank'><?php echo $rank . $pt; ?></td>
+		<td class='rank_rank'><?php echo $rank; ?></td>
 		<td class='rank_name'><?php echo $name; ?></td>
 		<td class='rank_year'><?php echo $year; ?></td>
 		<td class='rank_club'><?php echo $club; ?></td>

@@ -11,8 +11,8 @@ if (!defined('AA_RANKINGLIST_TEAM_LIB_INCLUDED'))
 	define('AA_RANKINGLIST_TEAM_LIB_INCLUDED', 1);
 
  
-function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser, $event, $heatSeparate, $type)  
-{           
+function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser, $event, $heatSeparate, $type, $catFrom, $catTo)  
+{   
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -82,7 +82,19 @@ if(!empty($category)) {        // show every category
             $selection = " AND k.xKategorie IN $mergedCat"; 
         }
     }
-}   
+} 
+   // show category from .... to
+if($catFrom > 0) {        
+     $getSortCat=AA_getSortCat($catFrom,$catTo);
+	 if ($getSortCat[0]) {
+	 	if ($catTo > 0){
+			$selection = " AND k.Anzeige >=" . $getSortCat[$catFrom] . " AND k.Anzeige <=" . $getSortCat[$catTo] . " "; 
+		}	 
+		else {
+			$selection = "AND k.Anzeige =" . $getSortCat[$catFrom] . " ";
+		}
+	 }
+}  
 
 // evaluation per category
 global $cfgEventType, $strEventTypeSingleCombined, $strEventTypeClubMA, 

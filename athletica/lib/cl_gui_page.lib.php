@@ -379,6 +379,7 @@ class GUI_RankingList extends GUI_ListPage
 			if(empty($heatwind))
 			{
 				?>
+
 	<tr>
 		<th class='dialog' colspan='<?php echo 2 + $span; ?>'><?php echo $title; ?></th>
 	</tr>
@@ -450,16 +451,25 @@ class GUI_RankingList extends GUI_ListPage
 <?php
 	}
 
-	function printInfoLine($info)
+	function printInfoLine($info,$athleteCat=false)
 	{
 		if(!empty($info))
-		{
+			{
+			if ($athleteCat) {
 ?>
-		<table><tr>
+				<p><?php echo $info; ?></p> <p></p>
+					
+<?php
+			}
+			else {
+?>
+	  <table><tr>
 			<td><?php echo $info; ?></td>
 		</tr></table>
-		<p/>
+		<p/> 
+		
 <?php
+			}
 		}
 	}
 

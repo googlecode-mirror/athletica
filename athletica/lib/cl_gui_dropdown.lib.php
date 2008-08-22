@@ -229,7 +229,7 @@ class GUI_HeatDropDown
 	 *	-----------
 	 */
 	function GUI_HeatDropDown($round)
-	{
+	{   
 		$select = new GUI_HeatSelect($round);
 		echo "<td class='forms'>";
 		$select->printList(0);
@@ -239,6 +239,47 @@ class GUI_HeatDropDown
 
 } // END CLASS Gui_HeatDropDown
 
+
+/********************************************
+ * CLASS GUI_HeatDropDownFrom
+ *******************************************/
+
+class GUI_HeatDropDownFrom
+{
+	/*	Constructor
+	 *	-----------
+	 */
+	function GUI_HeatDropDownFrom($round, $heat=0, $optNew=true)
+	{   
+		$select = new GUI_HeatSelectFrom($round);
+		echo "<td class='forms'>";
+		$select->printList($heat,$optNew);
+		echo "</td>";
+
+	}
+
+} // END CLASS Gui_HeatDropDownFrom
+
+
+/********************************************
+ * CLASS GUI_HeatDropDownTo
+ *******************************************/
+
+class GUI_HeatDropDownTo
+{
+	/*	Constructor
+	 *	-----------
+	 */
+	function GUI_HeatDropDownTo($round, $heat=0, $optNew=true)
+	{   
+		$select = new GUI_HeatSelectTo($round);
+		echo "<td class='forms'>";
+		$select->printList($heat,$optNew);
+		echo "</td>";
+
+	}
+
+} // END CLASS Gui_HeatDropDown
 
 
 /********************************************
@@ -316,7 +357,7 @@ class GUI_RoundtypeDropDown
 	 *		type:	roundtype to preselect
 	 */
 	function GUI_RoundtypeDropDown($type, $index=0)
-	{
+	{   
 		$select = new GUI_RoundtypeSelect($index);
 		echo "<td class='forms'>";
 		$select->printList($type);

@@ -10,8 +10,8 @@ if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_SINGLE_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none',$heatSeparate)
-{ 
+function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none',$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo, $athleteCat)
+{           
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/cl_export_page.lib.php');
@@ -35,6 +35,9 @@ $catMerged = false;
 $flagSubtitle=false;
 $flagInfoLine1=false; 
 $flagInfoLine2=false;
+       
+ $selectionHeats='';
+ $orderAthleteCat=''; 
  
 if($round > 0) {	// show a specific round  
    
@@ -71,10 +74,41 @@ else if($round == 0) {	// show all rounds for a specific event
 	}
 	else
 		  $selection = "w.xWettkampf =" . $event . " AND ";  
-}  
+} 
+
+if($catFrom > 0) {	//         
+     $getSortCat=AA_getSortCat($catFrom,$catTo);
+	 if ($getSortCat[0]) {
+	 	if ($catTo > 0){
+			$selection = "k.Anzeige >=" . $getSortCat[$catFrom] . " AND k.Anzeige <=" . $getSortCat[$catTo] . " AND "; 
+		}	 
+		else {
+			$selection = "k.Anzeige =" . $getSortCat[$catFrom] . " AND ";
+		}
+	 }
+}
+
+if($discFrom > 0) {	//          
+     $getSortDisc=AA_getSortDisc($discFrom, $discTo);
+	 if ($getSortDisc[0]) {
+	 	if ($discTo > 0){
+			$selection .= "d.Anzeige >=" . $getSortDisc[$discFrom] . " AND d.Anzeige <=" . $getSortDisc[$discTo] . " AND "; 
+		}	 
+		else {
+			$selection .= "d.Anzeige =" . $getSortDisc[$discFrom] . " AND ";
+		}
+	 }
+} 
+ if($heatFrom > 0) {	
+ 	 $selectionHeats=' AND s.xSerie >= ' . $heatFrom .' AND s.xSerie <= ' . $heatTo .' ';  
+ }
+ 
+ if($athleteCat) {	
+ 	 $orderAthleteCat=' k1.Anzeige, ';  
+ }         
  
  if (($catMerged & !$heatSeparate) || ($eventMerged & !$heatSeparate)) { 
- // get event rounds from DB
+ // get event rounds from DB         
 $results = mysql_query("
 	SELECT 
 		r.xRunde
@@ -92,14 +126,11 @@ $results = mysql_query("
 		, w.xDisziplin  
 	FROM
 		wettkampf AS w
-		, kategorie AS k
-		, disziplin as d
-		, runde AS r   
+		LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+  		LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin) 
+  		LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
 	WHERE " . $selection . "
-	  w.xMeeting = " . $_COOKIE['meeting_id'] . "  
-	AND k.xKategorie = w.xKategorie
-	AND d.xDisziplin = w.xDisziplin
-	AND r.xWettkampf = w.xWettkampf
+	w.xMeeting = " . $_COOKIE['meeting_id'] . " 	
 	AND r.Status = " . $cfgRoundStatus['results_done'] . " 
 	AND r.Datum LIKE '".$date."'
 	ORDER BY
@@ -108,9 +139,9 @@ $results = mysql_query("
 		, r.Datum
 		, r.Startzeit
 ");   
-   
+      
  }
- else {    
+ else {      
 	   $results = mysql_query("
 	SELECT 
 		r.xRunde
@@ -130,15 +161,13 @@ $results = mysql_query("
 		, rus.Hauptrunde   
 	FROM
 		wettkampf AS w
-		, kategorie AS k
-		, disziplin as d
-		, runde AS r
+		LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+   		LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin) 
+   		LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
 		LEFT JOIN rundenset as rs ON (r.xRunde=rs.xRunde) 
 		LEFT JOIN rundenset as rus ON (rus.xRundenset=rs.xRundenset)  
 	WHERE " . $selection . "
-	 k.xKategorie = w.xKategorie
-	AND d.xDisziplin = w.xDisziplin
-	AND r.xWettkampf = w.xWettkampf
+	w.xMeeting = " . $_COOKIE['meeting_id'] . " 	 
 	AND r.Status = " . $cfgRoundStatus['results_done'] . " 
 	AND r.Datum LIKE '".$date."'
 	ORDER BY
@@ -148,7 +177,7 @@ $results = mysql_query("
 		, r.Startzeit        
 		, rus.Hauptrunde DESC     
 ");  
-	
+ 
 }        
 
 if(mysql_errno() > 0) {		// DB error
@@ -192,7 +221,7 @@ else {
 	
 	// initialize variables
 	$cat = '';
-	$evnt = 0;
+	$evnt = 0;            
 	
 	if (mysql_num_rows($results) == 0) {
 		echo "<br><br><b><blockquote>$strErrNoResults</blockquote></b>";
@@ -292,8 +321,8 @@ else {
 				}
 			}
 			
-			// set up category and discipline title information             
-		   $flagSubtitle=true;       // set flag to print the subtitle later
+			// set up category and discipline title information 
+		   	$flagSubtitle=true;       // set flag to print the subtitle later
 		
 			if(($formaction == 'speaker') 	// speaker display page
 				&& (AA_getNextRound($row[4], $row[0]) == 0))
@@ -314,8 +343,7 @@ else {
 				$info_save1=$info;
 				//$list->printInfoLine($info);
 				$qual_mode = TRUE;
-			}
-
+			}                     
 			// print qualification descriptions if required 
 			$info = '';
 			if(($row[5] > 0) || ($row[6] > 0))
@@ -329,7 +357,7 @@ else {
 				$info_save2=$info; 
 				//$list->printInfoLine($info);
 				$qual_mode = TRUE;
-			}
+			}   			
 			$evnt = $row[4];	// keep event ID
 			$roundM = $row[13];
 		} // ET new event
@@ -386,10 +414,14 @@ else {
 		// rank is set to max_rank to put them to the end of the list.
 		$max_rank = 999999999;  
 		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";		
+		                		
+		$order= $order_heat;  		
 		
-		if($relay == FALSE) {  
-							
+		if($relay == FALSE) {     							
 				
+			    if ($athleteCat){
+					$order=$orderAthleteCat . $order_heat;   
+				}
 				$query = "SELECT ss.xSerienstart, 
 							 IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
 							 ss.Qualifikation, 
@@ -409,7 +441,9 @@ else {
 							 ru.Startzeit ,
 							 ss.RundeZusammen,
 							 ru.xRunde,  
-							 k.Name   
+							 k.Name , 
+							 k1.Name , 							
+							 k1.Anzeige  
 						FROM serie AS s USE INDEX(Runde)
 				   LEFT JOIN serienstart AS ss USING(xSerie) 
 				   LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -421,17 +455,19 @@ else {
 				   LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
 				   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
 				   LEFT JOIN wettkampf AS w On (w.xWettkampf= st.xWettkampf)   
-				   LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie) 
+				   LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie)
+				   LEFT JOIN kategorie AS k1 ON (a.xKategorie = k1.xKategorie)   
 					   WHERE ".$roundSQL." 
 					   ".$limitRankSQL." 
 					   ".$valid_result." 
-					   ".$sqlSeparate."  
-					ORDER BY ".$order_heat." 
+					   ".$sqlSeparate." 
+					   ".$selectionHeats."  
+					ORDER BY ".$order."   					         
 							 rank, 
 							 at.Name, 
 							 at.Vorname,
 							 leistung_neu " 
-							 .$order_perf;     
+							 .$order_perf;     				  
 		}
 		else {						// relay event
 				   
@@ -467,7 +503,7 @@ else {
 					  ".$valid_result." 
 					  ".$sqlSeparate."  
 					GROUP BY r.xSerienstart 
-					ORDER BY ".$order_heat." 
+					ORDER BY ".$order." 
 							 rank, 
 							 r.Leistung 
 							 ".$order_perf.", 
@@ -491,38 +527,54 @@ else {
 			$count_rank=0;
 			$perf_save = '';  
 			//$list->startList();
+			$nr = 0;
+		   
+		   	$atCat = '';  
 			
 			// process every result
 			while($row_res = mysql_fetch_array($res))
-			{                     
-				if ($flagSubtitle){  
-					if ($heatSeparate) 
+			{        
+				if ($flagSubtitle ){  
+					$nr = 0;    
+					if ($heatSeparate) {
 						if ($relay)
 							$list->printSubTitle($row_res[16], $row[2], $roundName); 
-						else
-						 $list->printSubTitle($row_res[19], $row[2], $roundName);   
-					else
-						$list->printSubTitle($row[1], $row[2], $roundName);   
+						else {
+							 if (!$athleteCat){  
+						 	 	$list->printSubTitle($row_res[19], $row[2], $roundName); 
+							 } 
+						}  
+					}
+					else {
+						if (!$athleteCat){  
+							$list->printSubTitle($row[1], $row[2], $roundName); 					    
+						}   
+					}  					 
 					$flagSubtitle=false; 
 				}
-				if ($flagInfoLine1){   
-					$list->printInfoLine($info_save1);
-					$flagInfoLine1=false;  
+				if (!$athleteCat){ 
+					if ($flagInfoLine1){   
+						$list->printInfoLine($info_save1);
+						$flagInfoLine1=false;  
+					}
 				}
-				 if ($flagInfoLine2){  
-					$list->printInfoLine($info_save2);
-					$flagInfoLine2=false;  
+				if (!$athleteCat){ 
+				 	if ($flagInfoLine2){  
+						$list->printInfoLine($info_save2);
+						$flagInfoLine2=false;  
+					}
 				}
 				 
 				$row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : $row_res[3]);
 				
 				if($row_res[0] != $id)	// athlete not processed yet
-				{   
+				{  
 					if(($h == 0)						// first header line or ...
 						|| (($row_res[5] != $heat) // new header after each heat
-							&& ($eval == $cfgEvalType[$strEvalTypeHeat])))
-					{
+							&& ($eval == $cfgEvalType[$strEvalTypeHeat])) || ($athleteCat && ($row_res[21] != $atCat)))
+					{  
 						$count_rank=0;
+						$nr=0;
 						// heat name
 						if($eval == $cfgEvalType[$strEvalTypeHeat]) {
 							if(empty($type))	{			// no round type defined
@@ -564,25 +616,66 @@ else {
 
 						if ($show_efforts == 'sb_pb'){
 							$base_perf = true;
-						}     
+						} 
 					 
-						$list->startList();  
+					    if ($athleteCat && !$relay){ 					    
+					      if($formaction == 'print') {   
+						    	if ($row_res[20]!=$atCatName){			            
+					   		   		$list->printSubTitle($row_res[20], $row[2], $roundName);  					   		   
+							   		$atCatName_keep=$atCatName; 
+							   		if ($flagInfoLine1){   
+										$list->printInfoLine($info_save1);
+										$flagInfoLine1=false;  
+									} 
+									if ($flagInfoLine2){   
+										$list->printInfoLine($info_save2);
+										$flagInfoLine2=false;  
+									} 
+								}  
+						  	}  						  
+					   	}     
+					   
+					   	$list->startList();  
 						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode);
-
-						$heat = $row_res[5];		// keep heat description
+                        
+                          
+                         if ($athleteCat && !$relay){ 					    
+					    	if($formaction == 'view') {
+                         		if ($row_res[20]!=$atCatName){			            
+					   		   			$list->printSubTitle($row_res[20], $row[2], $roundName);  					   		   
+							   			
+							   			$atCatName_keep=$atCatName;
+							   			if ($flagInfoLine1){   
+											$list->printInfoLine($info_save1,$athleteCat);
+											$flagInfoLine1=false;  
+										} 
+									  	if ($flagInfoLine2){   
+									  		$list->printInfoLine($info_save2,$athleteCat);
+									  		$flagInfoLine2=false;  
+									  	}
+										            
+									}                          
+							}
+						 }
+                                      						
+						$heat = $row_res[5];			// keep heat description
+					   	$atCat = $row_res[21]; 			// keep athlete category   					   
 						$h++;						// increment if evaluation per heat
-					}   
+					} 
+				  
 					$count_rank++;
-					
+				   
 					// rank
 					if(($row_res[1]==$max_rank || $row_res[1]==$max_rank-1) 		// invalid result
-						|| ($r == $row_res[1])) {		// same rank as previous
+						|| ($r == $row_res[1] && $heat_keep == $row_res[5])) {		// same rank as previous
 						$rank='';
 					}
 					else {
 						$rank= $row_res[1];
 					}
-					$r= $row_res[1];		// keep rank
+					$r= $row_res[1];				// keep rank
+					$heat_keep= $row_res[5];		// keep rank   
+					$atCatName = $row_res[20];      // keep athlete category name  
 
 					// name
 					$name = $row_res[9];
@@ -852,10 +945,28 @@ else {
 						{$rank=$count_rank;    
 						 if ($perf==$perf_save || $row_res[3] < 0)        // same rank or invalid result
 							 $rank='';  
-						}
-						
-					
-					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode);
+						}    
+				    
+					if ($athleteCat && !$relay){
+						$nr++;         						
+						if ($rank!='') {
+							if ($formaction == "print") {
+								$rank=$nr.". (".$rank.")"; 
+							}
+							else {
+								$rank=$nr." (".$rank.")"; 
+							}   
+						}  		
+					} 
+					else { if ($formaction == "print") {
+						        if ($rank!='') {
+									$rank.=".";
+								}
+					       }
+					}		
+				   
+					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat);
+				 
 					if($secondResult){
 						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);
 					}
