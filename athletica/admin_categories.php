@@ -50,16 +50,54 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change")
-	{
-		mysql_query("
-			UPDATE kategorie SET
-				Kurzname=\"" . strtoupper($_POST['short']) . "\"
-				, Name=\"" . $_POST['name'] . "\"
-				, Geschlecht=\"" . $_POST['sex'] . "\"
-				, Anzeige=" . $_POST['order'] . "
-				, Alterslimite=" . $_POST['age'] . "
-			WHERE xKategorie=" . $_POST['item']
-		);
+	{  	mysql_query("LOCK TABLES kategorie WRITE"); 
+		if (empty($_POST['sex'] )){ 
+			
+			$query="SELECT 
+						Geschlecht 
+			        From 
+			        	kategorie 
+			        WHERE xKategorie =" . $_POST['item'];
+			
+	     	$res=mysql_query($query);
+	     	
+	     	if(mysql_errno() > 0) {
+				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+			}
+			else {
+	     		$row=mysql_fetch_row($res);	
+	     	
+	       		mysql_query("
+				UPDATE kategorie SET
+					Kurzname=\"" . strtoupper($_POST['short']) . "\"
+					, Name=\"" . $_POST['name'] . "\"
+					, Geschlecht=\"" . $row[0] . "\"
+					, Anzeige=" . $_POST['order'] . "
+					, Alterslimite=" . $_POST['age'] . "
+				WHERE xKategorie=" . $_POST['item']
+				);
+				if(mysql_errno() > 0) {
+					$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+				}  			   
+			}
+	    }
+		else { 	    	   
+			   mysql_query("
+			   UPDATE kategorie SET
+					Kurzname=\"" . strtoupper($_POST['short']) . "\"
+					, Name=\"" . $_POST['name'] . "\"
+					, Geschlecht=\"" . $_POST['sex'] . "\"
+					, Anzeige=" . $_POST['order'] . "
+					, Alterslimite=" . $_POST['age'] . "
+			   WHERE xKategorie=" . $_POST['item']
+			   );
+			   
+			   if(mysql_errno() > 0) {
+					$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+			   } 		
+		} 		
+		
+		mysql_query("UNLOCK TABLES");  
 	}
 }
 //
@@ -260,6 +298,7 @@ while ($row = mysql_fetch_row($result))
 	<td class='forms_ctr'>
 		<input type="radio" name="sex" value="m" onChange='submitForm(document.cat<?php echo $i; ?>)' 
 			<?php echo $sexm ?> <?php echo $sexDis ?>><?php echo $strSexMShort ?>
+		<input name='sex_test<?php echo $i;?>' type='hidden' value='m'> 
 		<input type="radio" name="sex" value="w" onChange='submitForm(document.cat<?php echo $i; ?>)' 
 			<?php echo $sexw ?> <?php echo $sexDis ?>><?php echo $strSexWShort ?>
 	</td>
