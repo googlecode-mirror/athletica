@@ -202,12 +202,12 @@ class Timetable
 							Datum = '" . $this->date . "'
 							, Startzeit = '".$this->hour.":".$this->min.":00"."'
 							, xRundentyp = " . $this->type . "
-							, Gruppe = " . $this->group . "  
+							, Gruppe = '" . $this->group . "'  
 							$sqlEtime
 							$sqlMtime
 						WHERE xRunde = " . $this->round
 					);
-	
+	              
 					if(mysql_errno() > 0)
 					{
 						$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
