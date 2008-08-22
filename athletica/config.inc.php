@@ -55,6 +55,7 @@ $cfgBackupCompatibles = array(
 	'3.3.8',
 	'3.3.9',
 	'3.3.10',
+	'3.3.11',
 );
 
 
