@@ -1238,10 +1238,10 @@ require('./config.inc.php');
 	<tr>
 		<th class='dialog'><?php echo $GLOBALS['strHeats']; ?></th>
 		<td />
-<?php
+<?php      		 	
 				$class='nav';
 				while($row = mysql_fetch_row($result))
-				{
+				{    
 					if(($speaker == true)
 						&& ($row[3] == $GLOBALS['cfgHeatStatus']['announced']))
 					{
@@ -1253,8 +1253,8 @@ require('./config.inc.php');
 					?>
 					<a href='#heat_<?php echo $row[1]; ?>'><?php echo $row[1]; ?></a>
 					</td>
-					<?php
-				}
+					<?php    				
+				}    
 ?>
 		</td>
 	</tr>
@@ -1300,7 +1300,7 @@ require('./config.inc.php');
 	 */
 
 	function AA_printRoundSelection($action, $category, $event, $round)
-	{
+	{   
 ?>
 	<form action='<?php echo $action; ?>' method='post' name='round_selection'>
 		<input name='arg' type='hidden' value='select_round' />
@@ -2443,8 +2443,67 @@ function AA_checkRelayName($category,$event,$relayName){
 	  	}   
 	}    
    return $checkName;	
-}					  
-						  
+}	
+      
+  	
+/**	
+	 * heat selection drop down from
+	 * -----------------------------
+	 */
+
+	function AA_printHeatSelectionDropDownFrom($action, $category, $event, $round, $heatFrom, $heatTo)
+	{    
+?>
+	<form action='<?php echo $action; ?>' method='post' name='heat_selectionFrom'>
+		<input name='arg' type='hidden' value='change_heatFrom' />
+		<input name='category' type='hidden' value='<?php echo $category; ?>' />
+		<input name='event' type='hidden' value='<?php echo $event; ?>' />
+		<input name='round' type='hidden' value='<?php echo $round; ?>' />		
+	   	<input name='heatFrom' type='hidden' value='<?php echo $heatFrom; ?>' /> 
+	   	<input name='heatTo' type='hidden' value='<?php echo $heatTo; ?>' />     
+		<table>
+			<tr>
+				<th class='dialog'><?php echo $GLOBALS['strHeat']. " ";  echo $GLOBALS['strOf2']; ?></th>
+<?php
+	   		   
+	   		$dd = new GUI_HeatDropDownFrom($round, $heatFrom, false);  		
+        
+?>
+			</tr>
+		</table>
+	</form>
+<?php
+	}	
+	
+/**	
+	 * heat selection drop down to
+	 * -----------------------------
+	 */
+
+	function AA_printHeatSelectionDropDownTo($action, $category, $event, $round, $heatFrom, $heatTo)
+	{    
+?>
+	<form action='<?php echo $action; ?>' method='post' name='heat_selectionTo'>
+		<input name='arg' type='hidden' value='change_heatTo' />  		
+		<input name='category' type='hidden' value='<?php echo $category; ?>' />
+		<input name='event' type='hidden' value='<?php echo $event; ?>' />
+		<input name='round' type='hidden' value='<?php echo $round; ?>' />		
+		<input name='heatFrom' type='hidden' value='<?php echo $heatFrom; ?>' /> 
+	   	<input name='heatTo' type='hidden' value='<?php echo $heatTo; ?>' />    	
+		<table>
+			<tr>
+				<th class='dialog'><?php echo $GLOBALS['strHeat']. " ";  echo $GLOBALS['strTo2']; ?></th>
+<?php
+	   		   
+	   		$dd = new GUI_HeatDropDownTo($round, $heatTo, false);  		
+        
+?>
+			</tr>
+		</table>
+	</form>
+<?php
+	}	
+	       
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>
