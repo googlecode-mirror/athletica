@@ -311,6 +311,10 @@ function AA_alabusTime($time){
 		list($min, $rest) = explode(".", (($sec-($hour*3600))/60));
 		list($sec, $rest) = explode(".", ($sec-($hour*3600)-($min*60)));
 		
+		// round up to hundredth  (examples: 651 --> 660 and 650 --> 650)
+	    $mili=ceil(sprintf ("%-03s",$mili)/10);  
+	   	list($a,$mili)=explode(".",($mili/100));  
+		
 		return sprintf("%02d", $hour).":".sprintf("%02d", $min).":".sprintf("%02d", $sec).".".sprintf("%-03s", $mili);
 	}else{
 		return $time;
