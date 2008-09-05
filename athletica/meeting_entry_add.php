@@ -13,6 +13,7 @@ require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
 
+
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;		// abort
@@ -648,7 +649,7 @@ if ($_POST['arg']=="add")
 									else
 									{   
 										if($athlete_id > 0){ // add from base data
-											// transfer athlete data from base to table athlet
+											// transfer athlete data from base to table athlet   
 											mysql_query("	INSERT IGNORE INTO athlet 
 														(Name, Vorname, Jahrgang, 
 														Lizenznummer, Geschlecht, Land, 
@@ -668,7 +669,7 @@ if ($_POST['arg']=="add")
 											$agen = 'y';
 											if($_POST['licensetype'] == 1){ // normal license with number
 												$agen = 'n';
-											}
+											} 
 											mysql_query("
 												INSERT INTO athlet SET 
 													Name=\"" . ($_POST['name']) . "\"
@@ -738,7 +739,7 @@ if ($_POST['arg']=="add")
 										// Entry not found: Add basic data
 										//
 										else
-										{  
+										{   	  
 											mysql_query("
 												INSERT INTO anmeldung SET 
 													xAthlet = $xAthlet
@@ -923,7 +924,7 @@ if ($_POST['arg']=="add")
 										$year='';
 										$_POST['day'] = "";
 										$_POST['month'] = "";
-										$country='';
+										$country='';        									  
 										$category='';
 										$athlete_id=0;
 										$_POST['licensenr'] = '';
@@ -949,7 +950,7 @@ if ($_POST['arg']=="add")
 			}		// ET Meeting valid
 		}		// ET Category valid
 		mysql_query("UNLOCK TABLES");
-	}
+	}     
 }
 
 //
@@ -959,7 +960,9 @@ function meeting_get_disciplines(){
 	global $athlete_id, $cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
 		$strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
 		$strDiscTypeRelay, $strDiscTypeDistance, $discs_def, $combs_def, $first;
-	
+	 
+	$combs_def = array();	  // delete the selected disziplines from previous enrolement
+	  
 	$result = mysql_query("
 		SELECT
 			d.Kurzname as DiszKurzname
@@ -984,7 +987,7 @@ function meeting_get_disciplines(){
 		AND w.xKategorie = k.xKategorie
 		ORDER BY
 			k.Kurzname, w.Mehrkampfcode, d.Anzeige
-	");
+	"); 
 
 	if(mysql_errno() > 0)
 	{
@@ -1063,7 +1066,6 @@ function meeting_get_disciplines(){
 		}
 		}
 		$effort = ltrim($effort, "0:");
-		
 		//
 		// merge the disciplines for a combined event
 		//
@@ -1079,7 +1081,7 @@ function meeting_get_disciplines(){
 				$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $comb");
 				$comb_row = mysql_Fetch_array($comb_res);
 				
-				$checked = (isset($combs_def[$row['xKategorie']."_".$comb])) ? ' checked="checked"' : '';
+				$checked = (isset($combs_def[$row['xKategorie']."_".$comb])) ? ' checked="checked"' : '';				
 				$val = (isset($combs_def[$row['xKategorie']."_".$comb])) ? $combs_def[$row['xKategorie']."_".$comb] : '';
 				
 				//get performance from base -----------------------------------------------------------------------
@@ -1110,7 +1112,7 @@ function meeting_get_disciplines(){
 				<td class='dialog-top' nowrap="nowrap" id="topperftd<?php echo $combCat.$comb ?>">
 					<input type="checkbox" value="<?php echo $row['xKategorie']."_".$comb ?>" name="combined[]" id="combinedCheck<?=$row['xKategorie']?>_<?=$comb?>" 
 						onclick="check_combined('<?php echo $row['xKategorie']."_".$comb ?>', this);
-							validate_discipline(<?php echo "'".$combCat.$comb."', '".$row['Geschlecht']."', ".$row['Alterslimite'] ?>);"<?=$checked?>>
+							validate_discipline(<?php echo "'".$combCat.$comb."', '".$row['Geschlecht']."', ".$row['Alterslimite'] ?>,this);"<?=$checked?>>
 					<?php echo $comb_row['Name']; ?>
 				</td>
 				<td class='dialog-top' nowrap="nowrap">
@@ -1328,7 +1330,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	//
 	// base search functions using ajax
 	//
-	function base_search(){
+	function base_search(){   
 		if(allowSearch == false){ return; }
 		
 		if(xhReq.readyState > 0){
@@ -1759,7 +1761,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	}
 	
 	// show disciplines for selected combined event
-	function check_combined(str, o){
+	function check_combined(str, o){   
 		var d = document.getElementById("div_"+str);
 		var t = document.getElementById("td_"+str);
 		if(o.checked){
@@ -1771,7 +1773,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}else{
 			d.style.display = 'none';
 			//d.style.position = "absolute";
-		}
+		}     
 	}
 	
 	function change_asfb(asfb){
@@ -1879,7 +1881,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}
 	}
 	
-	function validate_discipline(disc, sex, limit){
+	function validate_discipline(disc, sex, limit,o){
 		
 		year = <?php echo date('Y') ?>;
 		if(document.getElementById("newyear")){
@@ -1898,15 +1900,21 @@ $page->printPageTitle($strNewEntryFromBase);
 		}else{
 			athleteSex = document.entry.sex.value; // if searched for license number
 		}
+	   
 		
-		if(athleteSex != sex && athleteSex != ""){ // invalid gender
-			document.getElementById("topperftd"+disc).className="highlight_red";
-			return;
+		if(o.checked){  
+			if(athleteSex != sex && athleteSex != ""){ // invalid gender
+				document.getElementById("topperftd"+disc).className="highlight_red";
+				return;
+				}
+		
+			if(athleteAge > limit && athleteAge != year){ // invalid age
+				document.getElementById("topperftd"+disc).className="highlight_red";
+		   			return;
+				}
 		}
-		
-		if(athleteAge > limit && athleteAge != year){ // invalid age
-			document.getElementById("topperftd"+disc).className="highlight_red";
-			return;
+		else {
+		     document.getElementById("topperftd"+disc).className="cat"; 
 		}
 		
 	}
@@ -2192,7 +2200,7 @@ if(!empty($club2) && false){ // not yet in use
 <tr>
 	<td class='forms' colspan='4'>
 		<!--<table>-->
-<?php
+<?php 
 	meeting_get_disciplines();
 ?>
 			<!--</table>-->
@@ -2389,7 +2397,7 @@ if(!empty($club2) && false){ // not yet in use
 <tr>
 	<td class='forms' colspan='4'>
 		<!--<table>-->
-<?php
+<?php  
 	meeting_get_disciplines(); // show disciplines
 ?>
 			<!--</table>-->
