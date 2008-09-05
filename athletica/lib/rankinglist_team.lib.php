@@ -65,10 +65,14 @@ elseif($formaction == "exportpress"){
 }
 
 $selection = ''; 
-if ($event!='')
-    $mergedCat=AA_mergedCatEvent($category, $event);  
-else
-    $mergedCat=AA_mergedCat($category); 
+if($formaction != "xml"){
+	if ($event!='')  {
+    	$mergedCat=AA_mergedCatEvent($category, $event);  
+		}
+	else {
+    	$mergedCat=AA_mergedCat($category); 
+	}
+}
   
 if(!empty($category)) {        // show every category  
     if ($mergedCat=='') {
@@ -153,7 +157,7 @@ $list->endPage();	// end HTML page for printing
 //
 
 function processSingle($xCategory, $category, $list)
-{
+{   
 	global $rFrom, $rTo, $limitRank;
 	require('./config.inc.php');
 
@@ -747,7 +751,7 @@ function processSingle($xCategory, $category, $list)
 			$rank = '';
 		}
 		
-		if($GLOBALS['xmladdon']){
+		if($GLOBALS['xmladdon']){ 
 			$list->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
 		}else{
 			$list->printLine($rank, $team['team'], $team['club'], $team['points']);
