@@ -5,7 +5,7 @@
  *	-------------------------------
  *	
  */
-	 
+	     
 require('./convtables.inc.php');
 
 require('./lib/cl_gui_button.lib.php');
@@ -18,7 +18,7 @@ require('./lib/cl_timetable.lib.php');
 require('./lib/meeting.lib.php');
 require('./lib/common.lib.php');
 
-
+              
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
@@ -36,7 +36,7 @@ if(!empty($_POST['cat'])) {
 else if(!empty($_GET['cat'])) {
 	$category = $_GET['cat'];
 }
-
+           
 //
 // Process changes to meeting data
 //
@@ -129,15 +129,15 @@ elseif($_POST['arg']=="add_combtype"){
 	
 }
 // change formula for a certain combtype
-elseif($_POST['arg']=="change_formula"){
-	if(isset($_POST['nocat'])){
+elseif($_POST['arg']=="change_formula"){ 
+	if(isset($_POST['nocat'])){      
 		AA_meeting_changeFormula();
-	} else {
-		AA_meeting_changeCategory($_POST['item']);
+	} else {     
+		AA_meeting_changeCategory($_POST['item']); 
 	}	
 }
 // add a disciplin for a combined contest
-elseif($_POST['arg']=="new_discipline"){
+elseif($_POST['arg']=="new_discipline"){   
 	
 	if(!empty($_POST['combtype'])){  
 		$t = $_POST['combtype'];
@@ -146,6 +146,9 @@ elseif($_POST['arg']=="new_discipline"){
 		$res = mysql_query("SELECT Kurzname FROM disziplin WHERE Code = $t");
 		$row = mysql_fetch_array($res);
 		$sName = $row[0];
+		if (empty($_POST['punktetabelle'])){
+		    $_POST['punktetabelle']=0; 
+		}
 		
 		mysql_query("INSERT INTO wettkampf SET
 				Typ = ".$cfgEventType[$strEventTypeSingleCombined]."
@@ -153,9 +156,9 @@ elseif($_POST['arg']=="new_discipline"){
 				, xKategorie = ".$_POST['cat']."
 				, xDisziplin = ".$_POST['discipline']."
 				, xMeeting = ".$_COOKIE['meeting_id']."
-				, Punktetabelle = ".$_POST['punktetabelle']."
-				, Mehrkampfcode = $t
-				, Mehrkampfreihenfolge = 127");          
+				, Punktetabelle = ".$_POST['punktetabelle']." 
+				, Mehrkampfcode = $t   
+				, Mehrkampfreihenfolge = 127");  
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -297,15 +300,14 @@ elseif($_POST['arg'] == "change_lastdisc"){
 					AA_printErrorMsg(mysql_errno().": ".mysql_error());
 				}
 			}
-			
+		
 			// now set last discipline info
 			if($_POST['last'] == 1){ // disable last discipline mode
-				mysql_query("UPDATE wettkampf SET Mehrkampfende = 0 WHERE xWettkampf = ".$_POST['item']);
+			   	mysql_query("UPDATE wettkampf SET Mehrkampfende = 0 WHERE xWettkampf = ".$_POST['item']);
 			}else{
 				mysql_query("UPDATE wettkampf SET Mehrkampfende = 0 WHERE xKategorie = $cCat AND Mehrkampfcode = $cCode");
 				mysql_query("UPDATE wettkampf SET Mehrkampfende = 1 WHERE xWettkampf = ".$_POST['item']);
-			}
-			
+			} 			
 		}else{
 			AA_printErrorMsg($error);
 		}
@@ -415,7 +417,7 @@ $sql = "SELECT
 			, d.Anzeige;";
  
 $result = mysql_query($sql);   
- 
+
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -596,7 +598,7 @@ else			// no DB error
 			if($row[3]==$cvtTable[$strConvtableRankingPoints]){
 				?>
 				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $i ?>.arg.value='change_formula'; 
-					document.event_<?php echo $i ?>.submit()"/>
+					document.event_<?php echo $i ?>.submit()"/>     			  
 				<?php
 			} else {
 				$dropdown = new GUI_Select('formula', 1, "document.event_$i.submit()");
@@ -633,7 +635,7 @@ else			// no DB error
 			<form action='meeting_definition_category.php' method='post' name='newdiscipline_<?php echo $comb ?>'>
 			<input name='arg' type='hidden' value='new_discipline' />
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
-			<input name='combtype' type='hidden' value='<?php echo $comb; ?>' />
+			<input name='combtype' type='hidden' value='<?php echo $comb; ?>' />  
 			<?php $dd = new GUI_DisciplineDropDown(0, true, false, $keys, "document.newdiscipline_$comb.submit()"); ?>
 			<td class='dialog' colspan='6'></td>
 			</form>
@@ -1220,11 +1222,11 @@ else			// no DB error
 		?>
 	</table>
 		<?php
-	}
-	
+	}    	
 	if($cType == $cfgEventType[$strEventTypeSingleCombined] || $cNewCombined){ 		// add new combined event
 		if($comb > 0){
-			?>
+			?>        			
+		
 		<tr>
 			<form action='meeting_definition_category.php' method='post' name='newdiscipline_<?php echo $comb ?>'>
 			<input name='arg' type='hidden' value='new_discipline' />
