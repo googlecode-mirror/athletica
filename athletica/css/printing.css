@@ -75,6 +75,8 @@ th.enrolmt_time	{ width: 270; font-size:20px; text-align:right;
 th.enrolmt_timeinfo { text-align:right; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:3px;
 				text-decoration: none; font-weight: normal; }
+th.enrolmt_disc_comb	{ width: 200; font-size:20px; text-align:left;
+							padding-top:0px; padding-bottom:3px; }
 
 /* list header line */
 th.enrolmt_tic { width:10px; padding-left:0px; padding-right:5px;
