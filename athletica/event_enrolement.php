@@ -271,6 +271,7 @@ else if($_GET['arg'] == 'terminate')
 				runde.Datum ASC
 				, runde.Startzeit ASC
 		");*/
+		
 		$sql = "SELECT
 					runde.xRunde
 				FROM
@@ -506,9 +507,9 @@ if ($arg=="nbr") {
 <?php
 
 if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
-{                                         
+{                                      
 	// check if enrolement pending for this event
-	if($comb > 0){ // combined event selected
+	if($comb > 0 || $event > 0){ // combined event selected
 		/*$result = mysql_query("
 			SELECT
 				xRunde
@@ -525,16 +526,28 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				r.Datum ASC
 				, r.Startzeit ASC
 		");*/
+		                 		 
+		if ($event > 0){          // only one disciplin of combined event
+			$sqlEventComb=" w.xWettkampf = $event";   
+			$sqlCat = '';
+			$sqlMk = ''; 
+		}
+		else {
+			$sqlEventComb = '';        // the whole combined event
+			$sqlCat = " w.xKategorie = " .$cCat ." AND ";
+			$sqlMk = " w.Mehrkampfcode = ".$cCode;           
+		}        		 
+	  
 		$sql = "SELECT
 					xRunde
 				FROM
 					runde AS r
 				LEFT JOIN
 					wettkampf AS w USING(xWettkampf)
-				WHERE
-					w.xKategorie = ".$cCat."
-				AND
-					w.Mehrkampfcode = ".$cCode."
+				WHERE "
+					. $sqlEventComb
+				   	. $sqlCat 	
+				   	. $sqlMk ."
 				AND
 					w.xMeeting = ".$_COOKIE['meeting_id']."
 				AND
@@ -544,7 +557,9 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				ORDER BY
 					  r.Datum ASC
 					, r.Startzeit ASC;";
+	   
 		$result = mysql_query($sql);
+	   
 	}else{ // normal single event
 		  
 		$result = mysql_query("
@@ -629,7 +644,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			</a>
 		</th> 
 		<?php  
-											
+							
 		if ($comb==0) { 
 			 if ($event==0){  
 			 ?>
@@ -693,14 +708,27 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	
 	//
 	// read merged rounds and select all events
-	//       
+	//  
+	 
     $sqlEvents=AA_getMergedEvents($round);
-    if ($sqlEvents=='' )
-        $sqlEvents = " s.xWettkampf = ".$event." "; 
-    else
-        $sqlEvents = " s.xWettkampf IN ".$sqlEvents." ";     
+    if ($sqlEvents=='' ) {
+        if ($event > 0){
+            $sqlEvents = " s.xWettkampf = ".$event." ";  
+            $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id'];    
+        }
+        else {
+            $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];    
+        } 
+	}
+    else {
+        $sqlEvents = " s.xWettkampf IN ".$sqlEvents." "; 
+        $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id'];   
+	}
    
-   if ($catFrom > 0 && $discFrom > 0){  
+    $sqlDate = '';       
+   
+   if ($catFrom > 0 && $discFrom > 0){ 
+   			 $sqlDate = ", r.Datum ";    
 			 $getSortDisc = AA_getSortDisc($discFrom,$discTo);            // sort display from category
 			 $getSortCat = AA_getSortCat($catFrom,$catTo);                // sort display from dicipline
 			 if ($getSortCat[0] && $getSortDisc[0]) {  
@@ -715,25 +743,25 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			  $sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id']; 
 			 }
 			 else
-				  $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];   
+			  $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];   
 	
 			$sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";   
 	}
-	elseif ($catFrom > 0){    
+	elseif ($catFrom > 0){   $sqlDate = ", r.Datum ";    
 				  $getSortCat = AA_getSortCat($catFrom,$catTo);          // sort display from category  
 				  if ($getSortCat[0]) {
 					if ($catTo > 0)     
 						$sqlEvents = " k.Anzeige >= ".$getSortCat[$catFrom]." AND k.Anzeige <= ".$getSortCat[$catTo]." ";
 					else
 						$sqlEvents = " k.Anzeige = ".$getSortCat[$catFrom]." ";  
-					$sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id'];  
+				  	$sqlEvents.=" AND w.xMeeting = ". $_COOKIE['meeting_id'];  
 				  } 
 				  else                    
-					$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id']; 
+				 	$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id']; 
 					 
 				  $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
 	}
-	elseif ($discFrom > 0) {
+	elseif ($discFrom > 0) {    $sqlDate = ", r.Datum ";    
 					$getSortDisc = AA_getSortDisc($discFrom,$discTo);         // sort display from dicipline              
 					 if ($getSortDisc[0]){
 						if ($discTo > 0)                              
@@ -747,19 +775,26 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			
 					$sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin "; 
 	}
-	if ($mDate > 0){
-			 if ($sqlEvents!='')
+	if ($mDate > 0){    $sqlDate = ", r.Datum ";   
+		   	 if ($sqlEvents!='')  {
 				$sqlEvents.=" AND r.Datum = '" . $mDate . "' ";
-			 else
-				$sqlEvents.=" r.Datum = '" . $mDate . "' ";    
+			 }
+			 else  {
+				$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'] ." AND r.Datum = '" . $mDate . "' ";    
+			 }
 	}  
 	
    }
+   
+    if ($sqlEvents==''){
+         $sqlEvents=" w.xMeeting = ". $_COOKIE['meeting_id'];    
+	}           
+     
     if ($flagMain){
 	
 	if($relay == FALSE) {           
 			// single event
-		if($comb > 0){ // combined, select entries over each discipline
+		if($comb > 0 || $event > 0){ // combined, select entries over each discipline
 			/*$query = "SELECT s.xStart"
 					. ", s.Anwesend"
 					. ", a.Startnummer"
@@ -780,7 +815,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					. " AND s.xAnmeldung = a.xAnmeldung"
 					. " AND a.xAthlet = at.xAthlet"
 					. " AND at.xVerein = v.xVerein"
-					. " ORDER BY " . $argument;*/
+					. " ORDER BY " . $argument;*/   
+			
 			$sql = "SELECT
 						  s.xStart
 						, s.Anwesend
@@ -801,14 +837,15 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						verein AS v ON(at.xVerein = v.xVerein)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
-					WHERE
-						w.xKategorie = ".$cCat."
-					AND
-						w.Mehrkampfcode = ".$cCode."
+					WHERE        "
+						. $sqlEventComb   						
+						. $sqlCat      					
+						. $sqlMk ."
 					AND
 						w.xMeeting = ".$_COOKIE['meeting_id']."
 					ORDER BY
 						".$argument.";";
+			
 			$query = $sql;
 		}else{  
 			// no combined
@@ -829,9 +866,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					. " AND a.xAthlet = at.xAthlet"
 					. " AND at.xVerein = v.xVerein"
 					. " ORDER BY " . $argument;*/
-			if ($sqlEvents!=''){
-			   $sqlEvents.=" AND ";
-			}
+					   		   
 			$sql = "(SELECT DISTINCT 
 						  s.xStart
 						, s.Anwesend
@@ -842,8 +877,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
 						, a.xAnmeldung  
 						, d.Name
-						, r.Datum   
-						, s.Bezahlt
+					    ".$sqlDate."
+						, s.Bezahlt    						  
 					FROM
 						anmeldung AS a
 					LEFT JOIN
@@ -858,9 +893,9 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						disziplin AS d ON(w.xDisziplin   = d.xDisziplin)
 					LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) 
 					LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)      
-					WHERE
-						".$sqlEvents." d.Staffellaeufer = 0 AND w.Mehrkampfcode = 0 
-					".$sqlGroup ." 
+					WHERE   					
+						".$sqlEvents." AND d.Staffellaeufer = 0 AND w.Mehrkampfcode = 0 
+						".$sqlGroup ." 
 					ORDER BY
 						".$argument.")
 						
@@ -876,8 +911,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
 						, a.xAnmeldung  
 						, d.Name
-						, r.Datum
-						, s.Bezahlt
+					    ".$sqlDate."  
+						, s.Bezahlt    						
 					FROM
 						 staffel as staf  
 						,anmeldung AS a
@@ -897,8 +932,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						staffelathlet AS stat ON(stat.xStaffelstart = s1.xStart) 
 					 LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf)
 					 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)     
-					WHERE
-						".$sqlEvents." d.Staffellaeufer > 0  
+					WHERE      					
+						".$sqlEvents." AND d.Staffellaeufer > 0  
 					".$sqlGroup ."  
 					ORDER BY
 						".$argument.")";    
@@ -963,14 +998,14 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 				LEFT JOIN
 					disziplin AS d ON(w.xDisziplin = d.xDisziplin)
-				WHERE
+				WHERE        					
 					".$sqlEvents."
 				GROUP BY 
 					stat.xAthletenstart
 				ORDER BY
 					".$argument.";";
 		$query = $sql;
-	}
+	}                   
 	
 	$result = mysql_query($query);
 	

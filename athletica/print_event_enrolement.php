@@ -6,7 +6,7 @@
  *	-------------------------
  *	
  */
-     
+               
 include('./config.inc.php');
 require('./lib/common.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
@@ -40,40 +40,43 @@ if ((($_GET['catFrom'] > 0)  ||  ($_GET['discFrom'] > 0 || $_GET['mDate'] != '')
          . " AND w.xMeeting = " . $_COOKIE['meeting_id']; 
     }
     else
-        {
-          $discFrom=$_GET['discFrom']; 
-          $discTo=$_GET['discTo']; 
-          $argument = " w.xDisziplin >= " . $_GET['discFrom'] . " AND w.xDisziplin <= " . $_GET['discTo']
-        . " AND w.xMeeting = " . $_COOKIE['meeting_id']; 
+        {  if ($_GET['discFrom'] > 0){ 
+          		$discFrom=$_GET['discFrom']; 
+          		$discTo=$_GET['discTo']; 
+          		$argument = " w.xDisziplin >= " . $_GET['discFrom'] . " AND w.xDisziplin <= " . $_GET['discTo']
+        		. " AND w.xMeeting = " . $_COOKIE['meeting_id']; 
+		   }
         }
     if  (!empty($_GET['mDate'])) { 
          $mDate=$_GET['mDate'];
-         $argument .= " AND r.Datum = '" . $_GET['mDate'] ."'"
-         . " AND w.xMeeting = " . $_COOKIE['meeting_id'];    
+         $argument .= " AND r.Datum = '" . $_GET['mDate'] ."'";
+        
     }
 }
+ 
 else { 
     if(!empty($_GET['event'])) {   
         $sqlEvents=AA_getMergedEventsFromEvent($_GET['event']);
     
         if ($sqlEvents=='' )
-            $argument = " w.xWettkampf = " . $_GET['event']." "; 
+            $argument .= " AND w.xWettkampf = " . $_GET['event']." "; 
         else
-            $argument = " w.xWettkampf IN ".$sqlEvents." ";   
+            $argument .= " AND w.xWettkampf IN ".$sqlEvents." ";   
     } 
     else if(!empty($_GET['category'])) {
-	    $argument = "w.xKategorie = " . $_GET['category']
-				. " AND w.xMeeting = " . $_COOKIE['meeting_id']
+	    $argument .= " AND w.xKategorie = " . $_GET['category']
+			
 				. " AND d.Appellzeit > 0";
     }
+    
     elseif(!empty($_GET['comb'])){
 	    list($cCat, $cCode) = explode("_", $_GET['comb']);
-	    $argument = "w.xKategorie = $cCat
-			AND w.Mehrkampfcode = $cCode
-			AND w.xMeeting = ". $_COOKIE['meeting_id'];
+	    $argument .= " AND w.xKategorie = $cCat
+			AND w.Mehrkampfcode = $cCode";
+		   
     }
 }
- 
+    
 $pagebreak = "no";
 if(isset($_GET['pagebreak'])){
 	$pagebreak = $_GET['pagebreak'];
@@ -107,8 +110,7 @@ $result = mysql_query("SELECT DISTINCT d.Name"
 					. " AND d.xDisziplin = w.xDisziplin"
 					. " AND k.xKategorie = w.xKategorie"
 					. " ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit");   
-           
-
+                          
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -126,9 +128,9 @@ else
 		if($row[4] != $event)	// only first round per event      
 		{
 			
-			if($combined && $xComb == $row[10]){
+			if($combined && $xComb == $row[10] && $xCat == $row[7]){   
 			  continue;
-		  	}
+		  	} 		   
 			// change round status only if nothing done yet
 			if($row[6] == $cfgRoundStatus['open']) {	
 				AA_utils_changeRoundStatus($row[5],
@@ -160,6 +162,9 @@ else
 		  
 		  if($combined){
 			  $doc->event = $row[11];
+			   if ($_GET['event'] > 0){             // only one disciplin of combined event
+			  		$doc->comb_disc = $row[0];  
+			  }
 		  }else{
 			  $doc->event = $row[0];
 		  }
@@ -238,6 +243,10 @@ else
 		  // read event entries
 		  if($relay == FALSE) {		// single event
 			  if($combined){
+			  	  $sqlEvt = '';
+			  	  if ($_GET['event'] > 0){   
+			  	  		$sqlEvt = " AND w.xWettkampf = ". $event; 
+				  }
 				  $query = "SELECT a.Startnummer"
 						  . ", at.Name"
 						  . ", at.Vorname"
@@ -246,6 +255,9 @@ else
 						  . ", a.BestleistungMK"
 						  . ", d.Typ"
 						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
+						  . ", w.xDisziplin"  
+						  . ", w.xWettkampf"  
+						  . ", s.Bestleistung"  
 						  . " FROM anmeldung AS a"
 						  . ", athlet AS at"
 						  . ", start AS s"
@@ -254,8 +266,9 @@ else
 						  . "  LEFT JOIN region as re ON at.xRegion = re.xRegion"
 						  . "  LEFT JOIN disziplin as d ON w.xDisziplin = d.xDisziplin"
 						  . " WHERE s.xWettkampf = w.xWettkampf"
-						  . " AND w.xKategorie = $xCat"
-						  . " AND w.Mehrkampfcode = $xComb"
+						  .  $sqlEvt   
+						  . " AND w.xKategorie = " . $xCat
+						  . " AND w.Mehrkampfcode = " . $xComb
 						  . " AND w.xMeeting = ". $_COOKIE['meeting_id']
 						  . " AND s.xAnmeldung = a.xAnmeldung"
 						  . " AND a.xAthlet = at.xAthlet"
@@ -332,7 +345,7 @@ else
 					. " GROUP BY stat.xAthletenstart"
 					. " ORDER BY $sortAddition v.Sortierwert, st.Name, a.Startnummer";
 		  }
-         
+        
 		  $res = mysql_query($query);
          
 		  if(mysql_errno() > 0)		// DB error
@@ -354,30 +367,47 @@ else
                   }
                   
 				  if($l == 0) {					// new page, print header line
-					  $doc->printTitle();
+					  $doc->printTitle();   					   
 					  printf("<table>\n");
 					  $doc->printHeaderLine($relay, $svm);
 				  }               
                   
 				  if($relay == FALSE)
-				  {
+				  {     if($combined){  
+				  	    	if ($_GET['event'] > 0){
+				  	    	 	$pf=$row[10];          // best effort by choosed combined disziplin
+								}
+							else {
+						      	$pf=$row[5];          // best MK
+							}
+				        }
+				        else {
+				             $pf=$row[5];            // best effort
+				        }                 				  	    	                       
+				  	   
 						// show top performance of athletes
 						if(($row[6] == $cfgDisciplineType[$strDiscTypeJump])
 							|| ($row[6] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
 							|| ($row[6] == $cfgDisciplineType[$strDiscTypeThrow])
 							|| ($row[6] == $cfgDisciplineType[$strDiscTypeHigh])) {
-							$perf = AA_formatResultMeter($row[5]);
+							   $perf = AA_formatResultMeter($pf); 
+							//$perf = AA_formatResultMeter($row[5]);
 						}else {
 							if(($row[6] == $cfgDisciplineType[$strDiscTypeTrack])
 							|| ($row[6] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
-								$perf = AA_formatResultTime($row[5], true, true);
+							  // $perf = AA_formatResultTime($row[5], true, true);
+							     $perf = AA_formatResultTime($pf, true, true); 
 							}else{
-								$perf = AA_formatResultTime($row[5], true);
+							  //$perf = AA_formatResultTime($row[5], true);
+							  $perf = AA_formatResultTime($pf, true);  
+							   
 							}
 						}
-						if($combined){
-							$perf = $row[5]; // points
-						}
+					  	if($combined){    
+						    if ($_GET['event'] == 0){       // the whole combined event    
+				  	      		$perf=$pf;         // points 
+				  	  	  }
+					   	}
 						$doc->printLine($row[0], $row[1] . " " . $row[2],
 							AA_formatYearOfBirth($row[3]), $row[4], $row[7], $perf);
 				  }
