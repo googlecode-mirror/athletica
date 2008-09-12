@@ -213,18 +213,14 @@ if ($_POST['arg']=="add")
 								
 								$checkRelayName=AA_checkRelayName($category,$event,$_POST['name']); 									   							
 								if (!$checkRelayName) {   // relay name doesn't exist       
-							
-									mysql_query("
-										INSERT INTO staffel
-										SET 
-											Name=\"". $_POST['name'] . "\"
-											, xVerein=" . $_POST['club'] . "
-											, xTeam=" . $_POST['team'] . "
-											, xMeeting=" . $_COOKIE['meeting_id'] . "
-											, xKategorie= $category
-											, Startnummer = '$nbr'
-											$xStaffelSQL
-											");
+									$sql = "INSERT INTO staffel 
+											   SET Name = '".$_POST['name']."', 
+												   xVerein = ".$_POST['club'].", 
+												   xTeam = ".$_POST['team'].", 
+												   xMeeting = ".$_COOKIE['meeting_id'].", 
+												   xKategorie = ".$category.", 
+												   Startnummer = '".$nbr."'".$xStaffelSQL.";";
+									mysql_query($sql);
 									if(mysql_errno() == 0) 		// no error
 										{
 										$xStaffel = mysql_insert_id();	// get new ID
@@ -389,32 +385,32 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 			// 
 			$query="SELECT 
 						ru.Startzeit 
-			        FROM 
-			        	wettkampf AS w
-			            INNER JOIN runde AS ru ON (ru.xWettkampf = w.xWettkampf)
-			        WHERE 
-			        	w.xWettkampf = $event 
-			            AND w.xMeeting = " . $_COOKIE['meeting_id'] . " 
-			        ORDER BY ru.Startzeit";
-			        
+					FROM 
+						wettkampf AS w
+						INNER JOIN runde AS ru ON (ru.xWettkampf = w.xWettkampf)
+					WHERE 
+						w.xWettkampf = $event 
+						AND w.xMeeting = " . $_COOKIE['meeting_id'] . " 
+					ORDER BY ru.Startzeit";
+					
 			$res_ru=mysql_query($query);
 			
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
-			   	 $c=mysql_num_rows($res_ru);
+				 $c=mysql_num_rows($res_ru);
 				 if ( (strcmp($row_ru[0],'00:00:00'))==0  || $c==0) {   
-				 		AA_printErrorMsg($strEnrolmErr);                           // timetable not fill out
+						AA_printErrorMsg($strEnrolmErr);                           // timetable not fill out
 				 }
 				 else {
-				 	
-			          // timetable ok
+					
+					  // timetable ok
 			
-		   	?>	
+			?>	
 			
 			 <br>
 			 <table class="dialog">
-			 	<tr>
+				<tr>
 
 	<th class='dialog' colspan="6"><?php echo $strRelayFromBase ?></th>
 </tr>

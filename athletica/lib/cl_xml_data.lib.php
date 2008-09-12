@@ -238,9 +238,13 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					$this->write_xml_finished("accountCode", $row_teams['Verein']);
 					$this->write_xml_open("relays");
 				}
+				
+				//$licenseCategory = ($row_teams['Kat']=='MASM' || $row_teams['Kat']=='MASW') ? '' : $row_teams['Kat'];
+				$licenseCategory = $row_teams['Kat'];
+				
 				$this->write_xml_open("relay", array('id'=>$row_teams['xStaffel'], 'isAthleticaGenerated'=>'1'));
 				$this->write_xml_finished("relayName", $row_teams['Name']);
-				$this->write_xml_finished("licenseCategory", $row_teams['Kat']);
+				$this->write_xml_finished("licenseCategory", $licenseCategory);
 				$this->write_xml_finished("sportDiscipline", $row_teams['Dis']);
 				$this->close_open_tags("relays");
 			}
