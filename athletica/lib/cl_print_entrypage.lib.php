@@ -436,6 +436,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	var $time;
 	var $bRelay;
 	var $timeinfo;
+	var $comb_disc;
 	
 	function printTitle()
 	{  
@@ -451,7 +452,9 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 			<th class='enrolmt_cat'><?php echo $this->cat; ?></th>
 			<th class='enrolmt_time'><?php echo $this->time; ?></th>
 		</tr>
-		<tr><th class='enrolmt_timeinfo' colspan="3">
+		<tr>
+		<th class='enrolmt_comb_disc'><?php echo $this->comb_disc; ?></th> 
+		<th class='enrolmt_timeinfo' colspan="2"> 
 			<?php echo $this->timeinfo; ?>
 		</td></tr>
 		</table>
