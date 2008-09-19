@@ -6,7 +6,7 @@
  *	---------------
  *	
  */
-     
+            
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -458,7 +458,7 @@ if($round > 0)
 						, LPAD(s.Bezeichnung, 5, '0') as heatid
 						, ss.Bahn
 						, s.Film
-						, sf.Startnummer
+						, sf.Startnummer 						
 					FROM
 						runde AS r
 					LEFT JOIN 
@@ -476,11 +476,11 @@ if($round > 0)
 					LEFT JOIN
 						team AS t ON(sf.xTeam = t.xTeam)
 					WHERE 
-						r.xRunde ".$SqlRound."  
+						r.xRunde ".$SqlRound." AND st.Anwesend=0  
 					ORDER BY
 						  heatid ASC
 						, ss.Position ASC;";
-			$query = $sql;
+			$query = $sql;        
 		}
         
 		$result = mysql_query($query);

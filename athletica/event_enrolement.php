@@ -145,7 +145,7 @@ $combined = AA_checkCombined($event, $round);
 //
 if($_GET['arg'] == 'change')
 {
-	mysql_query("LOCK TABLES serienstart READ, wettkampf WRITE, start WRITE");
+	mysql_query("LOCK TABLES serienstart READ, staffel as st READ ,  start as s READ,start as s2 READ, verein as v READ, staffelathlet as stat READ, anmeldung as a READ,athlet as at READ,wettkampf as w READ, disziplin as d READ,wettkampf WRITE, start WRITE");
 	if($comb > 0){ // if combined set present for all starts
 		/*$res = mysql_query("SELECT * FROM
 				serienstart
@@ -220,16 +220,85 @@ if($_GET['arg'] == 'change')
 			AA_printErrorMsg($strErrAthleteSeeded);
 		}
 		else
-		{
+		{    			
 			$sql = "UPDATE start SET 
 						Anwesend='$present'
 						, Bezahlt='$payed'
 						WHERE xStart='" . $_GET['item'] . "'";
-			//echo $sql;
-			mysql_query($sql);
-
-		
-		
+			
+			mysql_query($sql);   
+		                       
+		   // relay: set present to start record from relay                        
+		   if ($relay){
+		        $sql = "SELECT DISTINCT  					
+					 		s.xStaffel
+				        FROM
+							staffel AS st
+							LEFT JOIN start AS s USING(xStaffel)
+							LEFT JOIN verein AS v ON(st.xVerein = v.xVerein)
+							LEFT JOIN staffelathlet AS stat ON(stat.xStaffelstart = s.xStart)
+							LEFT JOIN start AS s2 ON(s2.xStart = stat.xAthletenstart)
+							LEFT JOIN anmeldung AS a USING(xAnmeldung)
+							LEFT JOIN athlet AS at USING(xAthlet)
+							LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
+							LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin)
+						WHERE        					
+							s2.xStart='" . $_GET['item'] . "'";  
+			
+				$res = mysql_query($sql);  
+				
+				if(mysql_errno() > 0){  
+					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+				}
+				else {    
+			   			if (mysql_num_rows($res) > 0){ 
+				      		$row=mysql_fetch_array($res);    
+				       
+				       		$sql = "SELECT DISTINCT 
+				       						s.xStart, 				       						
+				       						min(s2.Anwesend)  
+					 					FROM
+											staffel AS st
+											LEFT JOIN start AS s USING(xStaffel)
+											LEFT JOIN verein AS v ON(st.xVerein = v.xVerein)
+											LEFT JOIN staffelathlet AS stat ON(stat.xStaffelstart = s.xStart)
+											LEFT JOIN start AS s2 ON(s2.xStart = stat.xAthletenstart)
+											LEFT JOIN anmeldung AS a USING(xAnmeldung)
+											LEFT JOIN athlet AS at USING(xAthlet)
+											LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
+											LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin)
+										WHERE        					
+											s.xStaffel='" . $row[0]. "' GROUP BY s.xStart";     
+				    
+							$result = mysql_query($sql); 
+					
+							if(mysql_errno() > 0){  
+								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+							}
+				   			else {   
+			   						if (mysql_num_rows($result) > 0){ 
+				      					   $row_rel=mysql_fetch_array($result);  
+				      					   if ($row_rel[1]==1)	{  
+				      		                                      //  not any athlete are present --> set 1 to present in the start record from relay   
+				      		    				$sql = "UPDATE start SET 
+														Anwesend='$row_rel[1]'   
+														WHERE xStart='" . $row_rel[0] . "'";
+								
+												mysql_query($sql); 	  
+				      						}	
+				      						else {                //  one or more athletes are present   
+				      										      		                        
+				      		      				$sql = "UPDATE start SET 
+														Anwesend='$row_rel[1]'     
+														WHERE xStart='" . $row_rel[0] . "'";
+								
+												mysql_query($sql);  
+				      		               }  
+							        }
+							}
+			   		    } 
+				} 
+		   } 
 		}
 		if(mysql_errno() > 0)
 		{
@@ -979,7 +1048,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					, at.Vorname
 					, at.Jahrgang
 					, s2.Bezahlt
-					, d.Name
+					, d.Name    					
 				FROM
 					staffel AS st
 				LEFT JOIN 
@@ -1004,7 +1073,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					stat.xAthletenstart
 				ORDER BY
 					".$argument.";";
-		$query = $sql;
+		$query = $sql;        
 	}                   
 	
 	$result = mysql_query($query);
