@@ -78,7 +78,7 @@ if($round > 0)
 	$img_name="img/sort_inact.gif";
 	$img_club="img/sort_inact.gif";
 
-	if ($arg=="nbr") {
+	if ($arg=="nbr" && !$relay) {        
 		$argument="a.Startnummer";
 		$img_nbr="img/sort_act.gif";
 	} else if ($arg=="name") {
