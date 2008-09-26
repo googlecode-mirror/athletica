@@ -704,4 +704,25 @@ $strLeaveBehind = "Stehen lassen";
 $strMergeRoundsErr = "Ungleiche Anzahl Runden. Zusammenfassung nicht möglich.";
 $strEnrolmErr = "Anmeldung nicht möglich. Bitte ergänzen Sie zuerst den Zeitplan.";   
 $strAthleteCat = "Athletenkategorie";
+
+$strService = 'Service';
+$strServiceMenu = 'Service-Menu';
+$strServiceMenuInfo = 'Das Service-Menu steht <b>nur den Athletica-Entwicklern</b> zur Verfügung. Es enthält kritische Auswertungs- und Korrekturfunktionen die der Fehleranalyse dienen.<br/>Da die Service-Funktionen - wenn falsch angewendet - Schaden anrichten können ist es allen Benutzern, die nicht Teil des Athletica-Entwicklerteams sind, <b>untersagt, sich Zugriff ins Service-Menu zu verschaffen</b>.';
+$strUserName = 'Benutzername';
+$strLogout = 'Logout';
+$strSrvRemoveMeetingPasswords = 'Meeting-Passwörter aufheben';
+$strSrvRemoveMeetingPasswordsInfo = 'Entfernt die Passwörter aller in Athletica erfassten Meetings.';
+$strSrvRemoveMeetingPasswordsButton = 'Passwörter entfernen';
+$strSrvRemoveMeetingPasswordsOK = 'Die Passwörter wurden erfolgreich entfernt.';
+$strSrvRemoveMeetingPasswordsError = 'Beim Entfernen der Passwörter ist ein Fehler aufgetreten.';
+$strSrvStatusUpload = 'Feld StatusUpload bearbeiten';
+$strSrvStatusUploadInfo = 'Das Feld StatusUpload für alle Runden auf "nicht hochgeladen" (0) oder "hochgeladen" (1) setzen.';
+$strSrvStatusUpload0 = 'Auf 0 setzen';
+$strSrvStatusUpload1 = 'Auf 1 setzen';
+$strSrvStatusUploadOK = 'Der Upload-Status wurde erfolgreich geändert.';
+$strSrvStatusUploadError = 'Beim Ändern des Upload-Status ist ein Fehler aufgetreten.';
+$strSrvRemoveDisciplines = 'Disziplinen löschen';
+$strSrvRemoveDisciplinesInfo = 'Löscht alle Daten (Resultate, Serien...) der ausgewählten Disziplinen.';
+$strSrvRemoveDisciplinesChoose = 'Disziplinen wählen';
+$strSrvRemoveDisciplinesOK = 'Die ausgewählten Disziplinen wurden gelöscht.';
 ?>

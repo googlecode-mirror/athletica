@@ -198,6 +198,7 @@ if($arg == "login"){
 		case 'admin_roundtypes':
 		case 'admin_faq':
 		case 'admin_region':
+		case 'admin_service':
 			$admin_class = 'main';
 			// submenus
 			$subitems= array(0 => 'admin_categories'
@@ -208,7 +209,8 @@ if($arg == "login"){
 								, 5 => 'admin_athletes'
 								, 6 => 'admin_stadiums'
 								, 7 => 'admin_roundtypes'
-								, 8 => 'admin_faq');
+								, 8 => 'admin_faq'
+								, 9 => 'admin_service');
 			// submenu titles
 			$subtitles= array(0 => $strCategories
 								, 1 => $strDisciplines
@@ -218,7 +220,8 @@ if($arg == "login"){
 								, 5 => $strAthletes
 								, 6 => $strStadiums
 								, 7 => $strRoundtypes
-								, 8 => $strFaq);
+								, 8 => $strFaq
+								, 9 => $strService);
 			// submenu style
 			$subitem_class= array(0 => 'subitem_inactive'
 								, 1 => 'subitem_inactive'
@@ -228,7 +231,8 @@ if($arg == "login"){
 								, 5 => 'subitem_inactive'
 								, 6 => 'subitem_inactive'
 								, 7 => 'subitem_inactive'
-								, 8 => 'subitem_inactive');
+								, 8 => 'subitem_inactive'
+								, 9 => 'subitem_inactive');
 			// highlight current submenu
 			switch($arg) {
 				case 'admin_categories':
@@ -257,6 +261,9 @@ if($arg == "login"){
 					break;
 				case 'admin_faq':
 					$subitem_class[8]='subitem';
+					break;
+				case 'admin_service':
+					$subitem_class[9]='subitem';
 					break;
 			}
 			break;

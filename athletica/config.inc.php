@@ -58,7 +58,7 @@ $cfgBackupCompatibles = array(
 	'3.3.11',
 	'3.3.12', 
 	'3.3.13', 
-	'3.3.14' 
+	'3.3.14', 
 );
 
 
@@ -368,7 +368,8 @@ $cfgOpenPages = array(	"speaker"
 			, "speaker_results"
 			, "meeting"
 			, $_COOKIE['meeting']
-			, "login");
+			, "login"
+			, "admin_service");
 
 /**
  *
@@ -399,5 +400,7 @@ $cfgCharWidth = array(
 $cfgSLVhost = "www.swiss-athletics.ch";
 $cfgSLVuser = "athletica";
 $cfgSLVpass = "impBOSS";
+$cfgSrvHashU = "f3e99337796d868e3ae43ff87196fa92";
+$cfgSrvHashP = "93d4ef379a7d3360db0e612e8021e642";
 
 ?>

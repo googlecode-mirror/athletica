@@ -114,21 +114,22 @@ class XML_TeamRankingList extends XML_ListPage
 
 	function printLine($rank, $name, $club, $points, $id)
 	{
-		$this->xml->write_xml_open("team", array('teamCode'=>'M'));
-		$this->xml->write_xml_finished("svmId",$id);
-		
-		$this->xml->write_xml_open("efforts");
-		$this->xml->write_xml_open("effort");
-		
-		$this->xml->write_xml_finished("DateOfEffort", $GLOBALS['doe']);
-		$this->xml->write_xml_finished("scoreResult",AA_alabusScore($points));
-		$this->xml->write_xml_finished("wind"," ");
-		$this->xml->write_xml_finished("kindOfLap"," ");	// round type
-		$this->xml->write_xml_finished("lap"," ");		// heat name (A_, B_, 01, 02 ..)
-		$this->xml->write_xml_finished("place",$rank);
-		$this->xml->write_xml_finished("placeAddon"," ".$GLOBALS['rankadd']);
-		$this->xml->write_xml_finished("relevant","1");
-		
+		if($points>0){
+			$this->xml->write_xml_open("team", array('teamCode'=>'M'));
+			$this->xml->write_xml_finished("svmId",$id);
+			
+			$this->xml->write_xml_open("efforts");
+			$this->xml->write_xml_open("effort");
+			
+			$this->xml->write_xml_finished("DateOfEffort", $GLOBALS['doe']);
+			$this->xml->write_xml_finished("scoreResult",AA_alabusScore($points));
+			$this->xml->write_xml_finished("wind"," ");
+			$this->xml->write_xml_finished("kindOfLap"," ");	// round type
+			$this->xml->write_xml_finished("lap"," ");		// heat name (A_, B_, 01, 02 ..)
+			$this->xml->write_xml_finished("place",$rank);
+			$this->xml->write_xml_finished("placeAddon"," ".$GLOBALS['rankadd']);
+			$this->xml->write_xml_finished("relevant","1");
+		}
 	}
 
 
