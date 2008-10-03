@@ -595,7 +595,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				r.Datum ASC
 				, r.Startzeit ASC
 		");*/
-		                 		 
+	              		 
 		if ($event > 0){          // only one disciplin of combined event
 			$sqlEventComb=" w.xWettkampf = $event";   
 			$sqlCat = '';
@@ -778,8 +778,17 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	//
 	// read merged rounds and select all events
 	//  
-	 
+
     $sqlEvents=AA_getMergedEvents($round);
+    	
+    if  ($sqlEvents=='' && $round==0){   
+    	$sqlEvents=AA_getMergedEventsFromEvent($event);        	
+	}
+    if ($event > 0 && $sqlEvents!=''){
+       $sqlEventComb=" w.xWettkampf IN ". $sqlEvents;        
+    }
+    
+    
     if ($sqlEvents=='' ) {
         if ($event > 0){
             $sqlEvents = " s.xWettkampf = ".$event." ";  
@@ -858,10 +867,10 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
     if ($sqlEvents==''){
          $sqlEvents=" w.xMeeting = ". $_COOKIE['meeting_id'];    
 	}           
-     
+   
     if ($flagMain){
 	
-	if($relay == FALSE) {           
+	if($relay == FALSE) {          
 			// single event
 		if($comb > 0 || $event > 0){ // combined, select entries over each discipline
 			/*$query = "SELECT s.xStart"
@@ -935,7 +944,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					. " AND a.xAthlet = at.xAthlet"
 					. " AND at.xVerein = v.xVerein"
 					. " ORDER BY " . $argument;*/
-					   		   
+						   		   
 			$sql = "(SELECT DISTINCT 
 						  s.xStart
 						, s.Anwesend
@@ -1038,6 +1047,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				. " AND at.xAthlet = a.xAthlet"
 				. " GROUP BY stat.xAthletenstart"
 				. " ORDER BY " . $argument;*/
+				
+		 	
 		$sql = "SELECT
 					  s2.xStart
 					, s2.Anwesend
