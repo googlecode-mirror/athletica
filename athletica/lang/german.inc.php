@@ -725,4 +725,5 @@ $strSrvRemoveDisciplines = 'Disziplinen löschen';
 $strSrvRemoveDisciplinesInfo = 'Löscht alle Daten (Resultate, Serien...) der ausgewählten Disziplinen.';
 $strSrvRemoveDisciplinesChoose = 'Disziplinen wählen';
 $strSrvRemoveDisciplinesOK = 'Die ausgewählten Disziplinen wurden gelöscht.';
+$strParticipant = 'Teilnehmer';
 ?>
