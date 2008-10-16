@@ -32,6 +32,7 @@ class Result
 	var $performance;
 	var $info;
 	var $points;
+  
 
 	function Result($round=0, $startID=0, $resultID=0)
 	{
@@ -39,11 +40,11 @@ class Result
 		$this->startID = $startID;
 		$this->resultID = $resultID;
 		$this->performance = '';
-		$this->info = '';
+		$this->info = '';                
 	}
 	
 	function save($performance, $info = '', $secFlag = false)
-	{
+	{  
 		require('./lib/utils.lib.php');
 		$GLOBALS['AA_ERROR'] = '';
 
@@ -86,19 +87,19 @@ class Result
 				return;
 			}
 
-			// get eventID
+			// get eventID                                              
 			$sql = "SELECT r.xWettkampf 
 					  FROM runde AS r 
 					 WHERE r.xRunde = ".$this->round.";";
-			$res = mysql_query($sql);
+			$res = mysql_query($sql);   
 
 			if(mysql_errno() > 0) {		// DB error
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 				return;
 			}
 			else {
-				$row = mysql_fetch_row($res);
-				$event = $row[0];					// event ID
+				$row = mysql_fetch_row($res);      
+				$event = $row[0];					// event ID         
 				mysql_free_result($res);
 			}
 
@@ -108,10 +109,9 @@ class Result
 					 LEFT JOIN wettkampf USING(xKategorie) 
 					 LEFT JOIN start USING(xWettkampf) 
 					 LEFT JOIN serienstart USING(xStart) 
-						 WHERE xSerienstart = ".$this->startID.";";
-			$query_sex = mysql_query($sql_sex);
-			
-			$this->calcPoints($event, mysql_result($query_sex, 0, 'Geschlecht'));
+						 WHERE xSerienstart = ".$this->startID.";";              
+			$query_sex = mysql_query($sql_sex);     
+			$this->calcPoints($event, mysql_result($query_sex, 0, 'Geschlecht'),$this->startID);          
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
@@ -128,7 +128,7 @@ class Result
 
 
 	function update()
-	{
+	{   
 		$GLOBALS['AA_ERROR'] = '';
 		$query = '';
 		$reply = new ResultReturn();
@@ -221,10 +221,10 @@ class Result
 	}
 
 
-	function calcPoints($event, $sex)
+	function calcPoints($event, $sex,$startID)  
 	{
 		require('./lib/utils.lib.php');
-		$this->points = AA_utils_calcPoints($event, $this->performance, 0, $sex);
+		$this->points = AA_utils_calcPoints($event, $this->performance, 0, $sex, $startID);
 	}
 
 } // end class Result

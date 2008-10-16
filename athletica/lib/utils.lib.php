@@ -35,8 +35,44 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 * @return	int			points	
 	 */
 
-	function AA_utils_calcPoints($event, $perf, $fraction = 0, $sex = 'M')
+	function AA_utils_calcPoints($event, $perf, $fraction = 0, $sex = 'M', $startID)
 	{  
+        // check if this is a merged round   (important for calculate points for merged round with different sex)
+        $sql="SELECT                                           
+                    se.RundeZusammen                       
+                FROM
+                    serienstart as se
+                   
+                WHERE se.xSerienstart = " .$startID;
+        $res=mysql_query($sql);    
+        if(mysql_errno() > 0) {        // DB error
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+        else {   
+            $row = mysql_fetch_row($res);
+            
+            if ($row[0] > 0) {                  // merged round exist
+            
+                // get event to the merged round
+                $sql="SELECT
+                    ru.xWettkampf                      
+                FROM
+                    runde as ru
+                   
+                WHERE ru.xRunde = " .$row[0];
+                $res=mysql_query($sql);  
+                if(mysql_errno() > 0) {        // DB error
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                } 
+                else { 
+                    if (mysql_num_rows($res) > 0){   
+                        $row = mysql_fetch_row($res);                         
+                        $event=$row[0];   
+                    } 
+                }     
+            }
+        }
+             
 		global $strConvtableRankingPoints;
 		
 		$GLOBALS['AA_ERROR'] = '';
@@ -102,7 +138,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 						$operator = '<=';
 						$sort = 'DESC';
 					}
-					
+					 
 					$sqlpt = "SELECT Punkte 
 								FROM wertungstabelle_punkte 
 							   WHERE xWertungstabelle = ".$row[1]." 
@@ -176,7 +212,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 * @param	round			ID table 'runde'
 	 */
 	 
-	function AA_utils_calcRankingPoints($round){ 
+	function AA_utils_calcRankingPoints($round){    echo " AA_utils_calcRankingPoints";
 		global $strConvtableRankingPoints, $cfgEventType;
 		global $strEventTypeSVMNL, $strEventTypeSingleCombined, $strEventTypeClubAdvanced
 			, $strEventTypeClubBasic, $strEventTypeClubTeam, $strEventTypeClubMixedTeam;
@@ -328,7 +364,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 						  	if(mysql_errno() > 0) {   								
 						  				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						  	}
-							          						
+							  echo " UPDATE RESULT 6";           						
 							mysql_query("UPDATE resultat SET
 									Punkte = 0
 								WHERE
@@ -366,7 +402,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 						$point -= $pStep;
 						
 					}else{
-						
+						    echo " UPDATE RESULT 8";  
 						mysql_query("UPDATE resultat SET
 								Punkte = 0
 							WHERE
@@ -389,7 +425,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				}
 				
 				// update points
-				foreach($update as $key => $p){ 
+				foreach($update as $key => $p){    echo " UPDATE RESULT 9";  
 					mysql_query("UPDATE resultat SET
 							Punkte = $p
 						WHERE
