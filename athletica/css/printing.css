@@ -176,18 +176,39 @@ td.entry_perf { vertical-align:top; text-align:right;
  * Receipt athlete
  * ---------------
  */
- table.receipt { table-layout:auto; border-collapse:collapse;}
+ table.receipt { table-layout:fixed; border-collapse:collapse;}
 	
 /* list header line */
 
-th.receipt {  padding-left:16px; padding-right:5px;
+th.receipt {    width:250px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:30px; font-weight: bold; 
-				 }
-th.receipt_name { width:80px; padding-left:16px; padding-right:5px;
+				}
+th.receipt_hd_meeting { width:120px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                vertical-align: top;
+                 }
+th.receipt_hd_stadion {  padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                vertical-align: top;
+                }
+th.receipt_hd_date { width:120px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                vertical-align: top;
+                }
+th.receipt_hd_organizer {  width:120px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                vertical-align: top;
+                }   
+th.receipt_name { width:60px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:16px; font-weight: bold; 
-				 }
+                vertical-align: top;
+				}
 th.receipt_year { width:50px; padding-left:0px; padding-right:2px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:16px; font-weight: bold; 
@@ -195,66 +216,136 @@ th.receipt_year { width:50px; padding-left:0px; padding-right:2px;
 th.receipt_cat { padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:16px; font-weight: bold;
-				  }
-th.receipt_club { width:80px; padding-left:16px; padding-right:5px;
+				}
+th.receipt_club { width:80px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-			   font-size:16px; font-weight: bold;
-				 }
-th.receipt_disc { width:80px; padding-left:16px; padding-right:5px;
+			    font-size:16px; font-weight: bold;
+				}
+th.receipt_disc { width:80px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-			   font-size:16px; font-weight: bold;
-				 }
-th.receipt_fee {  padding-left:16px; padding-right:5px;
+			    font-size:16px; font-weight: bold;
+                vertical-align: top; 
+				}
+th.receipt_fee {  padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-			   font-size:16px; font-weight: bold; 
+			    font-size:16px; font-weight: bold; 
 			   }
-th.receipt_date {  padding-left:16px; padding-right:5px;
+th.receipt_date { width:120px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:16px; font-weight: bold; 
 				}
-th.receipt_place { padding-left:0px; padding-right:2px;
+th.receipt_place {  width:120px; padding-left:0px; padding-right:2px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:16px; font-weight: bold;
-				  }
-th.receipt_subscribe {  padding-left:16px; padding-right:5px;
+				}
+th.receipt_subscribe { width: 200px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				font-size:16px; font-weight: bold; 
-				 }
+				}
 
-/* list item */  
-td.receipt_name {  width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
+/* list item */   
+
+td.receipt_hd_meeting {  width:250px; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:16px;
+                }
+td.receipt_hd_stadion {   vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:16px;
+                }
+td.receipt_hd_date {  width:180px; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:16px;
+                }
+td.receipt_hd_organizer {  vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:16px;
+                }  
+td.receipt_name { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; 
-				 font-size:16px;
-				   }
+				font-size:16px;
+				}
 td.receipt_year { width:50px; vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-				 font-size:16px; 
-				  } 
+				font-size:16px; 
+				} 
 td.receipt_cat {  vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; 
-				 font-size:16px;
-				  }
-td.receipt_club {    vertical-align:top; padding-left:0px; padding-right:5px;
+				font-size:16px;
+				}
+td.receipt_club { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; 
-				 font-size:16px;
-				  }
-td.receipt_disc {  width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
+				font-size:16px;
+				}
+td.receipt_disc { width:200px; vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-				 font-size:16px; 
-				  }
-td.receipt_fee {  vertical-align:top; padding-left:0px; padding-right:5px;
+				font-size:16px; 
+				}
+td.receipt_fee { vertical-align:top; padding-left:0px; padding-right:0px;
 				padding-top:0px; padding-bottom:2px; font-weight: bold; 
-				 font-size:16px;
-				  }   
-td.receipt_date {  vertical-align:top; padding-left:0px; padding-right:5px;
+				font-size:16px;  
+				} 
+td.receipt_fee_bold {vertical-align:top; padding-left:0px; padding-right:0px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:16px; font-weight: bold;   
+                }  
+td.receipt_date {  width: 250px; vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; 
-				 font-size:16px;
+				font-size:16px;
 				  }
-td.receipt_place {  vertical-align:top; padding-left:0px; padding-right:5px;
+td.receipt_place {  width:180px; vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-				 font-size:16px; 
-				  }
+				font-size:16px; 
+				}
+                  
+/* list per club */
 
+th.receipt_cl_club {  width: 120px; padding-left:0px; padding-right:5px;
+               padding-top:0px; padding-bottom:2px;
+               font-size:16px; font-weight: bold;
+               }  
+th.receipt_cl_part {  width: 120px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold;
+                } 
+th.receipt_cl_name {  width: 170px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold;
+                }  
+th.receipt_cl_fee {   width: 120px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:16px; font-weight: bold; 
+                } 
+td.receipt_cl_club {  width: 170px; vertical-align:top; padding-left:0px; padding-right:0px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:16px;
+                }
+td.receipt_cl_name {  width: 170px; vertical-align:top; padding-left:0px; padding-right:0px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:14px; 
+                }
+td.receipt_cl_year {   width: 40pt; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:14px; 
+                vertical-align: top; 
+                } 
+td.receipt_cl_cat {  width: 50pt; vertical-align:top; padding-left:0px; padding-right:0px;
+                padding-top:0px; padding-bottom:2px; 
+                font-size:14px;
+                } 
+td.receipt_cl_disc { width: 200pt; vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                font-size:14px; 
+                } 
+td.receipt_cl_fee {width: 80pt; vertical-align:top; padding-left:0px; padding-right:0px;
+                padding-top:0px; padding-bottom:2px;  text-align: right;
+                font-size:14px;  
+                }  
+td.receipt_cl_fee_bold {width: 140pt; vertical-align:top; padding-left:0px; padding-right:10px;
+                padding-top:0px; padding-bottom:2px;  text-align: right;
+                font-size:16px; font-weight: bold;   
+                }   
+                  
 
 /*
  * Relay lists
