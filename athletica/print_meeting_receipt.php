@@ -50,13 +50,17 @@ if($_GET['formaction'] == 'print') {		// page for printing
 	$print = true;
 } 
                 
-
+  
 // start a new HTML page for printing
                                             
 	if($print == true) { 
 		$doc = new PRINT_ReceiptEntryPage($_COOKIE['meeting']);  
-    }    
-                      
+    } 
+       
+ if ($club_clause == ''  && $athlete_clause == '') {             // no receipt if nothing is choosed
+   exit();
+}     
+                
     $reduction=AA_getReduction(); 
   
     $date=date("d.m.Y");      
@@ -85,7 +89,12 @@ if($_GET['formaction'] == 'print') {		// page for printing
 		, v.Sortierwert
 		, k.Anzeige
         , w.Startgeld  
-        , m.Ort    
+        , m.Name   
+        , m.Ort 
+        , m.DatumVon  
+        , m.DatumBis
+        , sd.Name    
+        , m.Organisator    
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -104,6 +113,7 @@ if($_GET['formaction'] == 'print') {		// page for printing
 	LEFT JOIN disziplin AS d2 
 		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
     LEFT JOIN meeting AS m ON (a.xMeeting = m.xMeeting)  
+    LEFT JOIN stadion AS sd ON (m.xStadion = sd.xStadion)  
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
 	AND a.xAthlet = at.xAthlet
 	AND at.xVerein = v.xVerein
@@ -120,7 +130,7 @@ if($_GET['formaction'] == 'print') {		// page for printing
 		$argument
     
 ");     
-   
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -128,47 +138,66 @@ if(mysql_errno() > 0)		// DB error
 else if(mysql_num_rows($result) > 0)  // data found
 {                                     
 	$a = 0;		// current athlete enrolement  
-	$l = 0;		// line counter   
+	$l = 0;		// line counter  
+    $first=true;
+    $tf = 0;    // total fee    
 	
 	// full list, sorted by name 
 	while ($row = mysql_fetch_row($result))
 	{          
 		// print previous athlete, if any
 		if($a != $row[0] && $a > 0)
-		{            
-            $doc->printHeaderLine();
-            $doc->printLineBreak(2);     
-            $doc->printLine1($nbr, $name, $year );   
-            $doc->printLine2($club, $cat);  
-            $doc->printLine3($disc);
-            $doc->printLineBreak(1);
-            $doc->printLine4($fee); 
-            $doc->printLineBreak(2);   
-            $doc->printLine5($date, $place);
-            $doc->printLineBreak(1);   
-            $doc->printLine6(); 
-            $l+=6;     
-             
-			$doc->insertPageBreak();   
+		{   
+            if ($club_clause!='' && $athlete_clause=='') {
+                  if ($first) {  
+                       $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
+                       $doc->printLineBreak(1); 
+                       $doc->printLineClub($club); 
+                       $l+=4; 
+                       $first=false;
+                       printf("<tr><td colspan='4'>");    
+                  } 
+                                 
+                  $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
+                  $tf=$tf+$fee;      
+            }
+            else {    
+                $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
+                $doc->printLineBreak(2);     
+                $doc->printLine1($nbr, $name, $year );   
+                $doc->printLine2($club, $cat);  
+                $doc->printLine3($disc);   
+                $doc->printLineFooter($fee, $date, $place, false);  
+                $l+=6;  
+			    $doc->insertPageBreak();   
+            }
+            $l++;            // increment line count
 		}
 	
         // new athlete   
 		if($a != $row[0])		
 		    {  
+             
             $l = 0;                  // reset line counter  
             $fee=0;    
             $disc="";
             $sep="";  
 			$name = $row[2] . " " . $row[3];		// assemble name field
 			$year = $row[4];
-			$cat = $row[5];   
+			$cat = $row[5];  
+            $mname = $row[23];  
+            $stadion = $row[27];  
+            $organisator = $row[28];  
+            $mDateFrom = $row[25];  
+            $mDateTo = $row[26];     
+             
 			if(empty($row[8])) {		// not assigned to a team
 				$club = $row[7];		// use club name
 			}
 			else {
 				$club = $row[8];		// use team name
 			}    
-            $place = $row[23];  
+            $place = $row[24];  
 		}
 	
             $Info = ($row[18]!="") ? ' ('.$row[18].')' : '';    
@@ -202,19 +231,31 @@ else if(mysql_num_rows($result) > 0)  // data found
     }
 	
 	if($a > 0)
-	    {        
-            $doc->printHeaderLine();
-            $doc->printLineBreak(2);     
-			$doc->printLine1($nbr, $name, $year );   
-            $doc->printLine2($club, $cat);  
-            $doc->printLine3($disc);
-            $doc->printLineBreak(1);
-            $doc->printLine4($fee); 
-            $doc->printLineBreak(2);   
-            $doc->printLine5($date, $place);
-            $doc->printLineBreak(1);   
-            $doc->printLine6();  
-            $l+=6;         
+	    {  
+         if ($club_clause!='' && $athlete_clause=='') { 
+               if ($first) {                                  
+                       $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
+                       $doc->printLineBreak(1); 
+                       $doc->printLineClub($club); 
+                       $l+=4; 
+                       $first=false;
+                       printf("<tr><td colspan='4'>"); 
+                  } 
+                              
+              $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
+              printf("</td></tr>");  
+              $tf=$tf+$fee;  
+              $doc->printLineFooter($tf,$date, $place, true);   
+         }
+         else {  
+             $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
+             $doc->printLineBreak(2);     
+			 $doc->printLine1($nbr, $name, $year );   
+             $doc->printLine2($club, $cat);  
+             $doc->printLine3($disc);              
+             $doc->printLineFooter($fee,$date, $place, false);  
+             $l+=6;     
+         }    
 	}     
 	
 	mysql_free_result($result);
