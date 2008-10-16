@@ -154,11 +154,16 @@ $cfgTrackOrder = array(					4=>array (1=>3
 /**
  *	Various other options
  */     
-    
-$cfgPrtLinesPerPage = 57;		// printer dependent   
-//$cfgPageContentHeight = 265;	// content layer height in mm, will position header an footer on printings                                
-$cfgPageContentHeight = 252;    // content layer height in mm, will position header an footer on printings
-                                
+                                 
+$cfgPrtLinesPerPage = 57;		// printer dependent        
+ 
+//$cfgPageContentHeight = 285;    // content layer height in mm, will position header an footer on printings   
+ if(eregi('firefox', $_SERVER['HTTP_USER_AGENT'])) {
+     $cfgPageContentHeight = 270;    // content layer height in mm, will position header an footer on printings 
+}
+else {
+     $cfgPageContentHeight = 275;    // content layer height in mm, will position header an footer on printings                              
+}                                      
 $cfgCookieExpires = 31536000;	// Secs, after which cookies will expire
 $cfgMonitorReload = 60;			// Secs, after which event and speaker monitor
 										// page will be reloaded
