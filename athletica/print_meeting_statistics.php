@@ -26,7 +26,7 @@ if($_GET['arg'] == 'print') {	// page for printing
 else {
 	$doc = new GUI_Statistics("Statistics");
 }
-
+   
 //
 //	Statistic 1: Entry overview
 // ---------------------------
@@ -51,13 +51,13 @@ $result = mysql_query("
 	ORDER BY
 		k.Anzeige
 ");
-
+   
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else
-{
+{   
 	$te = 0;		// totel entries
 	$tr = 0;		// totel relays
 	while ($row = mysql_fetch_row($result))
@@ -95,23 +95,29 @@ else
 $doc->printTotalLine($strTotal, $te, $tr);
 $doc->endList();
 
-
+  
 //
 //	Statistic 2: Entries per discipline
 // -----------------------------------
-
+ 
 $doc->printSubTitle($strStartsPerDisc);
 $doc->startList();
 $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
                      
- mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table     
-  
- $query_tmp="CREATE TEMPORARY TABLE result_tmp select 
-                            MIN(r.Startzeit) AS Startzeit, r.xWettkampf, r.Status from runde as r  
-                            group by r.xWettkampf 
- 							";      
-   
+ mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table   
+ 
+ $query_tmp="CREATE TEMPORARY TABLE result_tmp SELECT  
+                                            MIN(r.Startzeit) AS Startzeit, 
+                                            r.xWettkampf, 
+                                            r.Status 
+                                      FROM 
+                                            runde AS r 
+                                            LEFT JOIN wettkampf AS w USING (xWettkampf)
+                                      WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "       
+                                      GROUP BY r.xWettkampf                                 
+ 							          ";      
+                                       
  $res_tmp = mysql_query($query_tmp);     
  
  if(mysql_errno() > 0)        // DB error
@@ -120,6 +126,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
  }
  else  
      {      // read all events without timetable
+       
       $sql = "SELECT 
     				r.Startzeit        
         			, w.xWettkampf  
@@ -153,7 +160,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 			{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
-		else {  
+		else {   
     		while ($row = mysql_fetch_row($result) ){
     			
     			$sql="INSERT INTO result_tmp SET " 
@@ -164,63 +171,280 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 		        if(mysql_errno() > 0) {		// DB error
 				   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}  
-        	 }  
-       
+        	 }         
+              
+            mysql_query("DROP TABLE IF EXISTS result_tmp2");    // temporary table    
+            
+            // read all events (incl. relays) without combined event and save in temporary table 
+            $query_tmp2="CREATE TEMPORARY TABLE result_tmp2 SELECT
+                            k.Name as kName
+                            , d.Name as dName
+                            , IF(s.xWettkampf IS NULL,0,COUNT(*))  as enrolment                             
+                            , SUM(s.Anwesend) as present
+                            , IF(w.Mehrkampfcode > 0, dd.Name,w.Info) as DiszInfo
+                            , wk.Name   
+                            , IF(s.xAnmeldung > 0, an.xKategorie, st.xKategorie) AS Cat
+                            , w.Mehrkampfcode
+                            , r.Status                               
+                            , an.xAnmeldung 
+                            , k.Anzeige As kAnzeige
+                            , d.Anzeige As dAnzeige 
+                            , k.Kurzname
+                            , wk.Anzeige As wkAnzeige 
+                            , w.Typ                          
+                    FROM
+                            disziplin AS d
+                            , kategorie AS wk
+                            , wettkampf AS w
+                            LEFT JOIN start AS s ON w.xWettkampf = s.xWettkampf
+                                AND ((d.Staffellaeufer = 0
+                                    AND s.xAnmeldung > 0)
+                                            OR (d.Staffellaeufer > 0
+                                             AND s.xStaffel > 0))
+                            LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung)
+                            LEFT JOIN staffel AS st ON (s.xStaffel = st.xStaffel)
+                            LEFT JOIN kategorie AS k ON ( k.xKategorie = 
+                                IF(an.xKategorie > 0, an.xKategorie, st.xKategorie))
+                            LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname)    
+                            LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
+                            LEFT JOIN athlet AS at ON (an.xAthlet = at.xAthlet) 
+                            LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
+                    WHERE 
+                            w.xMeeting = " . $_COOKIE['meeting_id'] . "
+                            AND d.xDisziplin= w.xDisziplin
+                            AND wk.xKategorie = w.xKategorie
+                             AND ( t.Startzeit is Null Or t.Startzeit= r.Startzeit)  
+                            AND w.mehrkampfcode = 0
+                    GROUP BY
+                            Cat, s.xWettkampf
+                    ORDER BY
+                              k.Anzeige
+                            , k.Kurzname DESC
+                            , w.Typ
+                            , w.Mehrkampfcode 
+                            , wk.Anzeige
+                            , w.Mehrkampfende ASC          
+                            , if (w.Mehrkampfcode>0,r.Startzeit,w.Mehrkampfende) 
+                            , d.Anzeige
+                            ,r.Datum
+                             ";      
+           
+            $res_tmp2 = mysql_query($query_tmp2); 
+                
+            // read all combined events and save in temporary table 
+            $sql_mk=" SELECT DISTINCT k.Name ,   
+                            s.Anwesend , 
+                            dd.Name as DiszInfo , 
+                            wk.Name , 
+                           
+                            an.xKategorie AS Cat ,                              
+                            w.Mehrkampfcode , 
+                            r.Status ,
+                            
+                            an.xAnmeldung 
+                            ,k.Anzeige
+                            ,d.Anzeige
+                            ,k.Kurzname
+                            , wk.Anzeige
+                            , w.Typ
+                     FROM 
+                            disziplin AS d , 
+                            kategorie AS wk , 
+                            wettkampf AS w 
+                            LEFT JOIN start AS s ON (w.xWettkampf = s.xWettkampf) 
+                            LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung) 
+                           
+                            LEFT JOIN kategorie AS k ON ( k.xKategorie = an.xKategorie) 
+                            LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname) 
+                            LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
+                            LEFT JOIN athlet AS at ON (an.xAthlet = at.xAthlet) 
+                            LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
+                     WHERE  
+                            w.xMeeting = " . $_COOKIE['meeting_id'] . "    
+                            AND d.xDisziplin= w.xDisziplin AND wk.xKategorie = w.xKategorie 
+                            AND ( t.Startzeit is Null Or t.Startzeit= r.Startzeit) 
+                                AND w.mehrkampfcode > 0
+                     ORDER BY k.Anzeige ,k.Kurzname Desc, wk.Anzeige , an.xAnmeldung,  w.Mehrkampfcode 
+                            ";
+                                                                                                         
+            $res_mk = mysql_query($sql_mk);  
+            
+            $cEnrol=0; 
+            $cPresent=0;  
+            $statusStarted=0; 
+            $first=true;  
+            $keep0='';
+            $keep3='';   
+            $keep7='';  
+              
+            if(mysql_num_rows($res_mk) > 0){
+                    while($row = mysql_fetch_array($res_mk)){                         
+                      
+                        if ($row[0]!=$keep0 OR $row[0]==NULL) { 
+                               if (!$first){
+                                    $cPresent+=$keep1;  
+                                    if ($statusStarted ==  $cfgRoundStatus['results_done'] ||
+                                        $statusStarted ==  $cfgRoundStatus['results_in_progress'] ||  
+                                        $statusStarted ==  $cfgRoundStatus['results_sent'] )
+                                    {
+                                       $status=$statusStarted;  
+                                    }
+                                    else {
+                                          $status=$keep6; 
+                                    }                       
+                                   
+                                    $sql_mehrkampf="INSERT INTO result_tmp2 SET  
+                                                            kName = \"".$keep0. "\"   
+                                                            , dName = ''
+                                                            , enrolment = '$cEnrol'    
+                                                            , present = '$cPresent' 
+                                                            , DiszInfo = '$keep2'   
+                                                            , Name = \"".$keep3. "\"    
+                                                            , Cat = '$keep4'   
+                                                            , Mehrkampfcode = '$keep5'    
+                                                            , Status = '$status'  
+                                                            , xAnmeldung = '$keep7'   
+                                                            , kAnzeige = '$keep8' 
+                                                            , dAnzeige = '$keep9' 
+                                                            , Kurzname = '$keep10'
+                                                            , wkAnzeige = '$keep11' 
+                                                            , Typ = '$keep12'   
+                                                            ";     
+                                    
+                                    $res_mehrkampf = mysql_query($sql_mehrkampf); 
+                                    
+                                    $cEnrol=1; 
+                                    $cPresent=0; 
+                                    $statusStarted=0;
+                                    }
+                                    else {if ($row[0]==NULL) {
+                                                $cEnrol=0;
+                                         }
+                                         else {
+                                                $cEnrol=1;
+                                         } 
+                                    }
+                        }
+                        else {   
+                            if ($row[3] != $keep3){  
+                                 if ($statusStarted ==  $cfgRoundStatus['results_done'] ||
+                                        $statusStarted ==  $cfgRoundStatus['results_in_progress'] ||  
+                                        $statusStarted ==  $cfgRoundStatus['results_sent'] ) 
+                                        {
+                                       $status=$statusStarted;  
+                                    }
+                                    else {
+                                          $status=$keep6; 
+                                    }
+                                    $cPresent+=$keep1; 
+                                     
+                                    $sql_mehrkampf="INSERT INTO result_tmp2 SET  
+                                                            kName = \"".$keep0. "\"   
+                                                            , dName = ''
+                                                            , enrolment = '$cEnrol' 
+                                                            , present = '$cPresent' 
+                                                            , DiszInfo = '$keep2'   
+                                                            , Name = \"".$keep3. "\"   
+                                                            , Cat = '$keep4'   
+                                                            , Mehrkampfcode = '$keep5'    
+                                                            , Status = '$status' 
+                                                            , xAnmeldung = '$keep7'   
+                                                            , kAnzeige = '$keep8' 
+                                                            , dAnzeige = '$keep9' 
+                                                            , Kurzname = '$keep10'
+                                                            , wkAnzeige = '$keep11' 
+                                                            , Typ = '$keep12'   
+                                                            ";     
+                                     
+                                    $res_mehrkampf = mysql_query($sql_mehrkampf); 
+                                  
+                                    $cEnrol=1;  
+                                    $cPresent=0; 
+                                    $statusStarted=0;     
+                            }    
+                            else {  
+                                if ($row[7]!=$keep7) {  
+                                    $cEnrol++;  
+                                    $cPresent+=$keep1;  
+                                }
+                                else { 
+                                    if ($keep6 ==  $cfgRoundStatus['results_done'] ||
+                                        $keep6 ==  $cfgRoundStatus['results_in_progress'] ||  
+                                        $keep6 ==  $cfgRoundStatus['results_sent'] )
+                                        {
+                                        $statusStarted=$keep6;  
+                                  } 
+                                }
+                             
+                            } 
+                        }  
+                        $first=false;
+                        $keep0=$row[0];
+                        $keep1=$row[1]; 
+                        $keep2=$row[2];
+                        $keep3=$row[3]; 
+                        $keep4=$row[4]; 
+                        $keep5=$row[5];
+                        $keep6=$row[6];  
+                        $keep7=$row[7]; 
+                        $keep8=$row[8];   
+                        $keep9=$row[9]; 
+                        $keep10=$row[10]; 
+                        $keep11=$row[11];    
+                        $keep12=$row[12];     
+                    } 
+                    
+                    // add last combined event
+                    $cPresent+=$keep1;  
+                    if ($statusStarted ==  $cfgRoundStatus['results_done'] ||
+                           $statusStarted ==  $cfgRoundStatus['results_in_progress'] ||  
+                           $statusStarted ==  $cfgRoundStatus['results_sent'] ) 
+                           {
+                           $status=$statusStarted;  
+                    }
+                    else {
+                            $status=$keep6; 
+                    }  
+                                                 
+                    $sql_mehrkampf="INSERT INTO result_tmp2 SET  
+                                             kName = \"".$keep0. "\"   
+                                             , dName = ''
+                                             , enrolment = '$cEnrol'  
+                                             , present = '$cPresent' 
+                                             , DiszInfo = '$keep2'   
+                                             , Name = \"".$keep3. "\" 
+                                             , Cat = '$keep4'   
+                                             , Mehrkampfcode = '$keep5'    
+                                             , Status = '$status'  
+                                             , xAnmeldung = '$keep7'   
+                                             , kAnzeige = '$keep8' 
+                                             , dAnzeige = '$keep9' 
+                                             , Kurzname = '$keep10'
+                                             , wkAnzeige = '$keep11' 
+                                             , Typ = '$keep12'   
+                                             ";     
+                                      
+                    $res_mehrkampf = mysql_query($sql_mehrkampf); 
+            }  
+            
 	   		// read all events   
-
-			$sql = "SELECT
-        					k.Name
-        					, d.Name
-        					, IF(s.xWettkampf IS NULL,0,COUNT(*))
-        					, w.xWettkampf
-        					, SUM(s.Anwesend)
-        					, IF(w.Mehrkampfcode > 0, dd.Name,w.Info) as DiszInfo
-        					, wk.Name         
-        					, IF(w.Typ = ".$cfgEventType[$strEventTypeSingleCombined].",w.Mehrkampfcode, 0)
-        					, IF(s.xAnmeldung > 0, an.xKategorie, st.xKategorie) AS Cat
-        					, w.Mehrkampfcode
-        					, r.Status
-        					, r.xRundentyp
-        					, t.Startzeit
-        					, w.mehrkampfende
-        					, at.xVerein 
-        					, at.xAthlet          
-    		        FROM
-        					disziplin AS d
-        					, kategorie AS wk
-        					, wettkampf AS w
-    						LEFT JOIN start AS s ON w.xWettkampf = s.xWettkampf
-        						AND ((d.Staffellaeufer = 0
-                					AND s.xAnmeldung > 0)
-           								 OR (d.Staffellaeufer > 0
-                						 	AND s.xStaffel > 0))
-    						LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung)
-    						LEFT JOIN staffel AS st ON (s.xStaffel = st.xStaffel)
-    						LEFT JOIN kategorie AS k ON ( k.xKategorie = 
-        						IF(an.xKategorie > 0, an.xKategorie, st.xKategorie))
-    						LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname)    
-    						LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
-     						LEFT JOIN athlet AS at ON (an.xAthlet = at.xAthlet) 
-   		  					LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
-    				WHERE 
-    						w.xMeeting = " . $_COOKIE['meeting_id'] . "
-    						AND d.xDisziplin= w.xDisziplin
-    						AND wk.xKategorie = w.xKategorie
-     						AND ( t.Startzeit is Null Or t.Startzeit= r.Startzeit)  
-      				GROUP BY
-        					Cat, s.xWettkampf
-    				ORDER BY
-       						k.Anzeige
-        					, k.Kurzname DESC
-        					, w.Typ
-        					, w.Mehrkampfcode 
-        					, wk.Anzeige
-        					, w.Mehrkampfende ASC          
-        					, if (w.Mehrkampfcode>0,r.Startzeit,w.Mehrkampfende) 
-        					, d.Anzeige";   
- 
+         
+            $sql = "SELECT
+                            t.kName
+                            , t.dName
+                            , t.enrolment  
+                            , t.present
+                            , t.DiszInfo
+                            , t.Name   
+                            , t.Cat
+                            , t.Mehrkampfcode
+                            , t.Status                
+                    FROM
+                            result_tmp2 AS t
+                    ORDER BY t.kAnzeige, t.Kurzname DESC, t.Typ, t.wkAnzeige, t.Mehrkampfcode, t.dAnzeige";   
+           
   			$result = mysql_query($sql);
-
+            
 			if(mysql_errno() > 0)		// DB error
 				{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -241,76 +465,23 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 	
 					while ($row = mysql_fetch_row($result))
 						{   
-						if($catName != $row[0]){    		   
-		  				//	$mkCode = 0;
-		  				}  
-	    
-						if($row[7] != 0){ // if we got combined codes
-		   
-		    				if ($row[13]==0) {     // not combined end	
-		          				if ($mkCode!=$row[7] || $cat!=$row[8] || $wkCat!=$row[6]) { 
-		          					$time[$row[6]]=$row[12]; 
-			  	 					$stats[$row[6]]=$row[10];          // keep the status  
-				   				}
-				  				$mkCode=$row[7];   	
-				  				$cat=$row[8]; 
-				  				$wkCat=$row[6];  		     				
-		          				continue;
-		    	 			}
-		    				else {
-								if($mkCode != $row[7] || $row[13]==1){  							  
-									$mkCode = $row[7];     
 						
-									if ($time[$row[6]]<$row[12]){
-						 				$row[10]=$stats[$row[6]];  
-					    				if ($stats[$row[6]]==$cfgRoundStatus['results_done']  
-					       						|| $stats[$row[6]]== $cfgRoundStatus['results_in_progress'] 
-		    	  								|| $stats[$row[6]]== $cfgRoundStatus['results_sent'] )   					
-					 							{   
-				    							$clubs[$row[14]] +=($row[2]-$row[4]);                     // starts per combined event per club
-					        
-										}
-						
-			    		
-									}     
-									else {
-					
-					    				if ($row[10]==$cfgRoundStatus['results_done'] 
-				  
-					       						|| $row[10]== $cfgRoundStatus['results_in_progress'] 
-		    	  								|| $row[10]== $cfgRoundStatus['results_sent'] )   					
-					 							{   
-				    			 				$clubs[$row[14]] +=($row[2]-$row[4]);   // noch rausnehmen   
-				                        }   
-				                    } 
-			                } 
-			    			else{       			   
-								// skip next entries because a combined event is "one discipline"  			 
-								continue;   				
-			   				} 
-				  			}
-				       }else{  
-					   		$mkCode = 0;
-					   }
-		
-		
-		
-						if ($row[10]==$cfgRoundStatus['open']     					  
-                    			|| $row[10]== $cfgRoundStatus['enrolement_pending']
-                    			|| $row[10]== $cfgRoundStatus['enrolement_done']
-                    			|| $row[10]== $cfgRoundStatus['heats_in_progress']  
-                    			|| $row[10]== $cfgRoundStatus['heats_done'] )
+						if ($row[8]==$cfgRoundStatus['open']     					  
+                    			|| $row[8]== $cfgRoundStatus['enrolement_pending']
+                    			|| $row[8]== $cfgRoundStatus['enrolement_done']
+                    			|| $row[8]== $cfgRoundStatus['heats_in_progress']  
+                    			|| $row[8]== $cfgRoundStatus['heats_done'] )
                     			{                     
             					$row2 = 0;                  // no started athletes when enrolement open or pending
 		
 						}else {
-		    					$row2 = $row[2] - $row[4];	// calculating started athletes:
+		    					$row2 = $row[2] - $row[3];	// calculating started athletes:
 									    					// registrations - athletes with s.Anwesend = 1 (didn't show up at apell) 
 			 			}
 		
-						$Info = ($row[5]!="") ? ' ('.$row[5].')': '';
-						$disc = $row[1] ." ". $row[6] . $Info;
-						$disc = ($row[9]>0) ? $row[5] . " " . $row[6] : $disc;
+						$Info = ($row[4]!="") ? ' ('.$row[4].')': '';
+						$disc = $row[1] ." ". $row[5] . $Info;
+						$disc = ($row[7]>0) ? $row[4] . " " . $row[5] : $disc;
 			
 						// add category total
 						if($catName != $row[0]) {
@@ -323,16 +494,18 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								$stats = array(); 
 							}
 							$catName = $row[0]; 
-							$cat=$row[8];    			
+							$cat=$row[6];  
+                                			
 							$doc->printLine($row[0], $disc, $row[2], $row2);	// line with category
 						}
 						else { 	 
+                            
 							$doc->printLine('', $disc, $row[2], $row2);	// line without category
 	   					}
 						$e = $e + $row[2];					// add entries
 						$s += $row2;
-						$catName=$row[0];                       // keep categorie
-	   					$cat=$row[8];                       // keep categorie 
+						$catName=$row[0];                   // keep categorie
+	   					$cat=$row[6];                       // keep categorie 
 	   					 
 			        }       // end while
     
@@ -348,8 +521,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 	         }
 	}
 	$doc->endList();
-
-
+    
+     
 	//
 	//	Statistic 3: Fees and deposits 
 	// ------------------------------
@@ -359,9 +532,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
 	// read all starts per club and add fee and deposit    
    
-   	mysql_query("DROP TABLE IF EXISTS result_tmp1");    // temporary table         	
- 	  									 	
- 	mysql_query("CREATE TEMPORARY TABLE result_tmp1(
+   	mysql_query("DROP TABLE IF EXISTS result_tmp1");    // temporary table     
+ 	
+    mysql_query("CREATE TEMPORARY TABLE result_tmp1(     
 							  clubnr int(11)
 							  , club varchar(30)
 							  , ReductionAmount int(10) 
@@ -418,12 +591,13 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
     $club=''; 
     $deposit=0;
     $entries=0;
-    $fee=0;    
+    $fee=0;   
     
+   
     while($row = mysql_fetch_array($res)){  
     	$starts=0; 
     	$enrolment=1;
-    	if ($club==''){ 
+    	if ($club==''){  
     		 if ($row['status']==$cfgRoundStatus['results_done'] 
 					       	|| $row['status']== $cfgRoundStatus['results_in_progress'] 
 		    	  			|| $row['status']== $cfgRoundStatus['results_sent'] )
@@ -432,9 +606,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 		        	$starts=1; 
 				}
 			 }
+            
     		 $sql_mk="INSERT INTO result_tmp1 SET  
 			      				  clubnr = $row[0]
-								  , club = '$row[1]'
+								  , club = \"" .$row[1]. "\"
 								  , ReductionAmount = '$row[2]'   
 								  ,	Name =\"" .$row[3]. "\"
 								  ,	Vorname =\"" .$row[4]. "\"  
@@ -447,19 +622,20 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Mehrkampfcode = '$row[10]' 
 								  ,	Status = '$row[11]' 
 								  ,	StartgeldReduktion = '$row[12]'
-								  ,	Sortierwert = '$row[14]' ";     
+								  ,	Sortierwert = \"" .$row[14]. "\"
+                                   ";     
 											 
     		 $res_mk = mysql_query($sql_mk);	
     		 
     		 if(mysql_errno() > 0)		// DB error
-			 	{
+			 	{ 
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			 }	     
     		 $entries+=1; 
     		 $fee+=$row['Startgeld']; 
     		 $deposit+=$row['Haftgeld'];  
     	} 		
-		else {
+		else {  
 			  if ($club!=$row['clubnr']){ 
 			      if ($row['status']==$cfgRoundStatus['results_done'] 
 					       	|| $row['status']== $cfgRoundStatus['results_in_progress'] 
@@ -471,7 +647,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 			 	  }
 			   	  $sql_mk="INSERT INTO result_tmp1 SET  
 			      				  clubnr = $row[0]
-								  , club = '$row[1]'
+								  , club = \"" .$row[1]. "\"
 								  , ReductionAmount = '$row[2]'   
 								  ,	Name =\"" .$row[3]. "\"
 								  ,	Vorname =\"" .$row[4]. "\"  
@@ -484,7 +660,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Mehrkampfcode = '$row[10]' 
 								  ,	Status = '$row[11]' 
 								  ,	StartgeldReduktion = '$row[12]' 
-								  ,	Sortierwert = '$row[14]'  ";      
+								  ,	Sortierwert = \"" .$row[14]. "\"
+                                    ";      
     		 		 
     		 	  $res_mk = mysql_query($sql_mk);	
     		 	   
@@ -505,7 +682,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 			 			  } 
 			      	   	  $sql_mk="INSERT INTO result_tmp1 SET  
 			      				  			clubnr = $row[0]
-								  			, club = '$row[1]'
+								  			, club = \"" .$row[1]. "\"
 								   			, ReductionAmount = '$row[2]'   
 								  			, Name =\"" .$row[3]. "\"
 								  			, Vorname =\"" .$row[4]. "\"  
@@ -518,7 +695,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  	  		, Mehrkampfcode = '$row[10]' 
 								  	  		, Status = '$row[11]' 
 								  		  	, StartgeldReduktion = '$row[12]' 
-								  	  	  	, Sortierwert = '$row[14]'  ";     
+								  	  	  	, Sortierwert = \"" .$row[14]. "\"
+                                              ";     
 								  
     		 		     $res_mk = mysql_query($sql_mk);	
     		 		      
@@ -569,7 +747,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
         $fee = 0;
         $deposit = 0;
         $entries = 0; 
-         
+       
 	    // calculate started athlets for not combined event and and relays 
 	    //			and write them into the same temporary table                                                                          
         $sql="SELECT
@@ -603,12 +781,13 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
               GROUP BY athlet.xVerein, athlet.xAthlet
               ORDER BY v.Sortierwert"; 
                
-              $res = mysql_query($sql);   
+              $res = mysql_query($sql); 
                 
+              
               while($row = mysql_fetch_array($res)){ 
                	    $sql_t1="INSERT INTO result_tmp1 SET  
 			      				  clubnr = $row[0]
-								  , club = '$row[1]' 
+								  , club = \"" .$row[1]. "\"   
 								  , ReductionAmount  = '$row[2]' 
 								  ,	Name =\"" .$row[3]. "\"
 								  ,	Vorname =\"" .$row[4]. "\"  
@@ -621,21 +800,22 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Mehrkampfcode = '$row[11]' 
 								  ,	Status = '$row[12]'   
 								  ,	StartgeldReduktion  = '$row[13]' 
-								  ,	Sortierwert = '$row[14]'    
+								  ,	Sortierwert = \"" .$row[14]. "\"     
 								   ";     
 				   	$res_t1 = mysql_query($sql_t1); 
-				   	
+                    
 				   	if(mysql_errno() > 0)		// DB error
 						{
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-					}	            
+					}	  
+                               
 				} 
 				
                 // read all events from the temporary table
     		 	$sql_temp="SELECT *
                 		   FROM
                         		result_tmp1 as t1  
-                    	   ORDER BY t1.Sortierwert ,t1.Name, t1.Vorname, t1.Mehrkampfcode";       
+                    	   ORDER BY t1.Sortierwert ,t1.clubnr, t1.Name, t1.Vorname, t1.Mehrkampfcode";       
                
                 $res_temp = mysql_query($sql_temp);               
                 
@@ -693,6 +873,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
     mysql_query("DROP TABLE IF EXISTS result_tmp"); 
     mysql_query("DROP TABLE IF EXISTS result_tmp1");  
+    mysql_query("DROP TABLE IF EXISTS result_tmp2");  
     
 $doc->endList();
 $doc->endPage();	// end HTML page
