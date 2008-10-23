@@ -574,6 +574,12 @@ class EXPORT_RankingListDiplom extends EXPORT_Page
 		$params = array();
 		$params[] = $GLOBALS['strRank'];
 		$params[] = $GLOBALS['strName'];
+        if($svm){                      
+            $params[] = $GLOBALS['strTeam'];  
+        }
+        else{ 
+            $params[] = $GLOBALS['strClub'];   
+        }
 		$params[] = $year;
 		$params[] = $GLOBALS['strPerformance'];
 		$params[] = $GLOBALS['strPoints'];
@@ -606,7 +612,7 @@ class EXPORT_RankingListDiplom extends EXPORT_Page
 			//$perf .= "/".$points;
 		}
 		
-		$this->printCsvLine(array($rank, $name, $year, $perf, $points, $this->cat, $this->disc, $this->round));
+		$this->printCsvLine(array($rank, $name, $club, $year, $perf, $points, $this->cat, $this->disc, $this->round));
 		
 	}
 	
