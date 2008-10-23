@@ -99,8 +99,17 @@ if($round > 0)
 	} else {									// relay event
 		$argument="st.Name";
 		$img_name="img/sort_act.gif";
-	}
-
+	}  
+    
+    $mergedEvents=AA_getMergedEventsFromEvent($presets['event']);    
+      
+    if ($mergedEvents!=''){
+       $sqlEvent=" IN ". $mergedEvents;        
+    }
+    else {
+        $sqlEvent=" = ". $presets['event'];  
+    }   
+    
 	if($relay == FALSE) 		// single event
 	{
 		$query = "
@@ -116,10 +125,11 @@ if($round > 0)
 				, athlet AS at
 				, start AS s
 				, verein AS v
-			WHERE s.xWettkampf = " . $presets['event'] . "
+			WHERE s.xWettkampf " . $sqlEvent . "
 			AND a.xAnmeldung = s.xAnmeldung
 			AND at.xAthlet = a.xAthlet
 			AND v.xVerein = at.xVerein
+            AND s.Anwesend = 0
 			ORDER BY " . $argument;
 	}
 	else {							// relay event
@@ -132,12 +142,13 @@ if($round > 0)
 				staffel AS st
 				, start AS s
 				, verein AS v
-			WHERE s.xWettkampf = " . $presets['event'] . "
+			WHERE s.xWettkampf " . $sqlEvent . "
 			AND st.xStaffel = s.xStaffel
 			AND v.xVerein = st.xVerein
+            AND s.Anwesend = 0   
 			ORDER BY " . $argument;
 	}
-
+    
 	$result = mysql_query($query);
 
 	if(mysql_errno() > 0)		// DB error
