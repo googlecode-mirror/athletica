@@ -601,7 +601,29 @@ if($round > 0)
 			}	// ET DB error
 		}	// ET next round
 
-
+        // check if round is final
+        $sql_r="SELECT 
+                    rt.Typ
+                FROM
+                    runde as r
+                    LEFT JOIN rundentyp as rt USING (xRundentyp)
+                WHERE
+                    r.xRunde=" .$round;
+        $res_r = mysql_query($sql_r);
+       
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        
+        $order="ASC";   
+        if (mysql_num_rows($res_r) == 1) {
+            $row_r=mysql_fetch_row($res_r);  
+            if ($row_r[0]=='F'){
+                $order="DESC";  
+            }
+        }
+         
+        
 		// display all athletes
 		if($relay == FALSE) {		// single event
 			$query = ("SELECT r.Bahnen"
@@ -623,7 +645,7 @@ if($round > 0)
 					. ", v.Name"
 					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
 					. ", s.Handgestoppt"
-					. ", at.Land"
+					. ", at.Land"                    
 					. " FROM runde AS r"
 					. ", serie AS s"
 					. ", serienstart AS ss"
@@ -642,7 +664,7 @@ if($round > 0)
 					. " AND a.xAnmeldung = st.xAnmeldung"
 					. " AND at.xAthlet = a.xAthlet"
 					. " AND v.xVerein = at.xVerein"
-					. " ORDER BY heatid, ss.Position");  
+					. " ORDER BY heatid ".$order .", ss.Position");  
 		}
 		else {								// relay event
 			$query = ("SELECT r.Bahnen"
@@ -680,7 +702,7 @@ if($round > 0)
 					. " ORDER BY heatid, ss.Position");
 		}  
 		$result = mysql_query($query);
-
+      
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}

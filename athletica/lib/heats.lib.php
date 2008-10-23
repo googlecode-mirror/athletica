@@ -17,7 +17,7 @@ if (!defined('AA_HEATS_LIB_INCLUDED'))
  * ------------
  */
 function AA_heats_seedEntries($event)
-{      
+{  
 	require('./lib/cl_gui_dropdown.lib.php');
 	require('./lib/cl_gui_select.lib.php');
 	require('./lib/common.lib.php');
@@ -453,7 +453,7 @@ function AA_heats_seedEntries($event)
  * ------------------------
  */
 function AA_heats_seedQualifiedAthletes($event)
-{
+{  
 	require('./lib/common.lib.php');
 	include('./config.inc.php');
 
@@ -514,15 +514,25 @@ function AA_heats_seedQualifiedAthletes($event)
 	//	read qualified athletes/relays, ordered by mode type
 	//
 	if($mode == 0) {	// top performance mode
-		// performance, rank in previous round, randomize
-		$order = "r.Leistung ASC, ss.Rang ASC, RAND()";
+         // performance, rank in previous round, randomize     
+        if($_POST['final'] == TRUE){                                // final: the best performance in last serie
+		    $order = "r.Leistung DESC, ss.Rang ASC, RAND()";
+        }
+        else {     
+            $order = "r.Leistung ASC, ss.Rang ASC, RAND()";  
+        }
 	}
 	else {				// according IWB rule 166
 		// Rules:
 		// - qualifiers by top position are ordered first
 		// - qualifiers by top positions are ordered by rank, performance
-		// - qualifiers by performance are ordered by performance only
-		$order = "2 ASC, 3 ASC, r.Leistung ASC";
+		// - qualifiers by performance are ordered by performance only   
+         if($_POST['final'] == TRUE){                             // final: the best performance in last serie 
+		    $order = "2 DESC, 3 DESC, r.Leistung DESC";
+         }
+         else {
+             $order = "2 ASC, 3 ASC, r.Leistung ASC";  
+         }
 	}
 
     //
@@ -600,7 +610,7 @@ function AA_heats_seedQualifiedAthletes($event)
                             
                             // . " AND s.xRunde = " . $prev_rnd    
     }
-         
+   
 	if(mysql_errno() > 0)		// DB error
 	{    
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -707,14 +717,19 @@ function AA_heats_seedQualifiedAthletes($event)
 							
 							$entries = mysql_num_rows($result);	// qualified athletes
 							$h = ceil($entries/$size);				// calc. nbr of heats
-
+                          
 							unset($heats);					// array to store heat ID's
 							for($i=1; $i <= $h; $i++)
-							{
+							{   if($_POST['final'] == TRUE) { 
+                                    $b=$cfgAlphabeth[$h-$i];  
+                                }
+                                else {
+                                    $b=$i;   
+                                }    
 								mysql_query("INSERT INTO serie SET"
 											. " xRunde = " . $round
 											. ", xAnlage = 0"
-											. ", Bezeichnung = " . $i
+											. ", Bezeichnung = '" . $b ."'"
 											. ", Film = ".$filmnr);
 
 								if(mysql_errno() > 0) {		// DB error
@@ -725,22 +740,25 @@ function AA_heats_seedQualifiedAthletes($event)
 									$filmnr++;
 								}
 							}
-
+                            
 							//
 							// Mode: Seed by top performances
 							// ------------------------------
 							if($_POST['final'] == TRUE)
-							{
+							{  
 								// seed qualified athletes to heats
 								// distribute athletes from center to outer tracks
 								$h = 0;						// heat nbr
-								$p = 1;						// first position
+								//$p = 1;						// first position
+                                $p = $size;                 // last position     
 								while ($row = mysql_fetch_row($result))
 								{
-									if($p > $size) {	// heat full -> start new heat
+									//if($p > $size) {    // heat full -> start new heat     
+                                    if($p < 1) {	// heat full -> start new heat
 												// check for size, not tracks in case that there are more athletes than tracks
 										$h++;		// next heat
-										$p = 1;	// restart with first position
+										//$p = 1;	// restart with first position
+                                        $p = $size;    // restart with last position     
 									}
 									if(!empty($cfgTrackOrder[$tracks][$p])) {
 										$pos = $cfgTrackOrder[$tracks][$p];
@@ -766,18 +784,19 @@ function AA_heats_seedQualifiedAthletes($event)
                                                 . ", xSerie = " . $heats[$h]
                                                 . ", xStart = " . $row[0]); 
                                     }
-
+                                     
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
-									$p++;		// next position
+									//$p++;		// next position
+                                    $p--;        // previous position 
 								}
 							}
 							//
 							// Mode: Seed according to IWB rule 166
 							// ------------------------------------
 							else
-							{
+							{   
 								// seed qualified athletes to heats
 								$pos = 1;
 								srand ((float)microtime()*1000000);	// seed shuffle
@@ -819,8 +838,7 @@ function AA_heats_seedQualifiedAthletes($event)
                                                 . ", xStart = " . $row[0]);
                                     
                                     
-                                    }
-
+                                    }                                   
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
@@ -844,12 +862,12 @@ function AA_heats_seedQualifiedAthletes($event)
 												. " WHERE xSerie = " . $heat
 												. " ORDER BY 2"
 												. ", RAND()");
-
+                                    
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
 									else {
-										$p = 1;
+										$p = 1;  
 										while ($row = mysql_fetch_row($res))
 										{
 											if(!empty($cfgTrackOrder[$tracks][$p])) {
@@ -857,7 +875,7 @@ function AA_heats_seedQualifiedAthletes($event)
 											}
 											else {
 												$pos = $p;
-											}
+											}   
 											mysql_query("UPDATE serienstart SET"
 														. " Position = " . $pos
 														. ", Bahn = " . $pos
@@ -910,7 +928,7 @@ function AA_heats_seedHeat($heat){
 		}
 		sort($pos);
 		
-		for($i=0; $i<count($pos); $i++){
+		for($i=0; $i<count($pos); $i++){  
 			mysql_query("
 				UPDATE serienstart
 				SET Position = ".$pos[$i]."
@@ -1327,7 +1345,7 @@ function AA_heats_changePosition($round)
 		}
 
 		if($xSerie != 0)		// heat valid
-		{
+		{    
 			if(!empty($_POST['track'])){
 				mysql_query("UPDATE serienstart SET"
 						//. " Position = '" . $_POST['pos']
