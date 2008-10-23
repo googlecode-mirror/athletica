@@ -253,12 +253,18 @@ function AA_timetable_display($arg = 'monitor')
 					// check round status and set CSS class
 					switch($row[1]) {
 					case($cfgRoundStatus['open']):
-					case($cfgRoundStatus['enrolement_pending']):
-					case($cfgRoundStatus['enrolement_done']): 	
-				 	case($cfgRoundStatus['heats_in_progress']):  			
+					case($cfgRoundStatus['enrolement_pending']): 
 						$class = "";
 						$href = "speaker_entries.php?round=$row[0]";
-						break;  				    
+						break;  
+                    case($cfgRoundStatus['enrolement_done']): 
+                       $class = "st_enrlmt_done"; 
+                        $href = "speaker_entries.php?round=$row[0]";
+                        break;   
+                    case($cfgRoundStatus['heats_in_progress']): 
+                     	$class = "st_heats_work"; 
+                        $href = "speaker_entries.php?round=$row[0]";
+                        break;  			    
 					case($cfgRoundStatus['heats_done']):
 						$class = "st_heats_done";
 						$href = "speaker_results.php?round=$row[0]";
