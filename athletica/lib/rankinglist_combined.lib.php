@@ -82,6 +82,7 @@ $results = mysql_query("
 	AND w.Mehrkampfcode = d.Code  
 	AND w.Mehrkampfcode > 0
 	AND ka.xKategorie = a.xKategorie 
+    AND st.anwesend = 0 
 	GROUP BY
 		a.xAnmeldung
 	ORDER BY    	 
