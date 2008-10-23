@@ -270,7 +270,28 @@ else
 
 	mysql_free_result($result);
 
-
+    // check if round is final     
+    $sql_r="SELECT 
+                    rt.Typ
+            FROM
+                    runde as r
+                    LEFT JOIN rundentyp as rt USING (xRundentyp)
+            WHERE
+                    r.xRunde=" .$round;
+    $res_r = mysql_query($sql_r);
+       
+    if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }
+        
+    $order="ASC";   
+    if (mysql_num_rows($res_r) == 1) {
+        $row_r=mysql_fetch_row($res_r);  
+        if ($row_r[0]=='F'){
+            $order="DESC";  
+        }
+    }
+        
 	// read round data
 	if($round > 0)
 	{
@@ -311,7 +332,7 @@ else
 					. " AND a.xAnmeldung = st.xAnmeldung"
 					. " AND at.xAthlet = a.xAthlet"
 					. " AND v.xVerein = at.xVerein"
-					. " ORDER BY heatid, ss.Position");
+					. " ORDER BY heatid ". $order." , ss.Position");
 		}
 		else {								// relay event
 			$query = ("SELECT r.Bahnen"

@@ -20,6 +20,12 @@ $cfgApplicationVersion = '3.3.15';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
+ * Alphabeth 
+*/
+$cfgAlphabeth = array ("A","B","C","D","E","F","G","H","I","J","K","L","M",
+                       "N","O","P","Q","R","S","T","U","V","W","X","Y","Z");
+
+/**
  * Backup Info
 */
 $cfgBackupCompatibles = array(
@@ -182,8 +188,7 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'HWOMU18' => array(256,310,352,330,90)
 			, 'HWOMU18_F' => 4
 			);
-
-
+  
 /**
  * Heat status
  *		Status of result announcements per heat.
