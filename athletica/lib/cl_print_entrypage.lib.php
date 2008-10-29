@@ -441,11 +441,11 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	function printTitle()
 	{  
 		// page break check (at least one further line left)
-		if(($this->lpp - $this->linecnt) < 8)		
+		if(($this->lpp - $this->linecnt) < 7)		
 		{
 			$this->insertPageBreak();
 		}
-		$this->linecnt = $this->linecnt + 4;	// needs four lines (see style sheet)
+		$this->linecnt = $this->linecnt + 3;	// needs four lines (see style sheet)
 ?>
 		<table class="enrolmt_disc"><tr>
 			<th class='enrolmt_event'><?php echo $this->event; ?></th>
@@ -460,6 +460,25 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 		</table>
 <?php
 	}
+    
+    function printTitleCont()
+    {  
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 2;    // needs four lines (see style sheet)
+?>
+        <table class="enrolmt_disc"><tr>
+            <th class='enrolmt_event'><?php echo $this->event; ?></th>
+            <th class='enrolmt_cat'><?php echo $this->cat; ?></th>
+            <th class='enrolmt_cont'><?php echo $GLOBALS['strCont'];  ?></th> 
+        </tr>
+        
+        </table>
+<?php
+    }
 
 	function printHeaderLine($relay, $svm)
 	{   
@@ -502,37 +521,60 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	<tr>
 		<th class='enrolmt_tic' />
 		<th class='enrolmt_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
-        <th class='enrolmt_pos'><?php echo $GLOBALS['strPositionShort']; ?></th>  
-		<th class='enrolmt_name'><?php echo $GLOBALS['strName']; ?></th>
-		<th class='enrolmt_year'><?php echo $GLOBALS['strYearShort']; ?></th>
-		<th class='enrolmt_year'><?php echo $GLOBALS['strCountry']; ?></th>
-		<th class='enrolmt_club'><?php echo $GLOBALS['strRelay']; ?></th>
+		<th class='enrolmt_name' ><?php echo $GLOBALS['strName']; ?></th>  
+        <th class='enrolmt_empty'>&nbsp;</th>
+       
 		<?php 
 		if($svm){
 			?>
-		<th class='enrolmt_club'><?php echo $GLOBALS['strTeam']; ?></th>
+            <th class='enrolmt_club'><?php echo $GLOBALS['strTeam']; ?></th>   
 			<?php
 		}else{
 			?>
-		<th class='enrolmt_club'><?php echo $GLOBALS['strClub']; ?></th>
+		<th class='enrolmt_club'><?php echo $GLOBALS['strClub']; ?></th>   
 			<?php
 		}
 		?>
+        <th class='enrolmt_top'>&nbsp;</th>      
 	</tr>
 <?php
-		}
+		}            
 		$this->linecnt++;
 	}
 
-
+    function printLineAthlete($athleteLine)
+    {
+      if(($this->lpp - $this->linecnt) < 2)        // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+            $this->printHeaderLine($this->bRelay);
+        }   
+       
+     // relay  
+?>
+    <tr>
+        <td class='enrolmt_tic'>&nbsp;&nbsp;&nbsp;</td>
+        <td class='enrolmt_nbr'>&nbsp;</td>    
+        <td class='enrolmt_atLine' colspan='6'><?php echo $athleteLine; ?></td>  
+    </tr>
+<?php
+        
+        $this->linecnt++;
+    
+    }
+    
 	function printLine($nbr,  $name, $year, $club, $ioc, $top, $club2='', $pos)
-	{   
+	{  
 		if(($this->lpp - $this->linecnt) < 2)		// page break check
 		{
 			printf("</table>");
-			$this->insertPageBreak();
-			printf("<table>");
+			$this->insertPageBreak(); 			
+            $this->printTitleCont(); 
+            printf("<table>"); 
 			$this->printHeaderLine($this->bRelay);
+             
 		}
 
 		if(!$this->bRelay)		// athlete
@@ -551,20 +593,15 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 
 		}
 		else		// relay
-		{     
-			$headerline = str_pad("", $GLOBALS['cfgPrtEnrolementLine']['tic'])
-									. str_pad($GLOBALS['strName'], $GLOBALS['cfgPrtEnrolementLine']['name'])
-									. str_pad($GLOBALS['strClub'], $GLOBALS['cfgPrtEnrolementLine']['club']);
+		{  
 ?>
 	<tr>
 		<td class='enrolmt_tic'>[&nbsp;&nbsp;&nbsp;]</td>
 		<td class='enrolmt_nbr'><?php echo $nbr; ?></td>
-        <td class='enrolmt_pos'><?php echo $pos; ?></td>   
-		<td class='enrolmt_name'><?php echo $name; ?></td>
-		<td class='enrolmt_year'><?php echo $year; ?></td>
-		<td class='enrolmt_year'><?php echo $ioc; ?></td>
-		<td class='enrolmt_club'><?php echo $club; ?></td>
-		<td class='enrolmt_club'><?php echo $club2; ?></td>
+        <td class='enrolmt_name'><?php echo $name; ?></td>  
+        <td class='enrolmt_empty'>&nbsp;</td>  
+		<td class='enrolmt_club'><?php echo $club2; ?></td> 
+        <td class='enrolmt_top'>&nbsp;</td>     
 	</tr>
 <?php
 		}
