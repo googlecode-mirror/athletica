@@ -986,6 +986,78 @@ function AA_meeting_resetResults($event, $formula)
 	
 }	// end function resetResults
 
+//
+// get all clubs with same LG 
+//
+
+function AA_meeting_getLG($club){     
+    $arrClub = array();
+    
+    $sql="SELECT 
+                ba.lg,
+                ba.account_name
+          FROM
+                verein AS v
+                LEFT JOIN base_account AS ba ON (v.xCode = ba.account_code)
+          WHERE 
+                v.xVerein = " .$club;
+
+    $result=mysql_query($sql);  
+         
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+         if (mysql_num_rows($result) == 1 ){ 
+                $row = mysql_fetch_array($result);
+                if ($row[0] != '') {
+                      $sql="SELECT 
+                            ba.account_code,
+                            v.xVerein
+                      FROM
+                            base_account AS ba 
+                            LEFT JOIN verein AS v ON (ba.account_code = v.xCode)
+                      WHERE 
+                            ba.lg = '" .$row[0] ."'";
+
+                      $result=mysql_query($sql); 
+                      
+                      if(mysql_errno() > 0){
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                      }else{
+                            $i=0;
+                            while ($row = mysql_fetch_array($result)) {
+                               $arrClub[$i]=$row[1];  
+                               $i++;
+                            } 
+                       }        
+                }
+                else {
+                      $sql="SELECT 
+                            ba.account_code,
+                            v.xVerein
+                      FROM
+                            base_account AS ba 
+                            LEFT JOIN verein AS v ON (ba.account_code = v.xCode)
+                      WHERE 
+                            ba.lg = '" .$row[1] ."'";
+
+                      $result=mysql_query($sql); 
+                     
+                      if(mysql_errno() > 0){
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                      }else{
+                            $i=0;
+                            while ($row = mysql_fetch_array($result)) {
+                               $arrClub[$i]=$row[1];  
+                               $i++;
+                            }   
+                       } 
+                }  
+         }
+    }
+   return $arrClub; 
+   
+}   //end function AA_meeting_getLG  
 
 }		// AA_MEETING_LIB_INCLUDED
 ?>
