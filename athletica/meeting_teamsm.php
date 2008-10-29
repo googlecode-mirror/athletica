@@ -11,6 +11,7 @@ require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_select.lib.php');
 
+require('./lib/meeting.lib.php'); 
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
 
@@ -262,7 +263,7 @@ $result = mysql_query("
 		, a.Startnummer
 		, at.Name
 		, at.Vorname
-		, at.Jahrgang
+		, at.Jahrgang           
 	FROM
 		teamsm AS t
 		LEFT JOIN teamsmathlet AS tsa USING(xTeamsm)
@@ -281,7 +282,7 @@ $result = mysql_query("
 	ORDER BY
 		a.Startnummer
 ");
-
+    
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -361,7 +362,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<input type="hidden" name="event" value="<?php echo $event ?>">
 		<td class="forms" colspan="3">
 		<?php
-		// athletes who are registered for the current team event
+		// athletes who are registered for the current team event      
 		$dropdown = new GUI_Select("athlete", 1, "document.teamsm_add1.submit()");
 		$dropdown->addOption($strUnassignedAthletes, 0);
 		$dropdown->addOptionsFromDB("
@@ -384,7 +385,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				at.Name
 				, at.Vorname
 		");
-	
+	    
 		if(!empty($GLOBALS['AA_ERROR']))
 		{
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
@@ -400,7 +401,18 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<input type="hidden" name="event" value="<?php echo $event ?>">
 		<td class="forms" colspan="2">
 		<?php
-		// athletes who are in the right club
+		// athletes who are in the right club and LG          
+        $sqlClubLG=" = " .$club;
+        $arrClub=AA_meeting_getLG($club);      // get all clubs with same LG
+       
+        if (count($arrClub) > 0) {
+            $sqlClubLG=" IN (";
+            foreach ($arrClub as $key => $val) {
+                $sqlClubLG.=$val .",";              
+           }
+           $sqlClubLG=substr($sqlClubLG,0,-1);
+           $sqlClubLG.=")";
+        }         
 		$dropdown = new GUI_Select("athlete", 1, "document.teamsm_add2.submit()");
 		$dropdown->addOption($strOtherAthletes, 0);
 		$dropdown->addOptionsFromDB("
@@ -416,15 +428,15 @@ else if(mysql_num_rows($result) > 0)  // data found
 					AND st.xWettkampf = $event)
 			WHERE
 				tsa.xTeamsm IS NULL
-			AND	st.xStart IS NULL
+			
 			AND	at.xAthlet = a.xAthlet
-			AND	at.xVerein = $club
+			AND	at.xVerein $sqlClubLG      
 			AND	a.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
 				at.Name
 				, at.Vorname
-		");
-	
+		");  
+      
 		if(!empty($GLOBALS['AA_ERROR']))
 		{
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
@@ -470,10 +482,10 @@ else if(mysql_num_rows($result) > 0)  // data found
 		$dropdown->printList();
 		?>
 		<br>
-		<?php echo $strTeamSMClubRule ?>
+        <?php echo $strTeamSMClubRule ?>
 		</td>
-		</form>
-		
+		</form>          
+  
 	</tr>
 	
 </table>

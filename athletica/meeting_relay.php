@@ -13,6 +13,7 @@ require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_select.lib.php');
 
+require('./lib/meeting.lib.php'); 
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
 
@@ -531,7 +532,7 @@ $result = mysql_query("
 		, t.Name
 		, IFNULL(t.xTeam, 0)
 		, st.Bestleistung
-		, s.Startnummer
+		, s.Startnummer        
 	FROM
 		start AS st
 		, staffel AS s
@@ -548,7 +549,7 @@ $result = mysql_query("
 	AND st.xWettkampf = w.xWettkampf
 	AND w.xDisziplin = d.xDisziplin
 ");
-
+  
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -802,6 +803,18 @@ else if (mysql_num_rows($result) > 0)
 	</form>	
 		<?php			
 		// extended athlete list (other categories, no relay entry, ...)
+        $sqlClubLG=" = " .$row[7];
+        $arrClub=AA_meeting_getLG($row[7]);      // get all clubs with same LG
+       
+        if (count($arrClub) > 0) {
+            $sqlClubLG=" IN (";
+            foreach ($arrClub as $key => $val) {
+                $sqlClubLG.=$val .",";              
+           }
+           $sqlClubLG=substr($sqlClubLG,0,-1);
+           $sqlClubLG.=")";
+        } 
+               
 		$res = mysql_query("
 			SELECT
 				a.xAnmeldung
@@ -819,10 +832,10 @@ else if (mysql_num_rows($result) > 0)
 				, athlet AS at
 			WHERE  a.xAthlet = at.xAthlet
 			AND  a.xMeeting = " . $_COOKIE['meeting_id'] . "
-			AND at.xVerein = $row[7]
+			AND at.xVerein $sqlClubLG
 			ORDER BY at.Name, at.Vorname
 		");
-
+           
 		if(mysql_errno() > 0)
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -964,7 +977,68 @@ else if (mysql_num_rows($result) > 0)
 	</form>	
 			<?php
 		}	// ET DB Error (unassigned athletes)
-		?>
+		 
+         //
+        // extended athlete list (team)
+        //
+        $res = mysql_query("
+            SELECT
+                a.xAnmeldung
+                , CONCAT(a.Startnummer
+                    , '. ' 
+                    , at.Name
+                    , ' ' 
+                    , at.Vorname
+                    , ' ( ' 
+                    , at.Jahrgang
+                    , ' )') 
+                , a.xTeam
+            FROM
+                anmeldung AS a
+                , athlet AS at
+            WHERE   
+                a.xAthlet = at.xAthlet
+                AND  a.xMeeting = " . $_COOKIE['meeting_id'] . 
+                " AND a.xTeam = " .$row[10] ." 
+                 AND a.xTeam > 0   
+            ORDER BY at.Name, at.Vorname
+        ");
+        
+        if(mysql_errno() > 0)
+        {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        else    // OK
+        {
+            ?>
+    <form action='meeting_relay.php' method='post' name='add_new'>
+    <td class='forms' colspan='2'>
+        <input name='arg' type='hidden' value='add_new' />
+        <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
+        <input name='event' type='hidden' value='<?php echo $row[8]; ?>' />
+        <input name='team' type='hidden' value='<?php echo $row[10]; ?>' />
+        <input name='relay' type='hidden' value='<?php echo $row[5]; ?>' />
+            <?php    
+            // Drop down list of all athletes in team 
+            $dropdown = new GUI_Select("athlete", 1);
+            $dropdown->addOption($strAllRegisteredRelayTeam, 0);
+
+            while ($ath_row = mysql_fetch_row($res))
+            {  
+               $dropdown->addOption($ath_row[1], $ath_row[0]);  
+            }
+            mysql_free_result($res);  
+            $dropdown->printList(false);
+            ?>
+    </td>
+    <td class='forms'><input name='position' class='nbr' type='text'
+        maxlength='2' value='' onchange='document.add_new.submit()'/>
+    </td>
+    </form>    
+            <?php
+        }    // ET DB Error (unassigned athletes)
+        ?>  
+         
 </tr>
 </table>
 		<?php
