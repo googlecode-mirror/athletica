@@ -649,7 +649,7 @@ class PRINT_RankingList extends PRINT_Page
 	function printLine($rank, $name, $year, $club, $perf
 		, $wind, $points, $qual, $ioc)
 	{  
-        if(($this->lpp - $this->linecnt) < 2)		// page break check
+        if(($this->lpp - $this->linecnt) < 1)		// page break check
 		{    
 			printf("</table>");			   			
 			$this->insertPageBreak(); 
