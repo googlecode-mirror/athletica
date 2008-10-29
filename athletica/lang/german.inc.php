@@ -726,4 +726,6 @@ $strSrvRemoveDisciplinesInfo = 'Löscht alle Daten (Resultate, Serien...) der aus
 $strSrvRemoveDisciplinesChoose = 'Disziplinen wählen';
 $strSrvRemoveDisciplinesOK = 'Die ausgewählten Disziplinen wurden gelöscht.';
 $strParticipant = 'Teilnehmer';
+$strAllRegisteredRelayTeam = '(nach Mannschaft)'; 
+ 
 ?>
