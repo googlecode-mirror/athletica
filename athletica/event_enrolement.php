@@ -227,7 +227,7 @@ if($_GET['arg'] == 'change')
 						WHERE xStart='" . $_GET['item'] . "'";
 			
 			mysql_query($sql);   
-		                       
+		   /*                    
 		   // relay: set present to start record from relay                        
 		   if ($relay){
 		        $sql = "SELECT DISTINCT  					
@@ -244,7 +244,7 @@ if($_GET['arg'] == 'change')
 							LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin)
 						WHERE        					
 							s2.xStart='" . $_GET['item'] . "'";  
-			
+			    
 				$res = mysql_query($sql);  
 				
 				if(mysql_errno() > 0){  
@@ -299,6 +299,7 @@ if($_GET['arg'] == 'change')
 			   		    } 
 				} 
 		   } 
+           */
 		}
 		if(mysql_errno() > 0)
 		{
@@ -750,19 +751,11 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			</a>*/?>
 			<?= $strPayed; ?>
 		</th>
-		<th class='dialog'>
-			<a href='event_enrolement.php?arg=name&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strName; ?>
-				<img src='<?= $img_name; ?>' />
-			</a>
-		</th>
-		<th class='dialog'>
-		<?= $strYear; ?>
-		</th>
-		<th class='dialog'>
-			<a href='event_enrolement.php?arg=relay&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strRelays; ?>
-				<img src='<?= $img_name; ?>' />
-			</a>
-		</th>
+        <th class='dialog'>
+            <a href='event_enrolement.php?arg=relay&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strRelays; ?>
+                <img src='<?= $img_name; ?>' />
+            </a>
+        </th>		
 		<th class='dialog'>
 			<a href='event_enrolement.php?arg=relay_club&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strClub; ?>
 				<img src='<?= $img_club; ?>' />
@@ -772,6 +765,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	}
 ?>
 	</tr>
+   
 
 <?php  
 	
@@ -1048,7 +1042,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				. " GROUP BY stat.xAthletenstart"
 				. " ORDER BY " . $argument;*/
 				
-		 	
+	/*	 	
 		$sql = "SELECT
 					  s2.xStart
 					, s2.Anwesend
@@ -1059,7 +1053,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					, at.Vorname
 					, at.Jahrgang
 					, s2.Bezahlt
-					, d.Name    					
+					, d.Name 
+                    , st.Startnummer   					
 				FROM
 					staffel AS st
 				LEFT JOIN 
@@ -1081,10 +1076,40 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				WHERE        					
 					".$sqlEvents."
 				GROUP BY 
-					stat.xAthletenstart
+					 st.Startnummer
 				ORDER BY
 					".$argument.";";
-		$query = $sql;        
+    */
+    $sql = "SELECT 
+                    s.xStart 
+                    , s.Anwesend 
+                    , st.Name ,
+                    IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) ,
+                    a.Startnummer 
+                    , at.Name 
+                    , at.Vorname 
+                    , at.Jahrgang , 
+                    s.Bezahlt 
+                    , d.Name 
+                    , st.Startnummer                      
+            FROM 
+                staffel AS st 
+                LEFT JOIN start AS s USING(xStaffel) 
+                LEFT JOIN verein AS v ON(st.xVerein = v.xVerein) 
+                LEFT JOIN staffelathlet AS stat ON(stat.xStaffelstart = s.xStart) 
+                LEFT JOIN start AS s2 ON(s2.xStart = stat.xAthletenstart)
+                LEFT JOIN anmeldung AS a ON (s2.xAnmeldung=a.xAnmeldung) 
+                LEFT JOIN athlet AS at USING(xAthlet) 
+                LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
+                LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
+            WHERE                            
+                    ".$sqlEvents." 
+            GROUP BY 
+                     st.Startnummer
+            ORDER BY
+                    ".$argument.";";
+                    
+		$query = $sql;                   
 	}                   
 	
 	$result = mysql_query($query);
@@ -1182,12 +1207,10 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			}
 			else							// relay event
 			{
-				printf("<td class='forms_right'><a name='$row[0]'></a>$row[4]</td>");		// startnumber
+				printf("<td class='forms_right'><a name='$row[0]'></a>$row[10]</td>");		// startnumber
 				printf("<td class='forms_ctr'><input type='checkbox' name='payed' value='".$row['Bezahlt']."' $payed_checked"
 					. " onClick='document.change_present_$i.submit()' />\n</td>");		// payed
-				printf("<td>$row[5] $row[6]</td>");		// name
-				printf("<td class='forms_ctr'>" . $row[7] . "</td>");	// year
-				printf("<td>$row[2]</td>");		// relay
+                printf("<td>$row[2]</td>");        // relay 
 				printf("<td>$row[3]</td>\n");		// club name
 				 
 			}

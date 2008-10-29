@@ -305,15 +305,7 @@ else
 			  }
 		  }
 		  else {							// relay event
-			  $query = "SELECT st.Name"
-					  . ", v.Name"
-					  . " FROM staffel AS st"
-					  . ", start AS s"
-					  . ", verein AS v"
-					  . " WHERE s.xWettkampf = " . $event
-					  . " AND s.xStaffel = st.xStaffel"
-					  . " AND st.xVerein = v.xVerein"
-					  . " ORDER BY v.Sortierwert, st.Name";
+			 
 			//
 			// get each athlete from all registered relays
 			//
@@ -326,7 +318,8 @@ else
 					. ", at.Vorname"
 					. ", at.Jahrgang"
 					. ", at.Land"
-                    . ", stat.Position"    
+                    . ", stat.Position" 
+                    . ", st.Startnummer"    
 					. " FROM staffel AS st"
 					. ", start AS s"
 					. ", verein AS v"
@@ -343,11 +336,12 @@ else
 					. " AND a.xAnmeldung = s2.xAnmeldung"
 					. " AND at.xAthlet = a.xAthlet"
 					. " GROUP BY stat.xAthletenstart"
-					. " ORDER BY $sortAddition v.Sortierwert, st.Name, a.Startnummer";
+					. " ORDER BY $sortAddition v.Sortierwert, st.Name, stat.position ";
 		  }
         
 		  $res = mysql_query($query);
-         
+          $first=true;
+          $athleteLine = '';
 		  if(mysql_errno() > 0)		// DB error
 		  {
 			  AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -412,17 +406,34 @@ else
 							AA_formatYearOfBirth($row[3]), $row[4], $row[7], $perf);
 				  }
 				  else
-				  {     
-						$doc->printLine($row[4],  $row[5] . " " . $row[6],
-							AA_formatYearOfBirth($row[7]), $row[2], $row[8], "", $row[3], $row[9]);
-						//$doc->printLine('', $row[0], '', $row[1]);
+				  {    if ($keep_stName != $row[2]){
+                            if (!$first) {
+                                 $athleteLine=substr($athleteLine,0,-2);
+                                 $doc->printLineAthlete($athleteLine); 
+                                
+                            }
+                            $first=false;
+                            $doc->printLine($row[10],$row[2],'','','','',$row[3]); 
+                           
+                            $athleteLine='';
+                            $athleteLine.=$row[4].". " .$row[5] . " " . $row[6] .", ";   
+                      }
+                      else {
+                            $athleteLine.=$row[4].". " .$row[5] . " " . $row[6] .", "; 
+                      } 
 				  }
 				  $l++;			// increment line count
+                  $keep_stName = $row[2];
 			  }
-             
+              // print last relay with athletes
+               if ($relay) {
+                    $athleteLine=substr($athleteLine,0,-2);
+                    $doc->printLineAthlete($athleteLine);
+               } 
+                                 
 			  printf("</table>\n");
 			  mysql_free_result($res);
-		  }		// ET DB error
+		  }		// ET DB error  
 		}		// END same round
 	}		// END WHILE events
 	mysql_free_result($result);
