@@ -77,6 +77,8 @@ th.enrolmt_timeinfo { text-align:right; padding-left:0px; padding-right:5px;
 				text-decoration: none; font-weight: normal; }
 th.enrolmt_disc_comb	{ width: 200; font-size:20px; text-align:left;
 							padding-top:0px; padding-bottom:3px; }
+th.enrolmt_cont        { width: 500; font-size:20px; text-align:left;
+                            padding-top:6px; padding-bottom:3px; }
 
 /* list header line */
 th.enrolmt_tic { width:10px; padding-left:0px; padding-right:5px;
@@ -100,6 +102,9 @@ th.enrolmt_club { width:230px; padding-left:0px; padding-right:5px;
 th.enrolmt_top { text-align:right; width:40px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.enrolmt_empty { width:70px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 
 /* list item */
 td.enrolmt_tic { padding-left:0px; padding-right:5px;
@@ -116,6 +121,12 @@ td.enrolmt_club { padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
 td.enrolmt_top { text-align:right; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
+td.enrolmt_empty { padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
+td.enrolmt_atLine { padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; 
+                font-style: italic;
+                }
 
 
 /*
