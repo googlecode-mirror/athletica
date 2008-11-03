@@ -100,7 +100,7 @@ function AA_timetable_display($arg = 'monitor')
 					AND s.xAnmeldung > 0)
 					OR (d.Staffellaeufer > 0
 					AND s.xStaffel > 0))
-			LEFT JOIN rundenset AS rs ON rs.xRunde = r.xRunde
+			LEFT JOIN rundenset AS rs ON (rs.xRunde = r.xRunde AND rs.xMeeting = " . $_COOKIE['meeting_id'] .") 
 			WHERE w.xMeeting=" . $_COOKIE['meeting_id'] ."
 			AND r.xWettkampf = w.xWettkampf
 			AND w.xKategorie = k.xKategorie
@@ -384,7 +384,9 @@ function AA_timetable_display($arg = 'monitor')
 										AND	r.xRunde = rs.xRunde
 										AND	w.xWettkampf = r.xWettkampf
 										AND	d.xDisziplin = w.xDisziplin 
-                                        AND s.xWettkampf > 0  
+                                        AND s.xWettkampf > 0 
+                                        AND rs.xMeeting = " . $_COOKIE['meeting_id'] ."  
+                                        AND w.xMeeting = " . $_COOKIE['meeting_id'] ."                                         
 										"); 
 							if(mysql_errno() > 0) {		// DB error
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -483,7 +485,9 @@ function AA_timetable_display($arg = 'monitor')
                                         AND    r.xRunde = rs.xRunde
                                         AND    w.xWettkampf = r.xWettkampf
                                         AND    d.xDisziplin = w.xDisziplin 
-                                        AND s.xWettkampf > 0  
+                                        AND s.xWettkampf > 0 
+                                        AND rs.xMeeting = " . $_COOKIE['meeting_id'] ."  
+                                        AND w.xMeeting = " . $_COOKIE['meeting_id'] ."   
                                         "); 
 							if(mysql_errno() > 0) {		// DB error
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

@@ -165,7 +165,7 @@ $results = mysql_query("
    		LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin) 
    		LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
 		LEFT JOIN rundenset as rs ON (r.xRunde=rs.xRunde) 
-		LEFT JOIN rundenset as rus ON (rus.xRundenset=rs.xRundenset)  
+		LEFT JOIN rundenset as rus ON (rus.xRundenset=rs.xRundenset AND rus.xMeeting = " . $_COOKIE['meeting_id'] .")   
 	WHERE " . $selection . "
 	w.xMeeting = " . $_COOKIE['meeting_id'] . " 	 
 	AND r.Status = " . $cfgRoundStatus['results_done'] . " 
@@ -177,7 +177,7 @@ $results = mysql_query("
 		, r.Startzeit        
 		, rus.Hauptrunde DESC     
 ");  
- 
+  
 }        
 
 if(mysql_errno() > 0) {		// DB error

@@ -2052,7 +2052,7 @@ function AA_getAllRoundsforChecked($event,$action,$round){
 				$sqlRound.=$key. ",";   
 			} 
 			if ($sqlRound!=''){
-				$sqlRound=substr($sqlRound,0,-1);
+				$sqlRound=substr($sqlRound,0,-1);    
 				// check if minimum one merged round is set
 				$sqlr = "SELECT 
 							xRundenset, 
@@ -2060,7 +2060,8 @@ function AA_getAllRoundsforChecked($event,$action,$round){
 						FROM
 							rundenset
 						WHERE 
-							xRunde IN (" . $sqlRound . ")";    
+							xRunde IN (" . $sqlRound . ")
+                            AND xMeeting = " .$_COOKIE['meeting_id'];     
 				$resr = mysql_query($sqlr); 
 				
 				if(mysql_errno() > 0) {
@@ -2080,7 +2081,8 @@ function AA_getAllRoundsforChecked($event,$action,$round){
 									LEFT JOIN runde as r ON (r.xRunde=rs.xRunde)
 								WHERE 
 									xRundenset IN (" . $sqlRoundset . ")
-									AND rs.Hauptrunde = 0";   
+									AND rs.Hauptrunde = 0
+                                    AND xMeeting = " .$_COOKIE['meeting_id'];   
 					   $ress = mysql_query($sqls);  
 							
 					   if(mysql_errno() > 0) {
@@ -2141,10 +2143,11 @@ function AA_getAllRoundsforChecked($event,$action,$round){
 												w.xWettkampf
 											FROM 
 												runde AS r
-												LEFT JOIN rundenset as rs ON  (r.xRunde=rs.xRunde)
+												LEFT JOIN rundenset as rs ON  (r.xRunde=rs.xRunde AND rs.xMeeting = " .$_COOKIE['meeting_id'] .")
 												LEFT JOIN wettkampf AS w ON (r.xWettkampf=w.xWettkampf)
 											WHERE 
 												r.xWettkampf IN (" . $sqlEvent . ")
+                                                AND w.xMeeting = " .$_COOKIE['meeting_id'] ."
 											ORDER BY r.xRundentyp, rs.xRundenset DESC";
 											
 										$ress = mysql_query($sqls); 
@@ -2172,10 +2175,11 @@ function AA_getAllRoundsforChecked($event,$action,$round){
 													w.xWettkampf
 												 FROM 
 													runde AS r
-													LEFT JOIN rundenset as rs ON  (r.xRunde=rs.xRunde)
+													LEFT JOIN rundenset as rs ON  (r.xRunde=rs.xRunde AND rs.xMeeting = " .$_COOKIE['meeting_id'] .")   
 													LEFT JOIN wettkampf AS w ON (r.xWettkampf=w.xWettkampf)
 												 WHERE 
 													r.xWettkampf = (" . $ev[0] . ")
+                                                    AND w.xMeeting = " .$_COOKIE['meeting_id'] ." 
 												 ORDER BY r.xRundentyp, rs.xRundenset DESC";
 											
 											$ress = mysql_query($sqls);  
@@ -2220,7 +2224,8 @@ function AA_getAllRoundsforChecked($event,$action,$round){
 					xRunde
 			  FROM 
 					rundenset
-			  WHERE xRunde = " . $mr;
+			  WHERE xRunde = " . $mr ."
+                    AND xMeeting = " .$_COOKIE['meeting_id'];
 			  
 	 $res_ru=mysql_query($select); 
 	 if (mysql_num_rows($res_ru) == 0) {        
@@ -2280,13 +2285,14 @@ function AA_delRoundset($mr,$r){
 			   FROM 
 					rundenset
 			   WHERE 
-					xRunde = " . $mr;
+					xRunde = " . $mr ."
+                    AND xMeeting = " .$_COOKIE['meeting_id'];  
 	  $res_ru=mysql_query($select); 
 	  if (mysql_num_rows($res_ru) > 0) { 
 			$row= mysql_fetch_row($res_ru);
 			// remove round from set
 			mysql_query("DELETE FROM rundenset WHERE
-							xRundenset = $row[0];
+							xRundenset = $row[0]
 							AND xMeeting = ".$_COOKIE['meeting_id']."
 							AND xRunde = $r");
 			if(mysql_errno() > 0){
@@ -2294,13 +2300,13 @@ function AA_delRoundset($mr,$r){
 			}else{  
 				// check if there are no more rounds in set
 				$res = mysql_query("SELECT * FROM rundenset WHERE
-										xRundenset = $row");
+										xRundenset = $row[0]");
 				if(mysql_errno() > 0){
 					$GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
 				}else{ 
 					if(mysql_num_rows($res) == 1){ // mainround only
 						mysql_query("DELETE FROM rundenset WHERE
-										xRundenset = $row
+										xRundenset = $row[0]
 										AND xMeeting = ".$_COOKIE['meeting_id']);
 						if(mysql_errno() > 0){
 							$GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
