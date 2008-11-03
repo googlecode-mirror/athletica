@@ -416,11 +416,32 @@ else		// delete all meeting data
 
 
 	//
-	//	delete 'anmeldung', 'staffel', 'team', 'wettkampf', 'meeting'
-	// -------------------------------------------------------------
-	mysql_query("LOCK TABLES anmeldung WRITE, staffel WRITE, team WRITE
+	//	delete 'rundenset', 'anmeldung', 'staffel', 'team', 'wettkampf', 'meeting'
+	// ---------------------------------------------------------------------------
+	mysql_query("LOCK TABLES rundenset WRITE, anmeldung WRITE, staffel WRITE, team WRITE
 					, wettkampf WRITE, meeting WRITE, athlet WRITE");
-	
+	        
+    $items = 0;
+    mysql_query("
+        DELETE FROM
+            rundenset
+        WHERE xMeeting = " . $_COOKIE['meeting_id'] . "
+    "); 
+
+    if(mysql_errno() > 0) {
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }
+    else {
+        $items = mysql_affected_rows();    // nbr of items deleted
+?>
+<tr>
+    <td>rundenset</td>
+    <td><?php echo $items; ?></td>
+</tr>
+<?php
+    }    // ET DB error
+    
+       
 	$items = 0;
 	mysql_query("
 		DELETE FROM

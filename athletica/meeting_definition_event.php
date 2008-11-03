@@ -208,7 +208,7 @@ elseif($_POST['arg'] == "merge_add"){
 					$GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
 				}else{
 					
-					if(mysql_num_rows($res) == 1){ // mainround only
+					if(mysql_num_rows($res) == 1){ // mainround only  
 						mysql_query("DELETE FROM rundenset WHERE
 							xRundenset = $rs
 							AND xMeeting = ".$_COOKIE['meeting_id']);
@@ -218,14 +218,14 @@ elseif($_POST['arg'] == "merge_add"){
 					}  
 				}  
 			} 
-            AA_getAllRoundsforChecked($event,$action='del',$r);      // delete corresponding rounds checked
+            AA_getAllRoundsforChecked($event,$action='del',$r);      // delete corresponding rounds checked    
 		} 
 		mysql_query("UNLOCK TABLES");  
 	}    
 }
 
 // Check if any error returned
-if(!empty($GLOBALS['AA_ERROR'])) {
+if(!empty($GLOBALS['AA_ERROR'])) {  
 		AA_printErrorMsg($GLOBALS['AA_ERROR']);
 }
 else if(mysql_errno() > 0) {
@@ -464,7 +464,7 @@ $result = mysql_query("
 		, rs.xRundenset
 	FROM
 		runde AS r
-		LEFT JOIN rundenset AS rs ON rs.xRunde = r.xRunde
+		LEFT JOIN rundenset AS rs ON (rs.xRunde = r.xRunde AND rs.xMeeting = ". $_COOKIE['meeting_id'] .")  
 		LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
 	WHERE r.xWettkampf = $event
 	ORDER BY
@@ -668,7 +668,7 @@ if($i == 0){	// no rounds here
 		 LEFT JOIN runde AS ru USING(xWettkampf) 
 		 LEFT JOIN rundentyp AS rt ON(rt.xRundentyp = ru.xRundentyp) 
 		 LEFT JOIN kategorie AS k ON(k.xKategorie = w.xKategorie) 
-		 LEFT JOIN rundenset AS rs ON(rs.xRunde = ru.xRunde) 
+		 LEFT JOIN rundenset AS rs ON(rs.xRunde = ru.xRunde AND rs.xMeeting = " .$_COOKIE['meeting_id'].") 
 		 	 WHERE w.xMeeting = ".$_COOKIE['meeting_id']." 
 		 	   AND w.xWettkampf != ".$event."
 		 	   AND w.xDisziplin = ".$xDiscipline." 
