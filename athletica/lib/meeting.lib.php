@@ -598,15 +598,29 @@ function AA_meeting_changeCategory($byCombtype = 0)
 
 
 function AA_meeting_formatFormula($formula){
-	$formula2 = explode('-', str_replace(' ', '', $formula));
+	 if (strpos($formula, '-') ){
+        $formula2 = explode('-', str_replace(' ', '', $formula));
+        $minus=true;
+    }
+    else {
+         $formula2 = explode('+', str_replace(' ', '', $formula)); 
+         $minus=false; 
+    }
 
-	$res = '16 -1';
+    $res = '16 -1';
 
-	if(count($formula2)==2){
-		if(is_numeric($formula2[0]) && is_numeric($formula2[1]) && $formula2[0]>0 && $formula2[1]>0 && $formula2[0]>$formula2[1]){
-			$res = intval($formula2[0]).' -'.intval($formula2[1]);
-		}
-	}
+    if(count($formula2)==2){         
+            if ($minus){
+                if(is_numeric($formula2[0]) && is_numeric($formula2[1]) && $formula2[0]>0 && $formula2[1]>0 && $formula2[0]>$formula2[1]){ 
+                    $res = intval($formula2[0]).' -'.intval($formula2[1]);
+                }
+            }
+            else {
+                if(is_numeric($formula2[0]) && is_numeric($formula2[1]) && $formula2[0]>0 && $formula2[1]>0 ){     
+                    $res = intval($formula2[0]).' +'.intval($formula2[1]); 
+                }
+            }
+    }
 
 	return $res;
 	

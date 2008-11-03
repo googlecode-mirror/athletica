@@ -212,13 +212,13 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 * @param	round			ID table 'runde'
 	 */
 	 
-	function AA_utils_calcRankingPoints($round){    echo " AA_utils_calcRankingPoints";
+	function AA_utils_calcRankingPoints($round){    
 		global $strConvtableRankingPoints, $cfgEventType;
 		global $strEventTypeSVMNL, $strEventTypeSingleCombined, $strEventTypeClubAdvanced
 			, $strEventTypeClubBasic, $strEventTypeClubTeam, $strEventTypeClubMixedTeam;
 		
 		$valid = false;
-		
+		$minus=true; 
 		//
 		// initialize parameters
 		//
@@ -282,7 +282,14 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			  
 				//list($pStart, $pStep) = explode(" ", $GLOBALS['cvtFormulas'][$rpt][$row[1]]);
 				list($pStart, $pStep) = explode(" ", $row[1]);
-				$pStep = str_replace('-', '', $pStep);
+                if (strpos($row[1], '-') ){ 
+				    $pStep = str_replace('-', '', $pStep);
+                    $minus=true;
+                }
+                else {
+                     $pStep = str_replace('+', '', $pStep);
+                    $minus=false;
+                }
 				$valid = true;
 				
 			}
@@ -364,7 +371,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 						  	if(mysql_errno() > 0) {   								
 						  				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						  	}
-							  echo " UPDATE RESULT 6";           						
+							          						
 							mysql_query("UPDATE resultat SET
 									Punkte = 0
 								WHERE
@@ -398,11 +405,16 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 						}
 						
 						$tmp[] = $row[0];
-						
-						$point -= $pStep;
+                        
+						if ($minus){
+						    $point -= $pStep;
+                        }
+                        else {
+                            $point += $pStep; 
+                        }
 						
 					}else{
-						    echo " UPDATE RESULT 8";  
+						   
 						mysql_query("UPDATE resultat SET
 								Punkte = 0
 							WHERE
@@ -425,7 +437,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				}
 				
 				// update points
-				foreach($update as $key => $p){    echo " UPDATE RESULT 9";  
+				foreach($update as $key => $p){     
 					mysql_query("UPDATE resultat SET
 							Punkte = $p
 						WHERE
