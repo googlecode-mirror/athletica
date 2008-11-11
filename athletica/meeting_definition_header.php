@@ -189,7 +189,7 @@ else		// no DB error
 	<td></td>
 	<td>&nbsp;</td>
 	<td></td>
-	<th class='dialog'><?php echo $strMeetingWithUpload ?>:</th>
+	<!--<th class='dialog'><?php echo $strMeetingWithUpload ?>:</th>
 	<td>
 	<?php
 		if($row['Online'] == 'y'){
@@ -198,7 +198,8 @@ else		// no DB error
 	?>
 	<input type="checkbox" value="yes" name="online"
 			onChange='document.change_def.submit()' <?php echo $check ?>>
-	  <?php echo $strYes ?></td>
+	  <?php echo $strYes ?></td>-->
+	  <td colspan="2"><input type="hidden" name="online" value="yes"/></td>
   </tr>
   <tr>
 	<th class='dialog'><?php echo $strMeetingNbr; ?></th>

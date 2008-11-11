@@ -357,12 +357,12 @@ $year=substr($date, 0, 4);
 			<?php AA_meeting_printDate('to', ''); ?>
 		</tr>
 		
-	</table>
+	</table><br/>
 	<table>
-		<tr>
+		<!--<tr>
 			<th class='dialog' colspan='3'><?php echo $strMeetingWithUpload; ?></th>
 			<th class='dialog' colspan='3'><input type="checkbox" name="online" value='yes' checked> <?php echo $strYes ?></th>
-		</tr>
+		</tr>-->
 		<tr>
 			<td class='forms' colspan='3'>
 				<button type='submit'>
@@ -371,6 +371,7 @@ $year=substr($date, 0, 4);
 			<td />
 		</tr>
 	</table>
+	<input type="hidden" name="online" value="yes"/>
 </form>	
 
 

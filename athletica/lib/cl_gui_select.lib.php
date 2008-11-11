@@ -138,7 +138,7 @@ class GUI_Select
 	{
 		$dis = ($dis) ? ' disabled="disabled"' : '';
 ?>
-	<select name='<?php echo $this->name; ?>' size='<?php echo $this->size; ?>'
+	<select name='<?php echo $this->name; ?>' id='<?php echo $this->name; ?>' size='<?php echo $this->size; ?>'
 		onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
 <?php
 		foreach ($this->options as $key=>$value)
@@ -965,7 +965,7 @@ class GUI_HeatSelect
 	function GUI_HeatSelect($round=0)
 	{  
 		$this->round = $round;    
-	    $this->select = new GUI_Select('heat', 1);   		
+		$this->select = new GUI_Select('heat', 1);   		
 		$this->select->addOptionNone();				// empty item
 	}
 
@@ -1310,7 +1310,7 @@ class GUI_RoundSelect
 		$this->select->printList();
 	}
 } // END CLASS Gui_RoundSelect
-        
+		
 
 /********************************************
  * CLASS GUI_RoundtypeSelect

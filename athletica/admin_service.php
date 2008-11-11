@@ -206,6 +206,19 @@ if(isset($_POST['arg']) && $_POST['arg']=='disc'){
 	exit();
 }
 
+if(isset($_GET['a']) && $_GET['a']=='xControl'){
+	$xMeeting = (isset($_GET['m'])) ? intval($_GET['m']) : 0;
+	$xControl = (isset($_GET['c'])) ? intval($_GET['c']) : 0;
+	
+	$sql = "UPDATE meeting 
+			   SET xControl = ".$xControl." 
+			 WHERE xMeeting = ".$xMeeting.";";
+	$query = mysql_query($sql);
+	
+	header('Location: admin_service.php');
+	exit();
+}
+
 //
 //	Display administration
 //
@@ -434,6 +447,26 @@ if($res_srv_lg=='ok'){
 								?>
 								<input type="button" value="<?=$strSrvStatusUpload0?>" onclick="document.location.href='admin_service.php?a=statusupload&v=0'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 								<input type="button" value="<?=$strSrvStatusUpload1?>" onclick="document.location.href='admin_service.php?a=statusupload&v=1'">
+							</td>
+						</tr>
+					</table><br/><br/>
+					
+					<table class='dialog' width="475">
+						<tr>
+							<th>Bewilligungsnummer zuordnen</th>
+						</tr>
+						<tr class="odd">
+							<td>
+								Meeting: 
+								<?php
+								$dropdown = new GUI_Select('xMeeting_xControl', 1, '');
+								$dropdown->addOptionsFromDB("select xMeeting, Name from meeting order by DatumVon, DatumBis");
+								$dropdown->selectOption("-");
+								$dropdown->printList();
+								?>
+								<br/>
+								Bewilligungsnummer: <input type="text" name="xControl" id="xControl" style="width: 50px;"/><br/>
+								<input type="button" value="Los" onclick="document.location.href='admin_service.php?a=xControl&m='+document.getElementById('xMeeting_xControl').value+'&c='+document.getElementById('xControl').value">
 							</td>
 						</tr>
 					</table>
