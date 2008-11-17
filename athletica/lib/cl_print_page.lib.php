@@ -588,7 +588,7 @@ class PRINT_RankingList extends PRINT_Page
 			
 			if(!empty($time)){
 ?>
-		<th class='rank_datetime' colspan='5'>
+		<th class='rank_datetime' colspan='6'>
 			<?php echo $time; ?>
 		</th>
 	</tr>
@@ -635,6 +635,7 @@ class PRINT_RankingList extends PRINT_Page
 		<th class='rank_qual' />
 		<th class='rank_wind'><?php echo $wind; ?></th>
 		<th class='rank_points'><?php echo $points; ?></th>
+        <th class='rank_remark'><?php echo $GLOBALS['strResultRemarkShort']; ?></th>
 	</tr>
 <?php
 	}
@@ -647,7 +648,7 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $ioc)
+		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark)
 	{  
         if(($this->lpp - $this->linecnt) < 1)		// page break check
 		{    
@@ -671,6 +672,7 @@ class PRINT_RankingList extends PRINT_Page
 		<td class='rank_qual'><?php echo $qual; ?></td>
 		<td class='rank_wind'><?php echo $wind; ?></td>
 		<td class='rank_points'><?php echo $points; ?></td>
+        <td class='rank_remark'><?php echo $remark; ?></td>   
 	</tr>
 
 <?php
@@ -722,6 +724,7 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
 		<th class='comb_club'><?php echo $GLOBALS['strClub']; ?></th>
 		<th class='comb_year'><?php echo $GLOBALS['strIocShort']; ?></th>
 		<th class='comb_points'><?php echo $GLOBALS['strPoints']; ?></th>
+        <th class='comb_remark'><?php echo $GLOBALS['strResultRemarkShort']; ?></th> 
 	</tr>
 <?php
 	}
@@ -749,7 +752,7 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
     }
     
    
-	function printLine($rank, $name, $year, $club, $points, $ioc)
+	function printLine($rank, $name, $year, $club, $points, $ioc, $remark)
 	{   
 		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
@@ -772,6 +775,7 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
 		<td class='comb_club'><?php echo $club; ?></td>
 		<td class='comb_year'><?php echo $ioc; ?></td>
 		<td class='comb_points'><?php echo $points; ?></td>
+        <td class='comb_remark'><?php echo $remark; ?></td>  
 	</tr>
 
 <?php
@@ -982,7 +986,7 @@ class PRINT_TeamSheet extends PRINT_Page
 
 
 
-	function printLine($disc, $name, $perf, $wind, $points, $total)
+	function printLine($disc, $name, $perf, $wind, $points, $total, $remark)
 	{
 		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
@@ -997,7 +1001,7 @@ class PRINT_TeamSheet extends PRINT_Page
 		<td class='sheet_name'><?php echo $name; ?></td>
 		<td class='sheet_perf'><?php echo $perf; ?></td>
 		<td class='sheet_wind'><?php echo $wind; ?></td>
-		<td class='sheet_pts'><?php echo $points; ?></td>
+		<td class='sheet_remark'><?php echo $remark; ?></td>
 		<td class='sheet_tot'><?php echo $total; ?></td>
 	</tr>
 <?php

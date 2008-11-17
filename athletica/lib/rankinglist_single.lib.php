@@ -443,7 +443,8 @@ else {
 							 ru.xRunde,  
 							 k.Name , 
 							 k1.Name , 							
-							 k1.Anzeige  
+							 k1.Anzeige ,
+                             ss.Bemerkung  
 						FROM serie AS s USE INDEX(Runde)
 				   LEFT JOIN serienstart AS ss USING(xSerie) 
 				   LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -487,7 +488,8 @@ else {
 							 ru.Startzeit, 
 							 ss.RundeZusammen,
 							 ru.xRunde,
-							 k.Name   
+							 k.Name ,
+                             ss.Bemerkung    
 						FROM serie AS s USE INDEX(Runde) 
 				   LEFT JOIN serienstart AS ss USING(xSerie) 
 				   LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -509,7 +511,7 @@ else {
 							 ".$order_perf.", 
 							 sf.Name;";        				 
 		}    
-			 
+		
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -963,9 +965,15 @@ else {
 									$rank.=".";
 								}
 					       }
-					}		
+					}
+                    if ($relay){
+                        $remark=$row_res[17];
+                    }		
+                    else {
+                        $remark=$row_res[22];  
+                    }
 				   
-					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat);
+					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat,$remark);
 				 
 					if($secondResult){
 						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);

@@ -353,7 +353,7 @@ class GUI_RankingList extends GUI_ListPage
 		$this->wind = $wind;
 		$this->points = $points;
 
-		$span = 4;
+		$span = 5;
 		if($points == TRUE) {
 			$span++;
 		}
@@ -447,12 +447,13 @@ class GUI_RankingList extends GUI_ListPage
 		}
 		
 		?>
+        <th class='dialog'><?php echo $GLOBALS['strResultRemark']; ?></th>  
 	</tr>
 <?php
 	}
 
 	function printInfoLine($info,$athleteCat=false)
-	{
+	{    
 		if(!empty($info))
 			{
 			if ($athleteCat) {
@@ -474,8 +475,8 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $country, $sb="", $pb="", $qual_mode=false)
-	{
+		, $wind, $points, $qual, $country, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark='')
+	{              
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $rank; ?></td>
@@ -527,16 +528,17 @@ class GUI_RankingList extends GUI_ListPage
 			<?php	
 		}		
 		?>
+        <td><?php echo $remark; ?></td>  
 	</tr>
 <?php
 		//$this->switchRowClass();
 	}
 	
-	function printAthletesLine($text){
+	function printAthletesLine($text){    
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'></td>
-		<td colspan='6'><?php echo $text; ?></td>
+		<td colspan='8'><?php echo $text; ?></td>
 	</tr>
 <?php
 		$this->switchRowClass();
@@ -560,12 +562,13 @@ class GUI_CombinedRankingList extends GUI_ListPage
 		<th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strPoints']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strResultRemark']; ?></th> 
 	</tr>
 		<?php
 	}
 
 
-	function printLine($rank, $name, $year, $club, $points)
+	function printLine($rank, $name, $year, $club, $points, $ioc='', $remark)
 	{
 		?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
@@ -574,6 +577,7 @@ class GUI_CombinedRankingList extends GUI_ListPage
 		<td class='forms_ctr'><?php echo $year; ?></td>
 		<td><?php echo $club; ?></td>
 		<td class='forms_right'><?php echo $points; ?></td>
+        <td><?php echo $remark; ?></td> 
 	</tr>
 		<?php
 	}
@@ -586,7 +590,7 @@ class GUI_CombinedRankingList extends GUI_ListPage
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td />
 		<td class='disc' colspan='3'><?php echo $info; ?><br/></td>
-		<td />
+		<td colspan='2'/>
 	</tr>
 		<?php
 		$this->switchRowClass();
@@ -609,21 +613,21 @@ class GUI_TeamRankingList extends GUI_ListPage
 		<th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strPoints']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strPoints']; ?></th>             
 	</tr>
 		<?php
 	}
 
 
 	function printLine($rank, $name, $club, $points)
-	{
+	{   
 		$this->switchRowClass();
 		?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $rank; ?></td>
 		<td><?php echo $name; ?></td>
 		<td><?php echo $club; ?></td>
-		<td class='forms_right'><?php echo $points; ?></td>
+		<td class='forms_right'><?php echo $points; ?></td>          
 	</tr>
 		<?php
 	}
@@ -636,7 +640,7 @@ class GUI_TeamRankingList extends GUI_ListPage
 		<td />
 		<td><?php echo "$name, $year"; ?></td>
 		<td><?php echo $points; ?></td>
-		<td />
+		<td />         
 	</tr>
 		<?php
 	}
@@ -650,7 +654,7 @@ class GUI_TeamRankingList extends GUI_ListPage
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td />
 		<td class='disc' colspan='2'><?php echo $info; ?><br/></td>
-		<td />
+		<td />          
 	</tr>
 		<?php
 	}
@@ -677,6 +681,7 @@ class GUI_TeamSheet extends GUI_ListPage
 		<th class='dialog'><?php echo $GLOBALS['strPerformance']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strWind']; ?></th>
 		<th class='dialog' colspan='2'><?php echo $GLOBALS['strPoints']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strResultRemark']; ?></th>
 	</tr>
 <?php
 	}
@@ -689,7 +694,7 @@ class GUI_TeamSheet extends GUI_ListPage
 ?>
 	<tr>
 		<th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strPoints']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strPoints']; ?></th> 
 	</tr>
 <?php
 	}
@@ -705,8 +710,8 @@ class GUI_TeamSheet extends GUI_ListPage
 	}
 
 
-	function printLine($disc, $name, $perf, $wind, $points, $total)
-	{
+	function printLine($disc, $name, $perf, $wind, $points, $total,$remark)
+	{   
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td><?php echo $disc; ?></td>
@@ -715,6 +720,7 @@ class GUI_TeamSheet extends GUI_ListPage
 		<td class='forms_right'><?php echo $wind; ?></td>
 		<td class='forms_right'><?php echo $points; ?></td>
 		<td class='forms_right'><?php echo $total; ?></td>
+        <td><?php echo $remark; ?></td>  
 	</tr>
 <?php
 		$this->switchRowClass();
@@ -756,6 +762,7 @@ class GUI_TeamSheet extends GUI_ListPage
 		<td/>
 		<td/>
 		<td/>
+        <td/> 
 	</tr>
 <?php
 		$this->switchRowClass();
@@ -769,6 +776,7 @@ class GUI_TeamSheet extends GUI_ListPage
 		<th colspan='4' />
 		<th class='statistic_total'><?php echo $GLOBALS['strSubTotal']; ?></th>
 		<th class='statistic_total'><?php echo $total; ?></th>
+        <th/>  
 	</tr>
 <?php
 	}
@@ -782,6 +790,7 @@ class GUI_TeamSheet extends GUI_ListPage
 		<th colspan='4' />
 		<th class='statistic_total'><?php echo $GLOBALS['strTotal']; ?></th>
 		<th class='statistic_total'><?php echo $total; ?></th>
+        <th/>   
 	</tr>
 <?php
 		parent::endList();

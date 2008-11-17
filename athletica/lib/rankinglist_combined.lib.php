@@ -270,6 +270,7 @@ else
                 , st.xStart
                 , CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
                 , w.Mehrkampfreihenfolge 
+                , ss.Bemerkung
             FROM
                 start AS st USE INDEX (Anmeldung)
                 , serienstart AS ss 
@@ -295,7 +296,7 @@ else
                 , ru.Datum
                 , ru.Startzeit
         ");     
-       
+     
       /*  
 		$res = mysql_query("
 			SELECT
@@ -339,8 +340,9 @@ else
 		}
 		else
 		{   $count_disc=0;
+            $remark='';
 			while($pt_row = mysql_fetch_row($res))
-			{        
+			{   $remark=$pt_row[10];  
 				$lastTime = $pt_row[8];
 				
 				if($pt_row[1] == $cfgDisciplineType[$strDiscTypeJump]){
@@ -410,12 +412,13 @@ else
 			}	// END WHILE combined events
 			mysql_free_result($res);
 		}     
-      
+       
 		$a = $row[0];
 		$name = $row[1] . " " . $row[2];
 		$year = AA_formatYearOfBirth($row[3]);
 		$club = $row[5];
-		$ioc = $row[6];   		
+		$ioc = $row[6];   	
+        $remark_arr[] = $remark;  	
 	}	// END WHILE athlete per category
 
 	if(!empty($a))		// add last athlete if any
@@ -427,7 +430,8 @@ else
 		$info_arr[] = $info;
 		$ioc_arr[] = $ioc;
 		$x_arr[] = $a;
-	}
+        $remark_arr[] = $remark;
+	}       
 
 	if(!empty($cat))		//	add last category if any
 	{
@@ -462,7 +466,7 @@ else
 		 	    $rank='';   
 				$r--;  
 		 	}     		  
-			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
+			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key], $remark_arr[$key]);  
             $list->printInfo($info_arr[$key]);
 			$p = $val;			// keep current points
 			// insert points into combined top performance of entry

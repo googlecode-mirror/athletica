@@ -498,7 +498,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 * @return		int		nbr of rows found
 	 */
 	function AA_utils_checkReference($table, $unique, $id)
-	{
+	{  
 		$GLOBALS['AA_ERROR'] = '';
 
 		$rows = 0;
@@ -510,9 +510,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			WHERE
 				$unique = $id
 		");
-
+        
 		if(mysql_errno() > 0) {		// DB error
-			$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+			$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();  
 		}
 		else {
 			$rows = mysql_num_rows($result);
@@ -639,7 +639,105 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		}
 		mysql_query("UNLOCK TABLES");
 	}
+    
+    
+    
+    
+     
+ /**
+     * save remark
+     * ---------------
+    */
+    function AA_utils_saveRemark($startID, $remark, $xAthlete)
+    {
+        $GLOBALS['AA_ERROR'] = '';
+        $query = '';    
 
+        mysql_query("
+            LOCK TABLES rundenset READ, runde READ, runde as r READ , serie as s READ , start as st READ, 
+            wettkampf as w READ , anmeldung as a READ , athlet as at READ, verein as v READ, 
+            rundentyp as rt READ, serienstart as ss READ  , serienstart WRITE
+        ");
+
+        if(!empty($startID))    // result provided -> change it
+        {
+            if(AA_utils_checkReference("serienstart", "xSerienstart"
+                                        , $startID) == 0)
+            {
+                $GLOBALS['AA_ERROR'] = $GLOBALS['strErrAthleteNotInHeat'];
+            }
+            else
+            {
+                $query="SELECT 
+                        w.mehrkampfcode , ss.Bemerkung
+                    FROM
+                        serienstart as ss
+                        LEFT JOIN start as st On (ss.xStart = st.xStart)
+                        LEFT JOIN wettkampf as w On (w.xWettkampf = st.xWettkampf) 
+                    WHERE
+                        w.mehrkampfcode = 0
+                        AND ss.xSerienstart = ".$startID;
+                
+                $result=mysql_query($query); 
+                
+                if(mysql_errno() > 0) {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }
+                else {
+                    if (mysql_num_rows($result) > 0) {
+                   
+                         $sql = "UPDATE serienstart 
+                                    SET Bemerkung = '".$remark."'                                     
+                                         WHERE xSerienstart = ".$startID.";";
+                            mysql_query($sql);
+                           
+                            if(mysql_errno() > 0) {
+                                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                            }   
+                   }     
+                   else {
+                
+                        // comnined event
+                
+                        $query_mk="SELECT 
+                                        ss.xSerienstart , ss.Bemerkung   
+                                   FROM 
+                                        runde AS r 
+                                        LEFT JOIN serie AS s ON (s.xRunde = r.xRunde) 
+                                        LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                                        LEFT JOIN START AS st ON (st.xStart = ss.xStart) 
+                                        LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
+                                        LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                                        LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                                        LEFT JOIN verein AS v ON (v.xVerein = at.xVerein   )
+                                        LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp                              
+                                   WHERE w.mehrkampfcode > 0
+                                        AND at.xAthlet = ". $xAthlete;                           
+                           
+                        $result=mysql_query($query_mk); 
+                
+                        if(mysql_errno() > 0) {
+                            $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                        }
+                        else {
+                            while ($row=mysql_fetch_row($result)){
+                                    $sql = "UPDATE serienstart 
+                                            SET Bemerkung = '".$remark."'                                     
+                                            WHERE xSerienstart = ".$row[0].";";
+                                    mysql_query($sql);
+                           
+                                    if(mysql_errno() > 0) {
+                                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                    }  
+                           }
+                        } 
+                    }
+                }
+            }
+        }
+        mysql_query("UNLOCK TABLES");
+
+    }
 
 } // end AA_UTILS_LIB_INCLUDED
 ?>

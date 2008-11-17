@@ -184,7 +184,7 @@ function AA_heats_seedEntries($event)
         }
     }else{ // combined 
         if(!empty($cGroup)){
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best"
+            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet"
                     . " FROM start as s, anmeldung as a"
                     . " WHERE s.xWettkampf = " . $event
                     . " AND s.xAnmeldung = a.xAnmeldung"
@@ -193,7 +193,7 @@ function AA_heats_seedEntries($event)
                     . " AND s.xAnmeldung > 0"
                     . " ORDER BY $order";
         }else{
-            $query = "SELECT xStart, if(BestleistungMK = 0, 0, BestleistungMK) as best"
+            $query = "SELECT xStart, if(BestleistungMK = 0, 0, BestleistungMK) as best, a.xAthlet"
                     . " FROM start as s, anmeldung as a"
                     . " WHERE s.xWettkampf = " . $event
                     . " AND s.xAnmeldung = a.xAnmeldung"
@@ -212,7 +212,8 @@ function AA_heats_seedEntries($event)
                 . " AND s.xAnmeldung > 0"
                 . " ORDER BY $order";       
     }    
-	$result = mysql_query($query);  
+	$result = mysql_query($query); 
+  
 	$entries = mysql_num_rows($result);		// keep nbr of entries       
    
 	if(mysql_errno() > 0)		// DB error
@@ -366,21 +367,27 @@ function AA_heats_seedEntries($event)
 									}
 									else {
 										$pos = $p;
-									}          
+									}
+                                    $remark='';  
+                                    if ($combined){
+                                       $remark=AA_getResultRemark($row[2]);                                     
+                                    }        
                                     if ($eventMerged){
 									    mysql_query("INSERT INTO serienstart SET"
 												. " Position = " . $pos
 												. ", Bahn = " . $pos
 												. ", xSerie = " . $heats[$i]
                                                 . ", xStart = " . $row[0] 
-												. ", RundeZusammen = " . $row[2]);  
+												. ", RundeZusammen = " . $row[2]
+                                                . ", Bemerkung = '" . $remark ."'");  
                                     }
                                    else {
                                          mysql_query("INSERT INTO serienstart SET"
                                                 . " Position = " . $pos
                                                 . ", Bahn = " . $pos
                                                 . ", xSerie = " . $heats[$i]
-                                                . ", xStart = " . $row[0]);    
+                                                . ", xStart = " . $row[0]
+                                                . ", Bemerkung = '" . $remark."'");    
                                    }
 
 									if(mysql_errno() > 0) {		// DB error
@@ -1699,7 +1706,47 @@ function AA_heats_printEmptyTracks($position, $last, $heatID, $heatName)
 	return $position;
 }
 
-
+   
+ /**
+ * get remark if combined heats exist
+ * -----------------------------------
+ *
+ * returns remark
+ */
+function AA_getResultRemark($xAthlete)
+{          
+     $remark=''; 
+   
+     // check for combined event
+                
+     $query_mk="SELECT 
+                    ss.xSerienstart , ss.Bemerkung   
+                FROM 
+                    runde AS r 
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde) 
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                    LEFT JOIN START AS st ON (st.xStart = ss.xStart) 
+                    LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
+                    LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                    LEFT JOIN verein AS v ON (v.xVerein = at.xVerein   )
+                    LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp                              
+                WHERE w.mehrkampfcode > 0
+                    AND at.xAthlet = ". $xAthlete;
+                           
+     $result=mysql_query($query_mk); 
+                
+     if(mysql_errno() > 0) {                      
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());  
+     }
+     else {
+            if (mysql_num_rows($result) > 0){
+                $row=mysql_fetch_row($result);
+                $remark=$row[1];  
+            }
+     } 
+     return $remark;
+}
 
 }		// AA_HEATS_LIB_INCLUDED
 ?>

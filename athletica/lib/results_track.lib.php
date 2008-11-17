@@ -645,7 +645,9 @@ if($round > 0)
 					. ", v.Name"
 					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
 					. ", s.Handgestoppt"
-					. ", at.Land"                    
+					. ", at.Land"   
+                    . ", ss.Bemerkung"  
+                    . ", at.xAthlet"                    
 					. " FROM runde AS r"
 					. ", serie AS s"
 					. ", serienstart AS ss"
@@ -683,6 +685,7 @@ if($round > 0)
 					. ", v.Name"
 					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
 					. ", s.Handgestoppt"
+                    . ", ss.Bemerkung"   
 					. " FROM runde AS r"
 					. ", serie AS s"
 					. ", serienstart AS ss"
@@ -702,7 +705,7 @@ if($round > 0)
 					. " ORDER BY heatid, ss.Position");
 		}  
 		$result = mysql_query($query);
-      
+       
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -883,6 +886,7 @@ if($round > 0)
 		<th class='dialog'><?php echo $strCountry; ?></th>
 		<th class='dialog'><?php echo $strClub; ?></th>
 		<th class='dialog'><?php echo $strPerformance; ?></th>
+        
 <?php
 					}
 					else {		// relay display
@@ -892,6 +896,7 @@ if($round > 0)
 		<th class='dialog'><?php echo $strRelay; ?></th>
 		<th class='dialog'><?php echo $strClub; ?></th>
 		<th class='dialog'><?php echo $strPerformance; ?></th>
+       
 <?php
 					}
 					if($status == $cfgRoundStatus['results_done']) {
@@ -906,6 +911,7 @@ if($round > 0)
 					}
 
 ?>
+<th class='dialog'><?php echo $strResultRemark; ?></th>     
 	</tr>
 <?php
 				}		// ET new heat
@@ -943,6 +949,7 @@ if($round > 0)
 		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[15]); ?></td>
 		<td><?=(($row[19]!='' && $row[19]!='-') ? $row[19] : '&nbsp;')?></td>
 		<td><?php echo $row[16]; /* club */ ?></td>
+      
 <?php
 				}
 				else {	// relay
@@ -1001,6 +1008,24 @@ if($round > 0)
 				onChange="submitForm(document.perf_<?php echo $i; ?>, 'in_<?php echo $i+1; ?>')" />
 		</td>
 		</form>
+        
+        <form action='controller.php' method='post'
+            name='remark_<?php echo $i; ?>' target='controller'>
+        <td>
+            <input type='hidden' name='act' value='saveResult' />
+            <input type='hidden' name='obj' value='perf_<?php echo $i; ?>' />
+            <input type='hidden' name='type' value='<?php echo $layout; ?>' />
+            <input type='hidden' name='round' value='<?php echo $round; ?>' />
+            <input type='hidden' name='start' value='<?php echo $row[8]; ?>' />
+            <input type='hidden' name='item' value='<?php echo $resrow[0]; ?>' />
+            <input type='hidden' name='xAthlete' value='<?php echo $row[21]; ?>' />   
+            <input class='textshort' type='text' name='remark' id='in_<?php echo $i; ?>'
+                maxlength='5' value='<?php if ($relay){echo $row[16];} else {echo $row[20]; }?>'
+                onChange="submitForm(document.remark_<?php echo $i; ?>, 'in_<?php echo $i+1; ?>')" />
+        </td>
+        </form>
+        
+       
 <?php
 						$i++;		// next element
 					}
@@ -1028,7 +1053,9 @@ if($round > 0)
 				value='<?php echo $row[10]; ?>'
 				onChange='document.rank_<?php echo $i; ?>.submit()' />
 		</td>
-		</form>
+		</form>     
+        
+       
 <?php
 							$i++;		// next element
 
@@ -1065,7 +1092,10 @@ if($round > 0)
 						else
 						{	// no rank
 ?>
-		<td />
+		
+                        <td />    
+                        <td class='perftime'><?php if ($relay){echo $row[16];} else {echo $row[20]; } ?></td>    
+       
 <?php
 							if($nextRound > 0) {
 ?>
@@ -1073,8 +1103,17 @@ if($round > 0)
 <?php
 							}
 						}	// ET valid rank
+                        
+?>                        
+                     <td class='perftime'><?php if ($relay){echo $row[16];} else {echo $row[20]; } ?></td>      
+<?php                        
 					}	// ET 'results_done'
 ?>
+         
+
+
+
+
 		<td>
 <?php
 					$btn->set("event_results.php?arg=del_start&item=$row[8]&round=$round", $strDelete);
@@ -1083,6 +1122,7 @@ if($round > 0)
 		</td>
 <?php
 				}	// ET DB error
+               
 			}
 
 			// Fill last heat with empty tracks for disciplines run in

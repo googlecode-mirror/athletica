@@ -463,6 +463,11 @@ if(($_GET['arg'] == 'results_done')
 	AA_utils_calcRankingPoints($round);
 	
 }
+if ($_POST['arg'] == 'save_remark') {
+    
+    AA_utils_saveRemark($_POST['item'], $_POST['remark'], $_POST['xAthlete']);
+}
+
 
 //
 // print HTML page header
@@ -513,6 +518,8 @@ if($round > 0)
 				, rs.Leistung
 				, rs.Info
 				, at.Land
+                , ss.Bemerkung
+                , at.xAthlet
 			FROM
 				runde AS r
 				, serie AS s
@@ -569,6 +576,7 @@ if($round > 0)
 			}
 ?>
 <p/>
+
 <table class='dialog'>
 <?php
 			$btn = new GUI_Button('', '');	// create button object
@@ -635,7 +643,9 @@ if($round > 0)
 <?php
 					}
 ?>
-		<th class='dialog' colspan='2'><?php echo $strPerformance; ?></th>
+		<th class='dialog' ><?php echo $strResultRemark; ?></th>
+        <th class='dialog' colspan='2'><?php echo $strPerformance; ?></th>
+          
 	</tr>
 <?php
 				}		// ET new heat
@@ -676,6 +686,7 @@ if($round > 0)
 		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[10]); ?></td>
 		<td><?=(($row[16]!='' && $row[16]!='-') ? $row[16] : '&nbsp;')?></td>
 		<td nowrap><?php echo $row[11]; /* club */ ?></td>
+   
 <?php
 
 					if($status == $cfgRoundStatus['results_done'])
@@ -698,8 +709,27 @@ if($round > 0)
 						}
 						else {
 							echo "<td>" . $row[6] . "</td>";
+                            
 						}
+                        echo "<td>" . $row[17] . "</td>";  
 					}		// ET results done
+                    else {
+                         ?>
+        <form action='event_results.php' method='post'
+            name='remark'>
+        <td>
+            <input type='hidden' name='arg' value='save_remark' />
+            <input type='hidden' name='round' value='<?php echo $round; ?>' />
+            <input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
+            <input type='hidden' name='item' value='<?php echo $row[4]; ?>' />
+            <input type='hidden' name='xAthlete' value='<?php echo $row[18]; ?>' />    
+            <input class='textshort' type='text' name='remark' maxlength='5'
+                value='<?php echo $row[17]; ?>' onChange='document.remark.submit()' />
+        </td>
+        </form>     
+                   <?php  
+                     
+                    }
 				}		// ET new athlete
 
 				$new_perf = '';
@@ -744,6 +774,8 @@ if($round > 0)
 					onChange='document.perf.submit()' />
 		</td>
 		</form>
+        
+        
 						<?php
 					}
 
@@ -783,6 +815,10 @@ if($round > 0)
 				echo "</tr>";
 			}
 			?>
+           
+            
+            
+            
 </table>
 			<?php
 			mysql_free_result($result);
