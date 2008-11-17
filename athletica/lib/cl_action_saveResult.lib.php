@@ -36,7 +36,7 @@ require('./lib/cl_result.lib.php');
 class Action_saveResult extends Action_default
 {
 	var $reply;
-	var $type;
+	var $type;        
 
 	function Action_saveResult()
 	{
@@ -56,7 +56,7 @@ class Action_saveResult extends Action_default
 	}
 
 	function process()
-	{
+	{   
 		require('./lib/common.lib.php');
 		require('./lib/utils.lib.php');
 
@@ -68,28 +68,36 @@ class Action_saveResult extends Action_default
 			|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]))
 		{
 			$result = new TrackResult($_POST['round'], $_POST['start'], $_POST['item']);
+            
 			
 			// if this is a track (wind / nowind) format results in seconds e.g. 80,123 secs
 			if(($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
 			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']])
-			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']])){
-				$this->reply = $result->save($_POST['perf'], '', true);
+			|| ($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']])){ 		
+               
+                
+                $this->reply = $result->save($_POST['perf'], '', true,$_POST['remark'], $_POST['xAthlete']);
+               
 			}else{
-				$this->reply = $result->save($_POST['perf']);
+				$this->reply = $result->save($_POST['perf'],'','',$_POST['remark'], $_POST['xAthlete']);
 			}
 			
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
-
-			$txt =  AA_formatResultTime($this->reply->getPerformance());
+             if ($_POST['perf'] == ''){                 
+                $txt = '';
+            }                            
+            else {
+			    $txt =  AA_formatResultTime($this->reply->getPerformance());
+            }
 		}
 
 		// technical disciplines with wind
 		else if($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeJump']])
 		{
 			$result = new TechResult($_POST['round'], $_POST['start'], $_POST['item']);
-			$this->reply = $result->save($_POST['perf'], $_POST['wind']);
+			$this->reply = $result->save($_POST['perf'], $_POST['wind'],'',$_POST['remark'], $_POST['xAthlete']);
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
@@ -103,12 +111,17 @@ class Action_saveResult extends Action_default
 		|| ($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeThrow']]))
 		{
 			$result = new TechResult($_POST['round'], $_POST['start'], $_POST['item']);
-			$this->reply = $result->save($_POST['perf']);
+           
+			$this->reply = $result->save($_POST['perf'],'','',$_POST['remark'], $_POST['xAthlete']);
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
-
-			$txt = AA_formatResultMeter($this->reply->getPerformance());
+           if ($this->reply->getPerformance() == ''){                 
+                $txt = '';
+            }                            
+            else {
+			    $txt = AA_formatResultMeter($this->reply->getPerformance());
+            }
 		}
 
 		// high jump, pole vault
