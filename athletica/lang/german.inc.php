@@ -727,5 +727,11 @@ $strSrvRemoveDisciplinesChoose = 'Disziplinen wählen';
 $strSrvRemoveDisciplinesOK = 'Die ausgewählten Disziplinen wurden gelöscht.';
 $strParticipant = 'Teilnehmer';
 $strAllRegisteredRelayTeam = '(nach Mannschaft)'; 
- 
+$strResultRemark = 'Bemerkung'; 
+$strResultRemarkShort = 'Bem.';  
+$strOnlyBestResult = 'Nur bestes Resultat';
+$strCreateSVM = "SVM erstellen"; 
+$strErrCreateSVM = "Sie müssen eine Kategorie auswählen in welcher der SVM Wettkampf erstellt werden soll!"; 
+$strErrDiscNotDefSVM  = "Disziplin zu dieser SVM Kategorie sind nicht definiert.";
+$strRemNulltime = "* Nullzeiten sind bei den rot markierten Diziplinen einzugeben.";
 ?>
