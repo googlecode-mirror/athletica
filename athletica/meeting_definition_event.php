@@ -103,6 +103,31 @@ else if ($_POST['arg']=="del_round")
 else if ($_POST['arg']=='change_round')
 {
 	list($_POST['hr'], $_POST['min']) = AA_formatEnteredTime($_POST['time']);
+   
+    // auto configure enrolement and manipulation time
+    $result = mysql_query("
+        SELECT
+            d.Typ
+            , d.Appellzeit
+            , d.Stellzeit
+        FROM
+            wettkampf as w
+            LEFT JOIN disziplin as d USING(xDisziplin)
+        WHERE w.xWettkampf = " . $_POST['item']
+    );
+    $row = mysql_fetch_row($result);
+    $stdEtime = strtotime($row[1]); // hold standard delay for enrolement time
+    $stdMtime = strtotime($row[2]); // and manipulation time
+    
+    $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
+    $tmp = $tmp - $stdEtime;
+    $_POST['etime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+    
+    $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
+    $tmp = $tmp - $stdMtime;
+    $_POST['mtime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+    
+    
 	// the other times are parsed in the timetable constructor
 	$tt = new Timetable();
 	$tt->change();
@@ -223,7 +248,7 @@ elseif($_POST['arg'] == "merge_add"){
 		mysql_query("UNLOCK TABLES");  
 	}    
 }
-
+         
 // Check if any error returned
 if(!empty($GLOBALS['AA_ERROR'])) {  
 		AA_printErrorMsg($GLOBALS['AA_ERROR']);
