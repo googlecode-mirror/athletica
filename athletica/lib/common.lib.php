@@ -940,6 +940,17 @@ require('./config.inc.php');
 	function AA_formatEnteredTime($st){
 		$ret = false;
 		
+        $st=trim($st);
+        if (strlen($st) < 4 && $st == 0){
+            $st=sprintf("%04d", $st); 
+        } 
+        elseif (strlen($st) == 1) {
+            $st=sprintf("%02d", $st)."00";
+        }
+        elseif (strlen($st) == 2) {
+            $st.="00";
+        }        
+        
 		if(preg_match("/[\.,;:]/",$st) == 0){
 			$ret = array();
 			$ret[] = substr($st,0,-2);
@@ -1423,11 +1434,11 @@ function AA_getEventTypesCat(){
 				$eventTypeCat['combined']=true;
 				$show_combined = true;
 			} else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSVMNL']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMA']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMB']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMC']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFA']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFB']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMA']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMB']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMC']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFA']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFB']]
 						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubBasic']]
 						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubAdvanced']]
 						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubTeam']]
@@ -1463,11 +1474,11 @@ function AA_getEventTypes($round){
 				$eventTypeCat['combined']=true;
 				$show_combined = true;
 			} else if ($row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeSVMNL']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMA']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMB']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMC']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFA']]
-						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFB']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMA']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMB']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubMC']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFA']]
+						// || $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubFB']]
 						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubBasic']]
 						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubAdvanced']]
 						|| $row['Typ'] == $cfgEventType[$GLOBALS['strEventTypeClubTeam']]
