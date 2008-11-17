@@ -162,6 +162,7 @@ table.admin {
 tr.even {
 	background-color:#DDDDDD;
 }
+
 tr.odd {
 	background-color:#EEEEEE;
 }
@@ -331,6 +332,9 @@ th.statistic_total {
 }
 .highlight_red {
 	background-color:#FF0000;
+}
+.highlight_nulltime_red {
+    color:#FF0000;
 }
 .highlight_orange {
 	background-color:#FFCC00;
