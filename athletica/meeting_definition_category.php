@@ -4,8 +4,7 @@
  *	meeting_definition_category.php
  *	-------------------------------
  *	
- */
-	     
+ */   	 
 require('./convtables.inc.php');
 
 require('./lib/cl_gui_button.lib.php');
@@ -35,16 +34,23 @@ if(!empty($_POST['cat'])) {
 }
 else if(!empty($_GET['cat'])) {
 	$category = $_GET['cat'];
-}
-           
+}  
+  
+ $svmcat= 0;
+ if(!empty($_POST['svmcat'])){
+    $svmcat = $_POST['svmcat'];   
+ }  
+ 
+ $nulltime_exist = false;     
 //
 // Process changes to meeting data
 //
 
 // change all events of a category
 if ($_POST['arg']=="change_cat")
-{
+{  
 	AA_meeting_changeCategory();
+     
 }
 // change event data
 else if ($_POST['arg']=="change_event")
@@ -104,29 +110,111 @@ else if($_POST['arg']=="change_combtype"){
 	
 }
 // change type of combined event (needed for bestlist)
-else if($_POST['arg']=="change_svmcat"){
-	
+else if($_POST['arg']=="change_svmcat"){  
+  
 	if(!empty($_POST['svmcategory'])){
-		
-		$res = mysql_query("
-				UPDATE wettkampf
-					SET xKategorie_svm = ".$_POST['svmcategory']."
-				WHERE xKategorie = ".$_POST['cat']."
-				AND xMeeting = ".$_COOKIE['meeting_id']."
-				");
-		if(mysql_errno() > 0) {
-			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-		}else{
-			
-		}
-	}
-	
+        
+         // check if there is already such a svm event for this category
+        $res = mysql_query("SELECT * FROM wettkampf
+                    WHERE xKategorie = ".$_POST['cat']."
+                    AND xKategorie_svm = ".$_POST['svmcategory']."
+                    AND xMeeting = ".$_COOKIE['meeting_id']."
+                    ");
+        if(mysql_errno() > 0) {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }else{
+            if(mysql_num_rows($res) > 0){
+                AA_printErrorMsg($strDoubleCombinedEvent);
+            }else{  
+               
+                  mysql_query("LOCK TABLES kategorie READ, disziplin READ, kategorie_svm AS ks READ, wettkampf as w READ, runde as r READ,rundentyp READ  "
+                    . ", disziplin as d READ, wettkampf WRITE, runde WRITE");  
+    
+                  $sql="SELECT 
+                            r.xRunde, w.xWettkampf  
+                        FROM
+                            wettkampf as w
+                            LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
+                            LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin)
+                        WHERE
+                            w.xKategorie = ". $category ."
+                            AND r.xRunde IS NOT NULL
+                            AND w.xKategorie_svm = " .$_POST['oldsvm']." 
+                            AND xMeeting = ".$_COOKIE['meeting_id']." 
+                        ORDER BY d.Anzeige";
+                 
+                  $result=mysql_query($sql);
+            
+                  if(mysql_errno() > 0) {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }
+                  else {
+            
+                        while ($row=mysql_fetch_row($result)) {
+                       
+                            $qdel="DELETE FROM runde                                     
+                                WHERE xRunde = " .$row[0];
+                                
+                            mysql_query($qdel);
+                            if(mysql_errno() > 0) {
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }  
+                       }   
+                  }    
+            
+      
+                // delete svm event
+                
+                mysql_query("DELETE FROM wettkampf                                     
+                             WHERE xKategorie = " .$category ."
+                                AND xKategorie_svm = ".$_POST['oldsvm']."                    
+                    AND xMeeting = ".$_COOKIE['meeting_id']."
+                    ");     
+               
+                if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }
+                else {  
+                         // add new svm event   
+                       
+                        AA_Meeting_getEventType(); 
+                            
+                        $_POST['date']=$_SESSION['meeting_infos']['DatumVon'];  
+                        AA_meeting_addSVMEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100); 
+                                                                                                                            
+                }
+                
+             mysql_query("UNLOCK TABLES");  
+            
+             if ($GLOBALS['AA_ERROR'] != '')
+                {
+                 AA_printErrorMsg($GLOBALS['AA_ERROR']);  
+                }  
+            }
+        } 
+	}  
 }
 // add a new combined contest
 elseif($_POST['arg']=="add_combtype"){
 			 
 	AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);
 	
+}
+
+// add a new svm contest
+elseif($_POST['arg']=="add_svmcat"){
+     
+    AA_Meeting_getEventType(); 
+    
+    $_POST['date']=$_SESSION['meeting_infos']['DatumVon']; 
+       
+    AA_meeting_addSVMEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);    
+ 
+    if ($GLOBALS['AA_ERROR'] != '')
+        {
+        AA_printErrorMsg($GLOBALS['AA_ERROR']);  
+    }
+    
 }
 // change formula for a certain combtype
 elseif($_POST['arg']=="change_formula"){ 
@@ -172,13 +260,69 @@ elseif($_POST['arg']=="delete_discipline"){
 }
 // configure rounds with start time
 elseif($_POST['arg']=="change_starttime"){
+       
 	// date, item, roundtype, hr, min, g     
 	if(empty($_POST['g'])){
 		$st = $_POST['starttime'];
 	}else{
 		$st = $_POST['starttime'][$_POST['g']];
-	}
-	$_POST['roundtype'] = 8; // round type "Mehrkampf"
+	}    
+       
+    if($_POST['wTyp'] > $cfgEventType[$strEventTypeSingleCombined]
+                && $row[2] != $cfgEventType[$strEventTypeTeamSM])         // not single event
+            {
+              //$it=$_POST['item'];                                                      
+              if ($_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeTrack] ||
+                        $_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeTrackNoWind] ||  
+                        $_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeDistance] ||  
+                        $_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeRelay] )  
+               {                                                                    // discipline type track
+                    $_POST['roundtype'] = 6; // round type "Serie"  
+              }   
+              else {                                                                // discipline type tech
+                  $_POST['roundtype'] = 9; // round type "ohne" 
+              } 
+	           
+            }
+    else {
+         $_POST['roundtype'] = 8; // round type "Mehrkampf"  
+    } 
+    
+     $svm='';
+     if  (!empty($_POST['svmcat'])){
+        $svm = $_POST['svmcat']; 
+     }                
+     elseif (!empty($_POST['svmcategory'])){
+            $svm = $_POST['svmcategory']; 
+     }  
+                        
+     if (!empty($svm)){  
+        // get short name  
+        $res = mysql_query("SELECT ks.code FROM kategorie_svm AS ks WHERE ks.xKategorie_svm = $svm"); 
+        $row = mysql_fetch_array($res);
+        $_POST['svmCode'] = $row[0];              
+          
+        if(mysql_errno() > 0) {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                   
+        }
+        
+        // svm code not defined
+        if (!isset($cfgSVM[$_POST['svmCode']])){  
+            $GLOBALS['AA_ERROR'] = $GLOBALS['strErrDiscNotDefSVM'];  
+        }    
+     }
+    
+   
+    $st=trim($st);
+    if (strlen($st) < 4 && $st == 0){
+       $st=sprintf("%04d", $st); 
+    } 
+    elseif (strlen($st) == 1) {
+            $st=sprintf("%02d", $st)."00";
+    }
+     elseif (strlen($st) == 2) {
+            $st.="00";
+    }        
 	
 	if(preg_match("/[\.,;:]/",$st) == 0){
 		$_POST['hr'] = substr($st,0,-2);
@@ -189,8 +333,8 @@ elseif($_POST['arg']=="change_starttime"){
 		}
 	}else{
 		list($_POST['hr'], $_POST['min']) = preg_split("/[\.,;:]/", $st);
-	}
-	
+	}     
+	  
 	// auto configure enrolement and manipulation time
 	$result = mysql_query("
 		SELECT
@@ -214,7 +358,7 @@ elseif($_POST['arg']=="change_starttime"){
 	$tmp = $tmp - $stdMtime;
 	$_POST['mtime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
 	
-
+     
    	$groupexist=false;
  
     $res_grp = mysql_query("SELECT  
@@ -228,7 +372,7 @@ elseif($_POST['arg']=="change_starttime"){
 		$row_grp=mysql_fetch_array($res_grp);
 		$groupexist=true; 
 	}   
-     
+  
 	if($_POST['round'] > 0  || $groupexist){
 		$tt = new Timetable();
 	  	if  ($groupexist){
@@ -236,9 +380,12 @@ elseif($_POST['arg']=="change_starttime"){
 	  	    $tt->grp=$_POST['eventgroup']; 
 	   	}
 		$tt->change();
-	}else{
-		$tt = new Timetable();
-		$tt->add();
+	}else{ 
+        if (!empty($_POST['min'])){ 
+		    $tt = new Timetable();  
+		    $tt->add();
+        }
+        
 	}
 }
 // request to change last event of combined
@@ -315,7 +462,7 @@ elseif($_POST['arg'] == "change_lastdisc"){
 	}
 	
 }
-
+  
 // wish to create a new combined contest (without creating a discipline first)
 $cNewCombined = false;
 if($_GET['arg']=="create_combined"){
@@ -323,12 +470,19 @@ if($_GET['arg']=="create_combined"){
 	$cCategory = $category;
 }
 
+// wish to create a new svm contest (without creating a discipline first)
+$cNewSVM = false;
+if($_GET['arg'] == "create_svm" || $_POST['svm'] == "create_svm"){
+    $cNewSVM = true;
+    $cCategory = $category;
+}
+    
 // Check if any error returned from DB
 if(mysql_errno() > 0) {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 
-
+ 
 /***************************
  *
  *		General meeting data
@@ -400,7 +554,7 @@ $sql = "SELECT
 			, w.Mehrkampfende
 			, w.Mehrkampfreihenfolge
 			, d.Code
-			, k.Geschlecht
+			, k.Geschlecht             
 		FROM
 			wettkampf AS w
 		LEFT JOIN
@@ -415,15 +569,14 @@ $sql = "SELECT
 			  w.Mehrkampfcode DESC
 			, w.Mehrkampfreihenfolge
 			, d.Anzeige;";
- 
+
 $result = mysql_query($sql);   
 
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else			// no DB error
-{
-	
+{     
 	// display list
 	$i=0;
 	$k=0;
@@ -432,9 +585,43 @@ else			// no DB error
 	$cType = 0;
 	$cGroups = array();	// combined groups
 	$tsm = 0;	// count team sm disc
-	
+    $cfgSVM_arr = array();
+    $keep_key = 0;         // keep the key for the svm disciplin with nulltime
+                     	
 	while ($row = mysql_fetch_row($result))
 	{   
+        if ($i==0){
+            if (!empty($row[8])){
+                $svm=$row[8];  
+        
+                // get short name
+                $res = mysql_query("SELECT ks.code FROM kategorie_svm AS ks WHERE ks.xKategorie_svm = $svm"); 
+                $row_svm = mysql_fetch_array($res);
+                $svmCode = $row_svm[0];              
+          
+                if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                   
+                }
+                                
+                if (isset($cfgSVM[$svmCode])) {  
+                    $cfgSVM_arr = $cfgSVM[$svmCode];   
+                                    
+                    if (isset($cfgSVM[$svmCode."_NT"])){   
+                        $cfgSVM_arr_NT = $cfgSVM[$svmCode."_NT"]; 
+                    }          
+                }else{  
+                    $GLOBALS['AA_ERROR'] = $GLOBALS['strErrDiscNotDefSVM'];  
+                }            
+            }
+        } 
+        
+        foreach ($cfgSVM_arr as $key => $val){   
+            if ($val == $row[16]){
+                $keep_key=$key;  
+                break;
+            }
+        }     
+        
 		$punktetabelle = $row[3];
 		
 		// check on combined event order and set if unset
@@ -483,12 +670,13 @@ else			// no DB error
 <?php
 			}
 ?>
-</tr>
+</tr>  
 <tr>
 	<form action='meeting_definition_category.php' method='post' name='cat'>
 	<input name='arg' type='hidden' value='change_cat' />
 	<input name='conv_changed' type='hidden' value='no' />
 	<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
+    <input name='wTyp' type='hidden' value='<?php echo $row[2]; ?>' />  
 <?php
 			// event type drop down
 			$dd = new GUI_ConfigDropDown('type', 'cfgEventType', $row[2], "document.cat.submit()");
@@ -506,6 +694,7 @@ else			// no DB error
 <?php
 			if($row[2] > $cfgEventType[$strEventTypeSingleCombined]
 				&& $row[2] != $cfgEventType[$strEventTypeTeamSM]){
+                    
 				?>
 <br>
 <table class='dialog'>
@@ -518,6 +707,8 @@ else			// no DB error
 		<input name='arg' type='hidden' value='change_svmcat' />
 		<input name='conv_changed' type='hidden' value='no' />
 		<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
+        <input name='oldsvm' type='hidden' value='<?php echo $row[8]; ?>' />   
+        <input name='wTyp' type='hidden' value='<?php echo $row[2]; ?>' /> 
 		<select name="svmcategory" onchange="document.svmcat.submit()">
 			<option value="-">-</option>
 				<?php
@@ -525,7 +716,7 @@ else			// no DB error
 				if(mysql_errno() > 0) {	// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}else{
-					while($row_comb = mysql_fetch_array($res_comb)){
+					while($row_comb = mysql_fetch_array($res_comb)){ 
 						if($row[8] == $row_comb[0]){
 							$sel = "selected";
 						}else{
@@ -536,6 +727,8 @@ else			// no DB error
 						<?php
 					}
 				}
+                
+                
 				?>
 		</select>
 		</form>
@@ -551,13 +744,21 @@ else			// no DB error
 ?>
 <p/>
 
-<table class='dialog'>
-<tr>
-	<th class='dialog'><?php echo "$strDiscipline / $strConversionFormula"; ?></th>
-</tr>
-<tr>
+<table class='dialog'>  
+<tr>   
 	<td class='dialog'>
-		<table>
+		<table >
+            <tr>
+               <th class='dialog'><?php echo "$strDiscipline"  ?></th>  
+                <th class='dialog'><?php echo "$strConversionFormula"  ?></th>  
+                <th class='dialog'><?php echo " $strDate "; ?></th>   
+                <th class='dialog'><?php echo "$strTime"  ?></th> 
+                <th class='dialog'><?php echo "$strDiscipline"  ?></th>  
+                <th class='dialog'><?php echo "$strConversionFormula"  ?></th>  
+                <th class='dialog'><?php echo " $strDate "; ?></th>   
+                <th class='dialog'><?php echo "$strTime"  ?></th>   
+            </tr>
+            <tr>
 <?php
 			}	// ET single event
 			$k=$row[1];
@@ -567,7 +768,7 @@ else			// no DB error
 		// conversion formula drop down
 		if($row[2] > $cfgEventType[$strEventTypeSingleCombined] 
 			&& $row[2] != $cfgEventType[$strEventTypeTeamSM]) 		// not single event
-		{     
+		{   
 			//
 			// Print disciplines
 			//
@@ -577,31 +778,42 @@ else			// no DB error
 			else {	// odd row number
 				$rowclass='odd';
 			}
-
-			if($i % 3 == 0) {		// new row after three events
+            
+			if($i % 2 == 0) {		// new row after three events
 				if ($i != 0 ) {
 					printf("</tr>");	// terminate previous row
 				}
 				printf("<tr class='$rowclass'>");
 			}
-			$i++;
+			$i++;    
+        
+            $hclass='';  
+            if  (!is_null($cfgSVM_arr_NT) ) {  
+                if ($cfgSVM_arr_NT[$keep_key] == '0000'){   
+                     $hclass='highlight_nulltime_red'; 
+                     $nulltime_exist = true;  
+                }
+            } 
+        
 ?>
-		<form action='meeting_definition_category.php' method='post' name='event_<?php echo $i; ?>'>
-			<td><?php echo $row[6]; ?></td>
+		<form action='meeting_definition_category.php' method='post' name='event_<?php echo $row[0]; ?>'> 
+			<td class='<?php echo $hclass; ?>'><?php echo $row[6]; ?></td>      
 			<td class='forms'>
 				<input name='arg' type='hidden' value='change_event' />
 				<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
 				<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
+                <input name='dTyp' type='hidden' value='<?php echo $row[9]; ?>' /> 
+                <input name='wTyp' type='hidden' value='<?php echo $row[2]; ?>' />  
 				<input name="nocat" type="hidden" value="1"/>
 			
 			<?php
 			if($row[3]==$cvtTable[$strConvtableRankingPoints]){
 				?>
-				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $i ?>.arg.value='change_formula'; 
-					document.event_<?php echo $i ?>.submit()"/>     			  
+				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $row[0]; ?>.arg.value='change_formula'; 
+					document.event_<?php echo $row[0]; ?>.submit()"/>     			  
 				<?php
 			} else {
-				$dropdown = new GUI_Select('formula', 1, "document.event_$i.submit()");
+				$dropdown = new GUI_Select('formula', 1, "document.event_$row[0].submit()");
 				foreach($cvtFormulas[$row[3]] as $key=>$value)
 				{
 					$dropdown->addOption($key, $key);
@@ -612,10 +824,50 @@ else			// no DB error
 				$dropdown->printList();
 			}
 ?>
-			</td>
-		</form>
+			</td>  
+             </form> 
+               
+            <form action='meeting_definition_category.php' method='post' name='event_time_<?php echo $row[0]; ?>'> 
+                 
 <?php
-		}	// ET single event
+       
+            $res_c = mysql_query("SELECT
+                                        TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+                                        , r.Datum
+                                        , r.xRunde
+                                  FROM
+                                        runde as r
+                                        LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+                                  WHERE 
+                                        r.xWettkampf = ".$row[0]." 
+                                        AND w.xMeeting = ".$_COOKIE['meeting_id']);    
+                   
+            $time = mysql_fetch_array($res_c);                   
+               
+            $dd = new GUI_DateDropDown($time[1]);
+?>              
+            
+            <input name='arg' type='hidden' value='change_starttime' /> 
+            <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
+                <input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
+                <input name='dTyp' type='hidden' value='<?php echo $row[9]; ?>' /> 
+                <input name='wTyp' type='hidden' value='<?php echo $row[2]; ?>' />  
+                <input name='svmcat' type='hidden' value='<?php echo $row[8]; ?>' />  
+                 <input name='round' type='hidden' value='<?php echo $round; ?>' />   
+                  <input name='dCode' type='hidden' value='<?php echo $row[16]; ?>' />  
+                <input name="nocat" type="hidden" value="1"/>   
+            <td class='forms' colspan="1">
+                <input type="text" size="5" maxlength="5" value="<?php echo $time[0] ?>"
+                onchange="document.event_time_<?php echo $row[0] ?>.arg.value='change_starttime'; 
+                    document.event_time_<?php echo $row[0] ?>.round.value='<?php echo $time[2] ?>';
+                    document.event_time_<?php echo $row[0] ?>.submit()" 
+                name="starttime" id="starttime_<?php echo $oldx."_".$oldg ?>">
+            </td>  
+		</form>
+<?php           
+		}
+        
+        	// ET single event
 		
 		/*
 		*
@@ -762,7 +1014,7 @@ else			// no DB error
 			//
 			?>
 		<tr>
-			<form method="POST" action="meeting_definition_category.php" name="event_neu_<?php echo $row[0] ?>">
+			<form method="POST" action="meeting_definition_category.php" name="event_disc_<?php echo $row[0] ?>">
 			<input type="hidden" name="arg" value="change_event_discipline">
 			<input type="hidden" name="g" value="">
 			<input type="hidden" name="round" value="">
@@ -809,7 +1061,7 @@ else			// no DB error
 					<td class='forms'>            
 					<input name='cmbtype' type='hidden' value='<?php echo $t; ?>' />
 					<?php
-					$dropdown = new GUI_Select('discipline_cmb', 1, "document.event_neu_$row[0].submit()");                                       
+					$dropdown = new GUI_Select('discipline_cmb', 1, "document.event_disc_$row[0].submit()");                                       
 						 
 					$res_d = mysql_query("SELECT 
 												xDisziplin
@@ -849,12 +1101,12 @@ else			// no DB error
 
 			?>             
 			<form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
-			<input type="hidden" name="arg" value="change_event">
+			<input type="hidden" name="arg" value="change_event">     
 			<input type="hidden" name="g" value="">
 			<input type="hidden" name="round" value="">
 			<input type="hidden" name="item" value="<?php echo $row[0] ?>">
 			<input type="hidden" name="info" value="<?php echo $row[13] ?>">
-			<input type="hidden" name="last" value="<?php echo $row[14] ?>">
+			<input type="hidden" name="last" value="<?php  echo $row[14] ?>">
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
 			<input type="hidden" name="nocat" value="1"/>             
 			
@@ -944,7 +1196,7 @@ else			// no DB error
 				//$oldx = 0;
 				foreach($cGroups as $g){
 					?>
-			<td class='forms'><input type="text" size="4" maxlength="5" value="<?php echo $times[$g][0] ?>"
+			<td class='forms'><input type="text" size="5" maxlength="5" value="<?php echo $times[$g][0] ?>"
 				onchange="document.event_<?php echo $row[0] ?>.arg.value='change_starttime'; 
 					document.event_<?php echo $row[0] ?>.g.value='<?php echo $g ?>'; 
 					document.event_<?php echo $row[0] ?>.round.value='<?php echo $times[$g][3] ?>';
@@ -976,7 +1228,7 @@ else			// no DB error
 				$dd = new GUI_DateDropDown($time[1]);
 				?>
 			<td class='forms' colspan="<?php echo count($cGroups)==0?"1":count($cGroups); ?>">
-				<input type="text" size="4" maxlength="5" value="<?php echo $time[0] ?>"
+				<input type="text" size="5" maxlength="5" value="<?php echo $time[0] ?>"
 				onchange="document.event_<?php echo $row[0] ?>.arg.value='change_starttime'; 
 					document.event_<?php echo $row[0] ?>.round.value='<?php echo $time[2] ?>';
 					document.event_<?php echo $row[0] ?>.submit()" 
@@ -1166,7 +1418,7 @@ else			// no DB error
 				foreach($cGroups as $g){
 					?>
 			<td class='forms'>g<?php echo $g ?>
-				<input type="text" size="4" maxlength="5" value="<?php echo $times[$g][0] ?>"
+				<input type="text" size="5" maxlength="5" value="<?php echo $times[$g][0] ?>"
 				onchange="document.event_<?php echo $row[0] ?>.arg.value='change_starttime'; 
 					document.event_<?php echo $row[0] ?>.g.value='<?php echo $g ?>'; 
 					document.event_<?php echo $row[0] ?>.round.value='<?php echo $times[$g][3] ?>';
@@ -1194,7 +1446,7 @@ else			// no DB error
 				$dd = new GUI_DateDropDown($time[1]);
 				?>
 			<td class='forms' colspan="<?php echo count($cGroups)==0?"1":count($cGroups); ?>">
-				<input type="text" size="4" maxlength="5" value="<?php echo $time[0] ?>"
+				<input type="text" size="5" maxlength="5" value="<?php echo $time[0] ?>"
 				onchange="document.event_<?php echo $row[0] ?>.arg.value='change_starttime'; 
 					document.event_<?php echo $row[0] ?>.round.value='<?php echo $time[2] ?>';
 					document.event_<?php echo $row[0] ?>.submit()" 
@@ -1216,14 +1468,26 @@ else			// no DB error
 		
 		
 	}	// end loop disciplines
-	mysql_free_result($result);
+	//mysql_free_result($result);
 	
+     if($_POST['wTyp'] > $cfgEventType[$strEventTypeSingleCombined]
+                && $row[2] != $cfgEventType[$strEventTypeTeamSM] && $nulltime_exist)         // not single event
+            {   
+    ?>
+     <table>
+     <tr><hr></hr><td class="highlight_nulltime_red"><?php echo $strRemNulltime; ?> 
+     </td></tr>
+     </table>
+    
+    <?php
+    }
+    
 	if($cType == $cfgEventType[$strEventTypeTeamSM] && $tsm > 0){
 		?>
 	</table>
 		<?php
 	}    	
-	if($cType == $cfgEventType[$strEventTypeSingleCombined] || $cNewCombined){ 		// add new combined event
+	if($cType == $cfgEventType[$strEventTypeSingleCombined] || $cNewCombined ){ 		// add new combined event
 		if($comb > 0){
 			?>        			
 		
@@ -1308,6 +1572,58 @@ else			// no DB error
 		
 	} // end if combined
 	
+    
+    
+    if ($cNewSVM) {
+        $wTyp=12;
+        
+             
+             if (mysql_num_rows($result) == 0) {
+                
+                ?>
+<br>
+<table class='dialog'>
+<tr>
+    <th class='dialog'><?php echo $strSvmCategory; ?></th>
+</tr>
+<tr>
+    <td class='dialog'>
+        <form action='meeting_definition_category.php' method='post' name='svmcat'>
+        <input name='arg' type='hidden' value='add_svmcat' />
+        <input name='conv_changed' type='hidden' value='no' />
+        <input name='cat' type='hidden' value='<?php echo $category; ?>' /> 
+        <select name="svmcategory" onchange="document.svmcat.submit()">
+            <option value="-">-</option>
+                <?php
+                $res_comb = mysql_query("select xKategorie_SVM, Name from kategorie_svm");
+                if(mysql_errno() > 0) {    // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }else{
+                    while($row_comb = mysql_fetch_array($res_comb)){
+                        if($row[8] == $row_comb[0]){
+                            $sel = "selected";
+                        }else{
+                            $sel = "";
+                        }
+                        ?>
+            <option value="<?php echo $row_comb[0] ?>" <?php echo $sel ?>><?php echo $row_comb[1] ?></option>
+                        <?php
+                    }
+                }
+                ?>
+        </select>
+        </form>
+    </td>
+</tr>
+</table>
+        
+        
+    <?php    
+             }
+mysql_free_result($result);      
+    
+    }   
+    
 	if($cType > $cfgEventType[$strEventTypeSingleCombined]
 		&& $cType != $cfgEventType[$strEventTypeTeamSM]) 		// not single event
 	{

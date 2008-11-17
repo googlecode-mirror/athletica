@@ -182,6 +182,21 @@ else		// no DB error
 			
 		}
 	}
+    
+    function create_svm(){
+        
+        if(document.add_event.cat.value != 'new' && document.add_event.cat.value != 0){
+            
+            // redirect for adding a combined event in the current category
+            var val = document.add_event.cat.value;
+            document.location.href = "meeting_definition_category.php?arg=create_svm&cat="+val;
+            
+        }else{
+            
+            alert("<?php echo $strErrCreateSVM ?>");
+            
+        }
+    }
 //-->
 </script>
 
@@ -229,6 +244,8 @@ else		// no DB error
 		$dropdown->selectOption($category);
 		$dropdown->printList();
 ?>
+    </td>
+    <td>
 	<input type="button" onclick="create_combined()" value="<?php echo $strCreateCombined ?>">
 	</td>
 </tr>
@@ -238,6 +255,9 @@ else		// no DB error
 <?php
 		$dd = new GUI_DisciplineDropDown(0, true, false, $keys, 'check_discipline()');
 ?>
+<td>
+   <input type="button" onclick="create_svm()" value="<?php echo $strCreateSVM ?>">  
+   </td>
 </tr>
 
 <tr>
