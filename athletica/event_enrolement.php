@@ -5,7 +5,7 @@
  *	--------------------
  *	
  */      
-     
+           
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -106,7 +106,7 @@ if(!empty($_GET['round'])) {
 }
 else {
 	$round = 0;
-}
+}    
 
 if(!empty($_GET['comb'])) {
 	$comb = $_GET['comb'];
@@ -129,8 +129,13 @@ if(isset($_GET['payed'])) {		// athlete payed
 	$payed = 'y';
 } else {
 	$payed = 'n';
-}
+}    
 
+$mk_group = '';
+if(!empty($_GET['group'])) {
+    $mk_group = $_GET['group']; 
+   
+}
 
 //
 //	Check if relay event
@@ -138,7 +143,7 @@ if(isset($_GET['payed'])) {		// athlete payed
 $relay = AA_checkRelay($event);
 $combined = AA_checkCombined($event, $round);
 
-
+ 
 
 //
 // Update absent status
@@ -575,7 +580,7 @@ if ($arg=="nbr") {
 </table>
 
 <?php
-
+  
 if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 {                                      
 	// check if enrolement pending for this event
@@ -606,7 +611,12 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			$sqlEventComb = '';        // the whole combined event
 			$sqlCat = " w.xKategorie = " .$cCat ." AND ";
 			$sqlMk = " w.Mehrkampfcode = ".$cCode;           
-		}        		 
+		} 
+        
+        $sqlGroup = '';
+        if ($group != '') {
+            $sqlGroup = ' AND r.Gruppe = ' .$group;
+        }      		 
 	  
 		$sql = "SELECT
 					xRunde
@@ -617,7 +627,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				WHERE "
 					. $sqlEventComb
 				   	. $sqlCat 	
-				   	. $sqlMk ."
+				   	. $sqlMk 
+                    . $sqlGroup ." 
 				AND
 					w.xMeeting = ".$_COOKIE['meeting_id']."
 				AND
@@ -662,8 +673,9 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	{    
 		$row = mysql_fetch_row($result);
 		$round=$row[0];
+        $group=$row[1];
 
-		$btn = new GUI_Button("event_enrolement.php?arg=terminate&round=$row[0]&category=$category&event=$event&comb=$comb", $strTerminateEnrolement);
+		$btn = new GUI_Button("event_enrolement.php?arg=terminate&round=$row[0]&category=$category&event=$event&comb=$comb&group=$mk_group", $strTerminateEnrolement);
 		$btn->printButton();
 ?>
 <p/>
@@ -774,7 +786,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	//  
 
     $sqlEvents=AA_getMergedEvents($round);
-    	
+    
     if  ($sqlEvents=='' && $round==0){   
     	$sqlEvents=AA_getMergedEventsFromEvent($event);        	
 	}
@@ -866,6 +878,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	
 	if($relay == FALSE) {          
 			// single event
+           
 		if($comb > 0 || $event > 0){ // combined, select entries over each discipline
 			/*$query = "SELECT s.xStart"
 					. ", s.Anwesend"
@@ -889,6 +902,15 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					. " AND at.xVerein = v.xVerein"
 					. " ORDER BY " . $argument;*/   
 			
+            $sqlGroup2='' ;
+            $sqlTable='';                                
+            if ($comb > 0) {
+                if ($mk_group > 0){                    // combined event with groups   
+                     $sqlGroup2=" r.Gruppe = a.Gruppe AND r.xRunde = " .$round. " AND "; 
+                     $sqlTable=" LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) ";  
+                } 
+            }
+            
 			$sql = "SELECT
 						  s.xStart
 						, s.Anwesend
@@ -898,7 +920,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						, at.Jahrgang
 						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
 						, a.xAnmeldung
-						, s.Bezahlt
+						, s.Bezahlt                         
 					FROM
 						anmeldung AS a
 					LEFT JOIN
@@ -908,17 +930,22 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN 
 						verein AS v ON(at.xVerein = v.xVerein)
 					LEFT JOIN
-						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
+						wettkampf AS w ON(s.xWettkampf = w.xWettkampf) "
+                    . $sqlTable ."
 					WHERE        "
 						. $sqlEventComb   						
 						. $sqlCat      					
-						. $sqlMk ."
-					AND
-						w.xMeeting = ".$_COOKIE['meeting_id']."
+						. $sqlMk 
+                        . $sqlGroup ."    
+					AND "
+                        . $sqlGroup2 ."  
+                       
+						 w.xMeeting = ".$_COOKIE['meeting_id']."
 					ORDER BY
 						".$argument.";";
-			
-			$query = $sql;
+			  
+			$query = $sql;       
+           
 		}else{  
 			// no combined
 			/*$query = "SELECT s.xStart"
@@ -1009,7 +1036,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					".$sqlGroup ."  
 					ORDER BY
 						".$argument.")";    
-			$query = $sql;
+			$query = $sql;    
 		}
 	}
 	else {							// relay event
@@ -1109,7 +1136,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             ORDER BY
                     ".$argument.";";
                     
-		$query = $sql;                   
+		$query = $sql;                                
 	}                   
 	
 	$result = mysql_query($query);

@@ -42,6 +42,11 @@ else if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
 
+$group = '';
+if(!empty($_GET['group'])) {
+    $group = $_GET['group'];  
+} 
+
 $presets = AA_results_getPresets($round);
 
 $relay = AA_checkRelay($presets['event']);	// check, if this is a relay event
@@ -72,7 +77,7 @@ if($presets['event'] > 0) {		// event selected
 
 <?php
 if($round > 0)
-{
+{   
 	// sort argument
 	$img_nbr="img/sort_inact.gif";
 	$img_name="img/sort_inact.gif";
@@ -108,8 +113,13 @@ if($round > 0)
     }
     else {
         $sqlEvent=" = ". $presets['event'];  
-    }   
-    
+    } 
+   
+    $sqlGroup = '';
+    if  ($group != ''){
+        $sqlGroup = " AND a.Gruppe = " .$group;  
+    }
+   
 	if($relay == FALSE) 		// single event
 	{
 		$query = "
@@ -119,17 +129,18 @@ if($round > 0)
 				, at.Name
 				, at.Vorname
 				, at.Jahrgang
-				, v.Name
+				, v.Name                  
 			FROM
 				anmeldung AS a
 				, athlet AS at
 				, start AS s
 				, verein AS v
 			WHERE s.xWettkampf " . $sqlEvent . "
-			AND a.xAnmeldung = s.xAnmeldung
-			AND at.xAthlet = a.xAthlet
-			AND v.xVerein = at.xVerein
-            AND s.Anwesend = 0
+                " . $sqlGroup . "
+			    AND a.xAnmeldung = s.xAnmeldung
+			    AND at.xAthlet = a.xAthlet
+			    AND v.xVerein = at.xVerein
+                AND s.Anwesend = 0
 			ORDER BY " . $argument;
 	}
 	else {							// relay event
