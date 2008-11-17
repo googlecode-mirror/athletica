@@ -80,6 +80,22 @@ Startblättern.
 Vorerst können drei Wettkampfrunden (z.B. Vorrunde, Zwischenlauf, Final)
 mit Startzeit definiert werden. Dies sollte in den meisten Fällen genügen.
 Falls nötig, können später zusätzliche Runden erfasst werden.
+
+<h4>SVM erstellen</h4>
+Im Hauptteil erscheint ein Formular zur Erfassung eines neuen Wettkampfs.
+Bei der ersten Eingabe muss eine Kategorie und <i>"SVM erstellen" </i>
+ausgewählt werden. Danach erscheint eine Auswahl der SVM Kategorien.
+<br />  <br />  
+Bei Wahl der Nationalligen A-C Männner und Frauen werden die fixen Zeitpläne 
+direkt eingefügt. Bei den rot markierten Disziplinen kann die Nullzeit verändert 
+werden, was zu einer automatischen Nachberechnung der Zeiten der restlichen Disziplinen führt.
+<br />  <br />  
+ Bei 1. Liga, U20 M1 und U20 W muss bei der rot markierten Disziplin die Nullzeit eingegeben werden, wobei dann
+ die restlichen Zeiten automatisch vergeben werden.
+
+<br />
+Wettkampftyp und Wertungstabelle werden automatisch vergeben.
+
 <h4>Statistiken</h4>
 Dieser Befehl liefert einen Überblick über den Stand der Anmeldungen. Gezeigt
 werden die Anmeldungen (Anzahl Athleten und Staffeln) pro Kategorie, die
@@ -107,15 +123,18 @@ werden.
 <dt>Einzel</dt><dd>Einzelwettkampf als Standardtyp.</dd>
 <dt>Mehrkampf</dt><dd>Für den Mehrkampf werden alle für diese Kategorie
 definierten Disziplinen gewertet.</dd>
-<dt>SVM Männer NLA</dt><dd>[noch nicht implementiert]</dd>
-<dt>SVM Männer NLB</dt><dd>[noch nicht implementiert]</dd>
-<dt>SVM Männer NLC</dt><dd>[noch nicht implementiert]</dd>
-<dt>SVM Frauen NLA</dt><dd>[noch nicht implementiert]</dd>
-<dt>SVM Frauen NLB</dt><dd>[noch nicht implementiert]</dd>
+<dt>SVM Nationalliga 2007</dt><dd>Rangpunktebewertung. Die Mannschaften werden aufgrund der erreichten Gesamtpunktzahl klassiert. Bei Punktgleichheit ist 
+für die Klassierung die Anzahl Disziplinensiege massgebend, anschliessend die Anzahl zweite Plätze etc.</dd>
+<!--<dt>SVM Männer NLA</dt><dd>[noch nicht implementiert]</dd>    -->
+<!--<dt>SVM Männer NLB</dt><dd>[noch nicht implementiert]</dd>    --> 
+<!--<dt>SVM Männer NLC</dt><dd>[noch nicht implementiert]</dd>    --> 
+<!--<dt>SVM Frauen NLA</dt><dd>[noch nicht implementiert]</dd>    --> 
+<!--dt>SVM Frauen NLB</dt><dd>[noch nicht implementiert]</dd>    --> 
 <dt>SVM (1 Athlet plus Staffel)</dt><dd>Standardauswertung für SVM-Wettkämpfe. Pro Disziplin wird das beste Resultat gewertet plus ein Staffelresultat.</dd>
 <dt>SVM (2 Athleten plus Staffel)</dt><dd>Standardauswertung für SVM-Wettkämpfe. Pro Disziplin wird der Durchschnitt der zwei besten Resultate gewertet plus ein Staffelresultat.</dd>
-<dt>SVM Mannschaftswettkampf</dt><dd>SVM-Mannschaftswertung mit fünf Zählresultaten pro Einzeldisziplin plus ein Staffelresultat</dd>
-<dt>SVM Mehrkampf</dt><dd>SVM mit Mehrkampfwertung. Gewertet werden die fünf besten Mehrkampfresultate. Staffeln können zwar definiert werden, werden aber nicht in die Wertung einbezogen</dd>
+<dt>SVM Mannschaftswettkampf (5 Athleten plus Staffel)</dt><dd>SVM-Mannschaftswertung mit fünf Zählresultaten pro Einzeldisziplin plus ein Staffelresultat</dd>
+<dt>SVM Mehrkampf (5 Athleten)</dt><dd>SVM mit Mehrkampfwertung. Gewertet werden die fünf besten Mehrkampfresultate. Staffeln können zwar definiert werden, werden aber nicht in die Wertung einbezogen</dd> 
+<dt>SVM Mixed-Team (6 Athleten plus Staffel)</dt><dd>Für den Mixed-Wettkampf gilt die WErtungstabelle der Männer. Gewertet werden die sechs besten Einzelresultate (die drei besten Männlichen und die drei besten Weiblichen) pro Disziplin und die Staffel.</dd>
 </dl>
 <h4>Wertungstabelle</h4>
 Für alle Typen ausser <i>Einzel</i> muss eine Wertungspunktetabelle
@@ -131,14 +150,15 @@ Folgende Tabellen sind derzeit implementiert:
 <dt>SLV 94, Männer und Frauen</dt>
 <dd>SVM-Wertung von Swiss Athletics (Ausgenommen NLA-C M&auml;nner und NLA-B Frauen)</dd>
 <dt>IAAF 85, Männer und Frauen</dt><dd>Mehrkampfwertung</dd>
-<dt>SVM NLA-C M&auml;nner</dt>
-<dd>SVM-Wertung NLA-C M&auml;nner</dd>
-<dt>SVM NLA-B Frauen</dt>
-<dd>SVM-Wertung NLA-B Frauen</dd>
+<!--<dt>SVM NLA-C M&auml;nner</dt>  -->
+<!--<dd>SVM-Wertung NLA-C M&auml;nner</dd> -->  
+<!--<dt>SVM NLA-B Frauen</dt> -->  
+<!--<dd>SVM-Wertung NLA-B Frauen</dd> -->  
 <dt>Rangpunkte</dt>
-<dd>Die Punkte werden aufgrund des Ranges berechnet. Wenn dieser Wertungsmodus ausgew&auml;hlt wird, muss im Feld &quot;Punkte&quot; folgende Formel eingetragen werden: [Punkte f&uuml;r ersten Rang]-[Punkteabzug pro Rang]<br />
-Beispiel: <strong>16-1</strong></dd>
+<dd>Die Punkte werden aufgrund des Ranges berechnet. Wenn dieser Wertungsmodus ausgew&auml;hlt wird, muss im Feld &quot;Punkte&quot; folgende Formel eingetragen werden: [Punkte f&uuml;r ersten Rang]-[Punkteabzug pro Rang] <strong>oder</strong> [Punkte f&uuml;r ersten Rang]+[Punkte pro Rang] <br />
+Beispiel: <strong>16-1</strong> </dd>
 <dt>&nbsp; </dt>
+
 <dd>
   <table cellpadding="0" cellspacing="0" border="0" style="margin:0px; padding:0px">
       <tr>
@@ -167,6 +187,8 @@ Beispiel: <strong>16-1</strong></dd>
       </tr>
     </table>
 </dd>
+
+
 <dt>[Eigene Wertungstabellen]</dt>
 <dd>Es k&ouml;nnen beliebig viele eigene Wertungstabellen bzw. Puktetabellen definiert werden. Siehe: <a href="../administration/scoring_tables.html">Wertungstabellen</a></dd>
 </dl>
@@ -200,7 +222,9 @@ erfasst, werden die Resultatpunkte entsprechend neu berechnet.
 Die definierten Wettkampfrunden werden in ihrer zeitlichen Reihenfolge
 angezeigt. Typ, Datum und Startzeit können jederzeit geändert werden.
 Sind noch keine Serien eingeteilt, kann eine Runde gelöscht werden.
-Es können beliebig viele neue Runden hinzugefügt werden.
+Es können beliebig viele neue Runden hinzugefügt werden. Es ist auch möglich zwei 
+Mal den gleichen Rundentyp (bei Serie und ohne) zu definieren.  
+
 <p/>
 
 <div class='helpnav'>
