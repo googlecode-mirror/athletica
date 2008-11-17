@@ -116,15 +116,16 @@ $results = mysql_query("
 	  	, kategorie AS k
   	WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
 	" . $selection . "
-  	AND k.xKategorie = w.xKategorie
-  	AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."
+  	AND k.xKategorie = w.xKategorie "
+  	// AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."           // old svm
+    ." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."   
 	AND w.Typ <  " . $cfgEventType[$strEventTypeTeamSM] ."
 	GROUP BY
 		k.xKategorie
 	ORDER BY
 		k.Anzeige
 ");
-    
+       
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -231,7 +232,7 @@ function processSingle($xCategory, $category, $list)
 	  			, w.Typ
 	  			, d.Typ
 				, k.Code
-				, at.Geschlecht
+				, at.Geschlecht                
   			FROM
 	  			wettkampf AS w
 	  			, disziplin AS d 
@@ -257,7 +258,7 @@ function processSingle($xCategory, $category, $list)
 				d.Anzeige
 				, pts DESC
   		");
-	
+	    
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -268,7 +269,7 @@ function processSingle($xCategory, $category, $list)
 			$g = 0;
 			$p = 0;
 			$mixedTeamCount = array('m'=>0, 'w'=>0);
-
+            
 			while($pt_row = mysql_fetch_row($res))
 			{
 				// nbr of athletes to be included in total points
@@ -435,8 +436,9 @@ function processSingle($xCategory, $category, $list)
 
 				$c++;
 				$d = $pt_row[0];				// keep discipline
+                
 			}	// END WHILE team events
-
+           
 			// accumulate points of last event
 			if($p > 0) {
 				$info = $info . $sep . $d;
