@@ -90,16 +90,16 @@ th.enrolmt_nbr { width:35px; padding-left:5px; padding-right:5px;
 th.enrolmt_pos { width:35px; padding-left:5px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                 border-bottom:1px solid #000000; }
-th.enrolmt_name { width:240px; padding-left:0px; padding-right:5px;
+th.enrolmt_name { width:230px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.enrolmt_year { width:40px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.enrolmt_club { width:230px; padding-left:0px; padding-right:5px;
+th.enrolmt_club { width:220px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.enrolmt_top { text-align:right; width:40px; padding-left:0px; padding-right:5px;
+th.enrolmt_top { text-align:right; width:70px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.enrolmt_empty { width:70px; padding-left:0px; padding-right:5px;
@@ -533,6 +533,9 @@ th.rank_wind { width:50px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.rank_remark { width:30px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 
 /* list item */
 td.rank_rank {	text-align:right; padding-left:0px; padding-right:8px;
@@ -554,6 +557,8 @@ td.rank_points { font-size:12px; text-align:right;
 td.rank_wind { font-size:12px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:2px; padding-bottom:0px; }
+td.rank_remark { padding-left:0px; padding-right:5px;
+                padding-top:2px; padding-bottom:0px; }
 
 /* combined header line */
 th.comb_rank { width:35px; padding-left:5px; padding-right:5px;
@@ -572,6 +577,9 @@ th.comb_points { width:60px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.comb_remark { width:30px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 th.comb_datetime  { font-size:14px; font-weight: normal; text-align:right;
 				padding-left:0px; padding-right:0px;
 				padding-top:10px; padding-bottom:4px; }
@@ -588,6 +596,8 @@ td.comb_club { padding-left:0px; padding-right:5px;
 td.comb_points { font-size:12px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:2px; padding-bottom:0px; }
+td.comb_remark { padding-left:0px; padding-right:5px;
+                padding-top:2px; padding-bottom:0px; }
 
 /* list info line */
 td.comb_info {	text-align:left; font-size:10px;
@@ -608,7 +618,7 @@ th.team_club { width:230px; padding-left:0px; padding-right:5px;
 th.team_points { width:110px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
-				border-bottom:1px solid #000000; }
+				border-bottom:1px solid #000000; }  
 
 /* team item */
 td.team_rank {	text-align:right; padding-left:0px; padding-right:15px;
@@ -619,7 +629,7 @@ td.team_club { padding-left:0px; padding-right:5px;
 				padding-top:2px; padding-bottom:0px; }
 td.team_points { font-size:12px; text-align:right;
 				padding-left:0px; padding-right:5px;
-				padding-top:2px; padding-bottom:0px; }
+				padding-top:2px; padding-bottom:0px; }  
 
 /* list info line */
 td.team_info {	text-align:left; font-size:10px;
@@ -826,6 +836,8 @@ td.sheet_pts { width:60px; text-align:right;
 td.sheet_tot { width:60px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
+td.sheet_remark{ width:60px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
 
 /* relay athlete */
 td.sheet_relay_athlete { font-size:11px; width:330px;
