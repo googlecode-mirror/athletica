@@ -115,7 +115,7 @@ function AA_timetable_display($arg = 'monitor')
                 , k.Kurzname
 				, d.Anzeige
 		");   
-        
+       
 		if(mysql_errno() > 0)	// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -209,15 +209,15 @@ function AA_timetable_display($arg = 'monitor')
 					case($cfgRoundStatus['open']):
 						$class = "";
 						//$href = "event_heats.php?round=$row[0]";
-						if($combined){
-							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]";
+						if($combined){ 
+							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]&group=$row[15]";
 						}else{
 							$href = "event_enrolement.php?category=$row[11]&event=$row[10]";
 						}
 						break;
 					case($cfgRoundStatus['enrolement_pending']):
 						$class = "st_enrlmt_pend";
-						if($combined){
+						if($combined){  
 							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]";
 						}else{
 							$href = "event_enrolement.php?category=$row[11]&event=$row[10]";
@@ -255,15 +255,15 @@ function AA_timetable_display($arg = 'monitor')
 					case($cfgRoundStatus['open']):
 					case($cfgRoundStatus['enrolement_pending']): 
 						$class = "";
-						$href = "speaker_entries.php?round=$row[0]";
+						$href = "speaker_entries.php?round=$row[0]&group=$row[15]";
 						break;  
                     case($cfgRoundStatus['enrolement_done']): 
                        $class = "st_enrlmt_done"; 
-                        $href = "speaker_entries.php?round=$row[0]";
+                        $href = "speaker_entries.php?round=$row[0]&group=$row[15]";
                         break;   
                     case($cfgRoundStatus['heats_in_progress']): 
                      	$class = "st_heats_work"; 
-                        $href = "speaker_entries.php?round=$row[0]";
+                        $href = "speaker_entries.php?round=$row[0]&group=$row[15]";
                         break;  			    
 					case($cfgRoundStatus['heats_done']):
 						$class = "st_heats_done";
@@ -318,17 +318,30 @@ function AA_timetable_display($arg = 'monitor')
 					{    
 						$starts = "-";
 						// get number of athletes/relays with valid result
-						$result = mysql_query("
-							SELECT
-								COUNT(*)
-							FROM
-								serienstart AS ss
-								, serie AS s
-							WHERE ss.Qualifikation > 0
-							AND s.xSerie = ss.xSerie
-							AND s.xRunde =" . $events[$row[10]]
-						);
-                          
+                        if ($row[2] == 'S' || $row[2] == 'O'){                // round typ: S = Serie ,  O = ohne
+						    $sql = "
+							    SELECT
+								    COUNT(*)
+							    FROM
+								    serienstart AS ss
+								    , serie AS s
+							    WHERE 
+							        s.xSerie = ss.xSerie
+							        AND s.xRunde =" . $events[$row[10]];
+						
+                        }
+                        else {
+                            $sql="SELECT
+                                COUNT(*)
+                            FROM
+                                serienstart AS ss
+                                , serie AS s
+                            WHERE ss.Qualifikation > 0
+                                AND s.xSerie = ss.xSerie
+                                AND s.xRunde =" . $events[$row[10]];
+                        }
+                        $result=mysql_query($sql);
+                           
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}
@@ -351,7 +364,7 @@ function AA_timetable_display($arg = 'monitor')
 										AND	st.xWettkampf = $row[10]
 										AND	a.Gruppe = '$row[15]'");  
 									
-							if(mysql_errno() > 0) {	  echo " Error"; 	// DB error
+							if(mysql_errno() > 0) {	 
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							}else{
 								$start_row = mysql_fetch_array($result);
@@ -505,7 +518,7 @@ function AA_timetable_display($arg = 'monitor')
 					?>
 	<div class='<?php echo $class; ?>'>
 		<a <?php echo $class; ?> href='<?php echo $href; ?>'>
-			<?php echo "&nbsp;$row[4]&nbsp;$row[2]$combGroup&nbsp;" ?>
+			<?php echo "&nbsp;$row[4]&nbsp;$row[2]$combGroup&nbsp; " ?>
 		&nbsp;(<?php echo $starts; ?>) <?php echo $row[13]; ?></a>
 	</div>
 					<?php
