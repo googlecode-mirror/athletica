@@ -512,13 +512,13 @@ function AA_meeting_changeCategory($byCombtype = 0)
 			AND disziplin.xDisziplin = wettkampf.xDisziplin
 			$sqlCombtype
 			$sqlSetCombinedOnly
-		");
-			
+		");     
+           	
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else
-		{
+		{   
 			while ($row = mysql_fetch_row($result))
 			{
 				// check if any formula for new conversion table
@@ -579,7 +579,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 				else if($_POST['conv_changed'] == 'yes')	// conv. table changed
-				{
+				{    
 					AA_meeting_resetResults($row[0], $formula);
 				}
 			}	// end while every event for this category
@@ -1072,6 +1072,182 @@ function AA_meeting_getLG($club){
    return $arrClub; 
    
 }   //end function AA_meeting_getLG  
+
+//
+// add new svm event
+//
+function AA_meeting_addSVMEvent($disfee, $penalty){
+    
+    include('./convtables.inc.php');
+    require('./lib/common.lib.php');      
+      
+    if(!empty($_POST['svmcategory'])){
+        $svm = $_POST['svmcategory'];
+        
+        // get short name
+        $res = mysql_query("SELECT ks.code FROM kategorie_svm AS ks WHERE ks.xKategorie_svm = $svm");  
+        $row = mysql_fetch_array($res);
+        $svmCode = $row[0];  
+        $_POST['svmCode']=$svmCode;               
+          
+         if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                   
+            }   
+      
+        if(isset($cfgSVM[$svmCode])){
+            $arrSVM = $cfgSVM[$svmCode];  
+            $k = 0;
+           
+            foreach($arrSVM as $key => $val){      
+                $k++;
+                $res = mysql_query("SELECT xDisziplin, Typ FROM disziplin WHERE Code = $val");
+                $row = mysql_fetch_array($res);
+                $d = $row[0]; 
+                $dTyp = $row[1]; 
+                if (is_null($d)){
+                   $GLOBALS['AA_ERROR'] = $GLOBALS['strErrNoSuchDisCode']." (code=".$val.")";
+                   continue;
+                }
+                
+                $wTyp=$_POST['wTyp'];       
+                
+                $sql="INSERT INTO wettkampf SET
+                        Typ = ".$wTyp."
+                        , Haftgeld = '$penalty'
+                        , Startgeld = '$disfee' 
+                        , Info = ''                         
+                        , xKategorie = ".$_POST['cat']."
+                        , xDisziplin = $d
+                        , xMeeting = ".$_COOKIE['meeting_id']." 
+                        , xKategorie_svm = $svm";
+               
+                mysql_query($sql);
+                
+                if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                    break;
+                }    
+                 
+                $event=mysql_insert_id(); 
+                $_POST['item'] = $event; 
+                 if (isset($cfgSVM[$svmCode."_T"][$k-1])) {           // fix timetable
+                    $st = $cfgSVM[$svmCode."_T"][$k-1]; 
+                    AA_meeting_addTime($st, $wTyp,$event, $dTyp);
+                 }  
+            }  
+                               
+            // set conversion table                                           
+            $_POST['type'] = $wTyp;
+            $_POST['conv'] = $cfgSVM[$svmCode."_F"];             
+            $_POST['conv_changed'] = 'yes';
+           
+            AA_meeting_changeCategory('');    
+            
+        }else{    
+           $GLOBALS['AA_ERROR'] = $GLOBALS['strErrDiscNotDefSVM'];    
+        }    
+    }   
+     
+}     // end function AA_meeting_addSVMEvent
+
+//
+// get type of event
+//
+function AA_meeting_getEventType(){
+    
+    include('./convtables.inc.php');
+    require('./lib/common.lib.php');     
+         
+    if(!empty($_POST['svmcategory'])){
+        $svm = $_POST['svmcategory'];
+        
+        // get short name
+        $res = mysql_query("SELECT ks.code FROM kategorie_svm AS ks WHERE ks.xKategorie_svm = $svm");         
+        $row = mysql_fetch_array($res);
+        $svmCode = $row[0];              
+          
+         if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                   
+         }  
+          
+         $_POST['wTyp'] = $cfgSVM[$svmCode."_ET"];     
+            
+    }else{   
+           $GLOBALS['AA_ERROR'] = $GLOBALS['strErrDiscNotDefSVM'];  
+    } 
+      
+}      // end function AA_meeting_getEventType 
+    
+//
+// add time
+//
+function AA_meeting_addTime($st , $wTyp, $item, $dTyp)  {
+  // date, item, roundtype, hr, min    
+  
+    include('./convtables.inc.php');    
+      
+    if ($wTyp > $cfgEventType[$strEventTypeSingleCombined]
+                && $row[2] != $cfgEventType[$strEventTypeTeamSM])         // not single event
+            {      
+                                                                 
+              if ($dTyp == $cfgDisciplineType[$strDiscTypeTrack] ||
+                        $dTyp == $cfgDisciplineType[$strDiscTypeTrackNoWind] ||  
+                        $dTyp == $cfgDisciplineType[$strDiscTypeDistance] ||  
+                        $dTyp == $cfgDisciplineType[$strDiscTypeRelay] )  
+               {                                                                    // discipline type track
+                    $_POST['roundtype'] = 6; // round type "Serie"  
+              }   
+              else {                                                                // discipline type tech
+                  $_POST['roundtype'] = 9; // round type "ohne" 
+              }  
+    }
+   
+    
+    if(preg_match("/[\.,;:]/",$st) == 0){
+        $_POST['hr'] = substr($st,0,-2);
+        if(strlen($st) == 3){
+            $_POST['min'] = substr($st,1);
+        }elseif(strlen($st) == 4){
+            $_POST['min'] = substr($st,2);
+        }
+    }else{
+        list($_POST['hr'], $_POST['min']) = preg_split("/[\.,;:]/", $st);
+    }
+    
+    // auto configure enrolement and manipulation time
+    $result = mysql_query("
+        SELECT
+            d.Typ
+            , d.Appellzeit
+            , d.Stellzeit
+        FROM
+            wettkampf as w
+            LEFT JOIN disziplin as d USING(xDisziplin)
+        WHERE w.xWettkampf = " . $item
+    );
+    $row = mysql_fetch_row($result);
+    $stdEtime = strtotime($row[1]); // hold standard delay for enrolement time
+    $stdMtime = strtotime($row[2]); // and manipulation time
+    
+    $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
+    $tmp = $tmp - $stdEtime;
+    $_POST['etime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+    
+    $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
+    $tmp = $tmp - $stdMtime;
+    $_POST['mtime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+      
+     
+    if($_POST['round'] > 0 ){
+        $tt = new Timetable();  
+        $tt->change();
+    }else{
+        $tt = new Timetable();
+        $tt->add();
+    }  
+    
+}    // end function AA_meeting_addTime
+
 
 }		// AA_MEETING_LIB_INCLUDED
 ?>

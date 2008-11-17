@@ -23,13 +23,14 @@ class Timetable
 	var $group;
 	var $etime; // enrolement time
 	var $mtime; // manipulation time (stellzeit)
+    var $svmCode; 
 
 	/*		Timetable()
 	 * 	----------- 
 	 *		Gets session variables
 	 */
 	function Timetable()
-	{
+	{   
 		$this->date = $_POST['date'];
 		$this->event = $_POST['item'];
 		$this->round = $_POST['round'];
@@ -39,6 +40,7 @@ class Timetable
 		$this->group = $_POST['g'];
 		$this->etime = $_POST['etime'];
 		$this->mtime = $_POST['mtime'];
+        $this->svmCode = $_POST['svmCode'];   
 	}
 
 	/*		add()
@@ -46,10 +48,11 @@ class Timetable
 	 *		add a new event round
 	 */
 	function add()
-	{
+	{    
+        include('./convtables.inc.php');  
 		require('./lib/utils.lib.php');
 		$GLOBALS['AA_ERROR'] = '';
-
+        $keep_key = '';
 		// Error: Empty fields
 		if(empty($this->date) || empty($this->hour) || empty($this->min)
 			|| empty($this->event))
@@ -74,8 +77,8 @@ class Timetable
 					$GLOBALS['AA_ERROR'] = $GLOBALS['strEvent'] . $GLOBALS['strErrNotValid'];
 				}
 				else
-				{
-					// check if roundtype is valid
+				{   
+                    // check if roundtype is valid
 					if((!empty($this->type))
 						&& (AA_utils_checkReference("rundentyp", "xRundentyp",
 							$this->type) == 0))
@@ -86,8 +89,7 @@ class Timetable
 					}
 					// OK: try to add round
 					else
-					{
-						
+					{  						
 						if(!empty($this->etime)){
 							$et = AA_formatEnteredTime($this->etime);
 							$sqlEtime = ", Appellzeit = '$et[0]:$et[1]:00'";
@@ -95,18 +97,68 @@ class Timetable
 						if(!empty($this->mtime)){
 							$mt = AA_formatEnteredTime($this->mtime);
 							$sqlMtime = ", Stellzeit = '$mt[0]:$mt[1]:00'";
-						}
-						
-						mysql_query("
-							INSERT runde SET
-								Datum='" . $this->date . "'
-								, Startzeit='" . $this->hour .":". $this->min .":00" . "'
-								, xRundentyp=" . $this->type . "
-								, xWettkampf=" . $this->event."
-								$sqlEtime
-								$sqlMtime 
-							  	, Gruppe = '".$this->group."'"     
-						);
+						} 
+                        
+                        // set conversion table           
+                        if (isset($cfgSVM[$this->svmCode])){   
+                            $cfgSVM_arr = $cfgSVM[$this->svmCode]; 
+                            if (isset($cfgSVM[$this->svmCode."_NT"])){             // _NT = nulltime
+                                $cfgSVM_arr_NT = $cfgSVM[$this->svmCode."_NT"]; 
+                            }
+                        }   
+                        $d=$_POST['dCode'];
+                        if ($_POST['arg'] == 'change_starttime'){
+                            if (isset($cfgSVM[$this->svmCode."_NT"])){            // _NT = nulltime 
+                                 foreach ($cfgSVM_arr as $key => $val){  
+                                            if ($val == $_POST['dCode']){
+                                                $keep_key=$key; 
+                                                break;
+                                            }
+                                 }
+                                
+                                if ($cfgSVM_arr_NT[$keep_key] == '0000') {        // discipline with nulltime
+                                    $this->change_all();  
+                                }
+                                else { 
+                                                                         
+                                     mysql_query("
+                                INSERT runde SET
+                                    Datum='" . $this->date . "'
+                                    , Startzeit='" . $this->hour .":". $this->min .":00" . "'
+                                    , xRundentyp=" . $this->type . "
+                                    , xWettkampf=" . $this->event."
+                                    $sqlEtime
+                                    $sqlMtime 
+                                      , Gruppe = '".$this->group."'"     
+                                    );  
+                                }  
+                            } 
+                            else {  
+                                
+                              mysql_query("
+                                INSERT runde SET
+                                    Datum='" . $this->date . "'
+                                    , Startzeit='" . $this->hour .":". $this->min .":00" . "'
+                                    , xRundentyp=" . $this->type . "
+                                    , xWettkampf=" . $this->event."
+                                    $sqlEtime
+                                    $sqlMtime 
+                                      , Gruppe = '".$this->group."'"     
+                                    );  
+                            }   
+                         }
+                         else {  
+						    mysql_query("
+							    INSERT runde SET
+								    Datum='" . $this->date . "'
+								    , Startzeit='" . $this->hour .":". $this->min .":00" . "'
+								    , xRundentyp=" . $this->type . "
+								    , xWettkampf=" . $this->event."
+								    $sqlEtime
+								    $sqlMtime 
+							  	    , Gruppe = '".$this->group."'"     
+						            );
+                        }
 					}
 				}
 			}
@@ -164,7 +216,9 @@ class Timetable
 	 *		change an event round
 	 */
 	function change()
-	{
+	{  
+       include('./convtables.inc.php');
+       require('./lib/common.lib.php'); 
 		// Error: Empty fields
 		if(empty($this->round))
 		{
@@ -173,17 +227,17 @@ class Timetable
 		// OK: try to change round
 		else
 		{
-			mysql_query("LOCK TABLES serie READ, runde WRITE");
+			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin as d READ, runde WRITE");
 
 			$status = AA_utils_getRoundStatus($this->round);
 
 			if($status == $GLOBALS['cfgRoundStatus']['results_done'])
 			{
-				$GLOBALS['AA_ERROR'] = $GLOBALS['strErrResultsEntered'];
+				$GLOBALS['AA_ERROR'] = $GLOBALS['strErrResultsEntered'];   
 			}
 			else
 			{
-				
+				   
 				if(empty($this->type)){ // round type is not optional!
 					$GLOBALS['AA_ERROR'] = $GLOBALS['strType'] . $GLOBALS['strErrNotValid'];
 				}else{
@@ -195,37 +249,168 @@ class Timetable
 					if(!empty($this->mtime)){
 						$mt = AA_formatEnteredTime($this->mtime);
 						$sqlMtime = ", Stellzeit = '$mt[0]:$mt[1]:00'";
-					}
-					
-					mysql_query("
-						UPDATE runde SET
-							Datum = '" . $this->date . "'
-							, Startzeit = '".$this->hour.":".$this->min.":00"."'
-							, xRundentyp = " . $this->type . "
-							, Gruppe = '" . $this->group . "'  
-							$sqlEtime
-							$sqlMtime
-						WHERE xRunde = " . $this->round
-					);
+					} 
+                                              
+        
+                    // set conversion table                 
+                    if (isset($cfgSVM[$this->svmCode])){   
+                                    $cfgSVM_arr = $cfgSVM[$this->svmCode]; 
+                                     if (isset($cfgSVM[$this->svmCode."_NT"])){                // _NT = nulltime   
+                                        $cfgSVM_arr_NT = $cfgSVM[$this->svmCode."_NT"]; 
+                                     }
+                    }   
+                
+                    if (isset($cfgSVM[$this->svmCode."_NT"])){                                 // _NT = nulltime   
+                        foreach ($cfgSVM_arr as $key => $val){  
+                            if ($val == $_POST['dCode']){
+                                $keep_key=$key; 
+                                continue;
+                                }
+                            }
+                                
+                            if ($cfgSVM_arr_NT[$keep_key] == '0000') {                    // discipline with nulltime
+                                $this->change_all();  
+                            }
+                            else {
+                                mysql_query("
+                                    UPDATE runde SET
+                                    Datum = '" . $this->date . "'
+                                    , Startzeit = '".$this->hour.":".$this->min.":00"."'
+                                    , xRundentyp = " . $this->type . "
+                                    , Gruppe = '" . $this->group . "'  
+                                    $sqlEtime
+                                    $sqlMtime
+                                    WHERE xRunde = " . $this->round
+                                );
+                  
+                                if(mysql_errno() > 0)
+                                {   
+                                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                }  
+                            }
+                    }
+                    else {   
+					    mysql_query("
+						    UPDATE runde SET
+							    Datum = '" . $this->date . "'
+							    , Startzeit = '".$this->hour.":".$this->min.":00"."'
+							    , xRundentyp = " . $this->type . "
+							    , Gruppe = '" . $this->group . "'  
+							    $sqlEtime
+							    $sqlMtime
+						        WHERE xRunde = " . $this->round
+					            );
 	              
-					if(mysql_errno() > 0)
-					{
-						$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-					}
+					    if(mysql_errno() > 0)
+					    {
+						    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+					    }
+                    }
 				}
 			}
 			mysql_query("UNLOCK TABLES");
-
-			if($status > 0)
+                
+			if($status > 0 && $status != 4)
 			{
 				$txt = $GLOBALS['strTimetableChanged'] . ": "
 						 . $this->date . ", "
 						 . $this->hr . ":" . $this->min;
 				AA_utils_logRoundEvent($this->round, $txt);
+                
 			}
 		}	// ET round status
 	}
-
+    
+   /*        change()
+   *      -----------
+   *        change an event round
+   */
+    function change_all()
+    {  
+       include('./convtables.inc.php');
+       require('./lib/common.lib.php');  
+         
+      
+       // set conversion table                 
+       $cfgSVM_arr = $cfgSVM[$this->svmCode];   
+       $cfgSVM_arr_NT = $cfgSVM[$this->svmCode."_NT"];                  // _NT = nulltime   
+       
+       $sql="SELECT 
+                r.xRunde, w.xWettkampf , d.Code 
+             FROM
+                wettkampf as w
+                LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
+                LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin)
+             WHERE
+                w.xKategorie = ". $_POST['cat'] ."
+                AND w.xKategorie_svm = " .$_POST['svmcat'] ."
+                AND w.xMeeting = ".$_COOKIE['meeting_id']." 
+             ORDER BY d.Anzeige";
+          
+       $result=mysql_query($sql);
+      
+       if(mysql_errno() > 0)
+            {
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+       $nulltime=$this->hour . $this->min;
+       $i=0;
+       while ($row=mysql_fetch_row($result)){    
+             foreach ($cfgSVM_arr as $key => $val){  
+                    if ($val == $row[2]){
+                        $keep_key=$key; 
+                        continue;
+                    }
+             }   
+          
+            $tn = $cfgSVM[$this->svmCode."_NT"][$keep_key];              // _NT = nulltime   
+            $timeBerechnung=$nulltime+$tn;
+            $timeBerechnung=sprintf("%04d", $timeBerechnung);
+            $hour=substr($timeBerechnung,0,-2);
+            $min=substr($timeBerechnung,2); 
+            if ($min >= 60){
+               $min-=60;
+               $hour++;            
+            }                
+           
+             if (is_null($row[0])){
+                  mysql_query("
+                        INSERT into runde SET
+                            Datum = '" . $this->date . "'
+                            , Startzeit = '".$hour.":".$min.":00"."'
+                            , xRundentyp = " . $this->type . "
+                            , xWettkampf = " . $row[1]  . " 
+                            , Gruppe = '" . $this->group . "'  
+                            $sqlEtime
+                            $sqlMtime"      
+                    );    
+                        
+                    if(mysql_errno() > 0)
+                        {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();   
+                    }
+            }
+            else {
+                mysql_query("
+                        UPDATE runde SET
+                            Datum = '" . $this->date . "'
+                            , Startzeit = '".$hour.":".$min.":00"."'
+                            , xRundentyp = " . $this->type . "
+                            , Gruppe = '" . $this->group . "'  
+                            $sqlEtime
+                            $sqlMtime
+                        WHERE xRunde = " . $row[0]
+                    );    
+                  
+                  if(mysql_errno() > 0)
+                    {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                    break;
+                  }
+            }
+          }  
+    }  
+    
 } // end Timetable
 
 
