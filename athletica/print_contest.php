@@ -21,6 +21,12 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 }
 
 
+  
+$onlyBest = 'n';     
+if($_POST['onlyBest'] == 'y'){  
+    $onlyBest = 'y';
+} 
+   
 // get presets
 // -----------
 $round = 0;
@@ -158,6 +164,7 @@ else
 				runde
 			SET
 				Versuche = ".$_POST['countattempts']."
+                , nurBestesResultat = '".$onlyBest."'  
 			WHERE xRunde = $round
 		");
 		
