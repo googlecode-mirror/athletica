@@ -51,7 +51,7 @@ $sql = "SELECT
 		WHERE 
 			r.xRunde = ".$round.";";
 $res = mysql_query($sql);
-								
+							
 $combined = false;
 $cGroup = "";
 $cLast = 0;
@@ -103,6 +103,7 @@ if($round > 0)
 	$sql = "SELECT 
 				  r.xRunde
 				, rt.Name 
+                , rt.Typ
 			FROM 
 				runde AS r 
 			LEFT JOIN 
@@ -112,7 +113,7 @@ if($round > 0)
 				r.Datum ASC, 
 				r.Startzeit ASC;";
 	$res = mysql_query($sql);
-
+    
 	if(mysql_errno() > 0)		// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -131,8 +132,14 @@ if($round > 0)
 		}
 		mysql_free_result($res);
 		$final = FALSE;
+        $quali = TRUE;
 		if($tot_rounds == $count) {	// final round)
-			$final = TRUE;
+            if ($row[2] == 'S' || $row[2] == 'O'){          // round typ: S = Serie ,  O = ohne 
+               $quali = FALSE;
+            }
+            else {
+			    $final = TRUE;
+            }
 		}
 	}		// ET DB error
 
@@ -258,7 +265,7 @@ if($round > 0)
 	// if this is a combined event -> basic seeding
 	// if this is a team sm event -> basic seeding
 	//
-	if($count == 1 || $combined || $teamsm)
+	if($count == 1 || $combined || $teamsm || $quali==false)
 	{   
 		// get number of athletes/relays present
 		$present = 0;
@@ -316,7 +323,7 @@ if($round > 0)
 					  AND 
 						  s.Anwesend = 0;";
 		}
-		
+	
 		$res = mysql_query($query);
 		
 		if(mysql_errno() > 0)		// DB error
@@ -436,7 +443,7 @@ if($round > 0)
 	//
 	else			
 	{  
-		// get number of athletes/relays with valid result
+		// get number of athletes/relays with valid result       
 		$sql = "SELECT
 					COUNT(*)
 				FROM
@@ -448,9 +455,10 @@ if($round > 0)
 				AND
 					ss.Qualifikation != 9
 				AND
-					s.xRunde = ".$prev_rnd." ;";
+					s.xRunde = ".$prev_rnd." ;";   
+       
 		$res = mysql_query($sql);
-
+       
 		if(mysql_errno() > 0)		// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

@@ -46,7 +46,7 @@ $sql = "SELECT
 		WHERE
 			s.xRunde = ".$round.";";
 $result = mysql_query($sql);
-
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -113,6 +113,7 @@ $sql = "SELECT
 			, d.Typ
 			, r.QualifikationSieger
 			, r.QualifikationLeistung
+            , rt.Typ
 		FROM
 			runde AS r
 		LEFT JOIN
@@ -190,11 +191,17 @@ else
 	<tr>
 		<td class='dialog'><?php echo $strCountAttempts; ?>:</td>
 		<th class='dialog'><input type="text" value="" name="countattempts" size="3"></th>
-	</tr>
+	</tr> 
+    <tr> 
+        <td class='dialog'><?php echo $strOnlyBestResult; ?>:</td>     
+        <th class='dialog'><input type='checkbox' name='onlyBest' value='y'/> 
+                 
+         </th>  
+     </tr>         
 		<?php
-	}
+	} 
 	?>
-<?php
+<?php    
 	if($row[2] > 0) {		// discipline run in tracks
 ?>
 	<tr>
@@ -215,9 +222,14 @@ else
 // show qualification form if another round follows
 $nextRound = AA_getNextRound($event, $round);
 $combined = AA_checkCombined($event);
-$teamsm = AA_checkTeamSM($event);
+$teamsm = AA_checkTeamSM($event);      
 
-if($nextRound > 0 && !$combined && !$teamsm)		// next round found
+$quali = TRUE;
+if ($row[10] == 'S' || $row[10] == 'O'){
+    $quali = FALSE;                                     // double round "serie"" or "(ohne)"  --> no need of qualification 
+}
+
+if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
 {
 	/*$result = mysql_query("
 		SELECT
