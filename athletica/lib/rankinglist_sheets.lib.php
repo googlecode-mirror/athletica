@@ -77,9 +77,10 @@ $results = mysql_query("
 	  	, wettkampf AS w
   	WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
   	AND k.xKategorie = w.xKategorie
-	" . $selection . "
-  	AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."
-	GROUP BY
+	" . $selection . "    
+    " // AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."        // old svm
+  	." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."  
+    GROUP BY
 		k.xKategorie
 	ORDER BY
 		k.Anzeige
@@ -218,6 +219,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					, w.Windmessung
 					, k.Code
 					, at.Geschlecht
+                    , ss.Bemerkung
 				FROM
 					anmeldung AS a
 					, athlet AS at 
@@ -246,7 +248,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					d.Anzeige
 					, pts DESC
 			");   
-            
+           
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -281,7 +283,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 
 								$total = $total + $points;	// accumulate total points
 								$points = round($points,$cfgResultsPointsPrecision);
-							}
+							}                             
 							$list->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', $points);	// empty line
 						}
 
@@ -458,12 +460,12 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 						{
 							$list->printLine($pt_row[0],
 								$pt_row[2] . " " . $pt_row[3] .", " . $year,
-								$perf, $wind, $ip, $points);
+								$perf, $wind, $ip, $points, $pt_row[13]);
 						}
 						else {
 							$list->printLine('',
 								$pt_row[2] . " " . $pt_row[3] . ", " . $year,
-								$perf, $wind, $ip, $points);
+								$perf, $wind, $ip, $points, $pt_row[13]);
 						}
 					}
 					else if ($temptable == true)	// temp table created
@@ -517,7 +519,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 
 					$c++;
 					$d = $pt_row[0];	// keep discipline
-					$r = $pt_row[8];	// keep rating type
+					$r = $pt_row[8];	// keep rating type                      
 				}	// END WHILE team events
 
 				// print remaining empty lines for last disciplines (if any)
@@ -556,6 +558,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					, st.xStaffel
 					, w.Typ
 					, d.Typ
+                    , ss.Bemerkung
 				FROM
 					disziplin AS d 
 					, resultat AS r 
@@ -577,7 +580,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					d.Anzeige
 					, pts DESC
 			");
-
+           
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -629,11 +632,11 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 						if($pt_row[0] != $d)		// new discipline
 						{
 							$list->printLine($pt_row[0], $pt_row[1], $perf, '',
-								$ip, round($points,$cfgResultsPointsPrecision));
+								$ip, round($points,$cfgResultsPointsPrecision), $pt_row[7]);
 
 						}
 						else {
-							$list->printLine('', $pt_row[1], $perf, '', $ip, round($points,$cfgResultsPointsPrecision));
+							$list->printLine('', $pt_row[1], $perf, '', $ip, round($points,$cfgResultsPointsPrecision), $pt_row[7]);
 						}
 
 						AA_sheets_printRelayAthletes($list, $pt_row[4]);
