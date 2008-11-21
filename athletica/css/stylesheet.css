@@ -232,7 +232,7 @@ th.date {
 	color:#EEEEEE;
 	background-color:#000000;
 	border-width:1px;
-   border-style:solid;
+    border-style:solid;
 }
 
 td.forms {
@@ -257,6 +257,18 @@ td.forms_right {
 	padding-right:5px;
 	padding-top:0px;
 	padding-bottom:0px;
+}
+td.forms_right_grey {
+    vertical-align:middle;
+    text-align:right;
+    padding-left:5px;
+    padding-right:5px;
+    padding-top:0px;
+    padding-bottom:0px; 
+    border-width:1px;
+    border-style:solid;
+    border-color:#888888;  
+    background-color: #DDDDDD;
 }
 
 td.monitor {
