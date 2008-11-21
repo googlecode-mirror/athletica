@@ -734,4 +734,6 @@ $strCreateSVM = "SVM erstellen";
 $strErrCreateSVM = "Sie müssen eine Kategorie auswählen in welcher der SVM Wettkampf erstellt werden soll!"; 
 $strErrDiscNotDefSVM  = "Disziplin zu dieser SVM Kategorie sind nicht definiert.";
 $strRemNulltime = "* Nullzeiten sind bei den rot markierten Diziplinen einzugeben.";
+$strMax = "Max.";
+$strAutoRank = "Automatisch rangieren";
 ?>
