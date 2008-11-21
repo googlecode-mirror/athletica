@@ -49,10 +49,14 @@ elseif($_POST['arg'] == 'change_system'){
 	AA_timing_setTiming($_POST['timing_system']);
 	
 }
+elseif($_POST['arg'] == 'change_autorank'){
+
+    AA_timing_setAutoRank($_POST['autorank']);
+} 
 
 $system = AA_timing_getTiming();
 if($system != "no"){
-	$conf = AA_timing_getConfiguration();
+	$conf = AA_timing_getConfiguration();                                  
 }
 
 /*if($omega->connection == "ftp"){
@@ -94,11 +98,38 @@ if(!empty($GLOBALS['ERROR'])){
 </tr>
 </form>
 </table>
-
+      <?php 
+      $auto=AA_timing_getAutoRank();
+      
+      if ($auto=='y'){
+         $auto='yes';
+         $checked='checked="checked"';
+      }
+      else {
+          $auto='no'; 
+          $checked='';  
+      }
+      
+      if ($system != 'no'){   
+       ?>
 <br>
 
+<table class='dialog'>
+<form name="auto" action="meeting_timing.php" method="post">
+<input type="hidden" name="arg" value="change_autorank">
+<tr>
+    <th class='dialog'><?php echo $strAutoRank ?></th>
+    <td><input type='checkbox' name='autorank' value='<?php echo $auto; ?>' <?php echo $checked; ?> onClick='document.auto.submit()'>
+    </input>  
+    </td>
+</tr>
+</form>
+</table>
+
+ <br>  
 <?php
-//
+      }
+      
 // display configuration for choosen system
 if($system == "omega"){
 	?>
