@@ -19,6 +19,9 @@ if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 if(empty($_COOKIE['meeting_id'])) {
 	AA_printErrorMsg($GLOBALS['strNoMeetingSelected']);
 }
+
+$max_startnr = 0;
+
 ?>
 
 <?php
@@ -115,7 +118,7 @@ if($_GET['arg'] == 'assign')
                     ORDER BY      
                          $argument
                "); 
-             
+           
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -268,7 +271,7 @@ if($_GET['arg'] == 'assign')
                                 a.xMeeting = " . $_COOKIE['meeting_id'] . "                                   
                         GROUP BY a.xAnmeldung,  discSort 
                         ORDER BY  " . $argument . ", discSort ";       
-                       
+                   
                 $result_d=mysql_query($sql_d);    
                 
                 if(mysql_errno() > 0)        // DB error
@@ -716,7 +719,7 @@ function select_CheckDisc(){
 <table class='dialog'>
 <tr>
 	<th class='dialog'><?php echo $strSortBy; ?></th>
-	<th class='dialog' colspan='3'><?php echo $strRules; ?></th>
+	<th class='dialog' colspan='5'><?php echo $strRules; ?></th>
 </tr>
 <tr>
 	<td class='dialog'>
@@ -752,14 +755,16 @@ function select_CheckDisc(){
 	<td class='dialog'>
 		<input class='nbr' type='text' name='clubgap' maxlength='4' value='<?php echo $cfgNbrClubGap; ?>'>	</td>
     <td class='dialog'>&nbsp;</td>
-</tr>  
+</tr> 
+
 <tr>
-	<td class='dialog' colspan="4">
-		<hr>  
+	<td class='dialog' colspan="6"> 
+     <hr>    
          <input type="radio" name="assign" id="percategory" value="percategory" onchange="select_CheckCat()"
             > </input>
 		<?php echo $strPerCategory; ?>
-	</th></tr>
+	</th>   
+    </tr>
 <?php
 
 // get all used categories in this meeting
@@ -773,10 +778,26 @@ $res = mysql_query("	SELECT
 				a.xMeeting = ".$_COOKIE['meeting_id']."   
 			ORDER BY
 				k.Anzeige");
+           
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
 	while($row = mysql_Fetch_array($res)){ 
+          $sql="SELECT 
+                    count(*)
+                FROM 
+                    anmeldung as a  
+                WHERE 
+                    a.xKategorie= " .$row[0]. "
+                    AND a.xMeeting = ".$_COOKIE['meeting_id'];
+               
+          $res_count=mysql_query($sql);
+          if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+          }else{
+                $row_count = mysql_fetch_array($res_count);
+               $max_startnr=$row_count[0];
+          }
 		?>
 <tr>
 	<td class='dialog'><?php echo $row[1] ?></td>
@@ -786,7 +807,10 @@ if(mysql_errno() > 0){
 	<td class='forms_right'>
 		<?php echo $strTo ?>
 		<input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" onchange="select_PerCategory()">	</td>
-    <td class='forms'>&nbsp;</td>
+    <td><?php echo $strMax; ?>
+    </td>
+    <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
+    <td> &nbsp;</td>  
 </tr>
 		<?php
 	}
@@ -803,14 +827,16 @@ if(mysql_errno() > 0){
 		<?php echo $strGap.":" ?>
 		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('1')">	</td>
     <td class='forms'>&nbsp;</td>
+    <td />        
 </tr>
 
 <tr>
-	<td class='dialog' colspan="4">
-		<hr>   
+	<td class='dialog' colspan="6">
+		<hr>    
         <input type="radio" name="assign" id="percontestcat" value="percontestcat" onchange="select_CheckCat()"> </input>
 		<?php echo $strPerContestCategory; ?>
-	</th></tr>
+	</th>  
+    </tr>
 <?php
 
 // get all used categories in contest
@@ -825,10 +851,33 @@ $res = mysql_query("	SELECT
 			AND	w.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
 				k.Anzeige");
+             
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
 	while($row = mysql_Fetch_array($res)){
+           $sql=" SELECT 
+                        DISTINCT a.xAnmeldung,  
+                        count(w.xKategorie)
+                  FROM 
+                        anmeldung AS a 
+                        INNER JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
+                        INNER JOIN wettkampf AS w USING (xWettkampf) 
+                        INNER JOIN kategorie AS k ON k.xKategorie = w.xKategorie 
+                  WHERE 
+                        a.xMeeting = ".$_COOKIE['meeting_id'] ."
+                        AND w.xKategorie = " .$row[0] ."
+                   GROUP BY w.xKategorie  
+                   ";   
+               
+          $res_count=mysql_query($sql);
+          if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+          }else{
+                $row_count = mysql_fetch_array($res_count);
+                $max_startnr=$row_count[1];
+          }  
+        
 		?>
 <tr>
 	<td class='dialog'><?php echo $row[1] ?></td>
@@ -838,7 +887,9 @@ if(mysql_errno() > 0){
 	<td class='forms_right'>
 		<?php echo $strTo ?>
 		<input type="text" size="3" value="0" name="to2_<?php echo $row[0] ?>" onchange="select_PerContestCat()">	</td>
-    <td class='forms'>&nbsp;</td>
+        <td><?php echo $strMax; ?>  
+    </td>
+    <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
 </tr>
 		<?php
 	}
@@ -855,10 +906,11 @@ if(mysql_errno() > 0){
 		<?php echo $strGap.":" ?>
 		<input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('2')">	</td>
     <td class='forms'>&nbsp;</td>
+    <td />   
 </tr> 
 
 <tr>
-    <td class='dialog' colspan="4">
+    <td class='dialog' colspan="6">
         <hr>  
         <input type="radio" name="assign" id="perdiscipline" value="perdiscipline" onchange="select_CheckDisc()"> </input> 
         <?php echo $strPerDiscipline; ?>
@@ -870,22 +922,24 @@ $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeTrack] . ","
                            . $cfgDisciplineType[$strDiscTypeTrackNoWind]  . ")";   
                              
         
-$res = mysql_query("    SELECT
-                DISTINCT (w.xDisziplin)  , d.Name , d.Typ
-            FROM
-               anmeldung as a
-                INNER JOIN start as s USING (xAnmeldung)
-                INNER JOIN wettkampf as w USING (xWettkampf)
-                INNER JOIN disziplin as d USING (xDisziplin)
-            WHERE
-                a.xMeeting = ".$_COOKIE['meeting_id']."
-                AND d.Typ IN" . $selection_disciplines ."
-            ");     
-      
+$res = mysql_query("SELECT           
+                        a.xAnmeldung
+                    FROM 
+                        anmeldung AS a  
+                        INNER JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        INNER JOIN wettkampf AS w USING ( xWettkampf ) 
+                        INNER JOIN disziplin AS d USING ( xDisziplin )  
+                    WHERE 
+                        a.xMeeting = ".$_COOKIE['meeting_id']."  
+                        AND d.Typ IN" . $selection_disciplines ." 
+                    GROUP BY a.xAnmeldung
+                    ");     
+       
 if(mysql_errno() > 0){
     AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
     if (mysql_num_rows($res)>0){ 
+         $max_startnr=mysql_num_rows($res);  
         ?>
 <tr>
     <td class='dialog'><?php echo $strTrack1; ?></td>
@@ -895,7 +949,10 @@ if(mysql_errno() > 0){
     <td class='forms_right'>
         <?php echo $strTo ?>
         <input type="text" size="3" value="0" name="to_track1" onchange="select_PerDiscipline()">    </td>
-    <td class='forms'>&nbsp;</td>
+     <td><?php echo $strMax; ?>  
+    </td> 
+    <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
+    
 </tr>
 <?php
     }
@@ -907,22 +964,25 @@ if(mysql_errno() > 0){
 $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeDistance]  . ","   
                             . $cfgDisciplineType[$strDiscTypeRelay] . ")";   
         
-$res = mysql_query("    SELECT
-                DISTINCT (w.xDisziplin)  , d.Name , d.Typ
-            FROM
-               anmeldung as a
-                INNER JOIN start as s USING (xAnmeldung)
-                INNER JOIN wettkampf as w USING (xWettkampf)
-                INNER JOIN disziplin as d USING (xDisziplin)
-            WHERE
-                a.xMeeting = ".$_COOKIE['meeting_id']."
-                AND d.Typ IN" . $selection_disciplines ."
-            ");     
-      
+$res = mysql_query("SELECT           
+                        a.xAnmeldung
+                    FROM 
+                        anmeldung AS a  
+                        INNER JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        INNER JOIN wettkampf AS w USING ( xWettkampf ) 
+                        INNER JOIN disziplin AS d USING ( xDisziplin )  
+                    WHERE 
+                        a.xMeeting = ".$_COOKIE['meeting_id']."  
+                        AND d.Typ IN" . $selection_disciplines ." 
+                    GROUP BY a.xAnmeldung
+                    ");   
+                            
+              
 if(mysql_errno() > 0){
     AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
     if (mysql_num_rows($res)>0){ 
+        $max_startnr=mysql_num_rows($res);
         ?>
 <tr>
     <td class='dialog'><?php echo $strTrack2; ?></td>
@@ -932,7 +992,9 @@ if(mysql_errno() > 0){
     <td class='forms_right'>
         <?php echo $strTo ?>
         <input type="text" size="3" value="0" name="to_track2" onchange="select_PerDiscipline()">    </td>
-    <td class='forms'>&nbsp;</td>
+    <td><?php echo $strMax; ?>  
+    </td> 
+    <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
 </tr>
 <?php
     }
@@ -944,23 +1006,25 @@ $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeJump] . ","
                            . $cfgDisciplineType[$strDiscTypeThrow] . ","   
                            . $cfgDisciplineType[$strDiscCombined] . ")";     
             
-$res = mysql_query("    SELECT
-                DISTINCT (w.xDisziplin)  , d.Name , d.Typ
-            FROM
-               anmeldung as a
-                INNER JOIN start as s USING (xAnmeldung)
-                INNER JOIN wettkampf as w USING (xWettkampf)
-                INNER JOIN disziplin as d USING (xDisziplin)
-            WHERE
-                a.xMeeting = ".$_COOKIE['meeting_id']."
-                AND d.Typ IN" . $selection_disciplines ."
-            ");               
+$res = mysql_query("SELECT           
+                        a.xAnmeldung
+                    FROM 
+                        anmeldung AS a  
+                        INNER JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        INNER JOIN wettkampf AS w USING ( xWettkampf ) 
+                        INNER JOIN disziplin AS d USING ( xDisziplin )  
+                    WHERE 
+                        a.xMeeting = ".$_COOKIE['meeting_id']."  
+                        AND d.Typ IN" . $selection_disciplines ." 
+                    GROUP BY a.xAnmeldung
+                    ");   
             
                        
 if(mysql_errno() > 0){
     AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
     if (mysql_num_rows($res)>0){ 
+         $max_startnr=mysql_num_rows($res);  
         ?>    
     
    <tr>
@@ -971,7 +1035,9 @@ if(mysql_errno() > 0){
     <td class='forms_right'>
         <?php echo $strTo ?>
         <input type="text" size="3" value="0" name="to_tech" onchange="select_PerDiscipline()">    </td>
-    <td class='forms'>&nbsp;</td>
+    <td><?php echo $strMax; ?>  
+    </td> 
+    <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
    </tr>
         <?php
     }
@@ -989,10 +1055,11 @@ if(mysql_errno() > 0){
         <?php echo $strGap.":" ?>
         <input type="text" size="3" value="10" name="teamgap" onchange="select_PerSvmTeam('3')">    </td>
     <td class='forms'>&nbsp;</td>
+    <td />   
 </tr> 
  
 <tr>
-	<td class='dialog' colspan = 4>
+	<td class='dialog' colspan = '6'>
 		<hr>
 		<input type='radio' name='sort' value='del'>
 			<?php echo $strDeleteStartnumbers; ?></input>	</td>
