@@ -146,11 +146,42 @@ function AA_timing_setStartInfo($round, $silent = false){
  *
  */
 function AA_timing_setTiming($system){
+    
+    if ($system == 'no'){
+       $autorank = " , AutoRangieren = 'n' ";  
+    }
 	
-	mysql_query("UPDATE meeting SET Zeitmessung = '$system' WHERE xMeeting = ".$_COOKIE['meeting_id']);
+	mysql_query("UPDATE meeting SET Zeitmessung = '$system' $autorank WHERE xMeeting = ".$_COOKIE['meeting_id']);
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
 	}
+}
+
+function AA_timing_setAutoRank($autorank) {   
+    if ($autorank == 'no'){
+       $autorank='y';
+    }     
+    else {  
+        $autorank='n';  
+    }
+    
+    mysql_query("UPDATE meeting SET AutoRangieren = '$autorank' WHERE xMeeting = ".$_COOKIE['meeting_id']);
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+    } 
+}
+
+function AA_timing_getAutoRank() {
+    $autorank = '';
+    $res=mysql_query("SELECT AutoRangieren FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id']);
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+    }
+    else {
+        $row=mysql_fetch_row($res); 
+        $autorank =  $row[0];  
+    }
+    return $autorank;   
 }
 
 ?>

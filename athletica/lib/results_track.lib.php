@@ -10,7 +10,7 @@ if (!defined('AA_RESULTS_TRACK_LIB_INCLUDED'))
 {
 	define('AA_RESULTS_TRACK_LIB_INCLUDED', 1);
 
-function AA_results_Track($round, $layout)
+function AA_results_Track($round, $layout, $autoRank='')
 {   
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -180,7 +180,7 @@ if($_GET['arg'] == 'results_done')
 	AA_results_resetQualification($round);
 }	// ET terminate results
  
-
+ 
 //
 // Qualify athletes after ranks are set
 //
@@ -507,6 +507,10 @@ if(($_GET['arg'] == 'results_done')
    	  
 }
 
+ if ($autoRank){        // automatic ranking returns to event monitor
+   return;  
+ }
+ 
 //
 // get results from timing system
 //  - save directly in database

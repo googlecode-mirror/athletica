@@ -92,8 +92,14 @@ function AA_results_getPresets($round)
 // - noerror: true -> supress errors (useful on auto fetching)
 //
 function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
+    
+    require('./lib/results_track.lib.php');  
+     
 	global $cfgInvalidResult, $strErrTimingWrongRegid, $cfgRoundStatus;
 	
+    $count_results = 0; 
+    $number_results = 0;
+    
 	$alge = new alge($noerror);
 	
 	if($alge->is_configured() == false){
@@ -149,6 +155,42 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 		WHERE s.xRunde = $round
 		GROUP BY sst.xSerie"
 	);
+    
+    if ($relay){
+        
+             $sql="SELECT 
+                        count(*) 
+                   FROM
+                        serie as s
+                        LEFT JOIN serienstart as sst USING(xSerie)
+                        LEFT JOIN start as st USING(xStart)
+                        LEFT JOIN staffel as sf USING(xStaffel)
+                        LEFT JOIN resultat as res ON (sst.xSerienstart=res.xSerienstart)
+                   WHERE s.xRunde = ".$round;
+                   
+             
+        }
+    else {
+            $sql="SELECT 
+                        count(*) 
+                   FROM
+                        serie as s
+                        LEFT JOIN serienstart as sst USING(xSerie)
+                        LEFT JOIN start as st USING(xStart)                          
+                        LEFT JOIN resultat as res ON (sst.xSerienstart=res.xSerienstart)
+                   WHERE s.xRunde = ".$round;
+        
+    }
+        
+    $res=mysql_query($sql);                     
+                              
+    $row = mysql_fetch_array($res);          
+    if(mysql_errno() > 0) {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+            $number_results=$row[0]; 
+    } 
+      
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}else{
@@ -256,8 +298,7 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 								 WHERE s.xRunde = $round
 								   AND s.Film = $nr
 								   AND a.Startnummer = ".$val[1]
-							);
-							
+							);    
 							
 							// COMMENT ROH:
 							// ok, here is the test to check if results already exist
@@ -281,8 +322,8 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 								if(mysql_num_rows($res) == 0){
 									// no athlete with this registration id is started
 									// if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
-								}else{
-									
+								}else{   
+                                    $count_results++;  
 									$row = mysql_fetch_array($res);
 									mysql_query("
 										INSERT INTO resultat
@@ -293,7 +334,8 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 									
 								}
 							}else{
-								// update
+								// update                                 
+                                $count_results++; 
 								$row = mysql_fetch_array($res);
 								mysql_query("UPDATE resultat as res SET Leistung = '$perf'
 										, Punkte = '$points'
@@ -332,7 +374,7 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 									// no athlete with this registration id is started
 									//if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
 								}else{
-									
+									$count_results++; 
 									$row = mysql_fetch_array($res);
 									mysql_query("
 										INSERT INTO resultat
@@ -344,6 +386,7 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 								}
 							}else{
 								// update
+                                $count_results++; 
 								$row = mysql_fetch_array($res);
 								mysql_query("UPDATE resultat as res SET Leistung = '$perf'
 										, Punkte = '$points'
@@ -354,7 +397,7 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 					}
 					
 					// results updated, now set status for event time table
-					
+					  
 					mysql_query("UPDATE runde as r SET StatusZeitmessung = 1 WHERE xRunde = $round");
 					if(mysql_errno() > 0) {
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -366,6 +409,14 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 	}
 	
 	mysql_query("UNLOCK TABLES");
+    
+    // all results from omega for this round and automatic ranking is 'y'
+    if ($count_results == $number_results && $_SESSION['meeting_infos']['AutoRangieren'] == 'y' ){    
+       $layout = AA_getDisciplineType($round);    // type determines layout
+       $_GET['arg'] = 'results_done';
+       $autoRank=true;  
+       AA_results_Track($round, $layout, $autoRank);        // ranking 
+    }
 }
 
 
@@ -377,7 +428,13 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 // - noerror: true -> supress errors (useful on auto fetching)
 //
 function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
+   
+    require('./lib/results_track.lib.php');
+    
 	global $cfgInvalidResult, $strErrTimingWrongRegid, $cfgRoundStatus;
+    
+    $count_results = 0; 
+    $number_results = 0;
 	
 	$omega = new omega($noerror);
 	
@@ -385,7 +442,7 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 		return;
 	}
 
-	$results = $omega->get_lstrslt();   
+	$results = $omega->get_lstrslt();     
 	$status = $omega->get_lststatu();  	
 	$infos = $omega->get_lstrrslt();
 	
@@ -426,8 +483,45 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 	);
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-	}else{
-			   
+	}else{  
+        
+        if ($relay){
+        
+             $sql="SELECT 
+                        count(*) 
+                   FROM
+                        serie as s
+                        LEFT JOIN serienstart as sst USING(xSerie)
+                        LEFT JOIN start as st USING(xStart)
+                        LEFT JOIN staffel as sf USING(xStaffel)
+                        LEFT JOIN resultat as r ON (sst.xSerienstart=r.xSerienstart)
+                   WHERE s.xRunde = ".$round;
+                   
+             
+        }
+        else {
+              $sql="SELECT 
+                        count(*) 
+                   FROM
+                        serie as s
+                        LEFT JOIN serienstart as sst USING(xSerie)
+                        LEFT JOIN start as st USING(xStart)                          
+                        LEFT JOIN resultat as r ON (sst.xSerienstart=r.xSerienstart)
+                   WHERE s.xRunde = ".$round;
+        
+        }
+        
+         $res=mysql_query($sql);                     
+                              
+         $row = mysql_fetch_array($res);          
+         if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+         }else{
+                $number_results=$row[0]; 
+              } 
+        
+       
+        	   
 		while($row_film = mysql_fetch_array($res_film)){
 			   
 			$nr = $row_film[0];
@@ -454,7 +548,8 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 				mysql_query("UPDATE serie as s SET Wind = '".$wind."'
 						WHERE xRunde = $round AND Film = $nr");
 			                                                      
-				foreach($results as $val){ 
+				foreach($results as $val){  
+                    
 					if($val[0] == $nr){ 
 						// add results to timingRes (array key is the registration id of the athlete)
 						//$timingRes[$val[4]] = $val;
@@ -539,6 +634,7 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 									if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
 								}else{
 									$row = mysql_fetch_array($res);
+                                    $count_results++;                                      
 									mysql_query("
 										INSERT INTO resultat
 										SET 	Leistung = '$perf'
@@ -551,6 +647,7 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 								}
 							}else{
 								// update
+                                $count_results++;   
 								$row = mysql_fetch_array($res);
 								mysql_query("UPDATE resultat as r SET Leistung = '$perf'
 										, Punkte = '$points'
@@ -587,8 +684,8 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 										LEFT JOIN resultat as r ON (sst.xSerienstart=r.xSerienstart)
 									WHERE s.xRunde = $round
 									AND s.Film = $nr
-									AND sf.Startnummer = ".$val[4]);   
-						  
+									AND sf.Startnummer = ".$val[4]);  
+                                
 						   	  $row = mysql_fetch_array($res);  						 
 						   	  if(mysql_num_rows($res) == 0){ 
 						   	  		// no athlete with this registration id is started
@@ -597,7 +694,8 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 							 		}
 						   	  }else{  
 						   			if (empty($row[0])){        
-										// insert result     							  
+										// insert result  
+                                        $count_results++;                                          							  
 										mysql_query("
 											INSERT INTO resultat
 											SET 	Leistung = '$perf'
@@ -606,7 +704,8 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 										);    
 								  
 								  	}else{  								
-										// update  								
+										// update  
+                                        $count_results++; 	                                         							
 										mysql_query("UPDATE resultat as r SET Leistung = '$perf'
 											, Punkte = '$points'
 											WHERE xResultat = ".$row[0]);   								
@@ -616,8 +715,7 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 					}  			 				
 				}  		  // end foreach		
 				
-				// results updated, now set status for event time table
-				
+				// results updated, now set status for event time table 
 				mysql_query("UPDATE runde as ru SET StatusZeitmessung = 1 WHERE xRunde = $round");
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -629,6 +727,14 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 	}
 	
 	mysql_query("UNLOCK TABLES");
+    
+    // all results from omega for this round and automatic ranking is 'y'
+    if ($count_results == $number_results && $_SESSION['meeting_infos']['AutoRangieren'] == 'y' ){    
+       $layout = AA_getDisciplineType($round);    // type determines layout
+       $_GET['arg'] = 'results_done';
+       $autoRank=true;
+       AA_results_Track($round, $layout, $autoRank);        // ranking
+    }
 }
 
 //
