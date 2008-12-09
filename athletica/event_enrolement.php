@@ -615,7 +615,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
         
         $sqlGroup = '';
         if ($group != '') {
-            $sqlGroup = ' AND r.Gruppe = ' .$group;
+            $sqlGroup = " AND r.Gruppe = '" .$group ."'";
         }      		 
 	  
 		$sql = "SELECT
@@ -905,7 +905,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             $sqlGroup2='' ;
             $sqlTable='';                                
             if ($comb > 0) {
-                if ($mk_group > 0){                    // combined event with groups   
+                if ($mk_group != ''){                    // combined event with groups   
                      $sqlGroup2=" r.Gruppe = a.Gruppe AND r.xRunde = " .$round. " AND "; 
                      $sqlTable=" LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) ";  
                 } 
