@@ -285,7 +285,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	 
 		 if ($pl) { 
 		    if ($row[23] > 0 && !isset($cfgCombinedDef[$row[23]])){ 
-		       $disc=substr($disc,0,-2).")";  
+		       $disc=substr($disc,0,-3).")";  
 			} 
 		   
 			if((is_a($doc, "PRINT_CatEntryPage"))
