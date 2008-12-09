@@ -41,27 +41,27 @@ if($_GET['limitRank'] == "yes" && substr($formaction,0,6) == "export"){ // check
 
 // start a new HTML display page
 if($formaction == 'view') {
-	$list = new GUI_TeamRankingList($_COOKIE['meeting']);
-	$list->printPageTitle("$strRankingLists " . $_COOKIE['meeting']);
+	$GLOBALS[$list] = new GUI_TeamRankingList($_COOKIE['meeting']);
+	$GLOBALS[$list]->printPageTitle("$strRankingLists " . $_COOKIE['meeting']);
 }
 // catch output and do nothing exept for theam rankings
 // these will be added to the xml result file
 elseif($formaction == "xml"){
 	$GLOBALS['xmladdon'] = true;
-	$list = new XML_TeamRankingList($parser);
+	$GLOBALS[$list] = new XML_TeamRankingList($parser);
 }
 // start a new HTML print page
 elseif($formaction == "print") {                  
-	$list = new PRINT_TeamRankingList($_COOKIE['meeting']);
+	$GLOBALS[$list] = new PRINT_TeamRankingList($_COOKIE['meeting']);
 	if($cover == true) {		// print cover page 
-		$list->printCover($GLOBALS['strResults']);
+		$GLOBALS[$list]->printCover($GLOBALS['strResults']);
 	}
 }
 // export ranking
 elseif($formaction == "exportpress"){
-	$list = new EXPORT_TeamRankingListPress($_COOKIE['meeting'], 'txt');
+	$GLOBALS[$list] = new EXPORT_TeamRankingListPress($_COOKIE['meeting'], 'txt');
 }elseif($formaction == "exportdiplom"){
-	$list = new EXPORT_TeamRankingListDiplom($_COOKIE['meeting'], 'csv');
+	$GLOBALS[$list] = new EXPORT_TeamRankingListDiplom($_COOKIE['meeting'], 'csv');
 }
 
 $selection = ''; 
@@ -137,19 +137,19 @@ else
 		// Club rankinglist:Combined 
 		if ($row[2] == $cfgEventType[$strEventTypeClubCombined])
 		{  
-			processCombined($row[0], $row[1], $list, $type);
+			processCombined($row[0], $row[1], $type);
 		}
 		// Club rankinglist: Single
 		else
 		{    
-			processSingle($row[0], $row[1], $list);
+			processSingle($row[0], $row[1]);
 		}
 	}
 
 	mysql_free_result($results);
 }	// ET DB error categories 
 
-$list->endPage();	// end HTML page for printing
+$GLOBALS[$list]->endPage();	// end HTML page for printing
 
 }	// end function AA_rankinglist_Team
 
@@ -157,7 +157,7 @@ $list->endPage();	// end HTML page for printing
 //	process club single events
 //
 
-function processSingle($xCategory, $category, $list)
+function processSingle($xCategory, $category)
 {   
 	global $rFrom, $rTo, $limitRank;
 	require('./config.inc.php');
@@ -209,7 +209,7 @@ function processSingle($xCategory, $category, $list)
 		// store previous before processing new team
 		if(($tm != $row[0])		// new team
 			&& ($tm > 0))			// first team processed
-		{
+		{  
 			$teamList[] = array(
 				"points"=>$points
 				, "team"=>$team
@@ -258,7 +258,7 @@ function processSingle($xCategory, $category, $list)
 				d.Anzeige
 				, pts DESC
   		");
-	    
+	   
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -271,7 +271,7 @@ function processSingle($xCategory, $category, $list)
 			$mixedTeamCount = array('m'=>0, 'w'=>0);
             
 			while($pt_row = mysql_fetch_row($res))
-			{
+			{   
 				// nbr of athletes to be included in total points
 				switch($pt_row[2]) {
 					case $cfgEventType[$strEventTypeSVMNL]: // new national league mode since 2007
@@ -326,7 +326,7 @@ function processSingle($xCategory, $category, $list)
 						$sep = ", ";
 						$points = $points + $p;		// accumulate points
 					}
-
+                  
 					$c = 0;					// athlete counter
 					$p = 0;					// point counter
 					$mixedTeamCount = array('m'=>0, 'w'=>0);// mixedteam counter
@@ -367,15 +367,15 @@ function processSingle($xCategory, $category, $list)
 					}
 					
 					// average points
-					if($pt_row[2] == $cfgEventType[$strEventTypeClubAdvanced]) {
-						$p = $p + $pt_row[1] / 2;
+					if($pt_row[2] == $cfgEventType[$strEventTypeClubAdvanced]) {  
+						$p = $p + $pt_row[1] / 2;      
 					}elseif($pt_row[2] == $cfgEventType[$strEventTypeSVMNL]) {
-						//$p = $p + $pt_row[1] / 2;
+						//$p = $p + $pt_row[1] / 2;   
 						$p = $p + $pt_row[1];
-					}elseif($pt_row[2] == $cfgEventType[$strEventTypeClubMixedTeam]) {
+					}elseif($pt_row[2] == $cfgEventType[$strEventTypeClubMixedTeam]) {                       
 						$p = $p + $pt_row[1] / 6;
 						$p = round($p, $cfgResultsPointsPrecision);
-					}elseif($pt_row[2] == $cfgEventType[$strEventTypeClubTeam]) {
+					}elseif($pt_row[2] == $cfgEventType[$strEventTypeClubTeam]) {                       
 						$p = $p + $pt_row[1] / 5;
 						$p = round($p, $cfgResultsPointsPrecision);
 					}
@@ -478,7 +478,7 @@ function processSingle($xCategory, $category, $list)
 				d.Anzeige
 				, pts DESC
   		");
-	
+	   
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -564,7 +564,7 @@ function processSingle($xCategory, $category, $list)
 				$c = 0;					// athlete counter
 				$g = 0;					// group indicator
 				$p = 0;					// point counter
-
+               
 				while($pt_row = mysql_fetch_row($res))
 				{
 					// nbr of athletes per disc. group to be included in total points
@@ -653,7 +653,7 @@ function processSingle($xCategory, $category, $list)
 
 				$c = 0;					// athlete counter
 				$p = 0;					// point counter
-
+               
 				while($pt_row = mysql_fetch_row($res))
 				{
 					// nbr of remaining athletes to be included in total points
@@ -681,6 +681,7 @@ function processSingle($xCategory, $category, $list)
 					{
 						// accumulate points of previous event
 						if($p > 0) {
+                            
 							$points = $points + $p;		// accumulate points
 						}
 						
@@ -699,6 +700,7 @@ function processSingle($xCategory, $category, $list)
 
 				// accumulate points of last event
 				if($p > 0) {
+                    
 					$points = $points + $p;		// accumulate
 				}
 
@@ -720,7 +722,7 @@ function processSingle($xCategory, $category, $list)
 	}	// END WHILE teams	
 
 	if(!empty($tm))		// add last team if any
-	{
+	{    
 		$teamList[] = array(
 			"points"=>$points
 			, "team"=>$team
@@ -730,10 +732,11 @@ function processSingle($xCategory, $category, $list)
 		);
 	}
 
-	$list->printSubTitle($category, "", "");
-	$list->startList();
-	$list->printHeaderLine();
-
+	$GLOBALS[$list]->printSubTitle($category, "", "");
+	$GLOBALS[$list]->startList();
+	$GLOBALS[$list]->printHeaderLine();
+    
+    
 	usort($teamList, "cmp");
 	$rank = 1;									// initialize rank
 	$r = 0;										// start value for ranking
@@ -754,14 +757,14 @@ function processSingle($xCategory, $category, $list)
 		}
 		
 		if($GLOBALS['xmladdon']){ 
-			$list->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
+			$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
 		}else{
-			$list->printLine($rank, $team['team'], $team['club'], $team['points']);
+			$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
 		}
-		$list->printInfo($team['info']);
+		$GLOBALS[$list]->printInfo($team['info']);
 		$p = $team['info'];			// keep current points
 	}
-	$list->endList();
+	$GLOBALS[$list]->endList();
 
 	mysql_query("UNLOCK TABLES");
 
@@ -772,7 +775,7 @@ function processSingle($xCategory, $category, $list)
 //	process club combined events
 //
 
-function processCombined($xCategory, $category, $list, $type)
+function processCombined($xCategory, $category, $type)
 {  
 	global $rFrom, $rTo, $limitRank;
 	require('./config.inc.php');
@@ -968,7 +971,7 @@ function processCombined($xCategory, $category, $list, $type)
 				, "year"=>$year
 				, "info"=>$info
 			);
-
+           
 			// last team
 			usort($athleteList, "cmp");	// sort athletes by points
 
@@ -985,10 +988,10 @@ function processCombined($xCategory, $category, $list, $type)
 				, "id"=>$tm
 			);
 		}
-
-		$list->printSubTitle("$category", "", "");
-		$list->startList();
-		$list->printHeaderLine();
+       
+		$GLOBALS[$list]->printSubTitle("$category", "", "");
+		$GLOBALS[$list]->startList();
+		$GLOBALS[$list]->printHeaderLine();
         
 		usort($teamList, "cmp");
 		$rank = 1;									// initialize rank
@@ -1007,9 +1010,9 @@ function processCombined($xCategory, $category, $list, $type)
 				$rank = $r;		// next rank
 			}
 			if($GLOBALS['xmladdon']){
-				$list->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
+				$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
 			}else{
-				$list->printLine($rank, $team['team'], $team['club'], $team['points']);
+				$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
 			}
 			$p = $team['points'];			// keep current points
 
@@ -1022,20 +1025,20 @@ function processCombined($xCategory, $category, $list, $type)
 				}
 				$i++;
                
-				$list->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points']);
+				$GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points']);
 				if($GLOBALS['xmladdon']){
 					$xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
 				}else{
-					$list->printInfo($athlete['info']);
+					$GLOBALS[$list]->printInfo($athlete['info']);
 				}
 			}
 			
 			if($GLOBALS['xmladdon']){
-				$list->printInfo(substr($xmlinfo,0,strlen($xmlinfo)-2));
+				$GLOBALS[$list]->printInfo(substr($xmlinfo,0,strlen($xmlinfo)-2));
 			}
 		}
 
-		$list->endList();
+		$GLOBALS[$list]->endList();
 	}	// ET DB error all teams
 
 }	// end function processCombined()
