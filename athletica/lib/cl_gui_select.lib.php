@@ -137,8 +137,8 @@ class GUI_Select
 	function printList($dis = false)
 	{
 		$dis = ($dis) ? ' disabled="disabled"' : '';
-?>
-	<select name='<?php echo $this->name; ?>' id='<?php echo $this->name; ?>' size='<?php echo $this->size; ?>'
+?>      
+	 <select name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>'     
 		onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
 <?php
 		foreach ($this->options as $key=>$value)
@@ -205,7 +205,7 @@ class GUI_CategorySelect
 					FROM
 						wettkampf
 						, kategorie
-					WHERE wettkampf.xKategorie = kategorie.xKategorie
+					WHERE wettkampf.xKategorie = kategorie.xKategorie   
 					AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
 					ORDER BY
 						kategorie.Anzeige
@@ -218,7 +218,7 @@ class GUI_CategorySelect
 					FROM
 						anmeldung
 						, kategorie
-					WHERE anmeldung.xKategorie = kategorie.xKategorie
+					WHERE anmeldung.xKategorie = kategorie.xKategorie 
 					AND anmeldung.xMeeting = " . $_COOKIE['meeting_id'] . "
 					ORDER BY
 						kategorie.Anzeige
@@ -231,7 +231,7 @@ class GUI_CategorySelect
 					, kategorie.Kurzname
 				FROM
 					kategorie
-				
+				WHERE aktiv = 'y' 
 				ORDER BY
 					kategorie.Anzeige
 			");
@@ -757,6 +757,7 @@ class GUI_DisciplineSelect
 			FROM
 				disziplin
 			WHERE Typ != ".$cfgDisciplineType[$strDiscCombined]."
+            AND aktiv = 'y' 
 			$where
 			ORDER BY
 				Anzeige
