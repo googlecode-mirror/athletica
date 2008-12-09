@@ -104,8 +104,7 @@ if($_POST['arg'] == "save"){
 	
 	foreach($_POST['groups'] as $entry => $group){
 		
-		mysql_query("UPDATE anmeldung SET Gruppe = $group WHERE xAnmeldung = ".$entry);
-		
+		mysql_query("UPDATE anmeldung SET Gruppe = '$group' WHERE xAnmeldung = ".$entry);		
 	}
 	
 }
@@ -157,7 +156,7 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 			}
 			
 			mysql_query("	UPDATE runde as r, wettkampf as w SET 
-						r.Gruppe = $g
+						r.Gruppe = '$g'
 					WHERE
 						r.xWettkampf = w.xWettkampf
 					AND	w.Mehrkampfcode = $comb
