@@ -19,11 +19,14 @@ require('./lib/common.lib.php');
 require('./lib/heats.lib.php');
 require('./lib/results.lib.php');
 require('./lib/utils.lib.php');
-require('./lib/cl_performance.lib.php');
+require('./lib/cl_performance.lib.php'); 
 
 $presets = AA_results_getPresets($round);	// read GET/POST variables
 
 $performance = 0;		// initialize
+
+
+
 
 //
 // update result(s)
@@ -579,9 +582,13 @@ if($round > 0)
 
 <table class='dialog'>
 <?php
+            
+
+
+
 			$btn = new GUI_Button('', '');	// create button object
 			while($row = mysql_fetch_row($result))
-			{
+			{   
 				// terminate last row if new athlete and not first item
 				if(($a != $row[4]) && ($i != 0))
 				{
@@ -596,7 +603,7 @@ if($round > 0)
 				}
 /*
  *  Heat headerline
- */
+ */   
 				if($h != $row[2])		// new heat
 				{
 					$h = $row[2];				// keep heat ID
@@ -620,7 +627,7 @@ if($round > 0)
 		<th class='dialog' colspan='<?php echo 7+$c; ?>' />
 			<?php echo $title; ?>
 			<input type='hidden' name='arg' value='change_heat_name' />
-			<input type='hidden' name='round' value='<?php echo $round; ?>' />
+			<input type='hidden' name='round' value='<?php  echo $round; ?>' />
 			<input type='hidden' name='item' value='<?php echo $row[2]; ?>' />
 			<input class='nbr' type='text' name='id' maxlength='2'
 				value='<?php echo $row[3]; ?>'
@@ -628,7 +635,7 @@ if($round > 0)
 				<a name='heat_<?php echo $row[3]; ?>' />
 		</th>
 		</form>
-	</tr>
+	</tr>  
 	<tr>
 		<th class='dialog'><?php echo $strPositionShort; ?></th>
 		<th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
@@ -652,7 +659,7 @@ if($round > 0)
 
 /*
  * Athlete data lines
- */
+ */  
 				if($a != $row[4])		// new athlete
 				{
 					$a = $row[4];		// keep athlete ID
@@ -676,9 +683,9 @@ if($round > 0)
 					else {   
 ?>
 	<tr class='<?php echo $rowclass; ?>'
-		onClick='selectAthlete(<?php echo $i; ?>)'>
+		onclick='selectAthlete(<?php echo $i; ?>)'>
 <?php
-					}
+					}  
 ?>
 		<td class='forms_right'><?php echo $row[5]; ?></td>
 		<td class='forms_right'><?php echo $row[7]; /* start nbr */ ?></td>
@@ -688,7 +695,7 @@ if($round > 0)
 		<td nowrap><?php echo $row[11]; /* club */ ?></td>
    
 <?php
-
+   
 					if($status == $cfgRoundStatus['results_done'])
 					{
 						if($_POST['athlete'] == $i)	// only current athlet
@@ -714,9 +721,11 @@ if($round > 0)
                         echo "<td>" . $row[17] . "</td>";  
 					}		// ET results done
                     else {
-                         ?>
-        <form action='event_results.php' method='post'
-            name='remark'>
+                         ?> 
+                        
+
+<form action='event_results.php' method='post'
+            name='remark_<?php echo $i; ?>'>
         <td>
             <input type='hidden' name='arg' value='save_remark' />
             <input type='hidden' name='round' value='<?php echo $round; ?>' />
@@ -724,9 +733,12 @@ if($round > 0)
             <input type='hidden' name='item' value='<?php echo $row[4]; ?>' />
             <input type='hidden' name='xAthlete' value='<?php echo $row[18]; ?>' />    
             <input class='textshort' type='text' name='remark' maxlength='5'
-                value='<?php echo $row[17]; ?>' onChange='document.remark.submit()' />
+                value='<?php echo $row[17]; ?>' onChange='document.remark_<?php echo $i; ?>.submit()' />
         </td>
-        </form>     
+        </form>  
+       
+  
+      
                    <?php  
                      
                     }
@@ -773,7 +785,7 @@ if($round > 0)
 				value='<?php echo $new_info; ?>'
 					onChange='document.perf.submit()' />
 		</td>
-		</form>
+		</form>   
         
         
 						<?php
@@ -800,9 +812,11 @@ if($round > 0)
 					echo "<td colspan='2' nowrap>" . AA_formatResultMeter($row[14])
 						. " ( $row[15] )</td>";
 				}
+              
 
 			}
-
+            
+          
 			if($a != 0)
 			{
 				if($_POST['athlete'] == $i)		// active item
@@ -820,6 +834,8 @@ if($round > 0)
             
             
 </table>
+  
+                 
 			<?php
 			mysql_free_result($result);
 		}		// ET DB error
