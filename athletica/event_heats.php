@@ -478,6 +478,7 @@ if($round > 0)
 					WHERE 
 						r.xRunde ".$SqlRound." AND st.Anwesend=0  
 					ORDER BY
+                          s.xSerie, 
 						  heatid ASC
 						, ss.Position ASC;";
 			$query = $sql;        
