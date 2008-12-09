@@ -49,7 +49,12 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 				$code = $maxrow[0]+1;
 			}
 		}
-		
+        
+        $row_activ = 'y'; 
+		if ($_POST['activ'] == 'i'){   
+            $row_activ = 'n'; 
+        }
+        
 		mysql_query("
 			INSERT INTO disziplin SET 
 				Kurzname=\"" . strtoupper($_POST['short']) . "\"
@@ -61,22 +66,84 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 				, Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
 				, Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
 				, Code = $code
+                , aktiv='" . $row_activ . "'    
 		");
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change") {
-		mysql_query("
-			UPDATE disziplin SET 
-				Kurzname=\"" . strtoupper($_POST['short']) . "\"
-				, Name=\"" . $_POST['name'] . "\"
-				, Anzeige=" . $_POST['order'] . "
-				, Seriegroesse=" . $_POST['heat'] . "
-				, Staffellaeufer=" . $_POST['relay'] . "
-				, Typ=" . $_POST['type'] . "
-				, Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
-				, Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
-			WHERE xDisziplin=" . $_POST['item']
-		);
+        
+         if (empty($_POST['activ'] )){ 
+            
+            $query="SELECT                         
+                        aktiv 
+                    From 
+                        disziplin 
+                    WHERE xDisziplin=" . $_POST['item'];   
+            
+             $res=mysql_query($query);
+             
+             if(mysql_errno() > 0) {
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+            else {
+                 $row=mysql_fetch_row($res);    
+                 
+                 if ($_POST['activ'] == 'i'){   
+                     $row_activ = 'n'; 
+                 }
+                 elseif ($_POST['activ'] == 'a') {
+                    $row_activ = 'y';   
+                 }
+                 else { 
+                    $row_activ = $row[1];   
+                 }
+                 mysql_query("
+                        UPDATE disziplin SET 
+                            Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                            , Name=\"" . $_POST['name'] . "\"
+                            , Anzeige=" . $_POST['order'] . "
+                            , Seriegroesse=" . $_POST['heat'] . "
+                            , Staffellaeufer=" . $_POST['relay'] . "
+                            , Typ=" . $_POST['type'] . "
+                            , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                            , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                            , aktiv='" . $row_activ . "'    
+                        WHERE xDisziplin=" . $_POST['item']
+                );
+                if(mysql_errno() > 0) {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }                 
+            }
+        }
+        else {   
+             if ($_POST['activ'] == 'i'){   
+                     $row_activ = 'n'; 
+             }
+             elseif ($_POST['activ'] == 'a') {
+                    $row_activ = 'y';   
+             }
+             else { 
+                    $row_activ = $row[1];   
+             }
+             
+		     mysql_query("
+			    UPDATE disziplin SET 
+				    Kurzname=\"" . strtoupper($_POST['short']) . "\"
+				    , Name=\"" . $_POST['name'] . "\"
+				    , Anzeige=" . $_POST['order'] . "
+				    , Seriegroesse=" . $_POST['heat'] . "
+				    , Staffellaeufer=" . $_POST['relay'] . "
+				    , Typ=" . $_POST['type'] . "
+				    , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+				    , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                    , aktiv='" . $row_activ . "'   
+			    WHERE xDisziplin=" . $_POST['item']
+		    );
+           
+            if(mysql_errno() > 0) {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }         
+        }
 	}
 }
 //
@@ -123,6 +190,7 @@ $img_rel="img/sort_inact.gif";
 $img_heat="img/sort_inact.gif";
 $img_order="img/sort_inact.gif";
 $img_mtime="img/sort_inact.gif";
+$img_activ="img/sort_inact.gif";  
 
 if ($_GET['arg']=="disc") {
 	$argument="Name";
@@ -145,6 +213,9 @@ if ($_GET['arg']=="disc") {
 } else if ($_GET['arg']=="mtime") {
 	$argument="Stellzeit DESC";
 	$img_mtime="img/sort_act.gif";
+} else if ($_GET['arg']=="activ") {
+    $argument="aktiv";
+    $img_activ="img/sort_act.gif";
 } else {							// relay event
 	$argument="Anzeige";
 	$img_order="img/sort_act.gif";
@@ -197,6 +268,12 @@ if ($_GET['arg']=="disc") {
 			<img src='<?php echo $img_order; ?>'>
 		</a>
 	</th>
+     <th class='dialog'>
+        <a href='admin_disciplines.php?arg=activ'>
+            <?php echo $strActiv; ?>
+            <img src='<?php echo $img_activ; ?>' />
+        </a>
+    </th>
 </tr>
 
 <tr>
@@ -220,6 +297,9 @@ if ($_GET['arg']=="disc") {
 		<input class='nbr' name='heat' type='text' maxlength='5' /></td>
 	<td class='forms_ctr'>
 		<input class='nbr' name='order' type='text' maxlength='5' /></td>
+     <td class='forms_ctr'>
+        <input type="radio" name="activ" value="a" checked><?php echo $strActivShort ?>
+        <input type="radio" name="activ" value="i"><?php echo $strInactivShort ?></td>   
 	<td class='forms'>
 		<button type='submit'>
 			<?php echo $strSave; ?>
@@ -239,10 +319,13 @@ $result = mysql_query("SELECT xDisziplin"
 						. ", TRUNCATE(TIME_TO_SEC(Appellzeit)/60, 0)"
 						. ", TRUNCATE(TIME_TO_SEC(Stellzeit)/60, 0)"
 						. ", Code"
+                        . ", aktiv"  
 						. " FROM disziplin ORDER BY " . $argument);
 
 $i = 0;
 $btn = new GUI_Button('', '');	// create button object
+
+ 
 
 while ($row = mysql_fetch_row($result))
 {
@@ -254,6 +337,14 @@ while ($row = mysql_fetch_row($result))
 	else {	// odd row number
 		$rowclass = 'even';
 	}
+    
+    $activ = "";
+    $inactiv = "";
+    if($row[10] == "y"){            // activ = 'y'
+        $activ = "checked";
+    }else{
+        $inactiv = "checked";
+    }
 ?>
 		<tr class='<?php echo $rowclass; ?>'>
 			<form action='admin_disciplines.php#item_<?php echo $row[0]; ?>'
@@ -299,6 +390,13 @@ while ($row = mysql_fetch_row($result))
 					value='<?php echo $row[3]; ?>'
 					onChange='submitForm(document.disc<?php echo $i; ?>)' />
 			</td>
+            <td class='forms_ctr'>
+                <input type="radio" name="activ" value="a" onChange='submitForm(document.disc<?php echo $i; ?>)' 
+                    <?php echo $activ ?> ><?php echo $strActivShort ?>
+                <input name='sex_test<?php echo $i;?>' type='hidden' value='m'> 
+                <input type="radio" name="activ" value="i" onChange='submitForm(document.disc<?php echo $i; ?>)' 
+                    <?php echo $inactiv ?> ><?php echo $strInactivShort ?>
+            </td>
 			<td>
 <?php
 	if(empty($row[9])){

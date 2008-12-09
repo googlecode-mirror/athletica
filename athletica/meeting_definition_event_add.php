@@ -213,6 +213,7 @@ $result = mysql_query("
 		, Kurzname
 	FROM
 		kategorie
+    WHERE aktiv = 'y'
 	ORDER BY
 		Anzeige
 ");

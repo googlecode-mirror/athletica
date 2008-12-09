@@ -38,23 +38,32 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 	}
 	// OK: try to add item
 	else if ($_POST['arg']=="add")
-	{
+	{   
+        $row_activ = 'y'; 
+        if ($_POST['activ'] == 'i'){   
+            $row_activ = 'n'; 
+        }
+               
 		mysql_query("
 			INSERT INTO kategorie SET 
 				Kurzname=\"" . strtoupper($_POST['short']) . "\"
 				, Name=\"" . $_POST['name'] . "\"
 				, Geschlecht=\"" . $_POST['sex'] . "\"
 				, Anzeige=" . $_POST['order'] . "
-				, Alterslimite=" . $_POST['age']
+				, Alterslimite=" . $_POST['age'] ."
+                , aktiv='" . $row_activ . "'"    
 		);
+        
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change")
 	{  	mysql_query("LOCK TABLES kategorie WRITE"); 
-		if (empty($_POST['sex'] )){ 
+       
+		if (empty($_POST['sex']) || empty($_POST['activ'] )){ 
 			
 			$query="SELECT 
-						Geschlecht 
+						Geschlecht,
+                        aktiv 
 			        From 
 			        	kategorie 
 			        WHERE xKategorie =" . $_POST['item'];
@@ -66,14 +75,29 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 			}
 			else {
 	     		$row=mysql_fetch_row($res);	
-	     	
+	     	    if (empty($_POST['sex'])){
+                     $row_sex = $row[0];
+                }
+                else {
+                    $row_sex = $_POST['sex']; 
+                }
+                 if ($_POST['activ'] == 'i'){   
+                     $row_activ = 'n'; 
+                }
+                elseif ($_POST['activ'] == 'a') {
+                   $row_activ = 'y';   
+                }
+                 else { 
+                    $row_activ = $row[1];   
+                 }
 	       		mysql_query("
 				UPDATE kategorie SET
 					Kurzname=\"" . strtoupper($_POST['short']) . "\"
 					, Name=\"" . $_POST['name'] . "\"
-					, Geschlecht=\"" . $row[0] . "\"
+					, Geschlecht=\"" . $row_sex . "\"
 					, Anzeige=" . $_POST['order'] . "
 					, Alterslimite=" . $_POST['age'] . "
+                    , aktiv='" . $row_activ . "' 
 				WHERE xKategorie=" . $_POST['item']
 				);
 				if(mysql_errno() > 0) {
@@ -81,7 +105,14 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 				}  			   
 			}
 	    }
-		else { 	    	   
+		else {   
+                if ($_POST['activ'] == 'i'){
+                     $row_activ = 'n';
+                }  
+                else {
+                     $row_activ = 'y';   
+                }
+                    	   
 			   mysql_query("
 			   UPDATE kategorie SET
 					Kurzname=\"" . strtoupper($_POST['short']) . "\"
@@ -89,6 +120,7 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 					, Geschlecht=\"" . $_POST['sex'] . "\"
 					, Anzeige=" . $_POST['order'] . "
 					, Alterslimite=" . $_POST['age'] . "
+                    , aktiv='" . $row_activ . "'  
 			   WHERE xKategorie=" . $_POST['item']
 			   );
 			   
@@ -151,6 +183,7 @@ $img_short="img/sort_inact.gif";
 $img_age="img/sort_inact.gif";
 $img_order="img/sort_inact.gif";
 $img_sex="img/sort_inact.gif";
+$img_activ="img/sort_inact.gif"; 
 
 if ($_GET['arg']=="cat") {
 	$argument="Name";
@@ -167,6 +200,9 @@ if ($_GET['arg']=="cat") {
 } else if ($_GET['arg']=="sex") {
 	$argument="Geschlecht";
 	$img_sex="img/sort_act.gif";
+} else if ($_GET['arg']=="activ") { 
+    $argument="aktiv";
+    $img_activ="img/sort_act.gif";  
 } else {
 	$argument="Anzeige";
 	$img_order="img/sort_act.gif";
@@ -206,6 +242,12 @@ if ($_GET['arg']=="cat") {
 			<img src='<?php echo $img_sex; ?>' />
 		</a>
 	</th>
+    <th class='dialog'>
+        <a href='admin_categories.php?arg=activ'>
+            <?php echo $strActiv; ?>
+            <img src='<?php echo $img_activ; ?>' />
+        </a>
+    </th>
 </tr>
 
 <tr>
@@ -222,7 +264,10 @@ if ($_GET['arg']=="cat") {
 		<input class='nbr' name='order' type='text' maxlength='3'></td>
 	<td class='forms_ctr'>
 		<input type="radio" name="sex" value="m" checked><?php echo $strSexMShort ?>
-		<input type="radio" name="sex" value="w"><?php echo $strSexWShort ?>
+		<input type="radio" name="sex" value="w"><?php echo $strSexWShort ?></td>    
+    <td class='forms_ctr'>
+        <input type="radio" name="activ" value="a" checked><?php echo $strActivShort ?>
+        <input type="radio" name="activ" value="i"><?php echo $strInactivShort ?></td>    
 	<td class='forms_ctr'>
 		<button type='submit'>
 			<?php echo $strSave; ?>
@@ -240,8 +285,9 @@ $result = mysql_query("SELECT xKategorie"
 						. ", Alterslimite"
 						. ", Geschlecht"
 						. ", Code"
+                        . ", aktiv"   
 						. " FROM kategorie ORDER BY " . $argument);
-
+ 
 $i = 0;
 $btn = new GUI_Button('', '');	// create button object
 
@@ -256,6 +302,14 @@ while ($row = mysql_fetch_row($result))
 	}else{
 		$sexm = "checked";
 	}
+    
+    $activ = "";
+    $inactiv = "";
+    if($row[7] == "y"){            // activ = 'y'
+        $activ = "checked";
+    }else{
+        $inactiv = "checked";
+    }
 	
 	// disable sex option if category is a standard
 	$sexDis = "";
@@ -302,6 +356,13 @@ while ($row = mysql_fetch_row($result))
 		<input type="radio" name="sex" value="w" onChange='submitForm(document.cat<?php echo $i; ?>)' 
 			<?php echo $sexw ?> <?php echo $sexDis ?>><?php echo $strSexWShort ?>
 	</td>
+    <td class='forms_ctr'>
+        <input type="radio" name="activ" value="a" onChange='submitForm(document.cat<?php echo $i; ?>)' 
+            <?php echo $activ ?> ><?php echo $strActivShort ?>
+        <input name='sex_test<?php echo $i;?>' type='hidden' value='m'> 
+        <input type="radio" name="activ" value="i" onChange='submitForm(document.cat<?php echo $i; ?>)' 
+            <?php echo $inactiv ?> ><?php echo $strInactivShort ?>
+    </td>
 	<td>
 <?php
 	if(empty($row[6])){
