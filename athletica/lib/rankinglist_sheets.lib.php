@@ -29,14 +29,14 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 
 // start a new HTML display page
 if($formaction == 'view') { 
-	$list = new GUI_TeamSheet($_COOKIE['meeting']);
-	$list->printPageTitle("$strClubSheets " . $_COOKIE['meeting']);
+	$GLOBALS[$list] = new GUI_TeamSheet($_COOKIE['meeting']);
+	$GLOBALS[$list]->printPageTitle("$strClubSheets " . $_COOKIE['meeting']);
 }
 // start a new HTML print page
 else {
-	$list = new PRINT_TeamSheet($_COOKIE['meeting']);
+	$GLOBALS[$list] = new PRINT_TeamSheet($_COOKIE['meeting']);
 	if($cover == true) {		// print cover page 
-		$list->printCover($strClubSheets, $cover_timing);
+		$GLOBALS[$list]->printCover($strClubSheets, $cover_timing);
 	}
 }
 $selection = ''; 
@@ -66,7 +66,7 @@ if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 
-
+    
 $results = mysql_query("
 	SELECT
 	  	k.xKategorie
@@ -90,21 +90,22 @@ if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else
-{
+{   
 	$GLOBALS['AA_TC'] = 0;		// team counter
 
+    
 	// process all categories
 	while($row = mysql_fetch_row($results))
-	{
+	{  
 		// Team sheet: Combined 
 		if ($row[2] == $cfgEventType[$strEventTypeClubCombined])
-		{
-			AA_sheets_processCombined($row[0], $row[1], $list);
+		{   
+			AA_sheets_processCombined($row[0], $row[1]);
 		}
 		// Team sheet: Single
 		else
 		{  
-			AA_sheets_processSingle($row[0], $row[1], $list);
+			AA_sheets_processSingle($row[0], $row[1]);
 		}
 
 	}
@@ -112,7 +113,7 @@ else
 	mysql_free_result($results);
 }	// ET DB error categories 
 
-$list->endPage();	// end HTML page for printing
+$GLOBALS[$list]->endPage();	// end HTML page for printing
 
 }	// end function AA_rankinglist_Team
 
@@ -120,7 +121,7 @@ $list->endPage();	// end HTML page for printing
 //	process club single events
 //
 
-function AA_sheets_processSingle($xCategory, $category, $list)
+function AA_sheets_processSingle($xCategory, $category)
 {  
 	require('./config.inc.php');
 
@@ -173,17 +174,17 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 
 		// process every team
 		foreach($teamList as $team)
-		{
+		{  
 			// page break after each team
-			if(is_a($list, "PRINT_TeamSheet")	// page for printing
+			if(is_a($GLOBALS[$list], "PRINT_TeamSheet")	// page for printing
 				&& ($GLOBALS['AA_TC'] > 0)) {		// not first result row
-				$list->insertPageBreak();
+				$GLOBALS[$list]->insertPageBreak();
 			}
 			$GLOBALS['AA_TC']++;		// team counter
 			$total = 0;
 			$temptable = false;
 
-			if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
+			if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing
 				// set up list of other competitors
 				$sep = '';
 				$competitors = '';
@@ -196,12 +197,12 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					}
 				}
 
-				$list->printHeader($team['club']." (".$team['name'].")", $category, $competitors);
+				$GLOBALS[$list]->printHeader($team['club']." (".$team['name'].")", $category, $competitors);
 			}
 			else {
-				$list->printHeader($team['club']." (".$team['name'].")", $category);
+				$GLOBALS[$list]->printHeader($team['club']." (".$team['name'].")", $category);
 			}
-
+           
 			// single events
 			// -------------
 			$results = mysql_query("
@@ -270,8 +271,8 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 							if($c + 1 == $a)	// last line
 							{
 								if($r == $cfgEventType[$strEventTypeClubAdvanced]) {
-									//$points = $p / 2;
-									$points = $p;
+									$points = $p / 2;         
+									//$points = $p;
 								}elseif($r == $cfgEventType[$strEventTypeSVMNL]) {
 									//$points = $p / 2;
 									$points = $p;
@@ -280,11 +281,11 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 								}*/else {
 									$points = $p;
 								}
-
+                               
 								$total = $total + $points;	// accumulate total points
 								$points = round($points,$cfgResultsPointsPrecision);
 							}                             
-							$list->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', $points);	// empty line
+							$GLOBALS[$list]->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', $points);	// empty line
 						}
 
 						// nbr of athletes to be included in total points
@@ -338,7 +339,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 										$temptable = true;
 									}
 
-									$list->printSubHeader($strTeamRankingSubtitle1);
+									$GLOBALS[$list]->printSubHeader($strTeamRankingSubtitle1);
 								}
 								break;
 
@@ -386,7 +387,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 						}
 						
 						$windsep='';
-						if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
+						if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing
 							$windsep="/ ";
 						}
 
@@ -429,8 +430,8 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 
 						if(($c + 1) == $a) {	// last athlete
 							if($pt_row[8] == $cfgEventType[$strEventTypeClubAdvanced]) {
-								//$p = $p / 2;
-								$p = $p;
+								$p = $p / 2;                               
+								//$p = $p;
 							}elseif($pt_row[8] == $cfgEventType[$strEventTypeSVMNL]) {
 								//$p = $p / 2;
 								$p = $p;
@@ -453,17 +454,18 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 							|| $pt_row[8] == $cfgEventType[$strEventTypeClubTeam]
 							|| $pt_row[8] == $cfgEventType[$strEventTypeSVMNL])
 						{
-							$ip = $pt_row[7];
-						}
-
+							$ip = $pt_row[7];      
+                            
+						}       
+            
 						if($pt_row[0] != $d)		// new discipline
 						{
-							$list->printLine($pt_row[0],
+							$GLOBALS[$list]->printLine($pt_row[0],
 								$pt_row[2] . " " . $pt_row[3] .", " . $year,
 								$perf, $wind, $ip, $points, $pt_row[13]);
 						}
 						else {
-							$list->printLine('',
+							$GLOBALS[$list]->printLine('',
 								$pt_row[2] . " " . $pt_row[3] . ", " . $year,
 								$perf, $wind, $ip, $points, $pt_row[13]);
 						}
@@ -541,7 +543,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 						}
 						$total = $total + $points;	// accumulate total points
 					}
-					$list->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', round($points,$cfgResultsPointsPrecision));	// empty line
+					$GLOBALS[$list]->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', round($points,$cfgResultsPointsPrecision));	// empty line
 				}
 
 				mysql_free_result($results);
@@ -600,7 +602,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 						if($p > 0) {
 							$points = $p;
 							$total = $total + $points;	// accumulate total points
-							$list->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', round($points,$cfgResultsPointsPrecision)); // empty line
+							$GLOBALS[$list]->printLine('', $cfgResultsInfoFill, $cfgResultsInfoFill, '', '0', round($points,$cfgResultsPointsPrecision)); // empty line
 						}
 
 						$c = 0;					// athlete counter
@@ -631,15 +633,15 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 
 						if($pt_row[0] != $d)		// new discipline
 						{
-							$list->printLine($pt_row[0], $pt_row[1], $perf, '',
+							$GLOBALS[$list]->printLine($pt_row[0], $pt_row[1], $perf, '',
 								$ip, round($points,$cfgResultsPointsPrecision), $pt_row[7]);
 
 						}
 						else {
-							$list->printLine('', $pt_row[1], $perf, '', $ip, round($points,$cfgResultsPointsPrecision), $pt_row[7]);
+							$GLOBALS[$list]->printLine('', $pt_row[1], $perf, '', $ip, round($points,$cfgResultsPointsPrecision), $pt_row[7]);
 						}
 
-						AA_sheets_printRelayAthletes($list, $pt_row[4]);
+						AA_sheets_printRelayAthletes($pt_row[4]);
 					}	// ET top ranking relays
 					else if ($temptable == true)
 					{
@@ -674,7 +676,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					$r = $pt_row[5];	// keep rating type
 				}	// END WHILE team events
 
-				$list->printSubTotal(round($total,$cfgResultsPointsPrecision));
+				$GLOBALS[$list]->printSubTotal(round($total,$cfgResultsPointsPrecision));
 
 				mysql_free_result($results);
 
@@ -710,7 +712,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					}
 					else {
 
-						$list->printSubHeader($strTeamRankingSubtitle2);
+						$GLOBALS[$list]->printSubHeader($strTeamRankingSubtitle2);
 
 						$c = 0;					// athlete counter
 						$g = 0;					// group indicator
@@ -753,7 +755,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 							if($c < $a)		// show only top ranking athletes
 							{
 								$windsep='';
-								if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
+								if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing
 									$windsep="/ ";
 								}
 
@@ -792,13 +794,13 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 								$points = round($p,$cfgResultsPointPrecision);
 								$total = $total + $points;		// accumulate points
 
-								$list->printLine($pt_row[1],
+								$GLOBALS[$list]->printLine($pt_row[1],
 									$pt_row[2] . " " . $pt_row[3] . $year,
 									$perf, $wind, "", $points);
 
 								if ($pt_row[11] == $cfgDisciplineType[$strDiscTypeRelay])
 								{
-									AA_sheets_printRelayAthletes($list, $pt_row[12]);
+									AA_sheets_printRelayAthletes($pt_row[12]);
 								}
 
 							}
@@ -833,10 +835,10 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 							$g = $pt_row[0];
 						}	// END WHILE next results
 
-						$list->printSubTotal(round($total,$cfgResultsPointsPrecision));
+						$GLOBALS[$list]->printSubTotal(round($total,$cfgResultsPointsPrecision));
 						mysql_free_result($res);
 					}
-
+                    
 					// get remaining results
 					$res = mysql_query("
 						SELECT
@@ -864,7 +866,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 					}
 					else {
 
-						$list->printSubHeader($strTeamRankingSubtitle3);
+						$GLOBALS[$list]->printSubHeader($strTeamRankingSubtitle3);
 
 						$c = 0;					// athlete counter
 						$p = 0;					// point counter
@@ -895,7 +897,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 							if($c < $a)		// add only top ranking athletes
 							{
 								$windsep='';
-								if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
+								if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing
 									$windsep="/ ";
 								}
 
@@ -929,7 +931,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 								$points = round($p,$cfgResultsPointPrecision);
 								$total = $total + $points;		// accumulate points
 
-								$list->printLine($pt_row[1],
+								$GLOBALS[$list]->printLine($pt_row[1],
 									$pt_row[2] . " " . $pt_row[3] .", " . $year,
 									$perf, $wind, "", $points);
 							}
@@ -942,11 +944,11 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 
 				}
 
-				$list->printTotal(round($total,$cfgResultsPointsPrecision));
+				$GLOBALS[$list]->printTotal(round($total,$cfgResultsPointsPrecision));
 			}
 
-			if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
-				$list->printFooter();
+			if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing                 
+				$GLOBALS[$list]->printFooter();
 			}
 
 			mysql_query("DROP TABLE IF EXISTS tempresult");
@@ -954,7 +956,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			$temptable = false;	// reset temp table indicator
-
+          
 		}	// END FOREACH every team
 	}	// ET DB error all teams
 
@@ -967,7 +969,7 @@ function AA_sheets_processSingle($xCategory, $category, $list)
 //	process club combined events
 //
 
-function AA_sheets_processCombined($xCategory, $category, $list)
+function AA_sheets_processCombined($xCategory, $category)
 {
 	require('./config.inc.php');
 
@@ -1174,16 +1176,20 @@ function AA_sheets_processCombined($xCategory, $category, $list)
 
 		// print team sheets
 		usort($teamList, "AA_sheets_cmp");
-
+        
+        
+         
 		foreach($teamList as $team)
 		{
-			if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
-
+			if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing
+                
 				// page break after each team
-				if($GLOBALS['AA_TC'] > 0) {				// not first team
-					$list->insertPageBreak();
+				if($GLOBALS['AA_TC'] > 0) {				// not first team   
+					$GLOBALS[$list]->insertPageBreak();
+                   
 				}
 				$GLOBALS['AA_TC']++;		// team counter
+                
 
 				// set up list of other competitors
 				$sep = '';
@@ -1197,10 +1203,10 @@ function AA_sheets_processCombined($xCategory, $category, $list)
 					}
 				}
 
-				$list->printHeader($team['club']." (".$team['name'].")", $category, $competitors);
+				$GLOBALS[$list]->printHeader($team['club']." (".$team['name'].")", $category, $competitors);
 			}
 			else {
-				$list->printHeaderCombined($team['club']." (".$team['name'].")", $category);
+				$GLOBALS[$list]->printHeaderCombined($team['club']." (".$team['name'].")", $category);
 			}
 
 			$i = 0;
@@ -1211,22 +1217,23 @@ function AA_sheets_processCombined($xCategory, $category, $list)
 				}
 				$i++;
 
-				$list->printLineCombined($athlete['name'], $athlete['year'], $athlete['points']);
-				$list->printDisciplinesCombined($athlete['info']);
+				$GLOBALS[$list]->printLineCombined($athlete['name'], $athlete['year'], $athlete['points']);
+				$GLOBALS[$list]->printDisciplinesCombined($athlete['info']);
 			}
 
 
-			if(is_a($list, "PRINT_TeamSheet")) {	// page for printing
-				$list->printTotal($team['points']);
-				$list->printFooter();
+			if(is_a($GLOBALS[$list], "PRINT_TeamSheet")) {	// page for printing
+				$GLOBALS[$list]->printTotal($team['points']);
+				$GLOBALS[$list]->printFooter();
 			}
 			else {
-				$list->printTotalCombined($team['points']);
+				$GLOBALS[$list]->printTotalCombined($team['points']);
 			}
 		}	// FOREACH team
 
 	}	// ET DB error all teams
-
+    
+   
 }	// end function processCombined()
 
 
@@ -1243,7 +1250,7 @@ function AA_sheets_cmp ($a, $b) {
 //
 // print list of relay athletes
 // 
-function AA_sheets_printRelayAthletes($list, $relay)
+function AA_sheets_printRelayAthletes($relay)
 {
 	$at_res = mysql_query("
 		SELECT
@@ -1274,7 +1281,7 @@ function AA_sheets_printRelayAthletes($list, $relay)
 		while($at_row = mysql_fetch_row($at_res))
 		{
 			$year = AA_formatYearOfBirth($at_row[2]);
-			$list->printRelayAthlete("$at_row[3]. $at_row[0] $at_row[1], $year");
+			$GLOBALS[$list]->printRelayAthlete("$at_row[3]. $at_row[0] $at_row[1], $year");
 		}
 		mysql_free_result($at_res);
 	}
