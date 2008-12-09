@@ -16,6 +16,7 @@ define('AA_TIMING_LIB_INCLUDED', 1);
 require("./lib/common.lib.php");
 require("./lib/cl_omega.lib.php");
 require("./lib/cl_alge.lib.php");
+require('./config.inc.php');  
 
 /**
  * get results from timing automaticaly (on reload of event monitor)
@@ -155,6 +156,42 @@ function AA_timing_setTiming($system){
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
 	}
+    $t1=$GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']];
+    $t2=$cfgDisciplineType[$strDiscTypeTrackNoWind];
+    
+    if ($system == 'no'){
+        $timing = 0;        // remove timing and timing auto for all tracks 
+    }
+    else {
+         $timing = 1;      // set timing and timing auto for all tracks 
+    }
+   
+    $sql="SELECT 
+                w.xWettkampf 
+          FROM 
+                wettkampf as w
+                LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)
+          WHERE 
+                d.Typ IN ( ". $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']] ."," 
+                . $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']] .","
+                . $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']] ."," 
+                . $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']] .")  
+                AND w.xMeeting = " . $_COOKIE['meeting_id'];              
+            
+    $res=mysql_query($sql);
+    if(mysql_errno() > 0){
+            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+    }
+    else {
+             while($row=mysql_fetch_array($res)){
+                 mysql_query("UPDATE wettkampf SET Zeitmessung = " . $timing .", ZeitmessungAuto = " . $timing . " WHERE xWettkampf = " 
+                                . $row[0] ." AND xMeeting = ".$_COOKIE['meeting_id']);  
+                 
+                 if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                 }
+             } 
+        }  
 }
 
 function AA_timing_setAutoRank($autorank) {   
