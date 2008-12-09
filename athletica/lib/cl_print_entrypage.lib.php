@@ -21,7 +21,7 @@ class PRINT_EntryPage extends PRINT_Page
 {
 	function printHeaderLine()
 	{  
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 3)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -45,13 +45,13 @@ class PRINT_EntryPage extends PRINT_Page
 		?>
 	</tr>
 <?php
-		$this->linecnt++;
+		$this->linecnt+=2;
 	}
 
 
 	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid='')
-	{   
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+	{  
+		if(($this->lpp - $this->linecnt) < 1)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -77,25 +77,32 @@ class PRINT_EntryPage extends PRINT_Page
 		?>
 	</tr>
 <?php
-		// count more lines if string is to long (discipline string)
+		// count more lines if string is to long (club string)  
+        $t1 = 0;
+        $w = AA_getStringWidth($club, 12);
+        $t1 = ceil(($w / 157));          
+        
+        // count more lines if string is to long (discipline string)
 		$w = AA_getStringWidth($disc, 12);
-		$t = ceil(($w / 200));
-		if($w > 200){
-			$this->linecnt += $t;
-		}else{
-			$this->linecnt++;
-		}
+		$t = ceil(($w / 180));      
+        if ($t >= $t1){
+            $this->linecnt += $t;   
+        }
+        else {
+             $this->linecnt += $t1;     
+        }
+		
 	}
  
 	function printSubTitle($title)
 	{
-		if(($this->lpp - $this->linecnt) < 7)		// page break check
+		if(($this->lpp - $this->linecnt) < 9)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
 		}
-		$this->linecnt = $this->linecnt + 3;	// needs 3 lines (see style sheet)
+		$this->linecnt = $this->linecnt + 2;	// needs 2 lines (see style sheet)
 ?>
 		<div class='hdr2'><?php echo $title; ?></div>
         
@@ -118,7 +125,7 @@ class PRINT_CatEntryPage extends PRINT_EntryPage
 {
 	function printHeaderLine()
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak(); 
@@ -140,7 +147,7 @@ class PRINT_CatEntryPage extends PRINT_EntryPage
 
 	function printLine($nbr, $name, $year, $club, $disc, $ioc)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 3)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -157,14 +164,20 @@ class PRINT_CatEntryPage extends PRINT_EntryPage
 		<td class='entry_disc'><?php echo $disc; ?></td>
 	</tr>
 <?php
-		// count more lines if string is to long (discipline string)
-		$w = AA_getStringWidth($disc, 12);
-		$t = ceil(($w / 200));
-		if($w > 200){
-			$this->linecnt += $t;
-		}else{
-			$this->linecnt++;
-		}
+		// count more lines if string is to long (club string)  
+        $t1 = 0;
+        $w = AA_getStringWidth($club, 12);
+        $t1 = ceil(($w / 157));          
+        
+        // count more lines if string is to long (discipline string)
+        $w = AA_getStringWidth($disc, 12);
+        $t = ceil(($w / 180));      
+        if ($t >= $t1){
+            $this->linecnt += $t;   
+        }
+        else {
+             $this->linecnt += $t1;     
+        }
 		
 		//$this->linecnt++;
 	}
@@ -186,7 +199,7 @@ class PRINT_ClubEntryPage extends PRINT_EntryPage
 {
 	function printHeaderLine()
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -208,7 +221,7 @@ class PRINT_ClubEntryPage extends PRINT_EntryPage
 
 	function printLine($nbr, $name, $year, $cat, $disc, $ioc)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -227,14 +240,17 @@ class PRINT_ClubEntryPage extends PRINT_EntryPage
 <?php
 		// count more lines if string is to long (discipline string)
 		$w = AA_getStringWidth($disc, 12);
-		$t = ceil(($w / 200));
-		if($w > 200){
+		$t = ceil(($w / 180));
+		if($w > 180){
 			$this->linecnt += $t;
 		}else{
 			$this->linecnt++;
 		}
 		//$this->linecnt++;
 	}
+    
+    
+    
 
 } // end PRINT_ClubEntryPage
 
@@ -252,7 +268,7 @@ class PRINT_CatDiscEntryPage extends PRINT_EntryPage
 {
 	function printHeaderLine()
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -274,7 +290,7 @@ class PRINT_CatDiscEntryPage extends PRINT_EntryPage
 
 	function printLine($nbr, $name, $year, $club, $perf, $ioc)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -291,7 +307,12 @@ class PRINT_CatDiscEntryPage extends PRINT_EntryPage
 		<td class='entry_perf'><?php echo $perf; ?></td>
 	</tr>
 <?php
-		$this->linecnt++;
+        // count more lines if string is to long (club string)  
+        $t = 0;
+        $w = AA_getStringWidth($club, 12);
+        $t = ceil(($w / 157));  
+		$this->linecnt+=$t;
+       
 	}
 
 } // end PRINT_CatDiscEntryPage
@@ -309,8 +330,8 @@ class PRINT_CatDiscEntryPage extends PRINT_EntryPage
 class PRINT_ClubCatEntryPage extends PRINT_EntryPage
 {
 	function printHeaderLine()
-	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+	{  
+		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -331,7 +352,7 @@ class PRINT_ClubCatEntryPage extends PRINT_EntryPage
 
 	function printLine($nbr, $name, $year, $disc, $ioc)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 3)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -349,8 +370,8 @@ class PRINT_ClubCatEntryPage extends PRINT_EntryPage
 <?php
 		// count more lines if string is to long (discipline string)
 		$w = AA_getStringWidth($disc, 12);
-		$t = ceil(($w / 200));
-		if($w > 200){
+		$t = ceil(($w / 180));
+		if($w > 180){
 			$this->linecnt += $t;
 		}else{
 			$this->linecnt++;
@@ -374,8 +395,8 @@ class PRINT_ClubCatEntryPage extends PRINT_EntryPage
 class PRINT_ClubCatDiscEntryPage extends PRINT_EntryPage
 {
 	function printHeaderLine()
-	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+	{  
+		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -396,7 +417,7 @@ class PRINT_ClubCatDiscEntryPage extends PRINT_EntryPage
 
 	function printLine($nbr, $name, $year, $perf, $ioc)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -543,7 +564,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	}
 
     function printLineAthlete($athleteLine)
-    {
+    {        
       if(($this->lpp - $this->linecnt) < 2)        // page break check
         {
             printf("</table>");
@@ -566,7 +587,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
     }
     
 	function printLine($nbr,  $name, $year, $club, $ioc, $top, $club2='', $pos)
-	{  
+	{             
 		if(($this->lpp - $this->linecnt) < 2)		// page break check
 		{
 			printf("</table>");
@@ -882,8 +903,9 @@ class PRINT_ReceiptEntryPage extends PRINT_Page
     </tr>
     </table> 
 <?php
-      $countLine=ceil(strlen($disc)/40);         // calculate lines of disziplines
-      $this->linecnt+=$countLine;  
+      $textWidth=AA_getStringWidth($disc,12); 
+      $countLine=ceil(($textWidth/240));           // calculate lines of disziplines   
+      $this->linecnt+=$countLine;                
     }
    
    function printLineClub($club)

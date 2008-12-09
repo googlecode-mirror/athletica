@@ -32,7 +32,7 @@ class PRINT_Page extends GUI_Page
 	// ----------------
 
 	function PRINT_Page($title='Defaulttitle')
-	{
+	{            
 		$this->title = $title;
 		$this->stylesheet = "printing.css";
 		$this->lpp = 0;			// lines per page
@@ -207,7 +207,7 @@ class PRINT_Page extends GUI_Page
 	 * Terminates layout table and inserts a page break (printing).
 	 */
 	function insertPageBreak()
-	{
+	{  
 		global $cfgPageContentHeight;           
 ?>
 	</td>
@@ -257,8 +257,8 @@ class PRINT_Page extends GUI_Page
 	}
 
 	function startList()
-	{
-		printf("<table>");
+	{   
+		printf("<table>");   
 	}
 
 
@@ -376,7 +376,7 @@ class PRINT_Page extends GUI_Page
 	}
 	
 	function printPageHeader(){
-		$this->pagenbr++;
+		$this->pagenbr++;            
 		
 		?>
 <div style="position:relative; top:0mm; left:15px;">
@@ -414,7 +414,8 @@ class PRINT_Page extends GUI_Page
 		<?php
 	}
 	
-	function printPageFooter(){
+	function printPageFooter(){     
+       
 		?>
 <div style="position:relative; top:0mm; left:15px;">
 <div style="position:absolute; top:0px; left:0px;">
@@ -514,14 +515,14 @@ class PRINT_RankingList extends PRINT_Page
 			$this->round = $this->round . " " . $GLOBALS['strCont'];         
 		}
 
-		if(($this->lpp - $this->linecnt) < 8)		// page break check
+		if(($this->lpp - $this->linecnt) < 10)		// page break check
 		{   
 		   	printf("</table>");      
 			$this->insertPageBreak();
 		   	printf("<table class='rank'>");       
 			
 		}
-		$this->linecnt = $this->linecnt + 3;	// needs 3 lines (see style sheet)
+		$this->linecnt = $this->linecnt + 2;	// needs 3 lines (see style sheet)
 ?>
 		<table><tr>   
                 <th class='rank_cat'><?php echo $this->cat; ?></th>  
@@ -535,7 +536,7 @@ class PRINT_RankingList extends PRINT_Page
 	function printInfoLine($info)
 	{ 
 		if(!empty($info))
-		{
+		{   
 			$this->linecnt = $this->linecnt++;
 ?>
 		<table><tr>
@@ -557,10 +558,10 @@ class PRINT_RankingList extends PRINT_Page
 	
 		$lines = 0;
 		if(!empty($this->title)) {
-			$lines = 3;	
+			$lines = 2;	
 		}
       
-		if(($this->lpp - $this->linecnt) < ($lines+2))		// page break check
+		if(($this->lpp - $this->linecnt) < ($lines+6))		// page break check
 		{  
 		   	printf("</table>");
 			$this->insertPageBreak();
@@ -642,15 +643,16 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function startList()
-	{  
-		printf("<table class='rank'>");
+	{   
+		printf("<table class='rank'>");   
 	}
 
 
 	function printLine($rank, $name, $year, $club, $perf
 		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark)
 	{  
-        if(($this->lpp - $this->linecnt) < 1)		// page break check
+        
+        if(($this->lpp - $this->linecnt) < 5)		// page break check
 		{    
 			printf("</table>");			   			
 			$this->insertPageBreak(); 
@@ -679,7 +681,9 @@ class PRINT_RankingList extends PRINT_Page
 	}
 	
 	function printAthletesLine($text){
-		$this->linecnt++;
+           $textWidth=AA_getStringWidth($text,12); 
+           $countLine=ceil(($textWidth/620));           // calculate lines of disziplines   
+           $this->linecnt+=$countLine;    
 ?>
 	<tr>
 		<td class='rank_rank'></td>
@@ -700,13 +704,17 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
 	function printHeaderLine($time = "")
 	{ 
 		$lines = 0;
-		if(($this->lpp - $this->linecnt) < ($lines+3))		// page break check
+        if(!empty($time)){ 
+           $lines = 2;  
+        }
+		if(($this->lpp - $this->linecnt) < ($lines+4))		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table class='rank'>");
 		}
 		if(!empty($time)){
+            
 ?>
 	<tr>
 		<th class='comb_datetime' colspan='6'>
@@ -715,7 +723,7 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
 	</tr>
 <?php
 		}
-		$this->linecnt = $this->linecnt + $lines + 2;	// increment line count
+		$this->linecnt = $this->linecnt + $lines + 1;	// increment line count
 ?>
 	<tr>
 		<th class='comb_rank'><?php echo $GLOBALS['strRank']; ?></th>
@@ -742,7 +750,7 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
                printf("<table class='rank'>");       
             
         }
-        $this->linecnt = $this->linecnt + 3;    // needs 3 lines (see style sheet)
+        $this->linecnt = $this->linecnt + 2;    // needs 2 lines (see style sheet)
 ?>
         <table width="100%"><tr>
             <th class='rank_cat'><?php echo $this->cat; ?></th>
@@ -755,7 +763,7 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
 	function printLine($rank, $name, $year, $club, $points, $ioc, $remark)
 	{   
 		if(($this->lpp - $this->linecnt) < 4)		// page break check
-		{
+		{   
 			printf("</table>");
 			$this->insertPageBreak();
 			$this->printSubTitle();
@@ -783,8 +791,10 @@ class PRINT_CombinedRankingList extends PRINT_RankingList
 
 
 	function printInfo($info)
-	{  
-		$this->linecnt = $this->linecnt + 1;	// increment line count
+	{   $textWidth=AA_getStringWidth($info,12);          
+        $countLine=ceil(($textWidth/754));             // calculate lines of disziplines    
+        $this->linecnt+=$countLine;  
+          
 ?>
 	<tr>
 		<td />
@@ -808,7 +818,10 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 	function printHeaderLine($time = "")
 	{
 		$lines = 0;
-		if(($this->lpp - $this->linecnt) < ($lines+3))		// page break check
+        if(!empty($time)){
+           $lines = 1;   
+        }
+		if(($this->lpp - $this->linecnt) < ($lines+4))		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -837,7 +850,7 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 
 	function printLine($rank, $name, $club, $points)
 	{
-		if(($this->lpp - $this->linecnt) < 3)		// page break check
+		if(($this->lpp - $this->linecnt) < 5)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -864,7 +877,7 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 
 	function printAthleteLine($name, $year, $points)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -887,7 +900,7 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 
 	function printInfo($info)
 	{
-		$this->linecnt = $this->linecnt + 2;	// increment line count
+		$this->linecnt = $this->linecnt + 1;	// increment line count
 ?>
 	<tr>
 		<td />
@@ -1107,7 +1120,7 @@ class PRINT_TeamSheet extends PRINT_Page
 
 
 	function printFooter()
-	{
+	{   
 		$this->linecnt = $this->linecnt + 12;
 ?>
 	<tr>
