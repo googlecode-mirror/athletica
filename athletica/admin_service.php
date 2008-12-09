@@ -466,7 +466,7 @@ if($res_srv_lg=='ok'){
 								?>
 								<br/>
 								Bewilligungsnummer: <input type="text" name="xControl" id="xControl" style="width: 50px;"/><br/>
-								<input type="button" value="Los" onclick="document.location.href='admin_service.php?a=xControl&m='+document.getElementById('xMeeting_xControl').value+'&c='+document.getElementById('xControl').value">
+								<input type="button" value="Los" onclick="document.location.href='admin_service.php?a=xControl&m='+document.getElementById('xMeeting_xControlselectbox').value+'&c='+document.getElementById('xControl').value">
 							</td>
 						</tr>
 					</table>
