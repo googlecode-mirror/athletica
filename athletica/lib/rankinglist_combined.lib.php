@@ -127,7 +127,7 @@ $results = mysql_query("
         , ka.Alterslimite DESC
         ");     
 */               
-   
+  
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -175,7 +175,7 @@ else
 	}
 	
 	while($row = mysql_fetch_row($results))
-	{   
+	{  
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
@@ -187,6 +187,7 @@ else
 			$info_arr[] = $info;
 			$ioc_arr[] = $ioc;
 			$x_arr[] = $a;
+            $rank_arr[] = $rank;   
 			$info = '';
 			$points = 0;
 			$sep = '';
@@ -211,8 +212,9 @@ else
 				$u23name = " (U 23)";
 			}
 			
-			$list->endList();
-			$list->printSubTitle($cat."$u23name, ".$combName, "", "");
+			$list->endList();                     
+			$list->printSubTitle($cat."$u23name, ".$combName, "", "");     
+
 			$list->startList();
 			$list->printHeaderLine($lastTime);
 
@@ -220,24 +222,52 @@ else
 			$rank = 1;									// initialize rank
 			$r = 0;										// start value for ranking
 			$p = 0;
-		        		
-			foreach($points_arr as $key => $val)
-			{   
-				$r++;
-				
-				if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
-					continue;
-				}
-				
-				if($p != $val) {	// not same points as previous team
-					$rank = $r;		// next rank
-				}
-				$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);
-				$list->printInfo($info_arr[$key]);
-				$p = $val;			// keep current points
-				// insert points into combined top performance of entry
-				mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);			
-			}
+            
+           
+             $no_rank=999999;
+             $max_rank=$no_rank;
+            
+		     foreach($points_arr as $key => $val) {
+                $r++;
+                
+                if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
+                    continue;
+                }
+                
+                if($p != $val) {    // not same points as previous team
+                    $rank = $r;        // next rank
+                }
+                                       
+                // not set rank for invalid results 
+                if (preg_match("@\(-[1-4]{0,1}@", $info_arr[$key])){    
+                    $rank=$max_rank; 
+                    $max_rank+=1;      
+                    $r--;  
+                }               
+                
+                $rank_arr[$key] = $rank;
+                $p = $val;            // keep current points    
+            
+            } 
+            
+    		asort($rank_arr, SORT_NUMERIC);    // sort descending by rank     
+            
+            foreach($rank_arr as $key => $v)
+            {   
+                $val=$points_arr[$key];
+                $rank=$v;
+                
+                if($rank>=$no_rank){ 
+                    $rank='';
+                }   
+               
+                $list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);
+                $list->printInfo($info_arr[$key]);
+               
+                // insert points into combined top performance of entry
+                mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);            
+            }
+                         
 			unset($points_arr);
 			unset($name_arr);
 			unset($year_arr);
@@ -245,6 +275,7 @@ else
 			unset($info_arr);
 			unset($ioc_arr);
 			unset($x_arr);
+            unset($rank_arr);   
 
 			if(is_a($list, "PRINT_CombinedRankingList")	// page for printing
 				&& ($break == 'category')) {		// page break after category
@@ -420,7 +451,7 @@ else
 		$ioc = $row[6];   	
         $remark_arr[] = $remark;  	
 	}	// END WHILE athlete per category
-
+  
 	if(!empty($a))		// add last athlete if any
 	{
 		$points_arr[] = $points;
@@ -431,6 +462,7 @@ else
 		$ioc_arr[] = $ioc;
 		$x_arr[] = $a;
         $remark_arr[] = $remark;
+        $rank_arr[] = $rank;
 	}       
 
 	if(!empty($cat))		//	add last category if any
@@ -439,15 +471,19 @@ else
 		if(($comb == 410 || $comb == 400) && $catEntryLimit < 23 && $sepu23){
 			$u23name = " (U 23)";
 		}
-		$list->endList();
-		$list->printSubTitle($cat."$u23name, ".$combName, "", "");
+		$list->endList();     
+		$list->printSubTitle($cat."$u23name, ".$combName, "", ""); 
+
 		$list->startList();
 		$list->printHeaderLine($lastTime);
 
 		arsort($points_arr, SORT_NUMERIC);	// sort descending by points
 		$rank = 1;									// initialize rank
 		$r = 0;										// start value for ranking
-		$p = 0;     
+		$p = 0;  
+        
+        $no_rank=999999;
+        $max_rank=$no_rank;       
 		 	   
 		foreach($points_arr as $key => $val)
 		{    
@@ -461,14 +497,31 @@ else
 				$rank = $r;		// next rank
 			}  
 		   	    		 	 
-		    // not set rank for invalid results   		 
-		   if (preg_match("@\(-[1-4]{0,1}@", $info_arr[$key])){  	
-		 	    $rank='';   
+		    // not set rank for invalid results 
+		   if (preg_match("@\(-[1-4]{0,1}@", $info_arr[$key])){  
+                $rank=$max_rank; 
+                $max_rank+=1;      
 				$r--;  
 		 	}     		  
-			$list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key], $remark_arr[$key]);  
-            $list->printInfo($info_arr[$key]);
+			
 			$p = $val;			// keep current points
+            $rank_arr[$key]  = $rank;   
+        }     
+              
+        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank       
+                       
+        foreach($rank_arr as $key => $v)
+        {   
+            $val=$points_arr[$key];  
+            $rank=$v;    
+           
+            if ($rank>=$no_rank) {
+                $rank='';
+            }
+                         
+            $list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
+            $list->printInfo($info_arr[$key]);   
+
 			// insert points into combined top performance of entry
 			mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);		
 		}   		
