@@ -706,7 +706,7 @@ if($round > 0)
 					. " AND st.xStart = ss.xStart"
 					. " AND sf.xStaffel = st.xStaffel"
 					. " AND v.xVerein = sf.xVerein"
-					. " ORDER BY heatid, ss.Position");
+					. " ORDER BY heatid ".$order .", ss.Position");
 		}  
 		$result = mysql_query($query);
        
