@@ -407,7 +407,7 @@ if($round > 0)
 		}
 		
 		$presets = AA_results_getPresets($round);
-		$svmContest = AA_checkSVM($presets['event']);
+		$svmContest = AA_checkSVMNatAC($presets['event']);
 		
 		if($svmContest && 
 			($type == $cfgDisciplineType[$strDiscTypeJump]
