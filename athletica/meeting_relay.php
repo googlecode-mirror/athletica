@@ -182,13 +182,13 @@ else if ($_POST['arg']=="change_team")
 					start.xStaffel = " . $_POST['item'] ."
 					AND staffelathlet.xStaffelstart = start.xStart
 			");
-
+   
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
-	else if(mysql_num_rows($res) > 0) {	// Athletes assigned
-		AA_printErrorMsg($strErrTeamChange);
-	}
+	//else if(mysql_num_rows($res) > 0) {	// Athletes assigned
+	//	AA_printErrorMsg($strErrTeamChange);
+	//}
 	else if((!empty($_POST['team'])) && (AA_checkReference("team", "xTeam", $_POST['team']) == 0))
 	{
 		AA_printErrorMsg($strTeam . $strErrNotValid);
