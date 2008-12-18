@@ -49,6 +49,8 @@ if (isset($_POST['updateEfforts'])){
 		, disziplin.Code as DiszCode
 		, disziplin.Typ
 		, xStart
+        , wettkampf.Mehrkampfcode as MK
+        , anmeldung.xAnmeldung as Enrolment
 	FROM
 		athletica.start
 		INNER JOIN athletica.anmeldung 
@@ -61,14 +63,14 @@ if (isset($_POST['updateEfforts'])){
 			ON (wettkampf.xDisziplin = disziplin.xDisziplin)
 	WHERE (athlet.Lizenznummer != 0 AND 
 		wettkampf.xMeeting =$event 
-		$sql_where)";
-	//echo $sql;
+		$sql_where) ORDER BY License";     
+	//echo $sql;  
 	
 	$res_start = mysql_query($sql);
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error() . $sql);
 	} else { 
-
+        $licnr_keep=0;
 		while ($row_start = mysql_fetch_array($res_start)){
 			// get performance from base data 
 			$perf = 0;
@@ -108,9 +110,38 @@ if (isset($_POST['updateEfforts'])){
 				}
 	 
 			}
+            
+            if ($licnr_keep != $row_start['License']){
+                 // get performance for combined events from base data 
+                 $perf = 0;
+
+                 $sql = "SELECT notification_effort 
+                            FROM base_performance 
+                         LEFT JOIN base_athlete USING(id_athlete) 
+                         WHERE base_athlete.license = ".$row_start['License']." 
+                         AND base_performance.discipline = ".$row_start['MK'] ." 
+                         AND season = '".$saison."';";
+                 $res = mysql_query($sql);   
+            
+                 $rowPerf = mysql_fetch_array($res); 
+                 $perf = $rowPerf['notification_effort'];   
+                                                          
+                 if($perf != NULL) {    // invalid performance
+                        $sql = "UPDATE anmeldung SET 
+                                        BestleistungMK = $perf
+                                        , BaseEffortMK = 'y'
+                                WHERE xAnmeldung = ". $row_start['Enrolment'];
+                 
+                        mysql_query($sql);
+                        if(mysql_errno() > 0) {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }  
+                 }   
+            }   
+           $licnr_keep=$row_start['License'];  
 		}
 		
-		echo "<br>Die Besteleistungen wurden erfolgreich aktualisiert!";
+		echo "<br>$strUpdateEffortsSuccess";
 	}
 
 } else {
