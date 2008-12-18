@@ -134,7 +134,7 @@ class Timetable
                                 }  
                             } 
                             else {  
-                                
+                              
                               mysql_query("
                                 INSERT runde SET
                                     Datum='" . $this->date . "'
@@ -147,7 +147,53 @@ class Timetable
                                     );  
                             }   
                          }
-                         else {  
+                         else {   
+                                $sql_event="SELECT 
+                                                w.Typ,
+                                                w.Punktetabelle,
+                                                w.Punkteformel,
+                                                w.Info,
+                                                w.Mehrkampfcode,
+                                                w.Mehrkampfende,  
+                                                w.Mehrkampfreihenfolge,
+                                                w.TypAenderung  
+                                            FROM
+                                                wettkampf as w
+                                            WHERE
+                                                w.xWettkampf = " . $this->event;
+                          
+                                $res_event = mysql_query($sql_event); 
+                                if(mysql_errno() > 0) {
+                                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                }
+                                else {
+                                    $row_event=mysql_fetch_array($res_event);
+                                    if ($row_event[4] > 0 && $this->type != 8){              // // typ 8 = combined event
+                                        $typchange = $row_event[0].",". $row_event[1].",". $row_event[2] .",". $row_event[3] .","
+                                                 . $row_event[4] .",". $row_event[5].",". $row_event[6];  
+                                                 
+                                         // update event as single event
+                                         mysql_query("
+                                                UPDATE wettkampf SET
+                                                    Typ = 0
+                                                    , Punktetabelle = 0
+                                                    , Punkteformel = '0'
+                                                    , Info = ''  
+                                                    , Mehrkampfcode = 0
+                                                    , Mehrkampfende = 0 
+                                                    , Mehrkampfreihenfolge = 0 
+                                                    , TypAenderung = '" .$typchange ."'  
+                                                    WHERE xWettkampf = " .$this->event
+                                         );
+                               
+                                        if(mysql_errno() > 0)
+                                            {
+                                            $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                        }  
+                                    }   
+                                }
+                             
+                             
 						    mysql_query("
 							    INSERT runde SET
 								    Datum='" . $this->date . "'
@@ -227,7 +273,7 @@ class Timetable
 		// OK: try to change round
 		else
 		{
-			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin as d READ, runde WRITE");
+			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin as d READ, runde WRITE, wettkampf WRITE");
 
 			$status = AA_utils_getRoundStatus($this->round);
 
@@ -290,6 +336,106 @@ class Timetable
                             }
                     }
                     else {   
+                        
+                        $sql="SELECT 
+                                    xRundentyp,
+                                    xWettkampf
+                              FROM
+                                    runde as r
+                              WHERE
+                                    r.xRunde = " . $this->round;
+                          
+                        $result = mysql_query($sql); 
+                        if(mysql_errno() > 0) {
+                             $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                        }
+                        else {
+                            $row=mysql_fetch_array($result);  
+                            if ($row[0] == 8 && $this->type != 8){           // typ 8 = combined event       
+                                $typchange= '';
+                                
+                                $sql_event="SELECT 
+                                                w.Typ,
+                                                w.Punktetabelle,
+                                                w.Punkteformel,
+                                                w.Info,
+                                                w.Mehrkampfcode,
+                                                w.Mehrkampfende,  
+                                                w.Mehrkampfreihenfolge  
+                                            FROM
+                                                wettkampf as w
+                                            WHERE
+                                                w.xWettkampf = " .  $row[1];
+                          
+                                $res_event = mysql_query($sql_event); 
+                                if(mysql_errno() > 0) {
+                                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                }
+                                else {
+                                    $row_event=mysql_fetch_array($res_event);
+                                    $typchange = $row_event[0].",". $row_event[1].",". $row_event[2] .",". $row_event[3] .","
+                                                 . $row_event[4] .",". $row_event[5].",". $row_event[6];    
+                                
+                                    // update event as single event
+                                    mysql_query("
+                                            UPDATE wettkampf SET
+                                                Typ = 0
+                                                , Punktetabelle = 0
+                                                , Punkteformel = '0'
+                                                , Info = ''  
+                                                , Mehrkampfcode = 0
+                                                , Mehrkampfende = 0 
+                                                , Mehrkampfreihenfolge = 0 
+                                                , TypAenderung = '" .$typchange ."'  
+                                                WHERE xWettkampf = " . $row[1]
+                                    );
+                               
+                                    if(mysql_errno() > 0)
+                                        {
+                                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                    }
+                                }
+                            }
+                            elseif ($this->type == 8 && $row[0] != 8){                // typ 8 = combined event
+                                  
+                                    $sql_event="SELECT 
+                                                w.TypAenderung                                                
+                                            FROM
+                                                wettkampf as w
+                                            WHERE
+                                                w.xWettkampf = " . $row[1];
+                          
+                                    $res_event = mysql_query($sql_event); 
+                                    if(mysql_errno() > 0) {
+                                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                    }
+                                    else {
+                                        $row_event=mysql_fetch_array($res_event);
+                                        if ($row_event[0] != '') {
+                                            $typchange = explode(",",$row_event[0]);         
+                                    
+                                            // update event as combined event 
+                                            mysql_query("
+                                                UPDATE wettkampf SET
+                                                    Typ = ".$typchange[0] ."
+                                                    , Punktetabelle = ".$typchange[1] ." 
+                                                    , Punkteformel =  '".$typchange[2] ."' 
+                                                    , Info =  '".$typchange[3] ."' 
+                                                    , Mehrkampfcode =  ".$typchange[4] ." 
+                                                    , Mehrkampfende =  ".$typchange[5] ." 
+                                                    , Mehrkampfreihenfolge =  ".$typchange[6] ." 
+                                                    , TypAenderung = ''  
+                                                    WHERE xWettkampf = " . $row[1]
+                                            );
+                               
+                                            if(mysql_errno() > 0)
+                                                {
+                                                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                                            } 
+                                        }   
+                                }  
+                            }
+                       
 					    mysql_query("
 						    UPDATE runde SET
 							    Datum = '" . $this->date . "'
@@ -304,9 +450,10 @@ class Timetable
 					    if(mysql_errno() > 0)
 					    {
 						    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-					    }
+					    } 
                     }
 				}
+                }
 			}
 			mysql_query("UNLOCK TABLES");
                 
