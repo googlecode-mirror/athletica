@@ -221,7 +221,7 @@ $strErrTodateLowerFromdate = "Startdatum liegt nach Enddatum!";
 $strErrTooOld = "Athlet zu alt für gewählte Kategorie!";
 $strErrTypeChange = "Änderung des Wettkampftyps nicht möglich! In dieser"
 						. " Kategorie sind noch Mannschaften gemeldet.";
-$strErrFilmExists = "Diese Filmnummer wurde bereits vergeben";
+$strErrFilmExists = "Diese Lauf ID wurde bereits vergeben";
 $strErrResultUpload = "Resultate konnten nicht übertragen werden!";
 $strErrXmlParse = "XML Fehler";
 $strEvalTypeAll = "alle Serien gemeinsam";
@@ -267,7 +267,7 @@ $strFee = "Startgeld";
 $strFeeReduction = "Startgeld Reduktion ab 2. Disz.";
 //$strFileNotFound = "Die Datei wurde nicht gefunden";
 $strFile = "Datei";
-$strFilm = "Film";
+$strFilm = "Lauf ID";
 $strFinalround = "Endrunde";
 $strFirstname = "Vorname";
 $strFirstHeat = "Erstserie-L&auml;ufer";
@@ -739,4 +739,5 @@ $strAutoRank = "Automatisch rangieren";
 $strActiv = "Aktiv / Inaktiv";
 $strActivShort = "A";
 $strInactivShort = "I";
+$strUpdateEffortsSuccess = "Die Bestleistungen wurden erfolgreich aktualisiert!"
 ?>
