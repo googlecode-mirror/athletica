@@ -29,7 +29,7 @@ function AA_timetable_display($arg = 'monitor')
      
 	$result = mysql_query("
 		SELECT DISTINCT
-			k.Kurzname
+			k.Name
 		FROM
 			wettkampf AS w
 			, kategorie AS k
@@ -37,7 +37,7 @@ function AA_timetable_display($arg = 'monitor')
 		AND w.xKategorie = k.xKategorie
 		ORDER BY
 			k.Anzeige,
-            k.Kurzname
+            k.Name
 	");
     
 	if(mysql_errno() > 0)	// DB error
@@ -68,7 +68,7 @@ function AA_timetable_display($arg = 'monitor')
 				r.xRunde
 				, r.Status
 				, rt.Typ
-				, k.Kurzname
+				, k.Name
 				, d.Kurzname
 				, IF(s.xWettkampf IS NULL,0,COUNT(*))
 				, TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
@@ -129,7 +129,7 @@ function AA_timetable_display($arg = 'monitor')
 			$k='';
 			$events = array();	// array to hold last processed round per event
 			?>
-<table class=timetable>
+<table class=timetable> 
 			<?php
 			while ($row = mysql_fetch_row($res))
 			{   
@@ -176,7 +176,7 @@ function AA_timetable_display($arg = 'monitor')
 					else if ($hour != $row[7]) {	// new hour -> headerline
 						?>
 <tr>
-	<th class='timetable_sub' id='<?php echo "$row[9]$row[7]"; ?>'/>
+	<th class='timetable_sub' id='<?php echo "$row[9]$row[7]"; ?>' />
 	<?php echo $headerline; ?>
 </tr>
 						<?php
