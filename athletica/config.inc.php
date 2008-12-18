@@ -154,7 +154,8 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
 				, 398 => 'HMANU18'
 				, 394 => 'HWOM'		// 5Kampf Halle W
 				, 3942 => 'H5MAN'	// 5Kampf Halle M
-				, 395 => 'HWOMU18'
+				, 395 => 'HWOMU18'  
+                , 403 => 'ACup'     // Erdgas Athletic Cup
 				);
 
 /**	
@@ -187,7 +188,27 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'H5MAN' => array(252,310,351,330,90)
 			, 'H5MAN_F' => 3
 			, 'HWOMU18' => array(256,310,352,330,90)
-			, 'HWOMU18_F' => 4
+			, 'HWOMU18_F' => 4              
+            , 'ACup_U18M' => array(40,330,310,347)
+            , 'ACup_U18M_F' => 1
+            , 'ACup_U16M' => array(35,330,310,349)
+            , 'ACup_U16M_F' => 1
+            , 'ACup_U14M' => array(30,330,310,352,386)
+            , 'ACup_U14M_F' => 1
+            , 'ACup_U12M' => array(30,330,310,353,386)
+            , 'ACup_U12M_F' => 1
+            , 'ACup_U10M' => array(10,330,385)
+            , 'ACup_U10M_F' => 1     
+            , 'ACup_U18W' => array(40,330,310,352)
+            , 'ACup_U18W_F' => 2
+            , 'ACup_U16W' => array(35,330,310,352)
+            , 'ACup_U16W_F' => 2
+            , 'ACup_U14W' => array(30,330,310,352,386)
+            , 'ACup_U14W_F' => 2
+            , 'ACup_U12W' => array(30,330,310,353,386)
+            , 'ACup_U12W_F' => 2
+            , 'ACup_U10W' => array(10,330,385)
+            , 'ACup_U10W_F' => 2  
 			);
 
             /**    
