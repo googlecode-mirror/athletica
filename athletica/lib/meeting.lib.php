@@ -363,7 +363,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		$sName = $row[0];
 		
 		// check if combined type has predefined disciplines
-		$sql_k = "SELECT Geschlecht FROM kategorie WHERE xKategorie = ".$_POST['cat'].";";
+		$sql_k = "SELECT Geschlecht, Code FROM kategorie WHERE xKategorie = ".$_POST['cat'].";";
 		$query_k = mysql_query($sql_k);
 		$row_k = mysql_fetch_assoc($query_k);
 			
@@ -371,11 +371,19 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		if($tmp==394 && ($row_k['Geschlecht']=='m' || $row_k['Geschlecht']=='M')){
 			$tmp = 3942;
 		}
-			
+		$tt = ''; 	
 		if(isset($cfgCombinedDef[$tmp])){
-			$tt = $cfgCombinedDef[$tmp];
+			if ($tmp == 403 ) {
+               $tt = $cfgCombinedDef[$tmp];  
+               $tt .= "_" .$row_k['Code'];
+            }
+            else {
+                $tt = $cfgCombinedDef[$tmp]; 
+            }
 			
 			$k = 0;
+            if (isset($cfgCombinedWO[$tt])){
+              
 			foreach($cfgCombinedWO[$tt] as $val){
 				
 				$k++;
@@ -412,7 +420,20 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 			$_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
 			$_POST['conv_changed'] = 'yes';
 			AA_meeting_changeCategory($t);
-			
+			}
+            else {
+                // setup a placeholder disciplin (take first disciplin of combined definition 'MAN')
+                mysql_query("INSERT INTO wettkampf SET
+                    Typ = ".$cfgEventType[$strEventTypeSingleCombined]."
+                    , Info = '$sName'
+                    , xKategorie = ".$_POST['cat']."
+                    , xDisziplin = ".$cfgCombinedWO['MAN'][0]."
+                    , xMeeting = ".$_COOKIE['meeting_id']."
+                    , Mehrkampfcode = $t");
+                if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }  
+            }
 		}else{
 			// setup a placeholder disciplin (take first disciplin of combined definition 'MAN')
 			mysql_query("INSERT INTO wettkampf SET
@@ -425,8 +446,8 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
-		}
-		
+		} 
+		 
 	}
 	
 }
@@ -1015,7 +1036,7 @@ function AA_meeting_getLG($club){
                 LEFT JOIN base_account AS ba ON (v.xCode = ba.account_code)
           WHERE 
                 v.xVerein = " .$club;
-
+   
     $result=mysql_query($sql);  
          
     if(mysql_errno() > 0){
@@ -1032,7 +1053,7 @@ function AA_meeting_getLG($club){
                             LEFT JOIN verein AS v ON (ba.account_code = v.xCode)
                       WHERE 
                             ba.lg = '" .$row[0] ."'";
-
+                      
                       $result=mysql_query($sql); 
                       
                       if(mysql_errno() > 0){
@@ -1045,7 +1066,7 @@ function AA_meeting_getLG($club){
                             } 
                        }        
                 }
-                else {
+                elseif  (mysql_num_rows($result) > 1) {
                       $sql="SELECT 
                             ba.account_code,
                             v.xVerein
@@ -1054,7 +1075,7 @@ function AA_meeting_getLG($club){
                             LEFT JOIN verein AS v ON (ba.account_code = v.xCode)
                       WHERE 
                             ba.lg = '" .$row[1] ."'";
-
+                      
                       $result=mysql_query($sql); 
                      
                       if(mysql_errno() > 0){
