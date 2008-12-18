@@ -56,7 +56,7 @@ function AA_heats_seedEntries($event)
 	//
 	// get type of contest
 	// if this is an svm contest, sort with first heat runner
-	$svmContest = AA_checkSVM($event);
+	$svmContest = AA_checkSVMNatAC($event);
 	if($svmContest){   
 		$orderFirst = "s.Erstserie ASC,"; // those with 'y' come first
 	}else{
@@ -102,9 +102,9 @@ function AA_heats_seedEntries($event)
 			|| ($row[0] == $cfgDisciplineType[$strDiscTypeRelay])
 			|| ($row[0] == $cfgDisciplineType[$strDiscTypeDistance]))
 			{
-				$order = "best ASC, RAND()";	// track disciplines
+				$order = "best ASC, RAND()";	// track disciplines 
 				$badValue = "99999999";
-				$filmnumber = true;
+				$filmnumber = true;   
 			}
 			else {
 				$order = "best ASC, RAND()";	// field disciplines
@@ -213,7 +213,7 @@ function AA_heats_seedEntries($event)
                 . " ORDER BY $order";       
     }    
 	$result = mysql_query($query); 
-  
+     
 	$entries = mysql_num_rows($result);		// keep nbr of entries       
    
 	if(mysql_errno() > 0)		// DB error
@@ -348,7 +348,7 @@ function AA_heats_seedEntries($event)
 							// Mode: open or top performances together
 							// ---------------------------------------
 							if(($_POST['mode'] == 0)
-								|| ($_POST['mode'] == 1))
+								|| ($_POST['mode'] == 1 ))    
 							{
 								// seed qualified athletes to heats
 								// distribute athletes from center to outer tracks

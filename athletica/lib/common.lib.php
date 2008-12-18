@@ -358,6 +358,65 @@ require('./config.inc.php');
 		
 	}
 	
+    /**
+     * Check if event belongs to a svm contest
+     *  and check if only Nat. A - C
+     *
+     * @param    int        event       
+     * @return    TRUE/FALSE
+    **/
+    function AA_checkSVMNatAC($event=0){
+        global $cfgEventType, $strEventTypeSVMNL;
+        
+        if($event > 0){
+            
+            $res = mysql_query("SELECT 
+                                    Typ,
+                                    xKategorie_svm 
+                                FROM
+                                    wettkampf
+                                WHERE 
+                                    xWettkampf = $event
+                                    AND xMeeting = ".$_COOKIE['meeting_id']);
+                                    
+            if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }else{
+                
+                $row = mysql_fetch_array($res);
+                if($row[0] == $cfgEventType[$strEventTypeSVMNL]){
+                     $sql="SELECT 
+                                Code 
+                           FROM 
+                                kategorie_svm 
+                           WHERE 
+                                xKategorie_svm = " . $row[1];
+                    
+                     $res = mysql_query($sql);
+                     if(mysql_errno() > 0) {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                     }else{
+                          $row = mysql_fetch_array($res);
+                          $code = explode('_',$row[0]);
+                          if ($code[0] < 23) {            // only Nat. A, B and C
+                            return true;
+                          }
+                          else {
+                              return false;  
+                          }
+                     }
+                }else{
+                    return false;
+                }
+                
+            }
+            
+        }
+        else {
+             return false;  
+        }
+    }
+    
 	/**
 	 * Check if event or round belongs to a team sm contest
 	 *
