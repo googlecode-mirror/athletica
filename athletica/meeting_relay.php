@@ -804,7 +804,7 @@ else if (mysql_num_rows($result) > 0)
 		<?php			
 		// extended athlete list (other categories, no relay entry, ...)
         $sqlClubLG=" = " .$row[7];
-        $arrClub=AA_meeting_getLG($row[7]);      // get all clubs with same LG
+        $arrClub=AA_meeting_getLG_Club($row[7]);      // get all clubs with same LG
        
         if (count($arrClub) > 0) {
             $sqlClubLG=" IN (";

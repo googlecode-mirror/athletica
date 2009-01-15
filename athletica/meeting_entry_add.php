@@ -12,6 +12,7 @@ require('./lib/cl_gui_dropdown.lib.php');
 
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
+require('./lib/meeting.lib.php');  
 
 
 if(AA_connectToDB() == FALSE)	// invalid DB connection
@@ -871,8 +872,7 @@ if ($_POST['arg']=="add")
 													// validate top performance (if any)
 													$perf = 0;
 													$p = 'topperf_' . $event;
-													$t = 'type_' . $event;
-													//echo $_POST[$p];
+													$t = 'type_' . $event;													
 													
 													//
 													// check for performance in base data
@@ -2254,6 +2254,36 @@ if($nbr == 0) {			// start number not selected yet
 	<th class='dialog'><?php echo $strClubInfo ?></th>
 	<td class='forms'><?php echo ($clubinfo!='') ? $clubinfo : '-' ?></td>
 </tr>
+
+<?php
+ 
+    $lg = AA_meeting_getLG($club);   
+   
+    if  ( $club2_name != '') {            // second club exist
+ ?>   
+ 
+<tr>
+    <th class='dialog'><?php echo $strClub2; ?></th>
+    <td class='forms'><?php echo $club2_name; ?></td>
+    <td colspan='2'></td> 
+</tr>
+ <?php
+    }
+    elseif (lg != '') {
+      ?>   
+ 
+<tr>
+    <th class='dialog'><?php echo $strClub2; ?></th>
+    <td class='forms'><?php echo $lg; ?></td>
+    <td colspan='2'></td> 
+</tr>
+ <?php 
+    
+    }
+ ?>
+
+
+
 <tr>
 	<th class='dialog'><?php echo $strStartnumberLong; ?></th>
 	<td class='forms'>

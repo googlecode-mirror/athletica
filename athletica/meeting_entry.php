@@ -13,6 +13,7 @@ require('./lib/cl_gui_page.lib.php');
 
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
+require('./lib/meeting.lib.php');  
 
 if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 	return;		// abort
@@ -792,6 +793,8 @@ else if ($_POST['arg']=="change_club" && $_POST['club']!='new')
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
+       
+        
 	}	// ET team found
 	
 
@@ -947,7 +950,7 @@ else if ($_POST['arg']=="change_topcomb")
 			WHERE
 				xAnmeldung = $item";
 	mysql_query($sql);
-	//echo $sql;
+	
 	if(mysql_errno() > 0)
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1285,11 +1288,13 @@ $result = mysql_query("
 		, at.Athleticagen
 		, a.Vereinsinfo
 		, a.BaseEffortMK
+        , v2.Name
 	FROM
 		anmeldung AS a
 		, athlet AS at
 		, kategorie AS k
 		LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
+        LEFT JOIN verein AS v2 ON (at.xVerein2 = v2.xVerein) 
 	LEFT JOIN team AS t
 	ON a.xTeam = t.xTeam
 	WHERE a.xAnmeldung = " . $_POST['item'] . "
@@ -1297,7 +1302,7 @@ $result = mysql_query("
 	AND a.xKategorie = k.xKategorie
 	
 ");
-			
+	
  if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1644,7 +1649,33 @@ $dis2 = false;
 	</td>
 	</form>
 </tr>
-
+ <?php
+ 
+    $lg = AA_meeting_getLG($row[9]);
+    
+ 
+    if  ($row[27] != '') {            // second club exist
+ ?>   
+ 
+<tr>
+    <th class='dialog'><?php echo $strClub2; ?></th>
+    <td ><?php echo $row[27]; ?></td>
+    <td colspan='2'></td> 
+</tr>
+ <?php
+    }
+    elseif ($lg != '') {
+      ?>   
+<tr>
+    <th class='dialog'><?php echo $strClub2; ?></th>
+    <td ><?php echo $lg; ?></td>
+    <td colspan='2'></td> 
+</tr>
+ <?php 
+    
+    }
+ ?>
+ 
 <tr>
 	<th class='dialog'><?php echo $strTeam; ?></th>
 	<form action='meeting_entry.php' method='post' name='data_team'>
