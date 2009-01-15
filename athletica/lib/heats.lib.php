@@ -213,7 +213,7 @@ function AA_heats_seedEntries($event)
                 . " ORDER BY $order";       
     }    
 	$result = mysql_query($query); 
-     
+    
 	$entries = mysql_num_rows($result);		// keep nbr of entries       
    
 	if(mysql_errno() > 0)		// DB error
@@ -356,7 +356,7 @@ function AA_heats_seedEntries($event)
 								$p = 1;						// first position
                                                                
 								while ($row = mysql_fetch_row($result))
-								{   
+								{  
                                         if ($p > $size) {	// heat full -> start new heat
 										    $i++;		// next heat
 										    $p = 1;	// restart with first position   
@@ -401,20 +401,28 @@ function AA_heats_seedEntries($event)
 							// Mode: top performances separated
 							// --------------------------------
 							else if($_POST['mode'] == 2)
-							{
+							{   
 								// distribute entries to heats
 								$i = 0;
 								$p = 1;
+                                $e = 0;         // even or odd --> fill the heats forward or backward
 								if(!empty($cfgTrackOrder[$tracks][$p])){
 									$pos = $cfgTrackOrder[$tracks][$p];
 								}else{
 									$pos = $p;
 								}
 								while ($row = mysql_fetch_row($result))
-								{
-									if($i >= count($heats)) { 	// end of heat array
-										$i=0;			// restart with first heat
-										$p++;			// next position
+								{ 
+									if($i >= count($heats) || $i < 0) { 	// end of heat array
+                                        $e++;
+										if ($e % 2 != 0  ){
+                                            $i=count($heats)-1;      // restart with last heat
+                                        }
+                                        else {
+                                            $i=0;                   // restart with first heat
+                                        }
+                                       
+                                       $p++;            // next position 
 										if(!empty($cfgTrackOrder[$tracks][$p])) {
 											$pos = $cfgTrackOrder[$tracks][$p];
 										}
@@ -442,7 +450,14 @@ function AA_heats_seedEntries($event)
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
-									$i++;			// next heat
+                                    if ($e % 2 != 0){
+									    $i--;			  // previous heat
+                                    }
+                                    else {
+                                         $i++;            // next heat
+                                    }
+                                    
+                                   
 								}
 							}		// ET mode
 						}		// ET DB error (status update)  
