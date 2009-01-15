@@ -412,27 +412,35 @@ td.relay_athletes { vertical-align:top; font-style:italic;
 table.team_entry { table-layout:auto; border-collapse:collapse; }
 
 /* list header line */
+th.team_entry_tic { width:10px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 th.team_entry_nbr { width:35px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.team_entry_name { width:200px; padding-left:0px; padding-right:5px;
+th.team_entry_name { width:300px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.team_entry_year { width:50px; padding-left:0px; padding-right:5px;
+th.team_entry_cat { width:50px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.team_entry_disc { width:400px; padding-left:0px; padding-right:5px;
+th.team_entry_club { width:250px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
+th.team_entry_disc { width:100px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 
 /* list item */
-td.team_entry_nbr { vertical-align:top; text-align:right;
+td.team_entry_tic { vertical-align:top; text-align:right;
 				padding-left:0px; padding-right:10px;
 				padding-top:0px; padding-bottom:2px; }
 td.team_entry_name { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
-td.team_entry_year { vertical-align:top; padding-left:0px; padding-right:5px;
+td.team_entry_cat { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
+td.team_entry_club { vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
 td.team_entry_disc { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
 
@@ -850,6 +858,8 @@ td.sheet_athlete{ width:150px; padding-left:0px; padding-right:5px;
 td.sheet_year { width:200px; text-align:left;
 				padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
+td.sheet_country{ width:50px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
 td.sheet_points { width:60px; text-align:right;
 				padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
@@ -879,14 +889,12 @@ th.stats_col2 { width:150px; text-align:right; padding:5px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.stats_col3 { width:100px; text-align:right; padding:5px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-
 td.stats_col1 { padding-left:0px; padding:5px; 
 				padding-top:2px; padding-bottom:2px; }
 td.stats_col2 { text-align:right; padding:5px; 
 				padding-top:2px; padding-bottom:2px; }
 td.stats_col3 { text-align:right; padding:5px; 
 				padding-top:2px; padding-bottom:2px; }
-
 td.stats_tot1 { font-weight: bold; text-align: right; padding:5px;
 				padding-top:2px; padding-bottom:2px; 
 				border-width:1px; border-style:solid; border-color:#000000; }
