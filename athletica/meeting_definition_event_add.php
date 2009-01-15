@@ -27,7 +27,6 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
 
-
 $category = 0;
 if(!empty($_POST['cat'])) {
 	$category = $_POST['cat'];
@@ -36,6 +35,11 @@ else if(!empty($_GET['cat'])) {
 	$category = $_GET['cat'];
 }
 
+$date_keep = ''; 
+if(!empty($_POST['date_1'] )){
+    $date_keep = $_POST['date_1'];
+}
+  
 // add a new event
 if ($_POST['arg']=="add_event")
 {
@@ -60,7 +64,7 @@ $page->printPageTitle($strNewEvent);
 if ($_POST['arg']=="add_event")
 {
 	?>
-<script>
+<script type="text/javascript">
 	window.open("meeting_definition_eventlist.php?updateCat="
 		+ <?php echo $category; ?>,
 		"list");
@@ -197,6 +201,20 @@ else		// no DB error
             
         }
     }
+    
+    function change_date( id, selIndex){ 
+       
+        if (id != 'date_1selectbox') {
+            document.getElementById('date_1selectbox').options[selIndex].selected=true;  
+        }
+         if (id != 'date_2selectbox') {
+            document.getElementById('date_2selectbox').options[selIndex].selected=true;  
+        }
+         if (id != 'date_3selectbox') {
+            document.getElementById('date_3selectbox').options[selIndex].selected=true;  
+        }  
+    }
+    
 //-->
 </script>
 
@@ -227,7 +245,7 @@ else		// no DB error
 	if(mysql_num_rows($result) >= 1)	// any more categories
 	{
 ?>
-<form action='meeting_definition_event_add.php' method='post' name='add_event'>
+<form action='meeting_definition_event_add.php' method='post' name='add_event'>   
 
 <table class='dialog' id="properties">
 <tr>
@@ -324,8 +342,14 @@ else		// no DB error
 </tr>
 <tr>
 	<?php
-	$dd = new GUI_RoundtypeDropDown(0, 1);
-	$dd = new GUI_DateDropDown(0, 1);
+	$dd = new GUI_RoundtypeDropDown(0, 1);  
+    if ($date_keep == '' ) {   
+	    $dd = new GUI_DateDropDown(0, 1,'change_date(this.id, this.selectedIndex)'); 
+    }
+    else {
+         $dd = new GUI_DateDropDown($date_keep, 1,'change_date(this.id, this.selectedIndex)'); 
+        
+    }
 	?>
 	<td class='forms'>
 		<input size="4" type='text' name='time_1' maxlength='5'
@@ -343,8 +367,13 @@ else		// no DB error
 
 <tr>
 	<?php
-	$dd = new GUI_RoundtypeDropDown(0, 2);
-	$dd = new GUI_DateDropDown(0, 2);
+	$dd = new GUI_RoundtypeDropDown(0, 2); 
+    if ($date_keep == '' ) {   
+	    $dd = new GUI_DateDropDown(0, 2, 'change_date(this.id, this.selectedIndex)'); 
+    }
+    else {
+         $dd = new GUI_DateDropDown($date_keep, 2, 'change_date(this.id, this.selectedIndex)'); 
+    } 
 	?>
 	<td class='forms'>
 		<input size="4" type='text' name='time_2' maxlength='5'
@@ -362,8 +391,13 @@ else		// no DB error
 
 <tr>
 	<?php
-	$dd = new GUI_RoundtypeDropDown(0, 3);
-	$dd = new GUI_DateDropDown(0, 3);
+	$dd = new GUI_RoundtypeDropDown(0, 3); 
+    if ($date_keep == '' ) {   
+	    $dd = new GUI_DateDropDown(0, 3, 'change_date(this.id, this.selectedIndex)');
+    }
+    else {
+         $dd = new GUI_DateDropDown($date_keep, 3, 'change_date(this.id, this.selectedIndex)');
+    }
 	?>
 	<td class='forms'>
 		<input size="4" type='text' name='time_3' maxlength='5'
@@ -384,7 +418,7 @@ else		// no DB error
 <button type='submit'>
 	<?php echo $strAdd; ?>
 </button>
-</form>
+</form>   
 <?php
 	}	// any category found
 }	// ET DB error

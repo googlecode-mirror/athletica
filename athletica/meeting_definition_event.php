@@ -44,7 +44,8 @@ else if(!empty($_GET['cat'])) {
 	$category = $_GET['cat'];
 }
 
-$xDiscipline = 0;
+$xDiscipline = 0;   
+$date_keep = ''; 
 
 //
 // Process changes to meeting data
@@ -510,7 +511,7 @@ else			// no DB error
 	$i=0;
 
   	while($row = mysql_fetch_row($result))
-  	{
+  	{  
 		$roundsArr[] = array($row[0], $row[9], $row[10], $row[6], $row[11], $row[9]);
 		
 		if($i==0)	// first row: show category headerline
@@ -571,10 +572,13 @@ else			// no DB error
 </form>
 </tr>
 		<?php
+        
+    $date_keep = $row[1]; 
+       
 	}
 
 	if($show == true)		// any event
-	{
+	{   
 		?>
 <tr>
 	<th class='dialog' colspan='5'><?php echo $strNew; ?></th>
@@ -587,8 +591,13 @@ else			// no DB error
 	<input name='cat' type='hidden' value='<?php echo $category; ?>' />
 	<input name='xDis' type='hidden' value='<?php echo $xDiscipline; ?>' />
 		<?php
-		$dd = new GUI_RoundtypeDropDown(0);
-		$dd = new GUI_DateDropDown(0);
+		$dd = new GUI_RoundtypeDropDown(0);  
+       if ($date_keep == '' ) {   
+	        $dd = new GUI_DateDropDown(0); 
+        }
+        else {
+             $dd = new GUI_DateDropDown($date_keep); 
+        }                           
 		?>
 	<!--<td class='forms'>
 		<input class='nbr' type='text' name='hr' maxlength='2'
