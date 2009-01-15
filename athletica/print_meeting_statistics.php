@@ -105,8 +105,8 @@ $doc->startList();
 $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
                      
- mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table   
- 
+ mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table    
+
  $query_tmp="CREATE TEMPORARY TABLE result_tmp SELECT  
                                             MIN(r.Startzeit) AS Startzeit, 
                                             r.xWettkampf, 
@@ -527,8 +527,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 	//	Statistic 3: Fees and deposits 
 	// ------------------------------
 	$doc->printSubTitle($strFee." / ".$strDeposit);
-	$doc->startList();
-	$doc->printHeaderLine($strClub, $strFee, $strDeposit, $strEntries, $strStarted);
+	$doc->startList();   
+	$doc->printHeaderLine($strClub, $strFee, $strDeposit, $strEntries, $strStarted, $strAssTax);
 
 	// read all starts per club and add fee and deposit    
    
@@ -549,7 +549,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 							  , mehrkampfcode int(11) 
 							  , Status int(11) 
 							  , StartgeldReduktion float (11)
-							  , Sortierwert varchar(30)  
+							  , Sortierwert varchar(30) 
+                              , kAnzeige int(11) 
+                              , kKurzname varchar(4) 
+                              , kAlterslimite tinyint(4)    
 							  )
 							  TYPE=HEAP");  
   
@@ -570,7 +573,11 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
     			 r.status  ,  
     			 StartgeldReduktion,   
     			 wettkampf.xKategorie,
-    			 v.Sortierwert    
+    			 v.Sortierwert,
+                 k.kurzname,
+                 k.Anzeige,
+                 k.Alterslimite,
+                 anmeldung.xKategorie    
    	      FROM 
    	      		athlet 
    				INNER JOIN anmeldung ON (athlet.xAthlet = anmeldung.xAthlet) 
@@ -580,12 +587,13 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
    				LEFT JOIN verein AS v ON (athlet.xVerein=v.xVerein) 
    				LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf) 
    				LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf)
+                LEFT JOIN kategorie as k ON (k.xKategorie =  anmeldung.xKategorie) 
    		  WHERE ((wettkampf.Mehrkampfcode >0 )) 
     			AND anmeldung.xMeeting =  " . $_COOKIE['meeting_id'] . " 
      			AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)    
    		  ORDER BY athlet.xVerein, athlet.Name ,athlet.Vorname, 
    		  		wettkampf.mehrkampfcode,wettkampf.xKategorie,r.Startzeit ,r.Status"; 
-    
+  
 	$res = mysql_query($sql);    
    
     $club=''; 
@@ -622,7 +630,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Mehrkampfcode = '$row[10]' 
 								  ,	Status = '$row[11]' 
 								  ,	StartgeldReduktion = '$row[12]'
-								  ,	Sortierwert = \"" .$row[14]. "\"
+								  ,	Sortierwert = \"" .$row[14]. "\"                                    
+                                  , kKurzname = \"" .$row[15]. "\"  
+                                  , kAnzeige = $row[16]    
+                                  , kAlterslimite = $row[17]    
                                    ";     
 											 
     		 $res_mk = mysql_query($sql_mk);	
@@ -661,6 +672,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Status = '$row[11]' 
 								  ,	StartgeldReduktion = '$row[12]' 
 								  ,	Sortierwert = \"" .$row[14]. "\"
+                                  , kKurzname = \"" .$row[15]. "\"  
+                                  , kAnzeige = $row[16]    
+                                  , kAlterslimite = $row[17]   
                                     ";      
     		 		 
     		 	  $res_mk = mysql_query($sql_mk);	
@@ -696,6 +710,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  	  		, Status = '$row[11]' 
 								  		  	, StartgeldReduktion = '$row[12]' 
 								  	  	  	, Sortierwert = \"" .$row[14]. "\"
+                                            , kKurzname = \"" .$row[15]. "\"  
+                                            , kAnzeige = $row[16]    
+                                            , kAlterslimite = $row[17]   
                                               ";     
 								  
     		 		     $res_mk = mysql_query($sql_mk);	
@@ -747,8 +764,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
         $fee = 0;
         $deposit = 0;
         $entries = 0; 
+        $kKurzname = '';
+        $katStarts = 0; 
        
-	    // calculate started athlets for not combined event and and relays 
+	    // calculate started athlets for single events  
 	    //			and write them into the same temporary table                                                                          
         $sql="SELECT
         			athlet.xVerein AS clubnr
@@ -766,15 +785,22 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                     , r.status
                     , StartgeldReduktion
                     , v.Sortierwert
+                    , wettkampf.xKategorie
+                    , k.kurzname
+                    , k.Anzeige
+                    , k.Alterslimite
+                    , anmeldung.xKategorie     
               FROM
               		athlet
+                    INNER JOIN disziplin as d on (d.xDisziplin = wettkampf.xDisziplin)
                     INNER JOIN anmeldung ON (athlet.xAthlet = anmeldung.xAthlet)
-                    INNER JOIN start As s ON (anmeldung.xAnmeldung = s.xAnmeldung)
+                    INNER JOIN start As s ON (anmeldung.xAnmeldung = s.xAnmeldung) AND d.Staffellaeufer = 0
                     INNER JOIN wettkampf ON (s.xWettkampf = wettkampf.xWettkampf)
                     INNER JOIN meeting ON (wettkampf.xMeeting = meeting.xMeeting) 
                     LEFT JOIN verein AS v ON (athlet.xVerein=v.xVerein)
                     LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf)   
                     LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
+                    LEFT JOIN kategorie as k ON (k.xKategorie = anmeldung.xKategorie)
               WHERE ((wettkampf.Mehrkampfcode =0  ))   
                         AND anmeldung.xMeeting =  " . $_COOKIE['meeting_id'] . " 
                          AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)   
@@ -782,8 +808,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
               ORDER BY v.Sortierwert"; 
                
               $res = mysql_query($sql); 
-                
-              
+                          
               while($row = mysql_fetch_array($res)){ 
                	    $sql_t1="INSERT INTO result_tmp1 SET  
 			      				  clubnr = $row[0]
@@ -800,24 +825,98 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Mehrkampfcode = '$row[11]' 
 								  ,	Status = '$row[12]'   
 								  ,	StartgeldReduktion  = '$row[13]' 
-								  ,	Sortierwert = \"" .$row[14]. "\"     
+								  ,	Sortierwert = \"" .$row[14]. "\" 
+                                  , kKurzname = \"" .$row[16]. "\"  
+                                  , kAnzeige = $row[17]    
+                                  , kAlterslimite = $row[18]           
 								   ";     
 				   	$res_t1 = mysql_query($sql_t1); 
-                    
+                     
 				   	if(mysql_errno() > 0)		// DB error
 						{
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}	  
                                
-				} 
+				}
+                
+                // calculate started athlets for relays 
+                //       and write them into the same temporary table                                                                          
+                $sql="SELECT
+                            st.xVerein AS clubnr
+                            , v.Name AS club                    
+                            , t.Startzeit
+                            , SUM(if ((r.Status=4 OR r.Status=3) AND s.Anwesend=0,1,0)) as started 
+                            , SUM(s.Anwesend) as anwesend
+                            , SUM(if ((r.Status=4 OR r.Status=3) AND s.Anwesend=0,0,wettkampf.Haftgeld) )  AS Haftgeld   
+                            , SUM(wettkampf.Startgeld) AS Startgeld
+                            , count(s.xWettkampf) as enrolement
+                            , wettkampf.mehrkampfcode
+                            , r.status
+                            , StartgeldReduktion
+                            , v.Sortierwert
+                            , wettkampf.xKategorie
+                            , k.kurzname
+                            , k.Anzeige
+                            , k.Alterslimite
+                            , st.xKategorie     
+                      FROM
+                            start as s
+                            INNER JOIN disziplin as d on (d.xDisziplin = wettkampf.xDisziplin)
+                            INNER JOIN staffel st ON (st.xStaffel = s.xStaffel) 
+                            INNER JOIN wettkampf ON (s.xWettkampf = wettkampf.xWettkampf) 
+                            INNER JOIN meeting ON (wettkampf.xMeeting = meeting.xMeeting) 
+                            LEFT JOIN verein AS v ON (st.xVerein=v.xVerein) 
+                            LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf) 
+                            LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
+                            LEFT JOIN kategorie as k ON (k.xKategorie = st.xKategorie) 
+                      WHERE 
+                            st.xMeeting =  " . $_COOKIE['meeting_id'] . " 
+                            AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)   
+                      GROUP BY st.xVerein
+                      ORDER BY v.Sortierwert"; 
+               
+                $res = mysql_query($sql); 
+            
+                $reductionAmount = 0;
+              
+                while($row = mysql_fetch_array($res)){ 
+                       $sql_t1="INSERT INTO result_tmp1 SET  
+                                    clubnr = $row[0]
+                                  , club = \"" .$row[1]. "\"   
+                                  , ReductionAmount  = '$reductionAmount'                                   
+                                  ,    Startzeit = '$row[2]' 
+                                  ,    started = '$row[3]'   
+                                  ,    anwesend = '$row[4]' 
+                                  ,    Haftgeld = '$row[5]'  
+                                  ,    Startgeld = '$row[6]' 
+                                  ,    enrolement = '$row[7]' 
+                                  ,    Mehrkampfcode = '$row[8]' 
+                                  ,    Status = '$row[9]'   
+                                  ,    StartgeldReduktion  = '$row[10]' 
+                                  ,    Sortierwert = \"" .$row[11]. "\" 
+                                  , kKurzname = \"" .$row[13]. "\"  
+                                  , kAnzeige = $row[14]    
+                                  , kAlterslimite = $row[15]           
+                                   ";     
+                       $res_t1 = mysql_query($sql_t1); 
+                     
+                       if(mysql_errno() > 0)        // DB error
+                        {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                    }      
+                               
+                }
+                 
 				
                 // read all events from the temporary table
     		 	$sql_temp="SELECT *
                 		   FROM
                         		result_tmp1 as t1  
-                    	   ORDER BY t1.Sortierwert ,t1.clubnr, t1.Name, t1.Vorname, t1.Mehrkampfcode";       
+                    	   ORDER BY t1.Sortierwert ,t1.clubnr, t1.kAnzeige, t1.Name, t1.Vorname, t1.Mehrkampfcode";       
                
-                $res_temp = mysql_query($sql_temp);               
+                $res_temp = mysql_query($sql_temp);  
+                             
+                $arr_kat = array();
                 
                 // count fees and deposits for each club 
 			   	while($row = mysql_fetch_array($res_temp)){             
@@ -830,16 +929,30 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                         $td += $deposit;
                         $te += $entries;
                         $ts += $starts;
-                        if ($i>0)
-                            $doc->printLine($clubName,$fee, $deposit, $entries, $starts);                          
+                       
+                        if ($i>0) {
+                            $doc->printLineTax($clubName,$fee, $deposit, $entries, $starts); 
+                            foreach ($arr_kat as $key => $val){ 
+                                if ($val[1] >= 16)
+                                     $assTax = $val[0] * 4;
+                                elseif ($val[1] <= 13)  
+                                    $assTax = $val[0] * 1;
+                                else
+                                    $assTax = $val[0] * 2;  
+                                $doc->printLineTax($key,'', '', '', $val[0], $assTax);  
+                            }
+                            $arr_kat = array();  
+                        }                       
                         $i++;
                         $reduction = 0;
                         $starts = 0;
                         $fee = 0;
                         $deposit = 0;
                         $entries = 0;
-                       
-                    }  
+                        $katStarts = 0;
+                    }
+                   
+                  
                     
                     if ($row['Mehrkampfcode'] > 0) {
                         if ($club!=$row['clubnr'] && $clubName!= $row['club'] && $name!= $row['Name'] && $firstName!= $row['Vorname']){                            
@@ -856,10 +969,30 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                     $entries+=$row['enrolement'];                     
                  	$clubName=$row['club'];
                   	$name=$row['Name'];
-                  	$firstName= $row['Vorname'];
-                }   
-	   	 
-                $doc->printLine($clubName,$fee, $deposit, $entries, $starts);  
+                  	$firstName= $row['Vorname'];    
+                    
+                    if ($kKurzname!=$row['kKurzname'])  {  
+                         $kKurzname=$row['kKurzname'];  
+                         $katStarts=$row['started'];
+                         $arr_kat[$row['kKurzname']][0] =$katStarts;  
+                         $arr_kat[$row['kKurzname']][1] =$row['kAlterslimite']; 
+                    }
+                    else {  
+                          $katStarts+=$row['started']; 
+                          $arr_kat[$row['kKurzname']][0] =$katStarts;  
+                    }
+                }  
+                
+                $doc->printLineTax($clubName,$fee, $deposit, $entries, $starts); 
+                foreach ($arr_kat as $key => $val){ 
+                                if ($val[1] >= 16)
+                                     $assTax = $val[0] * 4;
+                                elseif ($val[1] <= 13)  
+                                    $assTax = $val[0] * 1;
+                                else
+                                    $assTax = $val[0] * 2;  
+                                $doc->printLineTax($key,'', '', '', $val[0], $assTax);  
+                            } 
                   
                 $tf += $fee;
                 $td += $deposit;
@@ -867,7 +1000,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                 $ts += $starts;     
 	
 	// add grand total
-	$doc->printTotalLine($strTotal, $tf, $td, $te, $ts);
+	$doc->printTotalLineTax($strTotal, $tf, $td, $te, $ts);
     
 	mysql_free_result($result);
 
