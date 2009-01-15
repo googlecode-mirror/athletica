@@ -875,7 +875,7 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 	}
 
 
-	function printAthleteLine($name, $year, $points)
+	function printAthleteLine($name, $year, $points, $country)
 	{
 		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
@@ -889,7 +889,7 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 ?>
 	<tr>
 		<td class='team_rank' />
-		<td class='team_name'><?php echo "$name, $year"; ?></td>
+		<td class='team_name'><?php echo "$name, $year, $country"; ?></td>
 		<td class='team_club'><?php echo $points; ?></td>
 		<td class='team_points' />
 	</tr>
@@ -1021,7 +1021,7 @@ class PRINT_TeamSheet extends PRINT_Page
 	}
 
 
-	function printLineCombined($name, $year, $points)
+	function printLineCombined($name, $year, $points, $country)
 	{
 		if(($this->lpp - $this->linecnt) < 7)		// page break check
 		{
@@ -1034,7 +1034,8 @@ class PRINT_TeamSheet extends PRINT_Page
 	<tr>
 		<td class='sheet_athlete'><?php echo $name; ?></td>
 		<td class='sheet_year'><?php echo $year; ?></td>
-		<td colspan='3' />
+        <td class='sheet_country'><?php echo $country; ?></td> 
+		<td colspan='2' />
 		<td class='sheet_points'><?php echo $points; ?></td>
 	</tr>
 <?php
@@ -1396,9 +1397,9 @@ class PRINT_Statistics extends PRINT_Page
 	var $headerCol2;
 	var $headerCol3;
 	var $headerCol4;
-	var $headerCol5;
+	var $headerCol5;   
 	
-	function printHeaderLine($col1, $col2, $col3, $col4="", $col5="")
+	function printHeaderLine($col1, $col2, $col3, $col4="", $col5="" )
 	{
 		if(($this->lpp - $this->linecnt) < 3)		// page break check
 		{
@@ -1422,15 +1423,16 @@ class PRINT_Statistics extends PRINT_Page
 			?>
 		<th class='stats_col3'><?php echo $col5; ?></th>
 			<?php
-		}
-		?>
+		}        
+        ?>
+		
 	</tr>
 <?php
 		$this->headerCol1 = $col1;
 		$this->headerCol2 = $col2;
 		$this->headerCol3 = $col3;
 		$this->headerCol4 = $col4;
-		$this->headerCol5 = $col5;
+		$this->headerCol5 = $col5;        
 	}
 
 
@@ -1465,9 +1467,9 @@ class PRINT_Statistics extends PRINT_Page
 	</tr>
 <?php
 	}
-
-	function printTotalLine($col1, $col2, $col3, $col4="", $col5="")
-	{
+    
+    function printTotalLine($col1, $col2, $col3, $col4="", $col5="")
+    {
 		$this->linecnt = $this->linecnt + 2;		// increment line count
 ?>
 	<tr>

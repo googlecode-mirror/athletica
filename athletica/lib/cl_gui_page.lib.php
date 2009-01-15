@@ -633,12 +633,12 @@ class GUI_TeamRankingList extends GUI_ListPage
 	}
 
 
-	function printAthleteLine($name, $year, $points)
+	function printAthleteLine($name, $year, $points, $country)
 	{
 		?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td />
-		<td><?php echo "$name, $year"; ?></td>
+		<td><?php echo "$name, $year, $country"; ?></td>
 		<td><?php echo $points; ?></td>
 		<td />         
 	</tr>
@@ -727,11 +727,11 @@ class GUI_TeamSheet extends GUI_ListPage
 	}
 
 
-	function printLineCombined($name, $year, $points)
+	function printLineCombined($name, $year, $points, $country)
 	{
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
-		<td><?php echo "$name, $year"; ?></td>
+		<td><?php echo "$name, $year, $country"; ?></td>
 		<td class='forms_right'><?php echo $points; ?></td>
 	</tr>
 <?php
@@ -901,7 +901,7 @@ class GUI_Statistics extends GUI_ListPage
 		<th class='dialog'><?php echo $col5; ?></th>
 			<?php
 		}
-		?>
+        ?>
 	</tr>
 <?php
 		
@@ -911,29 +911,32 @@ class GUI_Statistics extends GUI_ListPage
 	function printLine($col1, $col2, $col3, $col4="", $col5="")
 	{
 ?>
-	<tr class='<?php echo $this->rowclass[0]; ?>'>
-		<td><?php echo $col1; ?></th>
+	<tr class='<?php echo $this->rowclass[0]; ?>'>    
+        <td><?php echo $col1; ?></th> 
+          
 		<td class='forms_right'><?php echo $col2; ?></th>
 		<td class='forms_right'><?php echo $col3; ?></th>
 		<?php
-		if(!empty($col4) || $col4 == '0'){
+		if(!empty($col4) || $col4 == '0' ){
 			?>
 		<td class='forms_right'><?php echo $col4; ?></td>
 			<?php
-		}
-		if(!empty($col5) || $col5 == '0'){
+		}      
+		if(!empty($col5) || $col5 == '0' ){
 			?>
 		<td class='forms_right'><?php echo $col5; ?></td>
 			<?php
-		}
-		?>
+		    }
+        ?>
+       
 	</tr>
 <?php
 		$this->switchRowClass();
 	}
+       
 
-	function printTotalLine($col1, $col2, $col3, $col4="", $col5="")
-	{
+    function printTotalLine($col1, $col2, $col3, $col4="", $col5="")
+    {
 ?>
 	<tr>
 		<th class='statistic_total'><?php echo $col1; ?></th>

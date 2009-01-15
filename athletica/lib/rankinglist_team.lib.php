@@ -790,6 +790,7 @@ function processCombined($xCategory, $category, $type)
 			, t.xTeam
 			, t.Name
 			, v.Name
+            , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
 		FROM
 			anmeldung AS a
 			, athlet AS at
@@ -797,6 +798,7 @@ function processCombined($xCategory, $category, $type)
 			, verein AS v
 			, start as st
 			, wettkampf as w
+            LEFT JOIN region AS re ON (at.xRegion = re.xRegion) 
 		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
 		AND at.xAthlet = a.xAthlet
 		AND t.xTeam = a.xTeam
@@ -807,7 +809,7 @@ function processCombined($xCategory, $category, $type)
 		ORDER BY
 			t.xTeam
 	");
-    
+   
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -828,6 +830,7 @@ function processCombined($xCategory, $category, $type)
 		$sep = '';
 		$tm = '';
 		$year = '';
+        $country = '';  
 	
 		while($row = mysql_fetch_row($results))
 		{
@@ -840,11 +843,13 @@ function processCombined($xCategory, $category, $type)
 					, "name"=>$name
 					, "year"=>$year
 					, "info"=>$info
+                    , "country"=>$country
 				);
 
 				$points = 0;
 				$info = '';
 				$sep = '';
+                
 			}
 
 			// store previous team before processing new team
@@ -958,6 +963,7 @@ function processCombined($xCategory, $category, $type)
 			$year = AA_formatYearOfBirth($row[3]);
 			$team = $row[5];
 			$club = $row[6];
+            $country = $row[7];
 		}	// END WHILE athlete per category
 
 		mysql_free_result($results);
@@ -970,6 +976,7 @@ function processCombined($xCategory, $category, $type)
 				, "name"=>$name
 				, "year"=>$year
 				, "info"=>$info
+                , "country"=>$country  
 			);
            
 			// last team
@@ -1025,7 +1032,7 @@ function processCombined($xCategory, $category, $type)
 				}
 				$i++;
                
-				$GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points']);
+				$GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country']);
 				if($GLOBALS['xmladdon']){
 					$xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
 				}else{

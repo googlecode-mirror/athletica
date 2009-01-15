@@ -221,6 +221,7 @@ function AA_sheets_processSingle($xCategory, $category)
 					, k.Code
 					, at.Geschlecht
                     , ss.Bemerkung
+                    , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land 
 				FROM
 					anmeldung AS a
 					, athlet AS at 
@@ -231,6 +232,7 @@ function AA_sheets_processSingle($xCategory, $category)
 					, start AS st 
 					, wettkampf AS w
 					, kategorie AS k
+                    LEFT JOIN region AS re ON (at.xRegion = re.xRegion)  
   				WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
 				AND w.xKategorie = $xCategory
 				AND d.xDisziplin = w.xDisziplin
@@ -416,6 +418,7 @@ function AA_sheets_processSingle($xCategory, $category)
 							$perf = AA_formatResultTime($pt_row[5], true);
 						}
 						$year = AA_formatYearOfBirth($pt_row[4]);
+                        $country = $pt_row[14];  
 
 						// calculate points
 						if($pt_row[8] == $cfgEventType[$strEventTypeClubMixedTeam]){
@@ -461,12 +464,12 @@ function AA_sheets_processSingle($xCategory, $category)
 						if($pt_row[0] != $d)		// new discipline
 						{
 							$GLOBALS[$list]->printLine($pt_row[0],
-								$pt_row[2] . " " . $pt_row[3] .", " . $year,
+								$pt_row[2] . " " . $pt_row[3] .", " . $year .", " . $country,
 								$perf, $wind, $ip, $points, $pt_row[13]);
 						}
 						else {
 							$GLOBALS[$list]->printLine('',
-								$pt_row[2] . " " . $pt_row[3] . ", " . $year,
+								$pt_row[2] . " " . $pt_row[3] . ", " . $year .", " . $country, 
 								$perf, $wind, $ip, $points, $pt_row[13]);
 						}
 					}
@@ -983,6 +986,7 @@ function AA_sheets_processCombined($xCategory, $category)
 			, t.xTeam
 			, t.Name
 			, v.Name
+            , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land  
 		FROM
 			anmeldung AS a
 			, athlet AS at
@@ -990,6 +994,7 @@ function AA_sheets_processCombined($xCategory, $category)
 			, verein AS v
 			, start as st
 			, wettkampf as w
+            LEFT JOIN region AS re ON (at.xRegion = re.xRegion)    
 		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
 		AND at.xAthlet = a.xAthlet
 		AND t.xTeam = a.xTeam
@@ -1016,6 +1021,7 @@ function AA_sheets_processCombined($xCategory, $category)
 		$sep = '';
 		$tm = '';
 		$year = '';
+        $country = '';  
 	
 		while($row = mysql_fetch_row($results))
 		{
@@ -1028,6 +1034,7 @@ function AA_sheets_processCombined($xCategory, $category)
 					, "name"=>$name
 					, "year"=>$year
 					, "info"=>$info
+                    , "country"=>$country 
 				);
 
 				$points = 0;
@@ -1144,6 +1151,7 @@ function AA_sheets_processCombined($xCategory, $category)
 			$year = AA_formatYearOfBirth($row[3]);
 			$team = $row[5];
 			$club = $row[6];
+            $country = $row[7];
 		}	// END WHILE athlete per category
 
 		mysql_free_result($results);
@@ -1156,6 +1164,7 @@ function AA_sheets_processCombined($xCategory, $category)
 				, "name"=>$name
 				, "year"=>$year
 				, "info"=>$info
+                , "country"=>$country 
 			);
 
 			// last team
@@ -1217,7 +1226,7 @@ function AA_sheets_processCombined($xCategory, $category)
 				}
 				$i++;
 
-				$GLOBALS[$list]->printLineCombined($athlete['name'], $athlete['year'], $athlete['points']);
+				$GLOBALS[$list]->printLineCombined($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country']);
 				$GLOBALS[$list]->printDisciplinesCombined($athlete['info']);
 			}
 
@@ -1258,12 +1267,14 @@ function AA_sheets_printRelayAthletes($relay)
 		  , at.Vorname
 		  , at.Jahrgang
 		  , sta.Position
+          , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land     
 	  FROM
 		  athlet AS at 
 		  , anmeldung AS a 
 		  , start AS s 
 		  , staffelathlet AS sta 
 		  , start AS st
+          LEFT JOIN region AS re ON (at.xRegion = re.xRegion)    
 	  WHERE s.xStaffel = $relay
 	  AND sta.xStaffelstart = s.xStart
 	  AND st.xStart = sta.xAthletenstart
@@ -1281,7 +1292,7 @@ function AA_sheets_printRelayAthletes($relay)
 		while($at_row = mysql_fetch_row($at_res))
 		{
 			$year = AA_formatYearOfBirth($at_row[2]);
-			$GLOBALS[$list]->printRelayAthlete("$at_row[3]. $at_row[0] $at_row[1], $year");
+			$GLOBALS[$list]->printRelayAthlete("$at_row[3]. $at_row[0] $at_row[1], $year, $at_row[4]");
 		}
 		mysql_free_result($at_res);
 	}
