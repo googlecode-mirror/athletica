@@ -742,6 +742,21 @@ require('./config.inc.php');
 			}
 			
 		}
+        
+        $res = mysql_query("SELECT Startnummer FROM
+                    teamsm
+                WHERE    xMeeting = ".$_COOKIE['meeting_id']."
+                AND    Startnummer >= $n
+                ");
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }else{
+            
+            while($row = mysql_fetch_array($res)){
+                $pool[] = $row[0];
+            }
+            
+        }
 		
 		sort($pool);
 		
@@ -749,7 +764,7 @@ require('./config.inc.php');
 			
 			// search next available number
 			$lp = $pool[0];
-			foreach($pool as $p){
+			foreach($pool as $p){ 
 				if(($p-$lp) > 1){
 					return ($lp+1);
 				}
@@ -762,7 +777,34 @@ require('./config.inc.php');
 		return 0;
 	}
 	
-	
+	/**
+     * Get last used startnumber for teamsm
+     *
+     * @return    int startnumber
+     */
+    function AA_getLastStartnbrTeamsm()
+    {
+        $nbr = 0;
+        
+        $result = mysql_query("
+                SELECT
+                    MAX(Startnummer)
+                FROM
+                    teamsm
+                WHERE
+                    xMeeting = ". $_COOKIE['meeting_id']);
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }else{
+            
+            $row = mysql_fetch_array($result);
+            $nbr = $row[0];
+            
+        }
+        
+        return $nbr;
+    }
+    
 	/**
 	 * get round status
 	 * ----------------
