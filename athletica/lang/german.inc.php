@@ -742,5 +742,6 @@ $strInactivShort = "I";
 $strUpdateEffortsSuccess = "Die Bestleistungen wurden erfolgreich aktualisiert!";
 $strClub2 = "Zweitverein";
 $strEnrolSheet = "Appellblatt";  
-$strErrResultsInProgress = "Es sind noch Resultate in Bearbeitung. <br> Bitte zuerst Resultate auswerten und rangieren!"
+$strErrResultsInProgress = "Es sind noch Resultate in Bearbeitung. <br> Bitte zuerst Resultate auswerten und rangieren!";
+$strAssTax = "Verbandsabgabe"; 
 ?>
