@@ -43,12 +43,10 @@ if ($_GET['clubgroup'] == "yes") {
 
 // selection arguments
 if($_GET['category'] > 0) {		// category selected
-	$cat_clause = " AND a.xKategorie = " . $_GET['category'];
+	$cat_clause = " AND s.xKategorie = " . $_GET['category'];
 }
 if($_GET['discipline'] > 0) {		// discipline selected
-	$disc_clause = " AND a.xAnmeldung = s.xAnmeldung"
-					. " AND s.xWettkampf = w.xWettkampf"
-					. " AND w.xDisziplin = " . $_GET['discipline'];
+	$disc_clause = 	" AND w.xDisziplin = " . $_GET['discipline'];
 }
 if($_GET['club'] > 0) {		// discipline selected
 	$club_clause = " AND v.xVerein = " . $_GET['club'];
@@ -160,7 +158,6 @@ $result = mysql_query("
 		$argument
 ");
 
-
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -230,7 +227,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				ORDER BY
 					sta.Position
 			");
-
+            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -387,7 +384,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			ORDER BY
 				sta.Position
 		");
-
+      
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
