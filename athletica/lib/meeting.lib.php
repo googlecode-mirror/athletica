@@ -1025,7 +1025,7 @@ function AA_meeting_resetResults($event, $formula)
 // get all clubs with same LG 
 //
 
-function AA_meeting_getLG($club){     
+function AA_meeting_getLG_Club($club){     
     $arrClub = array();
     
     $sql="SELECT 
@@ -1038,7 +1038,7 @@ function AA_meeting_getLG($club){
                 v.xVerein = " .$club;
    
     $result=mysql_query($sql);  
-         
+    
     if(mysql_errno() > 0){
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
     }else{
@@ -1091,6 +1091,35 @@ function AA_meeting_getLG($club){
          }
     }
    return $arrClub; 
+   
+}   //end function AA_meeting_getLG_Club  
+
+//
+// get LG  from Club
+//
+
+function AA_meeting_getLG($club){     
+    $lg = "";
+    
+    $sql="SELECT 
+                ba.lg 
+          FROM
+                verein AS v
+                LEFT JOIN base_account AS ba ON (v.xCode = ba.account_code)
+          WHERE 
+                v.xVerein = " .$club;
+   
+    $result=mysql_query($sql);  
+   
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+         if (mysql_num_rows($result) == 1 ){ 
+                $row = mysql_fetch_array($result);
+                $lg = $row[0];
+         }
+    }
+   return $lg; 
    
 }   //end function AA_meeting_getLG  
 
