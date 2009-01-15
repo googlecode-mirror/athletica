@@ -40,8 +40,10 @@ if(!empty($_POST['event'])) {
 	$event = $_POST['event'];	// store selected event
 }
 
-$nbrcheck = TRUE;
 $nbr = 0;
+if(!empty($_POST['startnumber'])) {
+    $nbr = $_POST['startnumber'];    // store selected startnumber
+}
 
 //
 // add team
@@ -52,13 +54,15 @@ if ($_POST['arg']=="add")
 	
 	// Error: Empty fields
 	if(empty($_POST['name']) || empty($_POST['category']) || empty($_POST['club']) || empty($_POST['event']))
-	{
+	{                 
 		AA_printErrorMsg($strErrEmptyFields);
-	}else{
+	}else{  
 		mysql_query("LOCK TABLES
 				teamsm WRITE
 				, wettkampf READ
 				, kategorie READ
+                , anmeldung READ
+                , staffel READ
 				, verein READ");
 		
 		if(AA_checkReference("kategorie", "xKategorie", $_POST['category']) == 0){
@@ -67,12 +71,47 @@ if ($_POST['arg']=="add")
 			AA_printErrorMsg($strEvent . $strErrNotValid);
 		}else{
 			
+            // check startnumber
+            $lastnbr = AA_getLastStartnbrTeamsm();
+            $nbr = $_POST['startnumber'];
+                               
+            if($nbr > 0){
+                $res = mysql_query("SELECT * FROM teamsm 
+                                    WHERE Startnummer = $nbr 
+                                    AND xMeeting = ".$_COOKIE['meeting_id']);
+                if(mysql_num_rows($res) > 0){ 
+                    $nbr = $lastnbr;
+                    $nbr++;
+                }
+                //mysql_free_result($res);
+                //
+                // check if startnumber is used for athletes
+                $res = mysql_query("SELECT * FROM anmeldung 
+                                    WHERE Startnummer = $nbr 
+                                    AND xMeeting = ".$_COOKIE['meeting_id']);
+                if(mysql_num_rows($res) > 0){ 
+                    $nbr = AA_getNextStartnbr($nbr);
+                }
+            }else{
+                    if($lastnbr > 0){
+                        $nbr = $lastnbr+1;
+                        // check if startnumber is used for athletes
+                        $res = mysql_query("SELECT * FROM anmeldung 
+                                            WHERE Startnummer = $nbr 
+                                            AND xMeeting = ".$_COOKIE['meeting_id']);
+                        if(mysql_num_rows($res) > 0){
+                            $nbr = AA_getNextStartnbr($nbr);
+                        }
+                    }
+            }
+            
 			// add
 			mysql_query("INSERT INTO teamsm SET
 					Name = '".$_POST['name']."'
 					, xKategorie = ".$_POST['category']."
 					, xVerein = ".$_POST['club']."
 					, xWettkampf = ".$_POST['event']."
+                    , Startnummer = ".$nbr." 
 					, xMeeting = ".$_COOKIE['meeting_id']."");
 			
 			if(mysql_errno() > 0){
@@ -140,7 +179,7 @@ $res = mysql_query("SELECT d.Kurzname, k.Geschlecht FROM
 		AND	k.xKategorie = w.xKategorie");
 $row = mysql_fetch_array($res);
 $disciplineName = $row[0];
-$categorySex = $row[1];
+$categorySex = $row[1]; 
 mysql_free_result($res);
 
 $res = mysql_query("SELECT Name FROM
@@ -153,14 +192,30 @@ mysql_free_result($res);
 
 ?>
 <tr>
-	<th class='dialog'><?php echo $strName; ?></th>
-	<td class='forms'>
-		<input name='arg' type='hidden' value='add' />
-		<input name='event' type='hidden' value='<?php echo $event; ?>' />
-		<input name='club' type='hidden' value='<?php echo $club; ?>' />
-		<input class='text' name='name' type='text' maxlength='100'
-			value="<?php echo $clubName." ".$disciplineName ?>" />
-	</td>
+<th class='dialog'><?php echo $strStartnumberLong ?></th>
+    <td class='forms'>
+        <?php
+        
+         $lastnbr = AA_getLastStartnbrTeamsm(); 
+         $nbr = 0;
+         if($lastnbr > 0){
+            $nbr = $lastnbr+1;
+        }
+      
+        ?>
+        <input class='nbr' type='text' maxlength='6' name="startnumber" value="<?php echo $nbr ?>">
+        <?php echo $strNextNr.": ".($lastnbr+1); ?>
+    </td>
+</tr>
+<tr>
+    <th class='dialog'><?php echo $strName; ?></th>
+    <td class='forms'>
+        <input name='arg' type='hidden' value='add' />
+        <input name='event' type='hidden' value='<?php echo $event; ?>' />
+        <input name='club' type='hidden' value='<?php echo $club; ?>' />
+        <input class='text' name='name' type='text' maxlength='100'
+            value="<?php echo $clubName." ".$disciplineName ?>" />
+    </td>
 </tr>
 <tr>
 	<th class='dialog'><?php echo $strCategory; ?></th>
@@ -183,7 +238,7 @@ mysql_free_result($res);
 		<input type="radio" name="category" value="<?php echo $tempcat['MAN_'] ?>"
 			<?php echo ($categorySex == 'm') ? "checked" : ""; ?>> MAN
 		<input type="radio" name="category" value="<?php echo $tempcat['WOM_'] ?>"
-			<?php echo ($categorySex == 'w') ? "checked" : ""; ?>> WOM
+			<?php echo ($categorySex == 'w') ? "checked" : ""; ?>> WOM   
 	</td>
 </tr>
 </table>

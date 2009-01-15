@@ -45,6 +45,42 @@ if ($_POST['arg']=="change")
 }
 
 //
+// change startnumber teamsm
+//
+if($_POST['arg'] == "change_startnbr"){
+    
+    mysql_query("LOCK TABLES teamsm WRITE, anmeldung READ");
+    
+    $n = $_POST['startnumber'];
+    
+    // check if nbr already exists
+    $res = mysql_query("SELECT * FROM teamsm WHERE Startnummer = $n AND xMeeting = ".$_COOKIE['meeting_id']);
+    
+    if(mysql_num_rows($res) == 0){
+        
+        // check if start number exists in athlete registration
+        $res = mysql_query("SELECT * FROM anmeldung 
+                    WHERE Startnummer = $n 
+                    AND xMeeting = ".$_COOKIE['meeting_id']);
+        if(mysql_num_rows($res) == 0){
+            
+            mysql_query("UPDATE teamsm SET Startnummer = $n WHERE xTeamsm = ".$_POST['item']);
+            if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+            
+        }else{
+            AA_printErrorMsg($strStartnumberLong . $strErrNotValid);
+        }
+    }else{
+        AA_printErrorMsg($strStartnumberLong . $strErrNotValid);
+    }
+    
+    mysql_query("UNLOCK TABLES");
+    
+}
+
+//
 // add team athlete
 //
 if ($_POST['arg']=="add_athlete")
@@ -263,7 +299,8 @@ $result = mysql_query("
 		, a.Startnummer
 		, at.Name
 		, at.Vorname
-		, at.Jahrgang           
+		, at.Jahrgang 
+        , t.Startnummer         
 	FROM
 		teamsm AS t
 		LEFT JOIN teamsmathlet AS tsa USING(xTeamsm)
@@ -296,6 +333,20 @@ else if(mysql_num_rows($result) > 0)  // data found
 	?>
 	
 <table class='dialog'>
+    <tr>
+    <form action='meeting_teamsm.php' method='post' name='change_startnbr'>
+    <th class='dialog'><?php echo $strStartnumberLong; ?></th>
+    <td class='forms'>
+        <input name='arg' type='hidden' value='change_startnbr' />
+        <input name='item' type='hidden' value='<?php echo $_POST['item']  ?>' />
+        <input name='start' type='hidden' value='<?php echo $row[5]; ?>' />           <!--    ************ -->
+        <input class='nbr' name='startnumber' type='text'
+            maxlength='5' value="<?php echo $row[11]; ?>"
+            onchange='document.change_startnbr.submit()' />
+    </td>
+    </form>
+</tr>
+
 	<form action="meeting_teamsm.php" method="POST" name="teamsm">
 	<input type="hidden" name="arg" value="change">
 	<input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
@@ -403,7 +454,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<?php
 		// athletes who are in the right club and LG          
         $sqlClubLG=" = " .$club;
-        $arrClub=AA_meeting_getLG($club);      // get all clubs with same LG
+        $arrClub=AA_meeting_getLG_Club($club);      // get all clubs with same LG
        
         if (count($arrClub) > 0) {
             $sqlClubLG=" IN (";

@@ -29,6 +29,7 @@ $page->startPage();
 $img_name="img/sort_inact.gif";
 $img_cat="img/sort_inact.gif";
 $img_disc="img/sort_inact.gif";
+$img_nbr="img/sort_inact.gif";  
 
 if ($arg=="name") {
 	$argument="t.Name, k.Anzeige";
@@ -39,9 +40,12 @@ if ($arg=="name") {
 } else if ($arg=="disc") {
 	$argument="d.Anzeige, t.Name";
 	$img_disc="img/sort_act.gif";
+} else if ($arg=="nbr") {
+    $argument="t.Startnummer";
+    $img_nbr="img/sort_act.gif";
 } else {
 	$argument="t.Name, k.Anzeige";
-	$img_name="img/sort_act.gif";
+	$img_nbr="img/sort_act.gif"; 
 }
 
 ?>
@@ -61,6 +65,11 @@ if ($arg=="name") {
 
 <table class='dialog'>
 	<tr>
+        <th class='dialog'>
+        <a href='meeting_teamsmlist.php?arg=nbr'><?php echo $strStartnumber; ?>
+            <img src='<?php echo $img_nbr; ?>' />
+        </a>
+    </th>
 		<th class='dialog'>
 			<a href='meeting_teamsmlist.php?arg=name'><?php echo $strName; ?>
 				<img src='<?php echo $img_name; ?>' />
@@ -86,6 +95,7 @@ $result = mysql_query("
 		, t.Name
 		, k.Kurzname
 		, d.Kurzname
+        , t.Startnummer
 	FROM
 		teamsm AS t
 		, kategorie AS k
@@ -123,7 +133,9 @@ else				// no DB error
 		?>
 	<tr class='<?php echo $rowclass; ?>'
 		onClick='selectTeam(<?php echo $row[0]; ?>)' style="cursor: pointer;">
-
+        <td>
+        <?php echo $row[4] ?>
+        </td>
 		<td>
 			<a name="item<?php echo $row[0]; ?>"></a>
 			<?php echo $row[1]; ?>

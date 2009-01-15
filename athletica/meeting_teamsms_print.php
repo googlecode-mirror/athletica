@@ -43,33 +43,53 @@ $page->printPageTitle($strPrint);
 <form action='print_meeting_teamsms.php' method='get' name='printdialog'>
 <input type='hidden' name='formaction' value=''>
 
-<input type='hidden' name='list' value='team'/>
-
 <table class='dialog'>
-<!--<tr>
-	<td class='dialog'>
-		<input type='radio' name='list' value='team' checked>
-			<?php echo $strTeamList; ?></input>
-	</td>
+                 <tr>
+    <th class='dialog'><?php echo $strGroupBy; ?></th>
+    <th class='dialog' colspan='2'><?php echo $strPageBreak; ?></th>
 </tr>
 <tr>
-	<td class='dialog'>
-		<input type='radio' name='list' value='disc'>
-			<?php echo $strDisciplineList; ?></input>
-	</td>
-</tr>-->
-<tr><th class='dialog'><?php echo $strPageBreak; ?></th></tr>
-
-<tr><td class='dialog'>
-		<input type='radio' name='break' value='team' checked>
-			<?php echo $strTeam; ?></input>
-</td></tr>
-
-<tr><td class='dialog'>
-		<input type='radio' name='break' value='none'>
-			<?php echo $strNoPageBreak; ?></input>
-</td></tr>
-
+    <td class='dialog'>
+        <input type='checkbox' name='clubgroup' value='yes'>
+            <?php echo $strClubs; ?></input>
+    </td>
+    <td class='dialog'>
+        <input type='radio' name='clubbreak' value='yes'>
+            <?php echo $strYes; ?></input>
+    </td>
+    <td class='dialog'>
+        <input type='radio' name='clubbreak' value='no' checked>
+            <?php echo $strNo; ?></input>
+    </td>
+</tr>
+<!<tr>
+    <td class='dialog'>
+        <input type='checkbox' name='catgroup' value='yes'>
+            <?php echo $strCategories; ?></input>
+    </td>
+    <td class='dialog'>
+        <input type='radio' name='catbreak' value='yes'>
+            <?php echo $strYes; ?></input>
+    </td>
+    <td class='dialog'>
+        <input type='radio' name='catbreak' value='no' checked>
+            <?php echo $strNo; ?></input>
+    </td>
+</tr>  
+<tr>
+    <td class='dialog'>
+        <input type='checkbox' name='discgroup' value='yes'>
+            <?php echo $strDisciplines; ?></input>
+    </td>
+    <td class='dialog'>
+        <input type='radio' name='discbreak' value='yes'>
+            <?php echo $strYes; ?></input>
+    </td>
+    <td class='dialog'>
+        <input type='radio' name='discbreak' value='no' checked>
+            <?php echo $strNo; ?></input>
+    </td>
+</tr>
 <tr>
 	<th class='dialog'><?php echo $strLimitSelection; ?></th>
 </tr>
@@ -82,6 +102,12 @@ $page->printPageTitle($strPrint);
 				$dd = new GUI_CategoryDropDown(0);
 				?>
 			</tr>
+            <tr>
+                <td class='dialog'><?php echo $strDiscipline; ?>:</td>
+                <?php
+                $dd = new GUI_DisciplineDropDown(0, false, false, '','', true);
+                ?>
+            </tr>
 			<tr>
 				<td class='dialog'><?php echo $strClub; ?></td>
 				<?php
@@ -103,6 +129,12 @@ $page->printPageTitle($strPrint);
 		<input type='checkbox' name='cover' value='cover'>
 			<?php echo $strCover; ?></input>
 	</td>
+</tr>
+<tr>
+    <td class='dialog' colspan='2'>
+        <input type='checkbox' name='enrolSheet' value='enrolSheet'>
+            <?php echo $strEnrolSheet; ?></input>
+    </td>
 </tr>
 </table>
 

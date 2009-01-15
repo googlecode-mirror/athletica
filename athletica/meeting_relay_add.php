@@ -84,18 +84,16 @@ if ($_POST['arg']=="add")
 				
 				rsort($arrid);
 				$biggestId = $arrid[0];
-				//print_r($arrid);
+				
 				if($biggestId == 0 || strlen($biggestId) != 9){
 					$idcounter = "001";
 				}else{
 					$idcounter = substr($biggestId,6,3);
-					//echo $idcounter;
 					$idcounter++;
 					$idcounter = sprintf("%03d", $idcounter);
 				}
 				
 				$xStaffelSQL = ", xStaffel = ".$eventnr.$idcounter.", Athleticagen ='y' ";
-				//echo $xStaffelSQL;
 			}
 		}
 		
@@ -114,6 +112,7 @@ if ($_POST['arg']=="add")
 								, start WRITE
 								, start AS s READ  
 								, anmeldung READ
+                                , teamsm READ   
 							");
 
 		if(AA_checkReference("kategorie", "xKategorie", $category) == 0)	// Category does not exist (anymore)
@@ -188,7 +187,8 @@ if ($_POST['arg']=="add")
 									$res = mysql_query("SELECT * FROM anmeldung 
 												WHERE Startnummer = $nbr 
 												AND xMeeting = ".$_COOKIE['meeting_id']);
-									if(mysql_num_rows($res) > 0){
+                                   
+									if(mysql_num_rows($res) > 0){ 
 										$nbr = AA_getNextStartnbr($nbr);
 									}
 								}else{
@@ -220,6 +220,7 @@ if ($_POST['arg']=="add")
 												   xMeeting = ".$_COOKIE['meeting_id'].", 
 												   xKategorie = ".$category.", 
 												   Startnummer = '".$nbr."'".$xStaffelSQL.";";
+                                   
 									mysql_query($sql);
 									if(mysql_errno() == 0) 		// no error
 										{
