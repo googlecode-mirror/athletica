@@ -121,9 +121,9 @@ class GUI_DateDropDown
 	 *	-----------
 	 *		date:		day to preselect	
 	 */
-	function GUI_DateDropDown($date, $index=0)
+	function GUI_DateDropDown($date, $index=0, $action = '')
 	{
-		$select = new GUI_DateSelect($index);
+		$select = new GUI_DateSelect($index, $action);
 		echo "<td class='forms'>";
 		$select->printList($date);
 		echo "</td>";
@@ -168,11 +168,11 @@ class GUI_DisciplineDropDown
 	 *		keys:		list of disciplines not to be displayed
 	 *		action:	javascript action to execute onChange
 	 */
-	function GUI_DisciplineDropDown($key= 0, $new = false, $relay=false, $keys='', $action='')
+	function GUI_DisciplineDropDown($key= 0, $new = false, $relay=false, $keys='', $action='', $event=false)
 	{
 		$select = new GUI_DisciplineSelect($new, $action);
 		echo "<td class='forms'>";
-		$select->printList($key, $relay, $keys);
+		$select->printList($key, $relay, $keys , $event);
 		echo "</td>";
 	}
 

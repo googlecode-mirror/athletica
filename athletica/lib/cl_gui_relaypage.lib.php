@@ -53,7 +53,7 @@ class GUI_RelayPage extends GUI_ListPage
 	{
 		?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
-		<td class='relay_athletes' colspan='4'><?php echo $athletes; ?></td>
+		<td class='relay_athletes' colspan='5'><?php echo $athletes; ?></td>
 	</tr>
 		<?php
 	}

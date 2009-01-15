@@ -569,13 +569,13 @@ class GUI_DateSelect
 	/*	Constructor
 	 *	-----------
 	 */
-	function GUI_DateSelect($index=0)
+	function GUI_DateSelect($index=0, $action = '')
 	{
 		if($index > 0) {
-			$this->select = new GUI_Select("date_".$index, 1);
+			$this->select = new GUI_Select("date_".$index, 1,  $action);
 		}
 		else {
-			$this->select = new GUI_Select('date', 1);
+			$this->select = new GUI_Select('date', 1, $action);
 		}
 	}
 
@@ -717,7 +717,7 @@ class GUI_DisciplineSelect
 	 *		new:	set to true if you want NEW as last option
 	 */
 	function GUI_DisciplineSelect($new = false, $action='')
-	{
+	{  
 		$this->new = $new;
 		if($new == true && empty($action)) {
 			$action = "check(\"discipline\")";
@@ -735,34 +735,42 @@ class GUI_DisciplineSelect
 	 *		key:		primary key of db table
 	 *		relay:	set to true if you only want to see relay disciplines
 	 *		keys:		list of disciplines not to be displayed
+     *      event:  set to true if you only want to see disciplines from events       
 	 */
-	function printList($key=0, $relay=false, $keys='')
+	function printList($key=0, $relay=false, $keys='', $event=false)
 	{
 		require('./config.inc.php');
 
-		$where = '';
+        $where = ''; 
+		$table = '';
+        $dist = ''; 
 		if($relay == true) {
 			$where = " AND Staffellaeufer > 0 ";
 		}
 		else if(!empty($keys)) {
 			$where = " AND xDisziplin NOT IN ($keys) ";
 		}
+        elseif ($event == true) {
+           $table = " INNER JOIN wettkampf as w ON (disziplin.xDisziplin = w.xDisziplin) ";
+           $dist = " DISTINCT ";
+        }
 
 
 		// get items from DB
 		$this->select->addOptionsFromDB("
-			SELECT
-				xDisziplin
+			SELECT $dist 
+				disziplin.xDisziplin
 				, Kurzname
 			FROM
 				disziplin
-			WHERE Typ != ".$cfgDisciplineType[$strDiscCombined]."
+                $table  
+			WHERE disziplin.Typ != ".$cfgDisciplineType[$strDiscCombined]."
             AND aktiv = 'y' 
 			$where
 			ORDER BY
 				Anzeige
 		");
-
+       
 		if(!empty($GLOBALS['AA_ERROR']))
 		{
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);

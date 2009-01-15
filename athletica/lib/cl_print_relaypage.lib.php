@@ -75,7 +75,7 @@ class PRINT_RelayPage extends PRINT_Page
 		$this->linecnt++;			// increment line count
 ?>
 	<tr>
-		<td class='relay_athletes' colspan='4'><?php echo $athletes; ?></td>
+		<td class='relay_athletes' colspan='5'><?php echo $athletes; ?></td>
 	</tr>
 <?php
 	}
