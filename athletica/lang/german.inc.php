@@ -739,5 +739,8 @@ $strAutoRank = "Automatisch rangieren";
 $strActiv = "Aktiv / Inaktiv";
 $strActivShort = "A";
 $strInactivShort = "I";
-$strUpdateEffortsSuccess = "Die Bestleistungen wurden erfolgreich aktualisiert!"
+$strUpdateEffortsSuccess = "Die Bestleistungen wurden erfolgreich aktualisiert!";
+$strClub2 = "Zweitverein";
+$strEnrolSheet = "Appellblatt";  
+$strErrResultsInProgress = "Es sind noch Resultate in Bearbeitung. <br> Bitte zuerst Resultate auswerten und rangieren!"
 ?>
