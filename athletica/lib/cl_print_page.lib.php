@@ -1397,10 +1397,11 @@ class PRINT_Statistics extends PRINT_Page
 	var $headerCol2;
 	var $headerCol3;
 	var $headerCol4;
-	var $headerCol5;   
+	var $headerCol5; 
+    var $headerCol6;     
 	
-	function printHeaderLine($col1, $col2, $col3, $col4="", $col5="" )
-	{
+	function printHeaderLine($col1, $col2, $col3, $col4="", $col5="", $col6="" )
+	{   
 		if(($this->lpp - $this->linecnt) < 3)		// page break check
 		{
 			printf("</table>");
@@ -1423,7 +1424,12 @@ class PRINT_Statistics extends PRINT_Page
 			?>
 		<th class='stats_col3'><?php echo $col5; ?></th>
 			<?php
-		}        
+		}
+        if(!empty($col6) ){  
+        ?>
+        <th class='stats_col3'><?php echo $col6; ?></th> 
+        <?php
+        }        
         ?>
 		
 	</tr>
@@ -1432,7 +1438,8 @@ class PRINT_Statistics extends PRINT_Page
 		$this->headerCol2 = $col2;
 		$this->headerCol3 = $col3;
 		$this->headerCol4 = $col4;
-		$this->headerCol5 = $col5;        
+		$this->headerCol5 = $col5;    
+        $this->headerCol6 = $col6;        
 	}
 
 
@@ -1468,6 +1475,69 @@ class PRINT_Statistics extends PRINT_Page
 <?php
 	}
     
+    function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax)
+    {
+        if(($this->lpp - $this->linecnt) < 5)    // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+            $this->printHeaderLine($this->headerCol1, $this->headerCol2
+                        , $this->headerCol3, $this->headerCol4, $this->headerCol5 ,  $this->headerCol6);
+        }
+        $this->linecnt++;            // increment line count
+?>
+    <tr>
+     <?php if (!empty($assTax) || $assTax == '0'){
+               ?>
+               <td class='stats_col1_intend'><?php echo $col1; ?></td>   
+               <?php
+           }
+           else {
+                ?> 
+                <td class='stats_col1'><strong><?php echo $col1; ?></strong></th>
+           <?php
+           }
+     ?>
+        <td class='stats_col2_bold'><?php echo $col2; ?></th>
+        <td class='stats_col3_bold'><?php echo $col3; ?></th>
+        <?php
+        if(!empty($col4) || $col4 == '0' || !empty($assTax) || $assTax == '0'){
+            ?>
+        <td class='stats_col3_bold'><?php echo $col4; ?></td>
+            <?php
+        }
+        if (!empty($assTax) || $assTax == '0'){  
+            if(!empty($col5) || $col5 == '0' ){
+            ?>
+            <td class='stats_col3'><?php echo $col5; ?></td>
+            <?php
+            }
+        }
+        elseif  (!empty($col5) || $col5 == '0' ){
+           ?>
+            <td class='stats_col3_bold'><?php echo $col5; ?></td>
+            <?php
+           }
+           
+         if(!empty($assTax) || $assTax == '0' ){
+            ?>
+            <td class='stats_col3'><?php echo $assTax .".00"; ?></td>
+            <?php
+        }
+        else {
+            ?>
+            <td class='stats_col3'>&nbsp;</td>
+            <?php
+        }
+        ?>
+        
+       
+    </tr>
+<?php
+    }
+
+    
     function printTotalLine($col1, $col2, $col3, $col4="", $col5="")
     {
 		$this->linecnt = $this->linecnt + 2;		// increment line count
@@ -1488,6 +1558,31 @@ class PRINT_Statistics extends PRINT_Page
 			<?php
 		}
 		?>
+        </tr>
+<?php
+    }
+    
+    function printTotalLineTax($col1, $col2, $col3, $col4="", $col5="")
+    {
+        $this->linecnt = $this->linecnt + 2;        // increment line count
+?>
+    <tr>
+        <td class='stats_tot1'><?php echo $col1; ?></th>
+        <td class='stats_tot2'><?php echo $col2; ?></th>
+        <td class='stats_tot3'><?php echo $col3; ?></th>
+        <?php
+        if(!empty($col4) || $col4 == '0'){
+            ?>
+        <td class='stats_tot3'><?php echo $col4; ?></td>
+            <?php
+        }
+        if(!empty($col5) || $col5 == '0'){
+            ?>
+        <td class='stats_tot3'><?php echo $col5; ?></td>
+            <?php
+        }
+        ?>
+        <td class='stats_tot3'>&nbsp;</td> 
 	</tr>
 <?php
 	}

@@ -883,8 +883,8 @@ class GUI_TeamSMRankingList extends GUI_ListPage
 class GUI_Statistics extends GUI_ListPage
 {
 	
-	function printHeaderLine($col1, $col2, $col3, $col4="", $col5="")
-	{
+	function printHeaderLine($col1, $col2, $col3, $col4="", $col5="", $col6="")
+	{ 
 ?>
 	<tr>
 		<th class='dialog'><?php echo $col1; ?></th>
@@ -901,6 +901,11 @@ class GUI_Statistics extends GUI_ListPage
 		<th class='dialog'><?php echo $col5; ?></th>
 			<?php
 		}
+        if(!empty($col6) ){  
+        ?>
+        <th class='dialog'><?php echo $col6; ?></th> 
+        <?php
+        }
         ?>
 	</tr>
 <?php
@@ -912,7 +917,7 @@ class GUI_Statistics extends GUI_ListPage
 	{
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>    
-        <td><?php echo $col1; ?></th> 
+        <td><?php echo $col1; ?></td> 
           
 		<td class='forms_right'><?php echo $col2; ?></th>
 		<td class='forms_right'><?php echo $col3; ?></th>
@@ -934,6 +939,58 @@ class GUI_Statistics extends GUI_ListPage
 		$this->switchRowClass();
 	}
        
+function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
+    {
+?>
+    <tr class='<?php echo $this->rowclass[0]; ?>'>
+     <?php 
+     if (!empty($assTax) || $assTax == '0'){  
+               ?>
+               <td class='forms_intend'><?php echo $col1; ?></td>   
+               <?php
+           }
+           else { 
+              ?>
+               <td ><strong><?php echo $col1; ?></strong></td>   
+               <?php  
+           }
+        ?>
+        <td class='forms_right_bold'><?php echo $col2; ?></th>
+        <td class='forms_right_bold'><?php echo $col3; ?></th>
+        <?php
+        if(!empty($col4) || $col4 == '0' || !empty($assTax) || $assTax == '0'){
+            ?>
+        <td class='forms_right_bold'><?php echo $col4; ?></td>
+            <?php
+        }
+        if (!empty($assTax) || $assTax == '0'){
+            if(!empty($col5) || $col5 == '0' ){
+            ?>
+        <td class='forms_right'><?php echo $col5; ?></td>
+            <?php
+            }
+        }
+        elseif  (!empty($col5) || $col5 == '0') {
+                  ?>
+                  <td class='forms_right_bold'><?php echo $col5; ?></td>
+                  <?php  
+        }
+        if(!empty($assTax) || $assTax == '0'){
+            ?>
+            <td class='forms_right'><?php echo $assTax .".00"; ?></td>
+            <?php
+        }
+        else {
+            ?>
+            <td class='forms_right'>&nbsp;</td>
+            <?php
+        }
+        ?>
+    </tr>
+<?php
+        $this->switchRowClass();
+    }
+
 
     function printTotalLine($col1, $col2, $col3, $col4="", $col5="")
     {
@@ -954,7 +1011,31 @@ class GUI_Statistics extends GUI_ListPage
 			<?php
 		}
 		?>
-		
+		 </tr>
+<?php
+    }
+    
+    function printTotalLineTax($col1, $col2, $col3, $col4="", $col5="")
+    {
+?>
+    <tr>
+        <th class='statistic_total'><?php echo $col1; ?></th>
+        <th class='statistic_total'><?php echo $col2; ?></th>
+        <th class='statistic_total'><?php echo $col3; ?></th>
+        <?php
+        if(!empty($col4) || $col4 == '0'){
+            ?>
+        <th class='statistic_total'><?php echo $col4; ?></th>
+            <?php
+        }
+        if(!empty($col5) || $col5 == '0'){
+            ?>
+        <th class='statistic_total'><?php echo $col5; ?></th>
+            <?php
+        }
+        ?>
+        <th class='statistic_total'>&nbsp;</th>
+
 	</tr>
 <?php
 	}
