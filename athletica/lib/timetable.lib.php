@@ -37,7 +37,7 @@ function AA_timetable_display($arg = 'monitor')
 		AND w.xKategorie = k.xKategorie
 		ORDER BY
 			k.Anzeige,
-            k.Name
+            k.Kurzname
 	");
     
 	if(mysql_errno() > 0)	// DB error
