@@ -91,7 +91,8 @@ if($login){
 	$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
 	$success = $ftp->put_file($local, $remote);
 	$ftp->close_connection();
-	
+     
+      
 	if($success){
 		// output message and set round status to results_sent
 		
@@ -121,6 +122,26 @@ if($login){
 		<?php
 		return;
 	}
+    
+    // check if there are results in progress 
+    $query = "SELECT 
+                    xRunde                         
+              FROM
+                    runde as ru                              
+              WHERE ru.Status = ".$cfgRoundStatus['results_in_progress']."
+                    AND ru.StatusUpload = 0";  
+               
+              $res_results = mysql_query($query);
+              if(mysql_errno() > 0){
+                    echo mysql_Error();
+              }else{
+                    if(mysql_num_rows($res_results) > 0){
+                        ?>
+                        <p class="st_res_work" ><?=$strErrResultsInProgress?></p><br/> 
+                       <?php  
+                    return; 
+                    } 
+              }  
 	
 ?>
 <table class='dialog'>
