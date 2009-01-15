@@ -62,8 +62,15 @@ div.st_heats_done {
 	font-weight:bold;
 }
 div.st_res_work {
-	background-color:#FFB272;
-}
+	background-color:#FFB272;   
+}  
+p.st_res_work {
+    background-color:#FFB272;
+    width: 280px;
+    padding-left: 10px;
+    padding-top: 10px;  
+    padding-bottom: 10px;  
+}  
 div.st_res_done {
 	background-color:#FFB272;
 	font-weight:bold;
@@ -258,6 +265,7 @@ td.forms_right {
 	padding-top:0px;
 	padding-bottom:0px;
 }
+
 td.forms_right_grey {
     vertical-align:middle;
     text-align:right;
