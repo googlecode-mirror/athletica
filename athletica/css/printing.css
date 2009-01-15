@@ -891,10 +891,16 @@ th.stats_col3 { width:100px; text-align:right; padding:5px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 td.stats_col1 { padding-left:0px; padding:5px; 
 				padding-top:2px; padding-bottom:2px; }
+td.stats_col1_intend { padding-left:0px; padding:5px; padding-left:30px;  
+                padding-top:2px; padding-bottom:2px; }
 td.stats_col2 { text-align:right; padding:5px; 
 				padding-top:2px; padding-bottom:2px; }
+td.stats_col2_bold { text-align:right; padding:5px; font-weight: bold; 
+                padding-top:2px; padding-bottom:2px; }
 td.stats_col3 { text-align:right; padding:5px; 
 				padding-top:2px; padding-bottom:2px; }
+td.stats_col3_bold { text-align:right; padding:5px; font-weight: bold; 
+                padding-top:2px; padding-bottom:2px; }
 td.stats_tot1 { font-weight: bold; text-align: right; padding:5px;
 				padding-top:2px; padding-bottom:2px; 
 				border-width:1px; border-style:solid; border-color:#000000; }
