@@ -368,7 +368,7 @@ $cfgInvalidResult = array("DNS"=>array ("code"=>-1
 													, "short"=>$strNoResultShort
 													, "long"=>$strNoResult
 													)
-								, "WAI"=>array ("code"=>-99
+								, "WAI"=>array ("code"=>'-'
 													, "short"=>$strQualifyWaivedShort
 													, "long"=>$strQualifyWaived
 													)
