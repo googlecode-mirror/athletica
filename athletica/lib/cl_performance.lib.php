@@ -74,16 +74,32 @@ class PerformanceTime extends Performance
 		// get tokanized performance if entered without separators
 		if(strpos($time, $GLOBALS['cfgResultsSeparator']) === false){
 			if($secFlag){
-				$performance = substr($performance,0,-2).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-2);
+                 if ($performance == $GLOBALS['cfgMissedAttempt']['db']){
+                     $performance = substr($performance,0,-3).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-3); 
+                 }
+                 else {
+				    $performance = substr($performance,0,-2).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-2);
+                 }
 			}else{
 				$tmp = $performance;
 				$performance = "";
-				for($i = (strlen($tmp)-2); $i>=-1; $i = $i-2){
-					$c = $i;
-					$a = 2;
-					if($c == -1){ $c = 0; $a = 1; }
-					$performance = substr($tmp,$c,$a).$GLOBALS['cfgResultsSeparator'].$performance;
-				}
+                if ($tmp == $GLOBALS['cfgMissedAttempt']['db']){
+                    for($i = (strlen($tmp)-3); $i>=-1; $i = $i-2){
+                        $c = $i;
+                        $a = 3;
+                        if($c == -1){ $c = 0; $a = 1; }
+                        $performance = substr($tmp,$c,$a).$GLOBALS['cfgResultsSeparator'].$performance;
+                    }
+                    
+                }
+                else {
+				    for($i = (strlen($tmp)-2); $i>=-1; $i = $i-2){
+					    $c = $i;
+					    $a = 2;
+					    if($c == -1){ $c = 0; $a = 1; }
+					    $performance = substr($tmp,$c,$a).$GLOBALS['cfgResultsSeparator'].$performance;
+				    }
+                }
 			}
 			$time = strtr($performance, $GLOBALS['cfgResultsSepTrans']);
 			$tok = strtok($time, $GLOBALS['cfgResultsSeparator']);
@@ -92,8 +108,10 @@ class PerformanceTime extends Performance
 		$i=0;
 		$num = TRUE;
 		while ($tok != '') {
-			if(!is_numeric($tok)) {
-				$num = FALSE;
+            if ($tok != '-'){
+			    if(!is_numeric($tok)) {
+				    $num = FALSE;
+                }
 			}
 			$t[$i] = $tok;	
 			$tok = strtok($GLOBALS['cfgResultsSeparator']);
@@ -225,8 +243,8 @@ class PerformanceAttempt extends Performance
 		if(strpos($time, $GLOBALS['cfgResultsSeparator']) === false){  
 			
 		   	if ($performance == $GLOBALS['cfgInvalidResult']['WAI']['code'])
-		   	  	{$performance = substr($performance,0,-3).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-3);
-		  		}
+		   	  	{ $performance = $GLOBALS['cfgMissedAttempt']['db'];   
+		  	}
 		  	else {
 		    	$performance = substr($performance,0,-2).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-2);
 		 	}     
@@ -239,8 +257,9 @@ class PerformanceAttempt extends Performance
 
 		while ($tok != '') {
 			if(!is_numeric($tok)) {
-				$num = FALSE;
-			}
+			    $num = FALSE;
+            }
+			
 			$t[$i] = $tok;	
 			$tok = strtok($GLOBALS['cfgResultsSeparator']);
 			$i++;
@@ -260,8 +279,7 @@ class PerformanceAttempt extends Performance
 				// negative value   
 				if((($t[0] <= $GLOBALS['cfgInvalidResult']['DNS']['code'])
 					&& ($t[0] >= $GLOBALS['cfgInvalidResult']['NRS']['code']) )
-					||  ($t[0] == $GLOBALS['cfgInvalidResult']['WAI']['code']))
-				  // 	&& ($t[0] >= $GLOBALS['cfgInvalidResult']['DSQ']['code']))   
+					||  ($t[0] == $GLOBALS['cfgMissedAttempt']['db'])) 
 				{
 					$meter = $t[0];
 				}

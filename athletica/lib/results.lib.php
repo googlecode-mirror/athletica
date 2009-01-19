@@ -779,8 +779,8 @@ function AA_results_printHeader($category, $event, $round)
 	}
 
 	function checkSubmit(perfForm, focus)
-	{
-		if(perfForm.perf.value <= 0)
+	{  
+		if(perfForm.perf.value <= 0 || perfForm.perf.value == '-')
 		{
 			if(perfForm.wind) {
 				perfForm.wind.value = '';
@@ -872,7 +872,7 @@ function AA_results_printMenu($round, $status)
 		<?php
 		foreach($GLOBALS['cfgInvalidResult'] as $value)
 		{
-			echo "<td>".$value['code']." = ".$value['long']."</td>";
+			echo "<td>".$value['code']."&nbsp; = &nbsp;".$value['long']." &nbsp;&nbsp;</td>";
 		}
 		?>
 		</tr></table>
@@ -901,7 +901,7 @@ function AA_results_printMenu($round, $status)
 		<?php
 		foreach($GLOBALS['cfgInvalidResult'] as $value)
 		{
-			echo "<td>".$value['long']." = ".$value['code']."</td>";
+			echo "<td>".$value['long']." = &nbsp;&nbsp;".$value['code']."</td>";
 		}
 		?>
 		</tr></table>
@@ -928,7 +928,7 @@ function AA_results_update($performance, $info, $points = 0)
 				AA_printErrorMsg($GLOBALS['strErrAthleteNotInHeat']);
 			}
 			else
-			{
+			{   
 				mysql_query("
 					UPDATE resultat SET
 						Leistung = $performance
@@ -943,7 +943,7 @@ function AA_results_update($performance, $info, $points = 0)
 			}
 		}
 		else // no result provided -> add result
-		{
+		{   
 			mysql_query("
 				INSERT INTO resultat SET
 					Leistung = $performance

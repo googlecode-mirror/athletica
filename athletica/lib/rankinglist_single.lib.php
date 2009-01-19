@@ -1035,16 +1035,21 @@ else {
 									resultat 
 								WHERE xSerienstart = $row_res[0]
 								".$query_sort."
-								");  
+								"); 
+                         
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}else{
 							$text_att = "";
 							while($row_att = mysql_fetch_array($res_att)){
 								if($row_att['Leistung'] < 0){
+                                    $perf3 = $row_att['Leistung'];
+                                    if ($perf3 == $GLOBALS['cfgMissedAttempt']['db']){
+                                        $perf3 = '-';
+                                    }
 									foreach($cfgInvalidResult as $value)	// translate value
 									{
-										if($value['code'] == $row_att['Leistung']) {
+										if($value['code'] == $perf3) {
 											$text_att .= $value['short'];
 										}
 									}
@@ -1053,7 +1058,7 @@ else {
 									$text_att .= ($row_att['Leistung']=='-') ? '-' : AA_formatResultMeter($row_att['Leistung']);
 									if($row_att['Info'] != "-" && !empty($row_att['Info']) && $row[3] != $cfgDisciplineType[$strDiscTypeThrow]){
 										$text_att .= " , ".$row_att['Info'];   
-									}
+									}                                 
 									$text_att .= " / ";
 								}   
 							}

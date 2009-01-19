@@ -239,7 +239,7 @@ else
                 }
                                        
                 // not set rank for invalid results 
-                if (preg_match("@\(-[1-4]{0,1}@", $info_arr[$key])){    
+                if (preg_match("@\(-[1]{1}@", $info_arr[$key])){ 
                     $rank=$max_rank; 
                     $max_rank+=1;      
                     $r--;  
@@ -498,7 +498,7 @@ else
 			}  
 		   	    		 	 
 		    // not set rank for invalid results 
-		   if (preg_match("@\(-[1-4]{0,1}@", $info_arr[$key])){  
+		    if (preg_match("@\(-[1]{1}@", $info_arr[$key])){ 
                 $rank=$max_rank; 
                 $max_rank+=1;      
 				$r--;  

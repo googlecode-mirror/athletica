@@ -360,11 +360,7 @@ class TrackResult	extends Result
 	function validate($performance, $info, $secFlag = false)
 	{
 		require('./lib/cl_performance.lib.php');
-		
-		if($performance == "-"){
-			return RES_ACT_DELETE;
-		}
-		
+				
 		// validate result
 		$perf = new PerformanceTime($performance, $secFlag);
 		$this->performance = $perf->getPerformance();
