@@ -432,7 +432,7 @@ class omega{
 		mysql_query("LOCK TABLES serienstart as sst READ, start as st READ, serie as s READ, wettkampf as w READ, anmeldung as a READ
 					, staffel as sf READ, runde AS r READ");
 		
-		$sql = "SELECT s.Film, w.xWettkampf, s.xRunde, s.xSerie, sst.Position, st.xStaffel, a.Startnummer, sf.Startnummer as Staffelnummer FROM
+		$sql = "SELECT DISTINCT s.Film, w.xWettkampf, s.xRunde, s.xSerie, sst.Position, st.xStaffel, a.Startnummer, sf.Startnummer as Staffelnummer FROM
 				serienstart as sst
 				LEFT JOIN start as st using(xStart)
 				LEFT JOIN serie as s on sst.xSerie = s.xSerie
