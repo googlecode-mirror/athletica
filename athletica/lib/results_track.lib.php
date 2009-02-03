@@ -1063,7 +1063,7 @@ if($round > 0)
 <?php
 							$i++;		// next element
 
-							if($nextRound > 0) {
+							if($nextRound > 0) { 
 ?>
 		<form action='event_results.php' method='post'
 			name='qual_<?php echo $i; ?>'>
@@ -1092,32 +1092,22 @@ if($round > 0)
 <?php
 								$i++;		// next element
 							}	// qualification info
+                           
 						}
 						else
 						{	// no rank
 ?>
-		
-                        <td />    
-                        <td class='perftime'><?php if ($relay){echo $row[16];} else {echo $row[20]; } ?></td>    
-       
+                        <td />  
+                        <td /> 
 <?php
-							if($nextRound > 0) {
-?>
-		<td />
-<?php
-							}
-						}	// ET valid rank
+							
+						}	// ET no rank
                         
 ?>                        
                      <td class='perftime'><?php if ($relay){echo $row[16];} else {echo $row[20]; } ?></td>      
 <?php                        
 					}	// ET 'results_done'
 ?>
-         
-
-
-
-
 		<td>
 <?php
 					$btn->set("event_results.php?arg=del_start&item=$row[8]&round=$round", $strDelete);
