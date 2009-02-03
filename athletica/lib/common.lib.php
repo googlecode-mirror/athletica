@@ -2621,6 +2621,23 @@ function AA_checkRelayName($category,$event,$relayName){
 	</form>
 <?php
 	}	
+ /**    
+     * get max points of the best two disciplines
+     * ------------------------------------------
+     */   
+function AA_get_MaxPointDisc($points_disc)
+{
+    arsort($points_disc, SORT_NUMERIC);    //sort descending by points
+    $max = 0;
+    $i = 0;
+    foreach($points_disc as $key => $val) {
+        if ($i < 2){                    // only the two best discipline
+            $max+=$val;
+        }
+        $i++;
+    }
+    return $max;
+}
 	       
 	
 } // end AA_COMMON_LIB_INCLUDED

@@ -44,7 +44,7 @@ if($catFrom > 0) {
 	 }
 } 
                                     
-
+$dCode = 0;
 // get athlete info per contest category
 
 $results = mysql_query("
@@ -61,7 +61,8 @@ $results = mysql_query("
 		, w.xKategorie
 		, ka.Code
 		, ka.Name
-		, ka.Alterslimite  		
+		, ka.Alterslimite 
+        , d.Code 		
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -90,7 +91,7 @@ $results = mysql_query("
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 "); 
-                 
+  
   /*           
    $results= mysql_query("SELECT  
         a.xAnmeldung
@@ -175,12 +176,13 @@ else
 	}
 	
 	while($row = mysql_fetch_row($results))
-	{  
+	{  $dCode = $row[13];
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
 		{              		
-			$points_arr[] = $points;
+			$points_arr[] = $points;     
+            $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);
 			$name_arr[] = $name;   		
 			$year_arr[] = $year;
 			$club_arr[] = $club;
@@ -327,7 +329,7 @@ else
                 , ru.Datum
                 , ru.Startzeit
         ");     
-     
+    
       /*  
 		$res = mysql_query("
 			SELECT
@@ -372,6 +374,7 @@ else
 		else
 		{   $count_disc=0;
             $remark='';
+            $points_disc = array();
 			while($pt_row = mysql_fetch_row($res))
 			{   $remark=$pt_row[10];  
 				$lastTime = $pt_row[8];
@@ -416,6 +419,7 @@ else
                    if ($count_disc<=$disc_nr)  {
                        if($pt_row[4] > 0) {       // any points for this event 
                            $points = $points + $pt_row[4];      // calculate points   
+                           $points_disc[$pt_row[11]]=$pt_row[4];                             
 					        $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
 					        $sep = ", ";     
                        }
@@ -454,7 +458,8 @@ else
   
 	if(!empty($a))		// add last athlete if any
 	{
-		$points_arr[] = $points;
+		$points_arr[] = $points;     
+        $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);
 		$name_arr[] = $name;
 		$year_arr[] = $year;
 		$club_arr[] = $club;
@@ -463,8 +468,8 @@ else
 		$x_arr[] = $a;
         $remark_arr[] = $remark;
         $rank_arr[] = $rank;
-	}       
-
+	}    
+  
 	if(!empty($cat))		//	add last category if any
 	{
 		$u23name = '';
@@ -478,9 +483,11 @@ else
 		$list->printHeaderLine($lastTime);
 
 		arsort($points_arr, SORT_NUMERIC);	// sort descending by points
+        
 		$rank = 1;									// initialize rank
 		$r = 0;										// start value for ranking
 		$p = 0;  
+        $k = 0;  
         
         $no_rank=999999;
         $max_rank=$no_rank;       
@@ -495,7 +502,15 @@ else
 			
 			if($p != $val) {	// not same points as previous athlete
 				$rank = $r;		// next rank
-			}  
+			}
+            else {
+                if ($dCode == 403){         // Athletic Cup
+                    if ($points_arr_max_disc[$key] > $points_arr_max_disc[$k]){
+                        $rank_arr[$k]  = $r;
+                    }
+                }
+            }  
+            
 		   	    		 	 
 		    // not set rank for invalid results 
 		    if (preg_match("@\(-[1]{1}@", $info_arr[$key])){ 
@@ -505,10 +520,11 @@ else
 		 	}     		  
 			
 			$p = $val;			// keep current points
+            $k = $key;            // keep current key
             $rank_arr[$key]  = $rank;   
-        }     
+        }   
               
-        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank       
+        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank   
                        
         foreach($rank_arr as $key => $v)
         {   
