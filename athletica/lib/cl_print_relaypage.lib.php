@@ -72,7 +72,13 @@ class PRINT_RelayPage extends PRINT_Page
 			printf("<table>");
 			$this->printHeaderLine();
 		}
-		$this->linecnt++;			// increment line count
+        
+         // count more lines if string is to long ($athletes string)  
+        $t = 0;
+        $w = AA_getStringWidth($athletes, 12);
+        $t = ceil(($w / 600));  
+        $this->linecnt+=$t;         
+		
 ?>
 	<tr>
 		<td class='relay_athletes' colspan='5'><?php echo $athletes; ?></td>

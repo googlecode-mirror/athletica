@@ -20,7 +20,7 @@ class PRINT_TeamPage extends PRINT_RelayPage
 {
 	function printHeaderLine($enrolSheet=false)
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -47,7 +47,7 @@ class PRINT_TeamPage extends PRINT_RelayPage
 
 	function printLine($name, $cat, $club, $disc, $perf, $nbr, $enrolSheet)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -69,7 +69,13 @@ class PRINT_TeamPage extends PRINT_RelayPage
 		<td class='team_entry_disc'><?php echo $disc; ?></td>
 	</tr>
 <?php
-		$this->linecnt++;
+
+        // count more lines if string is to long ($disc string)  
+        $t = 0;
+        $w = AA_getStringWidth($disc, 12);
+        $t = ceil(($w / 90));  
+        $this->linecnt+=$t;         
+		
 	}     
 
 } // end PRINT_TeamPage
