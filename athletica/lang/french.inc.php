@@ -6,7 +6,6 @@
 $strActivate = "Activer"; 
 $strAdd = "Ajouter"; 
 $strAdministration = "Administration"; 
-$strAdministration = "Administration"; 
 $strAgelimit = "Limite d’âge"; 
 $strAlgeNoPath = 'Le chemin indiqué pour le chronométrage n’existe pas. Les changements n’ont pas été enregistrés.';
 $strAlgeNoPathBackup = 'Le chemin du chronométrage ALGE n’existe pas. La configuration du chronométrage a été remise à zéro.';
@@ -166,7 +165,7 @@ $strEventTypeSingleCombined = "Concours multiple";
 
 $strFee = "Finance d’inscription"; 
 $strFeeReduction = "Finance d’inscription réduite dès 2 disc.";
-$strFilm = "Film"; 
+$strFilm = "Course ID"; 
 $strFinalround = "Tour final"; 
 $strFirstname = "Prénom"; 
 
@@ -362,7 +361,9 @@ $strBaseUpdated = "Vos données de base ont été mises à jour";
 $strBaseMeeting = "Choisissez le meeting qui doit être synchronisé avec Athletica<br>(cela concerne inscriptions et No meeting)";
 $strBaseRegOk = "La publication du meeting et les inscriptions ont été synchronisé avec Athletica";
 $strBaseProcessing = "Traiter";
-$strBaseRemark = "<b>Attention</b>: Une mise à jour des données de base peut provoquer des effets non souhaités!<br>Créez d’abord une sauvegarde de la banque des données avant de continuer.";
+//$strBaseRemark = "<b>Attention</b>: Une mise à jour des données de base peut provoquer des effets non souhaités!<br>Créez d’abord une sauvegarde de la banque des données avant de continuer.";
+$strBaseRemark ="Cette fonction vous permet d\\\'actualiser les données de base (athlètes, meilleures performances, relais, sociétés).";
+
 $strBaseFromBase = "A partir de données de base";
 $strBestlistUpdate = "Introduire les résultats dans liste des meilleurs";
 $strBestlistRemark = "<b>Important:</b> Tous les tours enregistrés sont transmis. Ils ne peuvent pas être transmis une seconde fois";
@@ -389,7 +390,7 @@ $strErrHttpBad = "Demande HTTP non valable!";
 $strErrLogin = "L’annonce au serveur FSA a échoué!";
 $strErrNotValid = " non valable!";
 $strErrTimingWrongRegid = "Recevoir résultat pour un athlète qui n’a pas pris le départ";
-$strErrFilmExists = "Ce numéro de film a déjà été attribué";
+$strErrFilmExists = "Cette cours ID a déjà été attribuée";
 $strErrXmlParse = "Erreur XML";
 $strEventTypeClubMixedTeam = "Team CSI Mixed (6 athlètes plus relais)";
 $strFirstHeat = "Coureurs-première série";
@@ -589,7 +590,7 @@ $strTimetableCompGrp = "Grp";
 $strTimetableCompManipulationTime = "Heure-<br>rass.";
 $strTimetableCompTime = "Heure-<br>départ";
 $strTimetableCompHeatNum = "#<br>Série";
-$strTimetableCompLauf = "Id-course<br>de / à";
+$strTimetableCompLauf = "Course ID<br>de / à";
 $strTimetableCompRemarks = "Remarques";
 $strDaysOfWeek = array("Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi");
 $strMonths = array("", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre");
@@ -691,7 +692,7 @@ $strEffortsUpdateInfo2 = "Les résultats sont lus dans les données de base. Pour 
 $strEffortsUpdateInfo3 = "Comportement en cas de performances d’inscriptions inscrites manuellement:";
 $strOverwrite = "Écraser";
 $strLeaveBehind = "Laisser";
-$strMergeroundsErr = 'Nombre de tours différent. Regroupement possible.';
+$strMergeRoundsErr = 'Nombre de tours différent. Regroupement possible.';
 $strEnrolmErr = "Inscription pas possible. Veuillez d'abord compléter l'horaire.";
 $strAthleteCat = "Catégorie d'athlètes"; 
 
@@ -715,4 +716,30 @@ $strSrvRemoveDisciplines = 'Effacer des disciplines';
 $strSrvRemoveDisciplinesInfo = 'Effacer toutes les données (résultats, séries, ...) des disciplines sélectionnées.';
 $strSrvRemoveDisciplinesChoose = 'Sélectionner des disciplines';
 $strSrvRemoveDisciplinesOK = 'Les disciplines sélectionnées ont été effacées.';
+
+$strGroup = " Groupe ";
+$strOmegaSponsor = "Sponsor "; 
+$strSB = "MPS"; 
+$strPB = "MPP "; 
+$strParticipant = "Participants "; 
+$strAllRegisteredRelayTeam = "(selon équipe) "; 
+$strResultRemark = "Remarque "; 
+$strResultRemarkShort = "Beme "; 
+$strOnlyBestResult = "Seul le meilleur résultat "; 
+$strCreateSVM = "Créer CSI "; 
+$strErrCreateSVM = "Vous devez sélectionner une catégorie dans laquelle le concours CSI doit être créé! "; 
+$strErrDiscNotDefSVM = " Les disciplines pour ce CSI ne sont pas définies. "; 
+$strRemNulltime = " * Il faut entrer des temps zéro pour les disciplines marquées en rouge. "; 
+$strMax = " Max. "; 
+$strAutoRank = " Classer automatiquement "; 
+$strActiv = " Actif / Inactif "; 
+$strActivShort = "A"; 
+$strInactivShort = "I"; 
+$strUpdateEffortsSuccess = " Les meilleures performances ont été actualisées avec succès! "; 
+$strClub2 = " Seconde société "; 
+$strEnrolSheet = " Feuille d\\\'appel "; 
+$strErrResultsInProgress = "Il y a encore des résultats en cours de traitement. <br>Prière d\\\'évaluer et de classer les résultats d\\\'abord! ";
+$strAssTax = "Taxe à la fédération";
+
+
 ?>
