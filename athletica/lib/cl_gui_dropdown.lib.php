@@ -54,11 +54,11 @@ class GUI_ClubDropDown
      *    optNone:  set false if you want no option '-' to the <SELECT> list
      *              
 	 */
-	function GUI_ClubDropDown($key, $all = false, $action='', $dis = false,$optNone=true)
+	function GUI_ClubDropDown($key, $all = false, $action='', $dis = false,$optNone=true, $manual_club='')
 	{  
-		$select = new GUI_ClubSelect($all, $action, $optNone);
+		$select = new GUI_ClubSelect($all, $action, $optNone );
 		echo "<td class='forms'>";
-		$select->printList($key, $dis);
+		$select->printList($key, $dis, $manual_club);
 		echo "</td>";
 	}
 

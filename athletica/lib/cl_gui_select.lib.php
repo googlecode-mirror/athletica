@@ -134,11 +134,12 @@ class GUI_Select
 	 *	-----------
 	 * Finally, print the <SELECT> list
 	 */
-	function printList($dis = false)
-	{
+	function printList($dis = false, $manual_club = '')
+	{   
 		$dis = ($dis) ? ' disabled="disabled"' : '';
+        
 ?>      
-	 <select name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>'     
+	 <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>'     
 		onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
 <?php
 		foreach ($this->options as $key=>$value)
@@ -285,7 +286,7 @@ class GUI_ClubSelect
 	 *		key:		primary key of db table
 	 *		relays:	set to true if you only want to see relay disciplines
 	 */
-	function printList($key = 0, $dis = false)
+	function printList($key = 0, $dis = false, $manual_club = '')
 	{
 		require('./config.inc.php');
 
@@ -420,7 +421,7 @@ class GUI_ClubSelect
 			mysql_free_result($res);
 		}						// ET DB error
 		
-		$this->select->printList($dis);
+		$this->select->printList($dis, $manual_club);
 	}
 } // END CLASS Gui_ClubSelect
 
