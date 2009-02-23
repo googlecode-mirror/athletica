@@ -11,6 +11,7 @@ header("Content-Type: text/xml");
 
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
+require('./lib/meeting.lib.php');  
 
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
@@ -23,6 +24,8 @@ $sqlName = "";
 $sqlFirstname = "";
 $sqlYear = "";
 $sqlId = "";
+
+$clubName2 = "";
 
 if(!empty($_GET['name'])){
 	$sqlName = " lastname LIKE '".$_GET['name']."%' ";
@@ -61,7 +64,7 @@ $sql = "SELECT b.*,
 		 WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId." 
 	  ORDER BY lastname DESC, 
 			   firstname DESC;";
-		
+
 $res = mysql_query($sql);
 if(mysql_errno > 0){
 	echo "<state>error</state>";
@@ -90,22 +93,29 @@ if(mysql_errno > 0){
 			$club = $rowClub1[0];
 			$clubName = $rowClub1[1];
 			if(!empty($club2)){
-				$result = mysql_query("select xVerein from verein where xCode = '".$club2."'");
+				$result = mysql_query("select xVerein, Sortierwert from verein where xCode = '".$club2."'");
 				if(mysql_errno() > 0){
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}else{
 					$rowClub2 = mysql_fetch_array($result);
 					$club2 = $rowClub2[0];
+                    $clubName2 = $rowClub2[1];   
 				}
 			}
 		}
 		mysql_free_result($result);
 		
+        if (empty($club2)){
+           $clubName2 = AA_meeting_getLG($club);    
+        }
+        
+        
 		if(empty($club2)){ $club2 = 0; }
 		
 		echo "<name>".urlencode(trim($row['lastname']))."</name>\n";
 		echo "<firstname>".urlencode(trim($row['firstname']))."</firstname>\n";
 		echo "<clubname>".urlencode(trim($clubName))."</clubname>\n";
+        echo "<clubname2>".urlencode(trim($clubName2))."0</clubname2>\n";  
 		echo "<year>".substr($row['birth_date'],0,4)."</year>\n";
 		echo "<day>".substr($row['birth_date'],8,2)."</day>\n";
 		echo "<month>".substr($row['birth_date'],5,2)."</month>\n";
@@ -139,20 +149,27 @@ if(mysql_errno > 0){
 		");
 		
 		echo "<performance>";
-		
+        
+		$saison = $_SESSION['meeting_infos']['Saison'];
+        if ($saison == ''){
+            $saison = "O"; //if no saison is set take outdoor
+        }
+        
 		while($rowdisc = mysql_fetch_array($resdisc)){	// get performance for each discipline of meeting
 			$resperf = mysql_query("
-				SELECT best_effort, season_effort FROM
+				SELECT season_effort, notification_effort
+                FROM
 					base_performance
 				WHERE	id_athlete = ".$row['id_athlete']."
-				AND	discipline = ".$rowdisc[1]);
+				AND	discipline = ".$rowdisc[1] ."
+                AND season = '$saison'");
 			
 			$effort = "";
 			$rowperf = mysql_fetch_array($resperf);
-			if(!empty($rowperf[1])){
-				$effort = $rowperf[1];
+			if(!empty($rowperf[0])){
+				$effort = $rowperf[0];                   // season best effort current year
 			}else{
-				$effort = $rowperf[0];
+				$effort = $rowperf[1];                   // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
 			}
 			$effort = ltrim($effort, "0:");
 			
@@ -183,7 +200,8 @@ if(mysql_errno > 0){
 			echo "<day>".substr($row['birth_date'],8,2)."</day>\n";
 			echo "<month>".substr($row['birth_date'],5,2)."</month>\n";
 			echo "<id>".$row['id_athlete']."</id>\n";
-			echo "<club>".urlencode(trim($club))."</club>\n";
+			echo "<club>".urlencode(trim($club))."</club>\n"; 
+            
 			
 		}while($row = mysql_fetch_assoc($res));
 		
