@@ -165,7 +165,7 @@ $cfgTrackOrder = array(					4=>array (1=>3
 else 
    if(eregi('msie 7', $_SERVER['HTTP_USER_AGENT'])) {  
         $cfgPageContentHeight = 275;    // content layer height in mm, will position header an footer on printings         
-        $cfgPrtLinesPerPage = 63;        // printer dependent   
+        $cfgPrtLinesPerPage = 60;        // printer dependent   
 }
 else { 
      $cfgPageContentHeight = 250;    // content layer height in mm, will position header an footer on printings 
