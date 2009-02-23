@@ -57,9 +57,11 @@ $discTo = 0;
 if(!empty($_GET['discTo'])) {
 	$discTo = $_GET['discTo'];
 } 
+$heatFrom = 0;
 if(!empty($_GET['heatFrom'])) {
 	$heatFrom = $_GET['heatFrom'];
 }
+$heatTo = 0;
 if(!empty($_GET['heatTo'])) {
 	$heatTo = $_GET['heatTo'];
 }     
