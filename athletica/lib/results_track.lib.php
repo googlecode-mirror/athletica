@@ -1098,7 +1098,7 @@ if($round > 0)
 						{	// no rank
 ?>
                         <td />  
-                        <td /> 
+                        
 <?php
 							
 						}	// ET no rank
