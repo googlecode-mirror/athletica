@@ -536,25 +536,15 @@ function AA_heats_seedQualifiedAthletes($event)
 	//	read qualified athletes/relays, ordered by mode type
 	//
 	if($mode == 0) {	// top performance mode
-         // performance, rank in previous round, randomize     
-        if($_POST['final'] == TRUE){                                // final: the best performance in last serie
-		    $order = "r.Leistung DESC, ss.Rang ASC, RAND()";
-        }
-        else {     
-            $order = "r.Leistung ASC, ss.Rang ASC, RAND()";  
-        }
+         // performance, rank in previous round, randomize   
+         $order = "r.Leistung ASC, ss.Rang ASC, RAND()";   
 	}
 	else {				// according IWB rule 166
 		// Rules:
 		// - qualifiers by top position are ordered first
 		// - qualifiers by top positions are ordered by rank, performance
-		// - qualifiers by performance are ordered by performance only   
-         if($_POST['final'] == TRUE){                             // final: the best performance in last serie 
-		    $order = "2 DESC, 3 DESC, r.Leistung DESC";
-         }
-         else {
-             $order = "2 ASC, 3 ASC, r.Leistung ASC";  
-         }
+		// - qualifiers by performance are ordered by performance only        
+        $order = "2 ASC, 3 ASC, r.Leistung ASC";     
 	}
 
     //
@@ -632,7 +622,7 @@ function AA_heats_seedQualifiedAthletes($event)
                             
                             // . " AND s.xRunde = " . $prev_rnd    
     }
-   
+     
 	if(mysql_errno() > 0)		// DB error
 	{    
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -739,11 +729,17 @@ function AA_heats_seedQualifiedAthletes($event)
 							
 							$entries = mysql_num_rows($result);	// qualified athletes
 							$h = ceil($entries/$size);				// calc. nbr of heats
+                            
+                            if($_POST['final'] == TRUE) { 
+                                $filmnr_final =  $filmnr + $h;      // heat A must have the highest film-nr.
+                            }
                           
 							unset($heats);					// array to store heat ID's
 							for($i=1; $i <= $h; $i++)
-							{   if($_POST['final'] == TRUE) { 
-                                    $b=$cfgAlphabeth[$h-$i];  
+							{   if($_POST['final'] == TRUE) {                                       
+                                    $b=$cfgAlphabeth[$i-1]; 
+                                    $filmnr =  $filmnr_final - $i;  
+                                    
                                 }
                                 else {
                                     $b=$i;   
@@ -771,16 +767,13 @@ function AA_heats_seedQualifiedAthletes($event)
 								// seed qualified athletes to heats
 								// distribute athletes from center to outer tracks
 								$h = 0;						// heat nbr
-								//$p = 1;						// first position
-                                $p = $size;                 // last position     
+								$p = 1;						// first position                                  
 								while ($row = mysql_fetch_row($result))
 								{
-									//if($p > $size) {    // heat full -> start new heat     
-                                    if($p < 1) {	// heat full -> start new heat
-												// check for size, not tracks in case that there are more athletes than tracks
+									if($p > $size) {    // heat full -> start new heat  
+												        // check for size, not tracks in case that there are more athletes than tracks
 										$h++;		// next heat
-										//$p = 1;	// restart with first position
-                                        $p = $size;    // restart with last position     
+										$p = 1;	// restart with first position                                           
 									}
 									if(!empty($cfgTrackOrder[$tracks][$p])) {
 										$pos = $cfgTrackOrder[$tracks][$p];
@@ -810,8 +803,7 @@ function AA_heats_seedQualifiedAthletes($event)
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
-									//$p++;		// next position
-                                    $p--;        // previous position 
+									$p++;		// next position                                       
 								}
 							}
 							//
