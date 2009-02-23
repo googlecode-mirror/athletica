@@ -515,14 +515,14 @@ class PRINT_RankingList extends PRINT_Page
 			$this->round = $this->round . " " . $GLOBALS['strCont'];         
 		}
 
-		if(($this->lpp - $this->linecnt) < 10)		// page break check
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{   
 		   	printf("</table>");      
 			$this->insertPageBreak();
 		   	printf("<table class='rank'>");       
 			
 		}
-		$this->linecnt = $this->linecnt + 2;	// needs 3 lines (see style sheet)
+		$this->linecnt = $this->linecnt + 3;	// needs 3 lines (see style sheet)
 ?>
 		<table><tr>   
                 <th class='rank_cat'><?php echo $this->cat; ?></th>  
@@ -559,9 +559,9 @@ class PRINT_RankingList extends PRINT_Page
 		$lines = 0;
 		if(!empty($this->title)) {
 			$lines = 2;	
-		}
-      
-		if(($this->lpp - $this->linecnt) < ($lines+6))		// page break check
+		}        
+        
+		if(($this->lpp - $this->linecnt) < ($lines+7))		// page break check
 		{  
 		   	printf("</table>");
 			$this->insertPageBreak();
@@ -594,10 +594,11 @@ class PRINT_RankingList extends PRINT_Page
 		</th>
 	</tr>
 <?php
+            $this->linecnt = $this->linecnt + $lines + 1;    // increment line count
 			}
 		}
 
-		$this->linecnt = $this->linecnt + $lines + 1;	// increment line count
+		
 
 		$year = '';
 		$ioc = '';
@@ -650,18 +651,21 @@ class PRINT_RankingList extends PRINT_Page
 
 	function printLine($rank, $name, $year, $club, $perf
 		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark)
-	{  
-        
+	{    
         if(($this->lpp - $this->linecnt) < 5)		// page break check
-		{    
+		{   
 			printf("</table>");			   			
 			$this->insertPageBreak(); 
 			$this->printSubTitle();  			 	
 			printf("<table class='rank'>");  
-			$this->printHeaderLine($this->relay, $this->pointinfo, $this->windinfo);
-			
-		}
-		$this->linecnt++;			// increment line count
+			$this->printHeaderLine($this->relay, $this->pointinfo, $this->windinfo);   
+		}   
+       
+        // count more lines if string is to long (club string)  
+        $t1 = 0;
+        $w = AA_getStringWidth($club, 12);  
+        $t1 = ceil(($w / 157));         
+		$this->linecnt = $this->linecnt + $t1;			// increment line count
 	   	
 ?>
 	<tr>
@@ -680,7 +684,7 @@ class PRINT_RankingList extends PRINT_Page
 <?php
 	}
 	
-	function printAthletesLine($text){
+	function printAthletesLine($text){ 
            $textWidth=AA_getStringWidth($text,12); 
            $countLine=ceil(($textWidth/620));           // calculate lines of disziplines   
            $this->linecnt+=$countLine;    

@@ -21,7 +21,7 @@ class PRINT_EntryPage extends PRINT_Page
 {
 	function printHeaderLine()
 	{  
-		if(($this->lpp - $this->linecnt) < 3)		// page break check
+		if(($this->lpp - $this->linecnt) < 2)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -51,7 +51,23 @@ class PRINT_EntryPage extends PRINT_Page
 
 	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid='')
 	{  
-		if(($this->lpp - $this->linecnt) < 1)		// page break check
+        // count more lines if string is to long (club string)  
+        $t1 = 0;
+        $w = AA_getStringWidth($club, 12);
+        $t1 = ceil(($w / 157));          
+        
+        // count more lines if string is to long (discipline string)
+        $w = AA_getStringWidth($disc, 12);
+        $t = ceil(($w / 180));      
+        if ($t >= $t1){
+            $this->linecnt += $t;   
+        }
+        else {
+             $this->linecnt += $t1;     
+        }
+        
+        
+		if(($this->lpp - $this->linecnt) < -2)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -77,20 +93,7 @@ class PRINT_EntryPage extends PRINT_Page
 		?>
 	</tr>
 <?php
-		// count more lines if string is to long (club string)  
-        $t1 = 0;
-        $w = AA_getStringWidth($club, 12);
-        $t1 = ceil(($w / 157));          
-        
-        // count more lines if string is to long (discipline string)
-		$w = AA_getStringWidth($disc, 12);
-		$t = ceil(($w / 180));      
-        if ($t >= $t1){
-            $this->linecnt += $t;   
-        }
-        else {
-             $this->linecnt += $t1;     
-        }
+		
 		
 	}
  
@@ -460,7 +463,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	var $comb_disc;
 	
 	function printTitle()
-	{  
+	{   
 		// page break check (at least one further line left)
 		if(($this->lpp - $this->linecnt) < 7)		
 		{
@@ -564,7 +567,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
 	}
 
     function printLineAthlete($athleteLine)
-    {        
+    {       
       if(($this->lpp - $this->linecnt) < 2)        // page break check
         {
             printf("</table>");
@@ -588,7 +591,7 @@ class PRINT_EnrolementPage extends PRINT_EntryPage
     
 	function printLine($nbr,  $name, $year, $club, $ioc, $top, $club2='', $pos)
 	{             
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 0)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak(); 			
