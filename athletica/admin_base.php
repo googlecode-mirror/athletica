@@ -315,7 +315,7 @@ if($login){ // show download process
 				ob_flush();
 				flush();
 				
-				$xml->load_xml($result, "base");
+				$xml->load_xml($result, "base", $_POST['mode']);
 				echo " OK!</p>\n";
 				//echo "<p>".date("H:i:s")."</p>";
 			}
@@ -401,23 +401,54 @@ if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0){
 }else{ // show login form
 
 ?>
+<form action='admin_base.php' name='base' method='post' target='_self'>
+ <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+            <td style="vertical-align: top;" width="260">
+                <table class="dialog" width="260">
+                    <tbody><tr>
+
+                        <th><?=$strConfiguration?></th>
+                    </tr>
+                    <tr>
+                        <td>
+                          <p><?=$strEffortsUpdateInfo4?></p>
+                          <p>
+                            <label>
+                              <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
+                              <?=$strOverwrite;?></label>
+                            <br />
+                            <label>
+                              <input type="radio" name="mode" value="skip" id="mode_1" />
+                              <?=$strLeaveBehind ;?></label>
+                            <br />
+                          </p></td>
+                    </tr>
+                </tbody>
+        </table>
+ <br />
 <table class='dialog'>
 <tr>
 	<th><?php echo $strLoginSlv; ?></th>
 </tr>
 <tr>
 	<td>
+   
+    
+    
 		<table class='admin'>
-		<form action='admin_base.php' name='base' method='post' target='_self'>
+		
 		<input type="hidden" name="arg" value="login">
-		<tr>
-			<td>
-				<?php echo $strClubNr ?>
-			</td>
-			<td>
-				<input type="text" name="clubnr" value="">
-			</td>
-		</tr>
+        <tr>
+            <td>
+        <?php echo $strClubNr ?>
+            </td>
+            <td>
+                <input type="text" name="clubnr" value="">
+            </td>
+        </tr>
+        
+        
 		<tr>
 			<td>
 				<?php echo $strPassword ?>
