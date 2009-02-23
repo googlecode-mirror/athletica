@@ -128,6 +128,9 @@ input.currency {
 input.text {
 	overflow:hidden; width:40mm;
 }
+input.text.manual {
+    color: blue;
+}
 input.textmedium {
 	overflow:hidden; width:20mm;
 }
@@ -249,6 +252,7 @@ td.forms {
 	padding-top:0px;
 	padding-bottom:0px;
 }
+
 td.forms_ctr {
 	vertical-align:middle;
 	text-align:center;
@@ -478,4 +482,8 @@ a.info:hover span{ /*the span will display just on :hover state*/
 	padding: 10px;
 	
 	font-family: Courier New;
+}    
+
+select.manual {
+    color: blue;
 }
