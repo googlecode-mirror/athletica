@@ -737,9 +737,10 @@ $strActivShort = "A";
 $strInactivShort = "I"; 
 $strUpdateEffortsSuccess = " Les meilleures performances ont été actualisées avec succès! "; 
 $strClub2 = " Seconde société "; 
-$strEnrolSheet = " Feuille d\\\'appel "; 
-$strErrResultsInProgress = "Il y a encore des résultats en cours de traitement. <br>Prière d\\\'évaluer et de classer les résultats d\\\'abord! ";
+$strEnrolSheet = " Feuille d'appel "; 
+$strErrResultsInProgress = "Il y a encore des résultats en cours de traitement. <br>Prière d'évaluer et de classer les résultats d'abord! ";
 $strAssTax = "Taxe à la fédération";
 
+$strEffortsUpdateInfo4 = "Comportement avec des données d'athlète enregistrées manuellement (nom, prénom et société)";
 
 ?>

@@ -744,4 +744,6 @@ $strClub2 = "Zweitverein";
 $strEnrolSheet = "Appellblatt";  
 $strErrResultsInProgress = "Es sind noch Resultate in Bearbeitung. <br> Bitte zuerst Resultate auswerten und rangieren!";
 $strAssTax = "Verbandsabgabe"; 
+
+$strEffortsUpdateInfo4 = "Verhalten bei manuell eingetragenen Athletendaten (Name, Vorname, Verein):";
 ?>
