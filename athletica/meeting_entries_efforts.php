@@ -75,18 +75,22 @@ if (isset($_POST['updateEfforts'])){
 			// get performance from base data 
 			$perf = 0;
 
-			$sql = "SELECT notification_effort 
+			$sql = "SELECT season_effort, notification_effort 
 					  FROM base_performance 
 				 LEFT JOIN base_athlete USING(id_athlete) 
 					 WHERE base_athlete.license = ".$row_start['License']." 
 					   AND base_performance.discipline = ".$row_start['DiszCode'] ." 
 					   AND season = '".$saison."';";
 			$res = mysql_query($sql); 
-			//echo $sql;
+			
 			$rowPerf = mysql_fetch_array($res); 
-			$perf = $rowPerf['notification_effort']; 
-			
-			
+            if (!empty($rowPerf[0])){
+               $perf = $rowPerf['season_effort'];               // season best effort current year
+            }
+            else {
+                $perf = $rowPerf['notification_effort'];       // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
+            }
+					
 										
 			if(($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeTrack])
 				|| ($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
@@ -115,17 +119,22 @@ if (isset($_POST['updateEfforts'])){
                  // get performance for combined events from base data 
                  $perf = 0;
 
-                 $sql = "SELECT notification_effort 
+                 $sql = "SELECT season_effort, notification_effort 
                             FROM base_performance 
                          LEFT JOIN base_athlete USING(id_athlete) 
                          WHERE base_athlete.license = ".$row_start['License']." 
                          AND base_performance.discipline = ".$row_start['MK'] ." 
                          AND season = '".$saison."';";
                  $res = mysql_query($sql);   
-            
+                 
                  $rowPerf = mysql_fetch_array($res); 
-                 $perf = $rowPerf['notification_effort'];   
-                                                          
+                 if (!empty($rowPerf[0])){
+                    $perf = $rowPerf['season_effort'];               // season best effort current year
+                 }
+                 else {
+                    $perf = $rowPerf['notification_effort'];       // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
+                 }
+                                                                          
                  if($perf != NULL) {    // invalid performance
                         $sql = "UPDATE anmeldung SET 
                                         BestleistungMK = $perf
