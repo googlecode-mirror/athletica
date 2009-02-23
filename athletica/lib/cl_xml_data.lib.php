@@ -57,11 +57,10 @@ $cName = "";
 class XML_data{
 	var $opentags = array();
 	var $gzfp;
-	
-	function load_xml($file, $type){     	   
-		global $strErrXmlParse, $strErrFileNotFound;
-		
-		
+   	
+	function load_xml($file, $type, $mode=''){          
+		global $strErrXmlParse, $strErrFileNotFound;   
+        
 		if($type != "base" && $type != "result" && $type != "reg"){ // unknown type of data
 			return false;
 		}
@@ -94,7 +93,7 @@ class XML_data{
 			$cb = 0;
 			$c = 5;
 		
-			while ($data = gzgets($fp, 4096)) {
+			while ($data = gzgets($fp, 4096)) {     
 				$cb += strlen($data);
 				if($tb != 0){ $perc = (($cb / $tb)*100); }
 				if($perc >= $c){
@@ -565,6 +564,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							, s.Handgestoppt
 							, at.Lizenztyp
 							, a.Vereinsinfo
+                            , rt.Typ    
 						FROM
 							runde as ru
 							, serie AS s USE INDEX (Runde)
@@ -693,19 +693,27 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							default:
 							$rankadd = " ";
 						}*/
+                        
+                        $season = $_SESSION['meeting_infos']['Saison'];  
+                        if ($saison == ''){
+                            $saison = "O"; //if no saison is set take outdoor
+                        }
 						$rankadd = " ";
 						
 						// set "no wind" flag if not measured or wind is equal "-"
-						if(($row[2] == $cfgDisciplineType[$strDiscTypeJump])) {
-							if($row[1] == 0 || $row_results['Info'] == "-" || $row_results['Info'] == ""){
-								$rankadd .= "*";
-							}
-						}
-						if(($row[2] == $cfgDisciplineType[$strDiscTypeTrack])){
-							if($row[1] == 0 || $row_results['Wind'] == "-" || $row_results['Wind'] == ""){
-								$rankadd .= "*";
-							}
-						}
+                        if ($season == 'O'){                                            // only outdoor  (indoor: never a '*' )
+						    if(($row[2] == $cfgDisciplineType[$strDiscTypeJump])) {                                
+							    if($row[1] == 0 || $row_results['Info'] == "-" || $row_results['Info'] == ""){
+								    $rankadd .= "*";
+							    }
+						    }
+						    if(($row[2] == $cfgDisciplineType[$strDiscTypeTrack])){                                
+							    if($row[1] == 0 || $row_results['Wind'] == "-" || $row_results['Wind'] == ""){
+								    $rankadd .= "*";
+							    }
+						    }
+                        }
+                        
 						// set "hand stopped" flag if set
 						if(($row[2] == $cfgDisciplineType[$strDiscTypeNone])
 							|| ($row[2] == $cfgDisciplineType[$strDiscTypeTrack])
@@ -768,6 +776,10 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							if($wind > "2"){
 								//$relevant = 0;
 							}
+                           
+                            if ($row_results['Typ'] == '0'){                 // (ohne)     
+                                   $row_results['Bezeichnung'] = '';
+                                }
 							
 							//$this->write_xml_finished("timeResult"," ");
 							//$this->write_xml_finished("distanceResult"," ");
@@ -849,8 +861,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 										$rank = " ";
 										$row_results['Bezeichnung'] = " ";
 										//
-										//add points for combined contests
-										if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
+										//add points for combined contests 
+                                        if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
 											
 											$combined[$row_results['xAthlet']][$row[3]] = array('kindOfLap'=>" ".$row_results['Typ'],
 												'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 
@@ -952,8 +964,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$rank = " ";
 								$row_results['Bezeichnung'] = " ";
 								//
-								//add points for combined contests
-								if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
+								//add points for combined contests								 
+                                if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
 									
 									$combined[$row_results['xAthlet']][$row[3]] = array('wind'=>$wind, 'kindOfLap'=>" ".$row_results['Typ'],
 										'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'points'=>$row_results['Punkte'],
@@ -972,13 +984,17 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							}
 							
 							// check on relevant for bestlist
-							$relevant = 1;
-							
+							$relevant = 1; 							
+                               
+                            if ($row_results['Typ'] == '0'){                 // (ohne)                                      
+                                   $row_results['Bezeichnung'] = '';
+                            }
+                            
 							// output result data
 							$this->write_xml_finished("wind",$wind);
 							$this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);	// round type
-							$this->write_xml_finished("lap",$row_results['Bezeichnung']);	// heat name (A_, B_, 01, 02 ..)
-							$this->write_xml_finished("place",$rank);
+							$this->write_xml_finished("lap",$row_results['Bezeichnung']);	// heat name (A_, B_, 01, 02 ..)  
+                            $this->write_xml_finished("place",$rank);
 							$this->write_xml_finished("placeAddon",$rankadd);
 							$this->write_xml_finished("relevant",$relevant);
 							$this->write_xml_finished("effortDetails"," ");
@@ -1011,8 +1027,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 											
 											$wind = strtr($row_wind[0],",",".");
 											if($wind == "-"){ $wind = " "; }
-											$this->write_xml_finished("wind",$wind);
-											
+											$this->write_xml_finished("wind",$wind);  
 											$this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);	// round type
 											$this->write_xml_finished("lap",$row_results['Bezeichnung']);	// heat name (A_, B_, 01, 02 ..)
 											$this->write_xml_finished("place"," ");
@@ -1418,8 +1433,9 @@ function XML_base_start($parser, $name, $attr){
 }
 
 function XML_base_end($parser, $name){
-	global $bAthlete, $bPerf, $biPerf, $bAccount, $bRelay, $bSvm, $athlete, $iperf, $perf, $account, $relay, $svm, $cName;
-	
+	global $bAthlete, $bPerf, $biPerf, $bAccount, $bRelay, $bSvm, $athlete, $iperf, $perf, $account, $relay, $svm, $cName;   
+   
+   
 	// end tags
 	switch ($name){  
 		case "ATHLETE":      
@@ -1441,7 +1457,7 @@ function XML_base_end($parser, $name){
 		// check if entry exists
 		$sql = "SELECT id_athlete FROM base_athlete WHERE license = '".trim($athlete['LICENSE'])."';";
 		$res = mysql_query($sql);
-		
+		        
 		if(mysql_num_rows($res) == 0){   
 		   
 			//if(empty($athlete['LICENSE'])){ break; }
@@ -1556,7 +1572,7 @@ function XML_base_end($parser, $name){
 			$row = mysql_fetch_array($res);
 			$xAthlete = $row[0];
 			mysql_free_result($res);
-			
+            
 			mysql_query("	UPDATE
 						base_athlete
 					SET 
@@ -1619,7 +1635,7 @@ function XML_base_end($parser, $name){
 									best_effort = '".trim($row['BESTEFFORT'])."'
 									, season_effort = '".trim($row['SEASONEFFORT'])."'
 									, notification_effort = '".trim($row['NOTIFICATIONEFFORT']). "'"; */ 
-									
+                        
 						mysql_query($sql);
 						if(mysql_errno() > 0){
 							XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
@@ -1664,7 +1680,7 @@ function XML_base_end($parser, $name){
 									,'".trim($row['NOTIFICATIONEFFORT_DATE'])."'
 									,'".addslashes(trim($row['NOTIFICATIONEFFORT_EVENT']))."'
 									,'I')";
-																		
+                        
 						mysql_query($sql);
 						if(mysql_errno() > 0){
 							XML_db_error(mysql_errno().": ".mysql_error(). "\n SQL= $sql");
@@ -1675,6 +1691,8 @@ function XML_base_end($parser, $name){
 				}
 			}
 		}
+             
+        
 		
 		$sql2 = "SELECT TRIM(lastname) AS lastname, 
 						TRIM(firstname) AS firstname, 
@@ -1713,9 +1731,18 @@ function XML_base_end($parser, $name){
 						}
 					}   
 			}
-			mysql_free_result($result2);
+			mysql_free_result($result2);   
+            
+            // check if there are manual changes     
+            $sql4 = "SELECT Vorname, Name, xVerein, Manuell FROM athlet WHERE Lizenznummer = '".trim($athlete['LICENSE'])."'";
+            $query4 = mysql_query($sql4);
+        
+            if(mysql_num_rows($query4) > 0){
+                $row4 = mysql_fetch_assoc($query4);  
+                
+                if ($row4['Manuell'] == '0' || $GLOBALS['mode'] == 'overwrite' ){         // overwrite the manual changes
 			
-			$sql3 = "UPDATE athlet 
+			        $sql3 = "UPDATE athlet 
 						SET Name = '".trim($row2['lastname'])."', 
 							Vorname = '".trim($row2['firstname'])."', 
 							Jahrgang = '".trim($row2['jahrgang'])."', 
@@ -1724,13 +1751,68 @@ function XML_base_end($parser, $name){
 							Geburtstag = '".trim($row2['birth_date'])."', 
 							xVerein = '".trim($club)."', 
 							xVerein2 = '".trim($club2)."', 
-							Lizenznummer = '".trim($athlete['LICENSE'])."' 
+							Lizenznummer = '".trim($athlete['LICENSE'])."',
+                            Manuell = 0  
 					  WHERE (Lizenznummer = '".trim($athlete['LICENSE'])."' 
 						 OR (Name = '".trim($row2['lastname'])."' 
 						AND Vorname = '".trim($row2['firstname'])."' 
 						AND Jahrgang = '".trim($row2['jahrgang'])."' 
 						AND xVerein = '".trim($club)."'));";
-			$query3 = mysql_query($sql3);
+                                                             
+                }
+                else {
+                    switch ($row4['Manuell']){
+                        case 1: $firstname = trim($row2['firstname']); 
+                                $name = trim($row4['Name']);
+                                $verein = trim($club);
+                                break;
+                        case 2: $firstname = $row4['Vorname'];  
+                                $name = trim($row2['lastname']);
+                                $verein = trim($club);
+                                 break;
+                        case 3: $firstname = trim($row2['firstname']);
+                                $name = trim($row2['lastname']);
+                                $verein = $row4['xVerein'];
+                                break;    
+                        case 4: $firstname = $row4['Vorname'];
+                                $name = $row4['Name'];
+                                $verein = trim($club);
+                                break;   
+                        case 5: $firstname = trim($row2['firstname']);    
+                                $name = $row4['Name'];
+                                $verein = $row4['xVerein'];
+                                break;  
+                        case 6: $firstname = $row4['Vorname']; 
+                                $name =trim($row2['lastname']);  
+                                $verein = $row4['xVerein'];
+                                break; 
+                        case 7: $firstname = $row4['Vorname'];
+                                $name = $row4['Name'];
+                                $verein = $row4['xVerein'];
+                                break;                                                  
+                        default: 
+                                break;
+                    }
+                    
+                    $sql3 = "UPDATE athlet 
+                        SET Name = '".$name  ."', 
+                            Vorname = '".$firstname ."', 
+                            Jahrgang = '".trim($row2['jahrgang'])."', 
+                            Geschlecht = '".trim($row2['sex'])."', 
+                            Land = '".trim($row2['nationality'])."', 
+                            Geburtstag = '".trim($row2['birth_date'])."', 
+                            xVerein = '".$verein."', 
+                            xVerein2 = '".trim($club2)."', 
+                            Lizenznummer = '".trim($athlete['LICENSE'])."'                           
+                      WHERE (Lizenznummer = '".trim($athlete['LICENSE'])."' 
+                         OR (Name = '".trim($row2['lastname'])."' 
+                        AND Vorname = '".trim($row2['firstname'])."' 
+                        AND Jahrgang = '".trim($row2['jahrgang'])."' 
+                        AND xVerein = '".trim($club)."'));";                          
+                  
+                }
+			    $query3 = mysql_query($sql3);
+            }
 		}
 		
 		$athlete = array();
@@ -1964,8 +2046,8 @@ function XML_reg_start($parser, $name, $attr){
 	global $cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
 		$strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
 		$strDiscTypeRelay, $strDiscTypeDistance, $strErrNoSuchDisCode, $strNoSuchCategory;
-	global $cfgCombinedDef, $cfgCombinedWO;
-	
+	global $cfgCombinedDef, $cfgCombinedWO;   
+                                              	
 	//
 	// get approval number
 	//
@@ -2031,10 +2113,11 @@ function XML_reg_start($parser, $name, $attr){
 		}
 		
 
-		// if this is a discipline with info, check onlineid to differentiate
+		// if this is a discipline with info, check additonal the info to differentiate
 		$SQLdisInfo = "";
 		if(strlen($disinfo) != 0){
-			$SQLdisInfo = " AND w.OnlineId = '$disid' ";
+			//$SQLdisInfo = " AND w.OnlineId = '$disid' ";
+            $SQLdisInfo = " AND w.Info = '$disinfo' "; 
 			$disname = $disinfo;
 		}else{
 			$disname = ""; // do not fill the info-field with disname if there is no need
@@ -2054,7 +2137,7 @@ function XML_reg_start($parser, $name, $attr){
 						AND	w.xDisziplin = d.xDisziplin
 						AND	w.xMeeting = ".$_COOKIE['meeting_id']."
 						AND	k.Code = '$catcode'
-						AND	w.Mehrkampfcode = $discode");
+						AND	w.Mehrkampfcode = $discode");   
 		}else{
 			$bCombined = false;
 			// check if this discipline exists
@@ -2072,9 +2155,8 @@ function XML_reg_start($parser, $name, $attr){
 						AND	d.Code = $discode
 						AND	w.Mehrkampfcode = 0
 						$SQLdisSpecial 
-						$SQLdisInfo ");
-		}
-		
+						$SQLdisInfo ");   
+        }
 		if(mysql_errno() > 0){
 			XML_db_error("1-".mysql_errno().": ".mysql_error());
 		}else{
@@ -2158,7 +2240,8 @@ function XML_reg_start($parser, $name, $attr){
 			$distype = $row_distype[0];
 		}*/
 	}
-	
+	       
+    
 	//
 	// start of an athlete
 	//
@@ -2206,8 +2289,17 @@ function XML_reg_start($parser, $name, $attr){
 				}
 			}
 			mysql_free_result($result2);
+         
+             // check if there are manual changes     
+            $sql4 = "SELECT Vorname, Name, xVerein, Manuell FROM athlet WHERE Lizenznummer = '".$license ."'";
+            $query4 = mysql_query($sql4);
+           
+            if(mysql_num_rows($query4) > 0){
+                $row4 = mysql_fetch_assoc($query4);
+               
+                if ($row4['Manuell'] == '0' || $GLOBALS['mode'] == 'overwrite' ){         // overwrite the manual changes
 			
-			$sql3 = "UPDATE athlet 
+			        $sql3 = "UPDATE athlet 
 						SET Name = '".trim($row2['lastname'])."', 
 							Vorname = '".trim($row2['firstname'])."', 
 							Jahrgang = '".trim($row2['jahrgang'])."', 
@@ -2216,13 +2308,72 @@ function XML_reg_start($parser, $name, $attr){
 							Geburtstag = '".trim($row2['birth_date'])."', 
 							xVerein = '".trim($club)."', 
 							xVerein2 = '".trim($club2)."', 
-							Lizenznummer = '".trim($license)."' 
+							Lizenznummer = '".trim($license)."',
+                             Manuell = 0   
 					  WHERE (Lizenznummer = '".trim($license)."' 
 						 OR (Name = '".trim($row2['lastname'])."' 
 						AND Vorname = '".trim($row2['firstname'])."' 
 						AND Jahrgang = '".trim($row2['jahrgang'])."' 
 						AND xVerein = '".trim($club)."'));";
-			$query3 = mysql_query($sql3);
+                   
+                      
+                }
+                
+                else {  
+                      switch ($row4['Manuell']){
+                        case 1: $firstname = trim($row2['firstname']); 
+                                $name = trim($row4['Name']);
+                                $verein = trim($club);
+                                break;
+                        case 2: $firstname = $row4['Vorname'];  
+                                $name = trim($row2['lastname']);
+                                $verein = trim($club);
+                                 break;
+                        case 3: $firstname = trim($row2['firstname']);
+                                $name = trim($row2['lastname']);
+                                $verein = $row4['xVerein'];
+                                break;    
+                        case 4: $firstname = $row4['Vorname'];
+                                $name = $row4['Name'];
+                                $verein = trim($club);
+                                break;   
+                        case 5: $firstname = trim($row2['firstname']);    
+                                $name = $row4['Name'];
+                                $verein = $row4['xVerein'];
+                                break;  
+                        case 6: $firstname = $row4['Vorname']; 
+                                $name =trim($row2['lastname']);  
+                                $verein = $row4['xVerein'];
+                                break; 
+                        case 7: $firstname = $row4['Vorname'];
+                                $name = $row4['Name'];
+                                $verein = $row4['xVerein'];
+                                break;                                                  
+                        default: 
+                                break;
+                    }
+                     
+                    $sql3 = "UPDATE athlet 
+                        SET Name = '".$name  ."', 
+                            Vorname = '".$firstname ."', 
+                            Jahrgang = '".trim($row2['jahrgang'])."', 
+                            Geschlecht = '".trim($row2['sex'])."', 
+                            Land = '".trim($row2['nationality'])."', 
+                            Geburtstag = '".trim($row2['birth_date'])."', 
+                            xVerein = '".$verein."', 
+                            xVerein2 = '".trim($club2)."', 
+                            Lizenznummer = '".trim($athlete['LICENSE'])."'                           
+                      WHERE (Lizenznummer = '".trim($athlete['LICENSE'])."' 
+                         OR (Name = '".trim($row2['lastname'])."' 
+                        AND Vorname = '".trim($row2['firstname'])."' 
+                        AND Jahrgang = '".trim($row2['jahrgang'])."' 
+                        AND xVerein = '".trim($club)."'));";
+                    
+                 
+                  
+                }   
+               $query3 = mysql_query($sql3);    			
+             }   
 		}
 		
 		// check if athlete is already in "athlet" table
@@ -2231,7 +2382,7 @@ function XML_reg_start($parser, $name, $attr){
 			XML_db_error("4-".mysql_errno().": ".mysql_error());
 		}else{
 			//first copy athlete from base
-			if(mysql_num_rows($result) == 0){
+			if(mysql_num_rows($result) == 0){  
 				
 				$sql = "SELECT * FROM base_athlete
 					WHERE license = $license";
@@ -2295,7 +2446,7 @@ function XML_reg_start($parser, $name, $attr){
 									echo "<p>++: $strBaseAthleteNotFound: $strLicenseNr $license</p>\n";
 								}
 							}
-						}
+						}                          
 					} // end athlete found
 				}
 				
@@ -2610,7 +2761,7 @@ function XML_reg_start($parser, $name, $attr){
 
 function XML_reg_end($parser, $name){
 	global $discode, $catcode, $xDis, $distype;
-	
+	 
 	// end of discipline
 	if($name == "DISCIPLINE"){
 		$discode = "";
