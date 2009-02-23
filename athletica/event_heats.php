@@ -317,6 +317,28 @@ if($round > 0)
 		if($status == $cfgRoundStatus['heats_in_progress']) {
 			AA_printWarningMsg($strHeatsInWork);
 		}
+        
+         // check if round is final
+        $sql_r="SELECT 
+                    rt.Typ
+                FROM
+                    runde as r
+                    LEFT JOIN rundentyp as rt USING (xRundentyp)
+                WHERE
+                    r.xRunde=" .$round;
+        $res_r = mysql_query($sql_r);
+       
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        
+        $order="ASC";   
+        if (mysql_num_rows($res_r) == 1) {
+            $row_r=mysql_fetch_row($res_r);  
+            if ($row_r[0]=='F'){
+                $order="DESC";  
+            }
+        }
  
 //
 // display all heats
@@ -404,9 +426,8 @@ if($round > 0)
 						region AS re ON(at.xRegion = re.xRegion) 
 					WHERE 
 						r.xRunde ".$SqlRound."
-					ORDER BY
-						  s.xSerie,
-                          heatid ASC
+					ORDER BY   						 
+                          heatid  ".$order ."
 						, ss.Position ASC;";
 			$query = $sql;
               
@@ -477,9 +498,8 @@ if($round > 0)
 						team AS t ON(sf.xTeam = t.xTeam)
 					WHERE 
 						r.xRunde ".$SqlRound." AND st.Anwesend=0  
-					ORDER BY
-                          s.xSerie, 
-						  heatid ASC
+					ORDER BY                             
+						  heatid ".$order ."  
 						, ss.Position ASC;";
 			$query = $sql;        
 		}
