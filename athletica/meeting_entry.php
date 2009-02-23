@@ -23,6 +23,8 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
 
+$manual_club = '';
+
 //
 // check if a heat is assigned
 //
@@ -264,7 +266,62 @@ if ($_POST['arg']=="change")
 				AA_printErrorMsg($strMeeting . $strErrNotValid);
 			}
 			else
-			{
+			{$name_ath = '';
+             $firstname_ath = ''; 
+             $sql_ath = "SELECT Name, Vorname, Manuell FROM athlet WHERE xAthlet = " . $_POST['athlete'];
+             if(mysql_errno() > 0)
+                    {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+             } 
+             else {
+                    $res_ath = mysql_query($sql_ath);
+                    if (mysql_num_rows($res_ath) > 0){
+                        $row_ath = mysql_fetch_array($res_ath);
+                        $manual = $row_ath[2];
+                       
+                    }
+            }
+                if ($_POST['name'] != $row_ath[0] && $_POST['first'] != $row_ath[1]){
+                     if ($manual >= 0 && $manual <=2){
+                        $manual = 4;
+                    }
+                    elseif ($manual == 3 || $manual == 5 || $manual == 6){
+                        $manual = 7;
+                    }
+                    
+                }
+                 elseif ($_POST['name'] != $row_ath[0]){
+                      if ($manual == 0 ){
+                        $manual = 1;
+                    }
+                     elseif ($manual == 2 ){
+                        $manual = 4;
+                    }
+                     elseif ($manual == 3 ){
+                            $manual = 5;
+                     }
+                      elseif ($manual == 6 ){
+                            $manual = 7;
+                     }
+                    
+            
+                 }
+                 elseif ($_POST['first'] != $row_ath[1]) {
+                       if ($manual == 0 ){
+                            $manual = 2;
+                        } 
+                        elseif ($manual == 1 ){
+                            $manual = 4;
+                        }
+                        elseif ($manual == 3 ){
+                            $manual = 6;
+                        }
+                        elseif ($manual == 5 ){
+                            $manual = 7;
+                        }
+                       
+                 }
+                
 				// Basic athlet data
 				mysql_query("
 					UPDATE athlet SET 
@@ -272,9 +329,11 @@ if ($_POST['arg']=="change")
 						, Vorname='" . $_POST['first'] . "'
 						, Jahrgang='" . $_POST['year'] . "'
 						, Geburtstag='" . $birthday . "'
+                        , Manuell ='" . $manual . "'
 						$sqlSex
 					WHERE xAthlet='" . $_POST['athlete'] . "'
 				");
+                 
 			}		// ET Meeting valid
 		}		// ET Category valid
 		// Check if any error returned from DB
@@ -328,20 +387,26 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 			AND	base_performance.id_athlete = base_athlete.id_athlete
 			AND	base_performance.discipline = ".$cCode);*/
 		$res = mysql_query("SELECT 
-					notification_effort 
+					season_effort, notification_effort 
 				FROM 
 					base_performance 
 				LEFT JOIN base_athlete USING(id_athlete) 
 				WHERE base_athlete.license = ".$_POST['license']." 
 				AND base_performance.discipline = ".$cCode." 
 				AND season = '".$saison."';");
-		
+		 
 		if(mysql_num_rows($res) > 0){
 			$row = mysql_fetch_array($res);
+            if (!empty($row[0])){
+               $bestMK =$row[0];             // season best effort current year
+            }
+            else {
+                 $bestMK =$row[1];           // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
+            }
 			mysql_query("UPDATE 
 							anmeldung 
 						SET 
-							BestleistungMK = '".$row[0]."' 
+							BestleistungMK = '".$bestMK."' 
 							, BaseEffortMK = 'y'
 						WHERE 
 							xAnmeldung = ".$_POST['item']);
@@ -448,19 +513,26 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
 								AND	base_performance.id_athlete = base_athlete.id_athlete
 								AND	base_performance.discipline = ".$rowCodes['DiszCode'] ."
 								AND season = '$saison'";*/
-							$sql = "SELECT notification_effort 
+							$sql = "SELECT season_effort, notification_effort 
 									  FROM base_performance 
 								 LEFT JOIN base_athlete USING(id_athlete) 
 									 WHERE base_athlete.license = ".$_POST['license']." 
 									   AND base_performance.discipline = ".$rowCodes['DiszCode'] ." 
 									   AND season = '".$saison."';";
+                           
 							$res = mysql_query($sql);  
 						}      
 						if(mysql_errno() > 0){
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error() . $sql);
 						}else{ 
 							$rowPerf = mysql_fetch_array($res); 
-							$perf = $rowPerf['notification_effort']; 
+                            if (!empty($rowPerf['season_effort'])) {
+                               $perf = $rowPerf['season_effort'];             // season best effort current year
+                            }
+                            else {
+                                 $perf = $rowPerf['notification_effort'];     // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
+                            }
+							
 							
 							if(($rowCodes['Typ'] == $cfgDisciplineType[$strDiscTypeTrack])
 								|| ($rowCodes['Typ'] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
@@ -740,8 +812,26 @@ else if ($_POST['arg']=="change_team")
 //
 else if ($_POST['arg']=="change_club" && $_POST['club']!='new')
 {   
-
-	  mysql_query("LOCK TABLES verein READ, verein WRITE, athlet WRITE");  
+   
+	  mysql_query("LOCK TABLES verein WRITE, athlet WRITE"); 
+      
+      $manual = 0;
+      
+      $sql_ath = "SELECT Manuell FROM athlet WHERE xAthlet = " . $_POST['xathlete'];
+      if(mysql_errno() > 0)
+        {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        } 
+        else { 
+            $res_ath=mysql_query($sql_ath);
+            
+            if (mysql_num_rows($res_ath) > 0){
+                $row_ath = mysql_fetch_row($res_ath);
+                $manual = $row_ath[0];
+                 
+            }
+            
+        }
 	
 	if ($_POST['newClub']=='newClub') {    
 		
@@ -761,8 +851,23 @@ else if ($_POST['arg']=="change_club" && $_POST['club']!='new')
 		}
 		$row_id = mysql_fetch_array($res_id);
 		
+         if ($manual == 0){
+            $manual = 3;        
+        }
+        elseif ($manual == 1){
+             $manual = 5;        
+        }
+         elseif ($manual == 2){
+             $manual = 6;        
+        }
+        elseif ($manual == 4){
+             $manual = 7;        
+        }
+       
+        
 		mysql_query("    UPDATE athlet SET
 								xVerein = " . $row_id[0] . "
+                                ,Manuell = " . $manual ." 
 							WHERE xAthlet = " . $_POST['xathlete']
 						);
 						
@@ -784,9 +889,24 @@ else if ($_POST['arg']=="change_club" && $_POST['club']!='new')
 		AA_printErrorMsg($strClub . $strErrNotValid);
 	}
 	else
-	{
+	{   
+        if ($manual == 0){
+            $manual = 3;        
+        }
+        elseif ($manual == 1){
+             $manual = 5;        
+        }
+         elseif ($manual == 2){
+             $manual = 6;        
+        }
+        elseif ($manual == 4){
+             $manual = 7;        
+        }
+        
+       
 		mysql_query("	UPDATE athlet SET
 								xVerein = " . $_POST['club'] . "
+                                ,Manuell = " . $manual ." 
 							WHERE xAthlet = " . $_POST['xathlete']
 						);
 		if(mysql_errno() > 0)
@@ -1257,7 +1377,7 @@ else
 	</script>
 	<?php
 }
- 
+
 // read entry
 $result = mysql_query("
 	SELECT
@@ -1289,6 +1409,7 @@ $result = mysql_query("
 		, a.Vereinsinfo
 		, a.BaseEffortMK
         , v2.Name
+        , at.Manuell
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -1299,10 +1420,9 @@ $result = mysql_query("
 	ON a.xTeam = t.xTeam
 	WHERE a.xAnmeldung = " . $_POST['item'] . "
 	AND a.xAthlet = at.xAthlet
-	AND a.xKategorie = k.xKategorie
-	
+	AND a.xKategorie = k.xKategorie   
 ");
-	
+
  if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1528,7 +1648,24 @@ $dis2 = false;
 	?>
 	</form>
 </tr>
-
+<?php
+    $manual_name = "";
+    $manual_firstname = "";
+    $manual_club = "";
+    if ($row[28] == 1 || $row[28] == 5 ){
+        $manual_name = " manual";        
+    }
+    elseif ($row[28] == 2 || $row[28] == 6 ){
+            $manual_firstname = " manual";
+    }
+    elseif ($row[28] == 4 || $row[28] == 7 ){
+         $manual_name = " manual";
+         $manual_firstname = " manual";
+    }
+    if ($row[28] == 3 || ($row[28] >= 5 && $row[28] <= 7 )){
+        $manual_club = "manual";
+    }
+?>
 <tr>
 	<form action='meeting_entry.php' method='post' name='data'>
 	<th class='dialog'><?php echo $strName; ?></th>
@@ -1538,10 +1675,10 @@ $dis2 = false;
 		<input name='category' type='hidden' value='<?php echo $row[1]; ?>' />
 		<input name='athlete' type='hidden' value='<?php echo $row[3]; ?>' />
 		<input name='combinedgroup' type='hidden' value='' />
-		<input class='text' name='name' type='text'
+		<input class='text<?=$manual_name;?>' name='name' type='text'
 			maxlength='25' value='<?php echo $row[4]; ?>'
 			onChange='document.data.submit()'<?=$dis?>/>
-		<input class='text' name='first' type='text'
+		<input class='text<?=$manual_firstname;?>' name='first' type='text'
 			maxlength='25' value='<?php echo $row[5]; ?>'
 			onChange='document.data.submit()'<?=$dis?>/>
 	</td>
@@ -1633,7 +1770,7 @@ $dis2 = false;
 			if (!empty($_POST['clubNewText'])) {      
 				$clubSelected=$_POST['xVerein'];
 			}  
-			$dd = new GUI_ClubDropDown($clubSelected, true, 'document.data_club.submit()', $dis2, false);
+			$dd = new GUI_ClubDropDown($clubSelected, true, 'document.data_club.submit()', $dis2, false, $manual_club);
 		}
 ?>
 	</form>
@@ -1834,7 +1971,7 @@ $dis2 = false;
 				WHERE xWettkampf = $event_row[0]
 				AND xAnmeldung = $row[0]
 			");   
-					 
+			
 			if(mysql_errno() > 0)		// DB error
 			{
 			  AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1876,7 +2013,7 @@ $dis2 = false;
 					 $class = 'meter';                      
 					 $perf = AA_formatResultMeter($start_row[1]);                            
 				}
-				
+				 
 				//
 				// merge the disciplines for a combined event
 				//
