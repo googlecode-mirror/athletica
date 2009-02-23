@@ -14,14 +14,18 @@ require('./lib/cl_gui_page.lib.php');
 require('./lib/common.lib.php');
 
 require('./lib/cl_xml_data.lib.php');
-require('./lib/cl_http_data.lib.php');
-
+require('./lib/cl_http_data.lib.php');         
+       
 if(AA_connectToDB() == FALSE)	{		// invalid DB connection
 	return;
 }
 
 if(AA_checkMeetingID() == FALSE){		// no meeting selected
 	return;		// abort
+}
+
+if (!empty($_POST['mode'])){
+    $mode =  $_POST['mode'];
 }
 
 //
@@ -143,14 +147,14 @@ if(!empty($_POST['slvsid'])){
 		// get xml for registrations
 		
 		$post = "sid=".$_POST['slvsid']."&meetingid=".$_POST['control'];
-		$result = $http->send_post($webserverDomain, '/meetings/athletica/export_meeting.php', $post, 'file', 'reg.xml');
+		$result = $http->send_post($webserverDomain, '/meetings/athletica/export_meeting.php', $post, 'file', 'reg.xml');        
 		if(!$result){
 			AA_printErrorMsg($strErrLogin);
 		}else{
 			$login = true;
 			$reg = true;
 			$xml = new XML_data();
-			$xml->load_xml($result, 'reg');
+			$xml->load_xml($result, 'reg', $_POST['mode']);
 			
 			// save eventnr
 			mysql_query("update meeting set xControl = ".$_POST['control']." where xMeeting = ".$_COOKIE['meeting_id']);
@@ -172,6 +176,7 @@ if($list){
 <form method="post" action="admin_registration.php" target="_self">
 <input type="hidden" value="reg" name="arg">
 <input type="hidden" value="<?php echo $slvsid; ?>" name="slvsid">
+<input type="hidden" value="<?php echo $mode; ?>" name="mode">  
 <tr>
 	<th><?php echo $strBaseMeeting; ?></th>
 </tr>
@@ -220,6 +225,32 @@ if(!$login){
 	// show login form
 
 ?>
+<form action='admin_registration.php' name='base' method='post' target='_self'>  
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tbody><tr>
+            <td style="vertical-align: top;" width="260">
+                <table class="dialog" width="260">
+                    <tbody><tr>
+
+                        <th><?=$strConfiguration?></th>
+                    </tr>
+                    <tr>
+                        <td>
+                          <p><?=$strEffortsUpdateInfo4?></p>
+                          <p>
+                            <label>
+                              <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
+                              <?=$strOverwrite;?></label>
+                            <br />
+                            <label>
+                              <input type="radio" name="mode" value="skip" id="mode_1" />
+                              <?=$strLeaveBehind ;?></label>
+                            <br />
+                          </p></td>
+                    </tr>
+                </tbody>
+        </table>
+        <br />
 <table class='dialog'>
 <tr>
 	<th><?php echo $strLoginSlv; ?></th>
@@ -227,7 +258,7 @@ if(!$login){
 <tr>
 	<td>
 		<table class='admin'>
-		<form action='admin_registration.php' name='base' method='post' target='_self'>
+		
 		<input type="hidden" name="arg" value="login">
 		<tr>
 			<td>
