@@ -404,7 +404,7 @@ else
 			}
 
 			$doc->printFreeTxt();
-
+           
 			//
 			// track disciplines
 			// -----------------
@@ -437,7 +437,7 @@ else
 							$doc->printHeatLine($b, $strEmpty);
 							$b++;
 						}
-		
+		                
 						if($h != 0)	{		// not first heat
 							$doc->printEndHeat();
 
@@ -451,8 +451,7 @@ else
 							if(($b > 9) || ($h % 2 == 0) || ($layout == 3) || $_POST['heatpagebreak'] == "yes") {                                                        
 									$doc->insertPageBreak();
 							}
-						}
-						
+						}                                   
 						
 						$b = 1;						// (re-)start with track one
 						if(is_null($row[1]))		// only one round
@@ -601,6 +600,7 @@ else
 			
 			       else if((($layout == 4) && ($b > 6) && ($wind==1) ) 
                             || ($layout == 4) && ($b > 9) && ($wind==0)
+                            || ($layout == 6) && ($b > 9)
 							|| ($b > 10))
 					   
 					{     
