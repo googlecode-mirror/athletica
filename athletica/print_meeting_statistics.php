@@ -522,8 +522,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 	}
 	$doc->endList();
     
-     
-	//
+    
+	//                          
 	//	Statistic 3: Fees and deposits 
 	// ------------------------------
 	$doc->printSubTitle($strFee." / ".$strDeposit);
@@ -534,7 +534,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
    
    	mysql_query("DROP TABLE IF EXISTS result_tmp1");    // temporary table     
  	
-    mysql_query("CREATE TEMPORARY TABLE result_tmp1(     
+    mysql_query("CREATE TEMPORARY TABLE result_tmp1(              
 							  clubnr int(11)
 							  , club varchar(30)
 							  , ReductionAmount int(10) 
@@ -593,7 +593,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
      			AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)    
    		  ORDER BY athlet.xVerein, athlet.Name ,athlet.Vorname, 
    		  		wettkampf.mehrkampfcode,wettkampf.xKategorie,r.Startzeit ,r.Status"; 
-  
+    
 	$res = mysql_query($sql);    
    
     $club=''; 
@@ -635,7 +635,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                   , kAnzeige = $row[16]    
                                   , kAlterslimite = $row[17]    
                                    ";     
-											 
+			
     		 $res_mk = mysql_query($sql_mk);	
     		 
     		 if(mysql_errno() > 0)		// DB error
@@ -806,16 +806,17 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                          AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)   
               GROUP BY athlet.xVerein, athlet.xAthlet
               ORDER BY v.Sortierwert"; 
-               
+            
               $res = mysql_query($sql); 
                           
-              while($row = mysql_fetch_array($res)){ 
+              while($row = mysql_fetch_array($res)){                   
+                 
                	    $sql_t1="INSERT INTO result_tmp1 SET  
 			      				  clubnr = $row[0]
-								  , club = \"" .$row[1]. "\"   
+								  , club = \"" .str_replace("\"","'",$row[1]) . "\"   
 								  , ReductionAmount  = '$row[2]' 
-								  ,	Name =\"" .$row[3]. "\"
-								  ,	Vorname =\"" .$row[4]. "\"  
+								  ,	Name =\"" .str_replace("\"","'",$row[3]) . "\"
+								  ,	Vorname =\"" .str_replace("\"","'",$row[4]) . "\"  
 								  ,	Startzeit = '$row[5]' 
 								  ,	started = '$row[6]'   
 								  ,	anwesend = '$row[7]' 
@@ -825,15 +826,16 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 								  ,	Mehrkampfcode = '$row[11]' 
 								  ,	Status = '$row[12]'   
 								  ,	StartgeldReduktion  = '$row[13]' 
-								  ,	Sortierwert = \"" .$row[14]. "\" 
+								  ,	Sortierwert = \"" .str_replace("\"","'",$row[14]) . "\" 
                                   , kKurzname = \"" .$row[16]. "\"  
                                   , kAnzeige = $row[17]    
                                   , kAlterslimite = $row[18]           
 								   ";     
+                  
 				   	$res_t1 = mysql_query($sql_t1); 
                      
 				   	if(mysql_errno() > 0)		// DB error
-						{
+						{  
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}	  
                                
