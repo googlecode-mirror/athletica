@@ -881,6 +881,12 @@ if ($_POST['arg']=="add")
 														// get cat and dis codes for this event
 														// only if not entered manually
 														if(empty($_POST[$p])){
+                                                            
+                                                            $saison = $_SESSION['meeting_infos']['Saison'];
+                                                            if ($saison == ''){
+                                                                $saison = "O"; //if no saison is set take outdoor
+                                                            }
+                                                            
 															$res_code = mysql_query("
 																SELECT d.Code, k.Code FROM
 																	wettkampf as w
@@ -894,17 +900,24 @@ if ($_POST['arg']=="add")
 																$row_code = mysql_fetch_array($res_code);
 																
 																$res_p = mysql_query("
-																	SELECT season_effort FROM
+																	SELECT season_effort, notification_effort FROM
 																		base_performance
 																	WHERE	id_athlete = $athlete_id
-																	AND	discipline = ".$row_code[0]);
+																	AND	discipline = ".$row_code[0] ."
+                                                                    AND season = '$saison'");
 																	//AND	category = '".$row_code[1]."'");
+                                                                 
 																if(mysql_errno() > 0){
 																	AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 																}else{
 																	$row_p = mysql_fetch_array($res_p);
+																	if (!empty($row_p[0])){
+                                                                        $_POST[$p] = $row_p[0];          // season best effort current year
+                                                                    }
+                                                                    else {
+                                                                        $_POST[$p] = $row_p[1];         // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
+                                                                    }
 																	
-																	$_POST[$p] = $row_p[0];
 																}
 															}
 														}
@@ -1150,20 +1163,26 @@ function meeting_get_disciplines(){
 		
 			$sql = "
 				SELECT 
-					notification_effort 
+					season_effort, notification_effort 
 				FROM
 					base_performance
 				WHERE	id_athlete = $athlete_id
 				AND	discipline = ".$event_row[6] . "
 				AND season = '$saison'";
 			$res = mysql_query($sql);
-
+             
 			if(mysql_errno() > 0){
 				AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 				echo $sql;
 			}else{
 				$rowPerf = mysql_fetch_array($res);
-				$effort = $rowPerf['notification_effort'];			
+                if (!empty($rowPerf['season_effort'])) {
+                    $effort = $rowPerf['season_effort'];             // season best effort current year
+                }
+                else {
+                     $effort = $rowPerf['notification_effort'];      // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)       
+                }
+				
 		}
 		}
 		$effort = ltrim($effort, "0:");
@@ -1189,20 +1208,26 @@ function meeting_get_disciplines(){
 				if ($val == '') { //dont overwrite value ... no guess what can be stored in $val before.. ***SBA***
 					$sql = "
 						SELECT 
-							notification_effort 
+							season_effort, notification_effort 
 						FROM
 							base_performance
 						WHERE	id_athlete = $athlete_id
 						AND	discipline = ".$comb . "
 						AND season = '$saison'";
 					$res_perf_comb = mysql_query($sql);
-		
+		            
 					if(mysql_errno() > 0){
 						AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 						echo $sql;
 					}else{
 						$row_perf_comb = mysql_fetch_array($res_perf_comb);
-						$val = $row_perf_comb['notification_effort'];
+                        if (!empty($row_perf_comb['season_effort'])){
+                             $val = $row_perf_comb['season_effort'];             // season best effort current year
+                        }
+                        else {
+                            $val = $row_perf_comb['notification_effort'];        // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
+                        }
+						
 						$val = ltrim($val,"0:");
 						$val = (substr($val,-2)==".0")?substr($val,0,-2):$val;
 					}	
@@ -1259,7 +1284,7 @@ function meeting_get_disciplines(){
 			
 			$checked = (isset($discs_def[$event_row[2]]) && $first!='') ? ' checked="checked"' : '';
 			
-			$info = (strlen($row['Info'])==0)?"":"(".$row['Info'].")";
+            $info = (strlen($event_row[9])==0)?"":"(".$event_row[9].")";
 			
 			printf("<td class=\"dialog-top\" nowrap=\"nowrap\" id='topperftd$event_row[2]'>
 				<input name='start_$event_row[2]' type='hidden' id='start$event_row[2]'
@@ -1468,10 +1493,12 @@ $page->printPageTitle($strNewEntryFromBase);
 		
 		if(num == 1){
 			// found a match
+           
 			foundAthlete = true;
 			n = new String(unescape(res.getElementsByTagName("name")[0].firstChild.nodeValue));
 			f = new String(unescape(res.getElementsByTagName("firstname")[0].firstChild.nodeValue));
 			s = new String(unescape(res.getElementsByTagName("clubname")[0].firstChild.nodeValue));
+            s2 = new String(unescape(res.getElementsByTagName("clubname2")[0].firstChild.nodeValue));           
 			ci = new String(unescape(res.getElementsByTagName("clubinfo")[0].firstChild.nodeValue));
 			
 			document.getElementById('newlicensenr').value = res.getElementsByTagName("license")[0].firstChild.nodeValue;
@@ -1486,7 +1513,8 @@ $page->printPageTitle($strNewEntryFromBase);
 			document.getElementById('newclub2').value = res.getElementsByTagName("club2")[0].firstChild.nodeValue;
 			document.getElementById('newclub').value = res.getElementsByTagName("club")[0].firstChild.nodeValue;
 			document.getElementById('clubtext').value = s.replace(/\+/g, " ");
-			document.getElementById('clubinfotext').value = ci.replace(/\+/g, " ").substring(0,-1); // last char is always a space
+            document.getElementById('clubtext2').value = s2.replace(/\+/g, " ").substring(0,s2.length-1); // last char is always a 0   
+			document.getElementById('clubinfotext').value = ci.replace(/\+/g, " ").substring(0,ci.length-1); // last char is always a 0
 			document.getElementById('countryselectbox').value = res.getElementsByTagName("country")[0].firstChild.nodeValue;
            
 			document.getElementById('categoryselectbox').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;
@@ -2253,13 +2281,13 @@ if($nbr == 0) {			// start number not selected yet
 	<td class='forms'><?php echo $club_name ?></td>
 	<th class='dialog'><?php echo $strClubInfo ?></th>
 	<td class='forms'><?php echo ($clubinfo!='') ? $clubinfo : '-' ?></td>
-</tr>
+</tr>  
 
 <?php
  
     $lg = AA_meeting_getLG($club);   
    
-    if  ( $club2_name != '') {            // second club exist
+   if  ( $club2_name != '') {            // second club exist
  ?>   
  
 <tr>
@@ -2282,7 +2310,7 @@ if($nbr == 0) {			// start number not selected yet
     }
  ?>
 
-
+    
 
 <tr>
 	<th class='dialog'><?php echo $strStartnumberLong; ?></th>
@@ -2503,6 +2531,14 @@ if(!empty($club2) && false){ // not yet in use
 	<td class='forms'><input type="text" id="clubinfotext" name="clubinfotext"
 		onkeyup="clubinfo_search()" size="30" value="<?=$clubinfotext?>"></td>
 </tr>
+
+<tr>
+<th class='dialog'><?php echo $strClub2 ?></th>
+    <td class='forms'><input type="text" id="clubtext2" name="clubtext2"
+         size="30" value="<?php echo $clubtext2; ?>"></td>
+    <input type="hidden" id="newclub2" name="club2" value="<?php echo $club2 ?>">
+</tr>
+
 <tr>
 	<th class='dialog'><?php echo $strStartnumberLong; ?></th>
 	<td class='forms'>
