@@ -322,6 +322,7 @@ class PerformanceAttempt extends Performance
  */
 
 function AA_alabusTime($time){
+   
 	if($time > 0){
 		$time = $time/1000;
 		list($sec, $mili) = explode(".", $time);
@@ -330,9 +331,9 @@ function AA_alabusTime($time){
 		list($sec, $rest) = explode(".", ($sec-($hour*3600)-($min*60)));
 		
 		// round up to hundredth  (examples: 651 --> 660 and 650 --> 650)
-	    $mili=ceil(sprintf ("%-03s",$mili)/10);  
-	   	list($a,$mili)=explode(".",($mili/100));  
-		
+	    $mili=ceil(sprintf ("%-03s",$mili)/10);              
+	   	list($a,$mili)=explode(".",($mili/100));         
+		$sec+=$a;                                 // round up to hundredth  (example: 999 --> 1000)
 		return sprintf("%02d", $hour).":".sprintf("%02d", $min).":".sprintf("%02d", $sec).".".sprintf("%-03s", $mili);
 	}else{
 		return $time;
