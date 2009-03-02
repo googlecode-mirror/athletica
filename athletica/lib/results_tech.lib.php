@@ -132,7 +132,7 @@ if($_GET['arg'] == 'results_done')
                         serienstart.xSerienstart
                         ,resultat.Leistung DESC
                 ");
-
+               
                 if(mysql_errno() > 0) {        // DB error
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
@@ -189,7 +189,7 @@ if($_GET['arg'] == 'results_done')
 
                     for($i=1; $i <= $r; $i++) {
                         $qry = $qry . ", Res" . $i . " DESC";
-                    }
+                    }                                                                                                            
                 }
                 else {    // default: rank results from all heats together
                     $qry = "
@@ -767,8 +767,9 @@ if($round > 0)
                     . ", rs.Leistung"
                     . ", rs.Info"
                     . " FROM resultat AS rs"
-                    . " WHERE rs.xSerienstart = " . $row[6]);
-
+                    . " WHERE rs.xSerienstart = " . $row[6]. "
+                    ORDER BY rs.xResultat");
+               
                 if(mysql_errno() > 0) {        // DB error
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
