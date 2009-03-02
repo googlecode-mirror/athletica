@@ -39,6 +39,11 @@ $flagInfoLine2=false;
  $selectionHeats='';
  $orderAthleteCat=''; 
  
+ $saison = $_SESSION['meeting_infos']['Saison'];  
+ if ($saison == ''){
+    $saison = "O";  //if no saison is set take outdoor
+ }
+ 
 if($round > 0) {	// show a specific round  
    
 		 $mainRound=AA_getMainRound($round);  
@@ -743,13 +748,19 @@ else {
 
 					// wind info
 					$wind = '';
-					$secondResult = false;
+					$secondResult = false;                   
+                   
 					if($r != $max_rank) 	// valid result
-					{
+					{                                    
 						if(($row[3] == $cfgDisciplineType[$strDiscTypeJump])
 							&& ($row[8] == 1))
 						{
 							$wind = $row_res[4];
+                           
+                            if ($saison == 'I'){  
+                                $wind = '';           // indoor: nerver wind  
+                            }                                    
+                           
 							
 							//
 							// if wind bigger than max wind (2.0) show the next best result without wind too
@@ -776,14 +787,21 @@ else {
 									}
 								}
 							}
+                            
+                            
 						}
 						else if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack])
 							&& ($row[8] == 1)
 							&& ($eval == $cfgEvalType[$strEvalTypeAll])) 
 						{
 							$wind = $row_res[6];
+                            
+                            if ($saison == 'I'){  
+                                $wind = '';           // indoor: nerver wind  
+                            }                                    
 						}
 					}
+                    
 					
 					// ioc country code
 					$ioc = '';
@@ -793,12 +811,7 @@ else {
 					
 					//show performances from base
 					if($show_efforts == 'sb_pb' && $relay == false){
-						
-						$saison = $_SESSION['meeting_infos']['Saison'];
-						if ($saison == ''){
-							$saison = "O"; //if no saison is set take outdoor
-						}
-						
+						                       												
 						$sql = "SELECT 
 									season_effort
 									, DATE_FORMAT(season_effort_date, '%d.%m.%Y') AS sb_date
@@ -945,7 +958,7 @@ else {
 					}
 					if ($heatSeparate) 
 						{$rank=$count_rank;    
-						 if ($perf==$perf_save || $row_res[3] < 0)        // same rank or invalid result
+						 if ($row_res[3]==$perf_save || $row_res[3] < 0)        // same rank or invalid result
 							 $rank='';  
 						}    
 				    
@@ -972,13 +985,16 @@ else {
                     else {
                         $remark=$row_res[22];  
                     }
-				   
+				    if ($wind == '-' && $perf == 0 )  {
+                         $wind = '';       
+                    }
+                        
 					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat,$remark);
 				 
 					if($secondResult){
 						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);
 					}
-					$perf_save=$perf;	                                // keep performance
+					$perf_save=$row_res[3];// keep performance
 					// 
 					// if relay, show started ahtletes in right order under the result
 					//
@@ -1056,9 +1072,16 @@ else {
 									$text_att .= " / ";
 								}else{
 									$text_att .= ($row_att['Leistung']=='-') ? '-' : AA_formatResultMeter($row_att['Leistung']);
-									if($row_att['Info'] != "-" && !empty($row_att['Info']) && $row[3] != $cfgDisciplineType[$strDiscTypeThrow]){
-										$text_att .= " , ".$row_att['Info'];   
-									}                                 
+                                    if ($saison == "O") {        // outdoor
+									    if($row_att['Info'] != "-" && !empty($row_att['Info']) && $row[3] != $cfgDisciplineType[$strDiscTypeThrow]){
+                                            if ($row[8] != 0){
+										        $text_att .= " , ".$row_att['Info'];  
+                                            } 
+									    }
+                                        elseif ($row_att['Info'] == "-"  && $row[3] != $cfgDisciplineType[$strDiscTypeThrow] && $row_att['Leistung'] > 0){
+                                                 $text_att .= " , ".$row_att['Info'];  
+                                        }  
+                                    }                              
 									$text_att .= " / ";
 								}   
 							}
