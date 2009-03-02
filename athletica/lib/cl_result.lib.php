@@ -213,11 +213,8 @@ class Result
 	{
 		$GLOBALS['AA_ERROR'] = '';
 		$query = '';
-		$reply = new ResultReturn;
-
-        if ($this->performance!=''){
-           
-        
+		$reply = new ResultReturn;   
+              
 		AA_utils_changeRoundStatus($this->round, $GLOBALS['cfgRoundStatus']['results_in_progress']);
 		if(!empty($GLOBALS['AA_ERROR'])) {
 			return;
@@ -238,7 +235,7 @@ class Result
 			$reply->setAction(RES_ACT_DELETE);
 		}
 		mysql_query("UNLOCK TABLES");
-        }
+       
 		return $reply;
 	}
 
