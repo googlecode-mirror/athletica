@@ -82,7 +82,7 @@ INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, S
     INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, Sprache, FarbeTitel, FarbeHG) VALUES 
   ('Statistique', 'Dans la statistique aperçu finances d&lsquo;inscription / finances de garantie par société, la taxe à la fédération est en plus notée par catégorie.', 'y', 90, 210, 120, 250, 'Statistics', 'fr', 'FFAA00', 'FFCC00'),
   
-  ('Statistik', 'Den Team SM Mannschaften können nun Nummern zugeteilt werden. Zusätzlich wurden die Druckfunktionen erweitert.', 'y', 90, 210, 120, 250, 'Statistics', 'de', 'FFAA00', 'FFCC00');
+  ('Statistik', 'In der Statistik Übersicht Startgeld / Haftgeld pro Verein wird zusätzlich die Verbandsabgabe pro Kategorie angezeigt.', 'y', 90, 210, 120, 250, 'Statistics', 'de', 'FFAA00', 'FFCC00');
    
   
     INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, Sprache, FarbeTitel, FarbeHG) VALUES 
