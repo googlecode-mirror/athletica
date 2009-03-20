@@ -39,7 +39,7 @@ function AA_timetable_display($arg = 'monitor')
 			k.Anzeige,
             k.Kurzname
 	");
-    
+   
 	if(mysql_errno() > 0)	// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -362,8 +362,9 @@ function AA_timetable_display($arg = 'monitor')
 											, anmeldung as a
 										WHERE	st.xAnmeldung = a.xAnmeldung
 										AND	st.xWettkampf = $row[10]
-										AND	a.Gruppe = '$row[15]'");  
-									
+										AND	a.Gruppe = '$row[15]'
+                                        AND st.Anwesend = 0");  
+							
 							if(mysql_errno() > 0) {	 
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							}else{
