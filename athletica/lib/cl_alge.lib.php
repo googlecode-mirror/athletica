@@ -277,7 +277,8 @@ class alge{
 						   d.Strecke, 
 						   s.Film, 
 						   s.Bezeichnung, 
-						   sta.Name 
+						   sta.Name,
+                           d.Code 
 					  FROM meeting AS m 
 				 LEFT JOIN wettkampf AS w USING(xMeeting) 
 				 LEFT JOIN disziplin AS d USING(xDisziplin) 
@@ -295,9 +296,26 @@ class alge{
 			
 			while($rowHeat = mysql_fetch_array($resHeat)){
 				$fileHeat = sprintf("%03d",$rowHeat[8]).$file.$rowHeat[9];
-				
+                
 				// race information (*.rac file)
 				// "RaceNo" = Heat Number, no identification
+                $windmode = 7;      // no measurement
+                if  ($rowHeat[11] == 10 || $rowHeat[11] == 30 || ($rowHeat[11] >= 252 & $rowHeat[11] <= 256)) {
+                    $windmode = 6;
+                }
+                elseif ($rowHeat[11] == 35 || $rowHeat[11] == 258 || $rowHeat[11] == 40) {
+                    $windmode = 5;  
+                }
+                elseif ($rowHeat[11] >= 259 & $rowHeat[11] <= 271) {
+                    $windmode = 4;  
+                }
+                 elseif ($rowHeat[11] == 50) {
+                    $windmode = 3;  
+                }
+                else { 
+                    $windmode = 7;  
+                }  
+               
 				$tmp = "[RaceInfo]
 Meeting=$rowHeat[1], $rowHeat[2]
 Place=$rowHeat[10]
@@ -306,7 +324,7 @@ CompNo=$rowHeat[6]
 Distance=$rowHeat[7]m
 RaceNo=$rowHeat[9]
 Prepared=1
-Windmode=6
+Windmode=$windmode
 [Files]
 Name=$fileHeat
 ";
