@@ -741,6 +741,6 @@ $strEnrolSheet = " Feuille d'appel ";
 $strErrResultsInProgress = "Il y a encore des résultats en cours de traitement. <br>Prière d'évaluer et de classer les résultats d'abord! ";
 $strAssTax = "Taxe à la fédération";
 
-$strEffortsUpdateInfo4 = "Comportement avec des données d'athlète enregistrées manuellement (nom, prénom et société)";
+$strEffortsUpdateInfo4 = "Manière de procéder avec les données d'athlète enregistrées manuellement (nom, prénom, société)";                             
 
 ?>

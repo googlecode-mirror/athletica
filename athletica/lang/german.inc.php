@@ -607,7 +607,7 @@ $strDeleteScoreTable = 'Wertungstabelle löschen';
 
 $strMeetingSync = 'Abgleich mit der Online-Meetingbewilligung';
 $strMeetingSyncRemark = "<b>Achtung:</b> Ein Abgleich mit der Meetingbewilligung kann zu ungewollten Änderungen führen!<br>
-		Erstellen Sie zu erst eine Sicherung der Datenbank bevor Sie fortfahren.";
+		Erstellen Sie zuerst eine Sicherung der Datenbank bevor Sie fortfahren.";
 $strBaseUpdatedSync = 'Sie können nun Ihr Meeting mit der Online-Meetingbewilligung abgleichen. Sollten Sie Ihr Meeting nicht online erfasst haben, können Sie diesen Schritt überspringen.';
 $strNextSync = 'Weiter zum Meeting-Abgleich';
 
@@ -639,7 +639,7 @@ $strEmptyCacheDo = "Sie sind dabei alle erfassten Athleten und Vereine, sowie di
 $strEmptyCacheDone = "Der Cache wurde geleert. Führen Sie jetzt ein Stammdatenupdate durch.";
 $strEmptyCacheReference = 'Einige Athleten und/oder Vereine werden noch referenziert (Anmeldungen). Der Cache kann nicht geleert werden.<br><br>
 
-		Stellen Sie sicher dass keine Athleten und/oder Vereine angemeldet wurden.';
+		Stellen Sie sicher, dass keine Athleten und/oder Vereine angemeldet wurden.';
 $strSelectMeeting = 'Meeting auswählen';
 $strBaseMeetingAct = 'Heruntergeladene Informationen (Anmeldungen, Eventnr.) werden<br>in folgendes Athletica-Meeting importiert:';
 $strErrDiscCombChange = 'Disziplin Änderung nicht möglich, da bereits Athleten angemeldet sind.';
@@ -733,7 +733,7 @@ $strOnlyBestResult = 'Nur bestes Resultat';
 $strCreateSVM = "SVM erstellen"; 
 $strErrCreateSVM = "Sie müssen eine Kategorie auswählen in welcher der SVM Wettkampf erstellt werden soll!"; 
 $strErrDiscNotDefSVM  = "Disziplin zu dieser SVM Kategorie sind nicht definiert.";
-$strRemNulltime = "* Nullzeiten sind bei den rot markierten Diziplinen einzugeben.";
+$strRemNulltime = "* Nullzeiten sind bei den rot markierten Disziplinen einzugeben.";
 $strMax = "Max.";
 $strAutoRank = "Automatisch rangieren";
 $strActiv = "Aktiv / Inaktiv";
