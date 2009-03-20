@@ -57,7 +57,7 @@ class omega{
 		
 		//if(@is_dir($_POST['path'])){
 			// test local path for writing
-			$fp = @fopen($_POST['path']."/test.txt",'w');
+			$fp = fopen($_POST['path']."/test.txt",'w');
 			if(!$fp){
 				$GLOBALS['ERROR'] = $strOmegaPathWriteFailed;
 			}else{
