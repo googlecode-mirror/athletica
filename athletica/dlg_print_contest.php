@@ -27,6 +27,11 @@ if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
 
+$print = 'no';
+if(!empty($_GET['print'])) {
+    $print = $_GET['print'];
+}
+
 // get number of athletes/relays with valid result
 /*$result = mysql_query("
 	SELECT
@@ -159,6 +164,7 @@ else
 <form action='print_contest.php' method='post' target='_blank' name='qual'>
 <input name='round' type='hidden' value='<?php echo $round; ?>' />
 <input name='present' type='hidden' value='<?php echo $present; ?>' />
+<input name='print' type='hidden' value='<?php echo $print; ?>' />    
 <table class='dialog'>
 	<tr>
 		<th class='dialog' colspan='2'><?php echo $row[3]; ?></th>

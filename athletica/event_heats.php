@@ -533,7 +533,7 @@ if($round > 0)
 					$btn->set("dlg_print_contest.php?round=$round", $strTerminateSeeding . " ...");
 				}
 				else {
-					$btn->set("dlg_print_contest.php?round=$round", $strPrint . " ...");
+					$btn->set("dlg_print_contest.php?round=$round&print=yes", $strPrint . " ...");
 				}
 				$btn->printButton();
 			?>

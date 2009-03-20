@@ -54,6 +54,10 @@ if(!empty($_POST['qual_perf'])) {
 	$qual_perf = $_POST['qual_perf'];
 }
 
+$print = 'no';
+if(!empty($_POST['print'])) {
+    $print = $_POST['print'];
+}
  
 AA_utils_changeRoundStatus($round, $cfgRoundStatus['heats_done']);
 if(!empty($GLOBALS['AA_ERROR'])) {
@@ -185,7 +189,9 @@ else
 		case($cfgDisciplineType[$strDiscTypeNone]):
 			$doc = new PRINT_Contest($_COOKIE['meeting']);
 		case($cfgDisciplineType[$strDiscTypeTrack]):
-			AA_timing_setStartInfo($round, $silent); // set timing
+            if ($print == 'no') {
+			    AA_timing_setStartInfo($round, $silent); // set timing if new heats, not if print startlist only
+            }
 			if($row[8] == 1) {
 				$doc = new PRINT_ContestTrack($_COOKIE['meeting']);
 			}
@@ -195,11 +201,15 @@ else
 			break;
 		case($cfgDisciplineType[$strDiscTypeTrackNoWind]):
 		case($cfgDisciplineType[$strDiscTypeDistance]):
-			AA_timing_setStartInfo($round, $silent); // set timing
+            if ($print == 'no') {
+			    AA_timing_setStartInfo($round, $silent); // set timing if new heats, not if print startlist only
+            }
 			$doc = new PRINT_ContestTrackNoWind($_COOKIE['meeting']);
 			break;
 		case($cfgDisciplineType[$strDiscTypeRelay]):
-			AA_timing_setStartInfo($round, $silent); // set timing
+            if ($print == 'no') {
+			    AA_timing_setStartInfo($round, $silent); // set timing if new heats, not if print startlist only
+            }
 			$doc = new PRINT_ContestRelay($_COOKIE['meeting']);
 			break;
 		case($cfgDisciplineType[$strDiscTypeJump]):
