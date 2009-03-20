@@ -160,6 +160,7 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 					WHERE
 						r.xWettkampf = w.xWettkampf
 					AND	w.Mehrkampfcode = $comb
+                    AND w.Mehrkampfende = 0
 					AND	w.xKategorie = $category
 					AND	w.xMeeting = ".$_COOKIE['meeting_id']);
 			if(mysql_errno() > 0){
@@ -185,6 +186,7 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 			AND	w.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
 				r.Gruppe ASC");
+           
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
 	}else{
@@ -201,7 +203,7 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 					break;
 				}
 				
-				if($g != 0 && $g != $row[1]){ // first group over
+				if($g != 0 & $g != $row[1]){ // first group over
 					$del = true;
 				}
 				if($del){
@@ -210,8 +212,9 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 				}else{
 					mysql_query("UPDATE runde as r SET Gruppe = '' WHERE xRunde = $row[0]");
 				}
-				
-				$g = $row[1];
+				if ($row[1] != '') {
+				    $g = $row[1];
+                }
 			}
 			
 		}
