@@ -564,7 +564,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							, s.Handgestoppt
 							, at.Lizenztyp
 							, a.Vereinsinfo
-                            , rt.Typ    
+                            , rt.Typ
+                            , ba.license_paid    
 						FROM
 							runde as ru
 							, serie AS s USE INDEX (Runde)
@@ -576,6 +577,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							, verein AS v
 							, rundentyp AS rt
 							, kategorie AS k
+                            LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)
 						WHERE ru.xWettkampf = $row[5]
 						AND s.xRunde = ru.xRunde
 						AND ss.xSerie = s.xSerie
@@ -882,11 +884,19 @@ document.getElementById("progress").width="<?php echo $width ?>";
 									$id = 0; // if this is not set, results for the skipped athlete will be written
 									continue; // next result/athlete
 								}
-								
+                                
+                                 
+                                // license_paid = license printed (information from basa data)
+                                // only upload results from athletes with license available (=license printed)    
+                                if($row_results['Lizenztyp'] <= 1 && $row_results['license_paid'] == 'n'){  								   
+                                    $id = 0; // if this is not set, results for the skipped athlete will be written
+                                    continue; // next result/athlete
+                                }
+                               
 								if(!empty($row_results['Lizenznummer'])){
 									$inMasterData = 1;
 									$licensePaid = 1;
-								}else{
+								}else{                                    
 									$inMasterData = 0;
 									if($row_results['Bezahlt'] == 'y'){
 										$licensePaid = 1;
@@ -1444,6 +1454,7 @@ function XML_base_end($parser, $name){
 		//flush();
 		//die();
 		// save athlete with performances
+        
 		if($athlete['LICENSEPAID'] == 0){ $athlete['LICENSEPAID']='n'; }else{ $athlete['LICENSEPAID']='y'; }
 		if(!empty($athlete['BIRTHDATE'])){
 			$bdate = substr($athlete['BIRTHDATE'],6,4)."-".substr($athlete['BIRTHDATE'],0,2)."-".substr($athlete['BIRTHDATE'],3,2);
@@ -1459,7 +1470,7 @@ function XML_base_end($parser, $name){
 		$res = mysql_query($sql);
 		        
 		if(mysql_num_rows($res) == 0){   
-		   
+		    
 			//if(empty($athlete['LICENSE'])){ break; }
 			mysql_query("	INSERT IGNORE INTO
 						base_athlete (
