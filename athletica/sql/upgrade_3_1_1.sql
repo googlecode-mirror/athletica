@@ -8,7 +8,7 @@
 INSERT IGNORE INTO `disziplin` ( `xDisziplin` , `Kurzname` , `Name` , `Anzeige` , `Seriegroesse` , `Staffellaeufer` , `Typ` , `Appellzeit` , `Stellzeit` , `Strecke` , `Code` , `xOMEGA_Typ` )
 VALUES (
 '', 'BALL80', 'Ball 80 g', '385', '6', '0' , '8', '01:00:00', '00:20:00', '0', '385', '1'
-);'
+);
 UPDATE `disziplin` SET `Code` = '385' WHERE `Anzeige` = '385' AND `Kurzname` = 'BALL80';
 
 INSERT IGNORE INTO `disziplin` ( `xDisziplin` , `Kurzname` , `Name` , `Anzeige` , `Seriegroesse` , `Staffellaeufer` , `Typ` , `Appellzeit` , `Stellzeit` , `Strecke` , `Code` , `xOMEGA_Typ` )
