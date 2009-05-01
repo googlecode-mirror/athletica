@@ -832,10 +832,10 @@ else if (mysql_num_rows($result) > 0)
 				, athlet AS at
 			WHERE  a.xAthlet = at.xAthlet
 			AND  a.xMeeting = " . $_COOKIE['meeting_id'] . "
-			AND at.xVerein $sqlClubLG
+			AND at.xVerein $sqlClubLG 
 			ORDER BY at.Name, at.Vorname
 		");
-           
+        
 		if(mysql_errno() > 0)
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -857,7 +857,7 @@ else if (mysql_num_rows($result) > 0)
 			$dropdown->addOption($strOtherAthletes, 0);
 
 			while ($ath_row = mysql_fetch_row($res))
-			{
+			{   
 				$r = mysql_query("
 					SELECT
 						st.xStart
@@ -866,18 +866,25 @@ else if (mysql_num_rows($result) > 0)
 					WHERE st.xWettkampf = $row[8]
 					AND st.xAnmeldung = $ath_row[0]
 				 ");
-
+                 $sql="SELECT
+                        st.xStart
+                    FROM
+                        start AS st
+                    WHERE st.xWettkampf = $row[8]
+                    AND st.xAnmeldung = $ath_row[0]";
+                 
 				 if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				 }
 				 else		// OK
 				 {
-					// Athlete not in even or team
+					// Athlete not in even or team       
 					if((mysql_num_rows($r) == 0) 	
 						|| ($ath_row[2] != $row[10]))
 					{
-						$dropdown->addOption($ath_row[1], $ath_row[0]);
+						$dropdown->addOption($ath_row[1], $ath_row[0]);                        
 					}
+                   
 				}	// ET DB Error
 				mysql_free_result($r);
 			}
