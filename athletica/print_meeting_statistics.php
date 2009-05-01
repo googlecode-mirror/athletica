@@ -11,6 +11,7 @@ require('./lib/common.lib.php');
 require('./lib/cl_print_page.lib.php');
 require('./lib/results.lib.php');
 
+
 if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 	return;		// abort
 }
@@ -26,7 +27,24 @@ if($_GET['arg'] == 'print') {	// page for printing
 else {
 	$doc = new GUI_Statistics("Statistics");
 }
+ ?>
+<script type="text/javascript">
+<!--
    
+    // close function for faq windows (hide)
+    function closeFaq(id){        
+        if(document.getElementById("faq"+id).checked){
+            top.frames[2].location.href='./controller.php?act=deactivateFaq&id='+id;
+        }else{
+            //top.frames[2].location.href='status.php';
+        }
+        document.getElementById("faqdiv"+id).style.visibility = "hidden";
+        document.getElementById("faqifrm"+id).style.visibility = "hidden";
+        //top.frames[2].location.href='status.php';
+    }
+//-->
+</script>
+  <?php 
 //
 //	Statistic 1: Entry overview
 // ---------------------------
@@ -919,7 +937,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                 $res_temp = mysql_query($sql_temp);  
                              
                 $arr_kat = array();
-                
+                $assTax1 = 0;
+                $assTax2 = 0;  
+                $assTax3 = 0;  
                 // count fees and deposits for each club 
 			   	while($row = mysql_fetch_array($res_temp)){             
                                                              
@@ -935,12 +955,18 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                         if ($i>0) {
                             $doc->printLineTax($clubName,$fee, $deposit, $entries, $starts); 
                             foreach ($arr_kat as $key => $val){ 
-                                if ($val[1] >= 16)
+                                if ($val[1] >= 16) {
                                      $assTax = $val[0] * 4;
-                                elseif ($val[1] <= 13)  
+                                     $assTax1 = $assTax1 + $assTax;
+                                }
+                                elseif ($val[1] <= 13) { 
                                     $assTax = $val[0] * 1;
-                                else
-                                    $assTax = $val[0] * 2;  
+                                    $assTax3 = $assTax3 + $assTax;  
+                                }
+                                else {
+                                    $assTax = $val[0] * 2; 
+                                    $assTax2 = $assTax2 + $assTax;   
+                                }
                                 $doc->printLineTax($key,'', '', '', $val[0], $assTax);  
                             }
                             $arr_kat = array();  
@@ -987,13 +1013,20 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                 
                 $doc->printLineTax($clubName,$fee, $deposit, $entries, $starts); 
                 foreach ($arr_kat as $key => $val){ 
-                                if ($val[1] >= 16)
+                                if ($val[1] >= 16){
                                      $assTax = $val[0] * 4;
-                                elseif ($val[1] <= 13)  
+                                     $assTax1 = $assTax1 + $assTax;
+                                } 
+                                elseif ($val[1] <= 13){  
                                     $assTax = $val[0] * 1;
-                                else
-                                    $assTax = $val[0] * 2;  
-                                $doc->printLineTax($key,'', '', '', $val[0], $assTax);  
+                                    $assTax3 = $assTax3 + $assTax;
+                                }
+                                else {
+                                    $assTax = $val[0] * 2; 
+                                    $assTax2 = $assTax2 + $assTax; 
+                                }
+                                $doc->printLineTax($key,'', '', '', $val[0], $assTax);      
+                                  
                             } 
                   
                 $tf += $fee;
@@ -1003,7 +1036,16 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 	
 	// add grand total
 	$doc->printTotalLineTax($strTotal, $tf, $td, $te, $ts);
-    
+   
+    $doc->printLineTax($strCatLicense);  
+    $doc->printLineTax($strActiv,$strActivCHF,'','','',$assTax1,2); 
+    $doc->printLineTax($strU16,$strU16CHF,'','','',$assTax2,2);  
+    $doc->printLineTax($strU14,$strU14CHF,'','','',$assTax3,2); 
+     
+    $assTaxTotal=$assTax1 + $assTax2 + $assTax3; 
+     
+     $doc->printTotalLineTax($strTotal, '', '', '', $assTaxTotal,3); 
+          
 	mysql_free_result($result);
 
     mysql_query("DROP TABLE IF EXISTS result_tmp"); 
