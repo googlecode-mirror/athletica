@@ -120,6 +120,13 @@ if(mysql_errno > 0){
 		echo "<day>".substr($row['birth_date'],8,2)."</day>\n";
 		echo "<month>".substr($row['birth_date'],5,2)."</month>\n";
 		echo "<license>".$row['license']."</license>\n";
+        if ($row['license_paid'] == 'n'){
+            $licensePrinted = $strNo;
+        }
+        else {
+              $licensePrinted = $strYes; 
+        }
+        echo "<licensePrinted>".$licensePrinted."</licensePrinted>\n"; 
 		echo "<id>".$row['id_athlete']."</id>\n";
 		echo "<club>".$club."</club>\n";
 		echo "<club2>".$club2."</club2>\n";

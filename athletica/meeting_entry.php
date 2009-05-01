@@ -1410,12 +1410,14 @@ $result = mysql_query("
 		, a.BaseEffortMK
         , v2.Name
         , at.Manuell
+        , ba.license_paid    
 	FROM
 		anmeldung AS a
 		, athlet AS at
 		, kategorie AS k
 		LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
         LEFT JOIN verein AS v2 ON (at.xVerein2 = v2.xVerein) 
+        LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)
 	LEFT JOIN team AS t
 	ON a.xTeam = t.xTeam
 	WHERE a.xAnmeldung = " . $_POST['item'] . "
@@ -1669,7 +1671,7 @@ $dis2 = false;
 <tr>
 	<form action='meeting_entry.php' method='post' name='data'>
 	<th class='dialog'><?php echo $strName; ?></th>
-	<td class='forms' colspan='3'>
+	<td class='forms' >
 		<input name='arg' type='hidden' value='change' />
 		<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
 		<input name='category' type='hidden' value='<?php echo $row[1]; ?>' />
@@ -1678,11 +1680,29 @@ $dis2 = false;
 		<input class='text<?=$manual_name;?>' name='name' type='text'
 			maxlength='25' value='<?php echo $row[4]; ?>'
 			onChange='document.data.submit()'<?=$dis?>/>
-		<input class='text<?=$manual_firstname;?>' name='first' type='text'
-			maxlength='25' value='<?php echo $row[5]; ?>'
-			onChange='document.data.submit()'<?=$dis?>/>
+		
 	</td>
+    <?php
+       if  ($row[29] == 'n'){
+           $licensePrinted = $strNo;            
+       }
+       else {
+            $licensePrinted =$strYes;
+       }
+    ?>
+     <th class='dialog'><?php echo $strLicensePrinted; ?></th>
+    <td class='forms'><input name='licensePrinted' type='text' size='4'
+         value='<?php echo $licensePrinted; ?>'  disabled   /></td>
 </tr>
+
+<tr>
+<th class='dialog'><?php echo $strFirstname; ?></th>
+    <td class='forms' colspan='3'>
+    <input class='text<?=$manual_firstname;?>' name='first' type='text'
+            maxlength='25' value='<?php echo $row[5]; ?>'
+            onChange='document.data.submit()'<?=$dis?>/>
+</tr>
+
 
 <tr>
 	<th class='dialog'><?php echo $strBirthday; ?></th>

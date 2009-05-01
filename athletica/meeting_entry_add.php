@@ -236,7 +236,14 @@ if(isset($_POST['searchfield'])){
 						$club2_name = '';
 						$clubinfo = $row_athlete['account_info'];
 						$athletesex = $row_athlete['sex'];                          
-                        $catcode = $row_athlete['license_cat'];  
+                        $catcode = $row_athlete['license_cat']; 
+                        if ($row_athlete['license_paid'] == 'n'){
+                             $licensePrinted = $strNo;
+                        }
+                        else {
+                            $licensePrinted =$strYes;
+                        }
+                       
                          
                         // get age of athlete  
                         $age = 0;
@@ -337,6 +344,13 @@ if($_POST['arg']=="change_athlete"){
 						$clubinfo = $row_athlete['account_info'];
 						$athletesex = $row_athlete['sex'];
                         $catcode = $row_athlete['license_cat'];  
+                        if ($row_athlete['license_paid'] == 'n') {
+                             $licensePrinted = $strNo;
+                        }
+                        else {
+                              $licensePrinted = $strYes; 
+                        }
+                        
                         
                         // get age of athlete  
                         $age = 0;
@@ -1502,6 +1516,7 @@ $page->printPageTitle($strNewEntryFromBase);
 			ci = new String(unescape(res.getElementsByTagName("clubinfo")[0].firstChild.nodeValue));
 			
 			document.getElementById('newlicensenr').value = res.getElementsByTagName("license")[0].firstChild.nodeValue;
+            document.getElementById('newlicensePrinted').value = res.getElementsByTagName("licensePrinted")[0].firstChild.nodeValue;  
 			document.getElementById('newname').value = unescape(res.getElementsByTagName("name")[0].firstChild.nodeValue);
 			document.getElementById('newname').value = n.replace(/\+/g, " ");
 			document.getElementById('newfirstname').value = unescape(res.getElementsByTagName("firstname")[0].firstChild.nodeValue);
@@ -2293,8 +2308,8 @@ if($nbr == 0) {			// start number not selected yet
 <tr>
     <th class='dialog'><?php echo $strClub2; ?></th>
     <td class='forms'><?php echo $club2_name; ?></td>
-    <td colspan='2'></td> 
-</tr>
+     
+
  <?php
     }
     elseif (lg != '') {
@@ -2303,14 +2318,16 @@ if($nbr == 0) {			// start number not selected yet
 <tr>
     <th class='dialog'><?php echo $strClub2; ?></th>
     <td class='forms'><?php echo $lg; ?></td>
-    <td colspan='2'></td> 
-</tr>
+    
+
  <?php 
     
     }
  ?>
 
-    
+    <th class='dialog'><?php echo $strLicensePrinted; ?></th>
+    <td class='forms'><?php echo $licensePrinted; ?></td> 
+    </tr> 
 
 <tr>
 	<th class='dialog'><?php echo $strStartnumberLong; ?></th>
@@ -2468,9 +2485,23 @@ if(!empty($club2) && false){ // not yet in use
 </tr>
 <tr>
 	<th class='dialog'><?php echo $strFirstname; ?></th>
-	<td class='forms' colspan="3"><input class='text' name='first' type='text'
+	<td class='forms' ><input class='text' name='first' type='text'
 		maxlength='25' value='<?php echo $first; ?>'
 		id="newfirstname" onkeyup="base_search()" /></td>
+    <?php
+    if($licenseType == 1){
+        $licenseNrDisabled = "";
+        if($allow_search_from_base == "true"){
+            $licenseNrDisabled = "disabled";
+        }
+    ?>    
+    <th class='dialog'><?php echo $strLicensePrinted;PPPPPP ?></th>
+    <td class='forms'><input name='licensePrinted' type='text' size='4'
+        id="newlicensePrinted" value='<?php echo $licensePrinted; ?>'
+        <?php echo $licenseNrDisabled ?>/></td>
+   <?php
+    }
+    ?>
 </tr>
 <tr>
 	<?php
