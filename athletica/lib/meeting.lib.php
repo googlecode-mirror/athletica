@@ -525,6 +525,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 				, disziplin.Kurzname
 				, wettkampf.Mehrkampfcode
 				, disziplin.Typ
+                , disziplin.Code
 			FROM
 				wettkampf
 				, disziplin
@@ -534,7 +535,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 			$sqlCombtype
 			$sqlSetCombinedOnly
 		");     
-           	
+        
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -545,7 +546,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 				// check if any formula for new conversion table
 				$setFormula = "";
 				if($_POST['conv_changed'] == 'yes')
-				{
+				{   
 					if($_POST['conv'] == $cvtTable[$strConvtableRankingPoints]){ // check ranking points
 						$keysRP = array_keys($cvtFormulas[$_POST['conv']]);
 						if($row[3] == $cfgDisciplineType[$strDiscTypeRelay]){ // if relay type
@@ -555,9 +556,9 @@ function AA_meeting_changeCategory($byCombtype = 0)
 							$setFormula = ", Punkteformel='".$keysRP[0]."'";
 							$formula = $keysRP[0];
 						}
-					}elseif(isset($cvtFormulas[$_POST['conv']][$row[1]])) {
+					}elseif(isset($cvtFormulas[$_POST['conv']][$row[1]])) {                         
 						$setFormula = ", Punkteformel='$row[1]'";
-						$formula = $row[1];
+						$formula = $row[1];                          
 					}elseif(isset($cvtFormulas[$_POST['conv']][substr($row[1],0,2)."H"])){
 						$setFormula = ", Punkteformel='".substr($row[1],0,2)."H"."'";
 						$formula = substr($row[1],0,2)."H";
@@ -575,8 +576,14 @@ function AA_meeting_changeCategory($byCombtype = 0)
 						$formula = substr($row[1],0,6);
 					}
 					else {
-						$setFormula = ", Punkteformel='0'";
-						$formula = '0';
+                        if ($row[4] > 497 & $row[4] <= 499) {
+                           $setFormula = ", Punkteformel='4X100'";
+                           $formula = '4X100';
+                        }
+                        else {
+						    $setFormula = ", Punkteformel='0'";
+						    $formula = '0';
+                        }
 					}
 				}
 				
@@ -1027,10 +1034,10 @@ function AA_meeting_resetResults($event, $formula)
 
 function AA_meeting_getLG_Club($club){     
     $arrClub = array();
-    
+       
     $sql="SELECT 
                 ba.lg,
-                ba.account_name
+                ba.account_name                
           FROM
                 verein AS v
                 LEFT JOIN base_account AS ba ON (v.xCode = ba.account_code)
@@ -1052,7 +1059,7 @@ function AA_meeting_getLG_Club($club){
                             base_account AS ba 
                             LEFT JOIN verein AS v ON (ba.account_code = v.xCode)
                       WHERE 
-                            ba.lg = '" .$row[0] ."'";
+                            ba.lg = '" .$row[0] ."'";    
                       
                       $result=mysql_query($sql); 
                       
@@ -1060,13 +1067,13 @@ function AA_meeting_getLG_Club($club){
                             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                       }else{
                             $i=0;
-                            while ($row = mysql_fetch_array($result)) {
-                               $arrClub[$i]=$row[1];  
-                               $i++;
+                            while ($row = mysql_fetch_array($result)) {                               
+                               $arrClub[$i]=$row[1]; 
+                               $i++;                                
                             } 
                        }        
                 }
-                elseif  (mysql_num_rows($result) > 1) {
+                else {
                       $sql="SELECT 
                             ba.account_code,
                             v.xVerein
@@ -1074,7 +1081,7 @@ function AA_meeting_getLG_Club($club){
                             base_account AS ba 
                             LEFT JOIN verein AS v ON (ba.account_code = v.xCode)
                       WHERE 
-                            ba.lg = '" .$row[1] ."'";
+                            ba.lg = '" .$row[1] ."'";    
                       
                       $result=mysql_query($sql); 
                      
@@ -1082,9 +1089,9 @@ function AA_meeting_getLG_Club($club){
                             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                       }else{
                             $i=0;
-                            while ($row = mysql_fetch_array($result)) {
-                               $arrClub[$i]=$row[1];  
-                               $i++;
+                            while ($row = mysql_fetch_array($result)) {                                
+                               $arrClub[$i]=$row[1];
+                               $i++;  
                             }   
                        } 
                 }  
