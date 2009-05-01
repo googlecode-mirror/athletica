@@ -177,12 +177,46 @@ if ($_POST['arg']=="add")
 </script>
 	<?php
 }
-
-if(AA_checkControl() == 0){
-	echo "<p>$strErrNoControl</p>";
-	return;
+  if(!empty($_POST['arg']) & $_POST['arg'] == 'sperren') {
+       $sql="SELECT 
+                        m.Online
+                    FROM 
+                        meeting AS m                          
+                    WHERE                        
+                         m.xMeeting = " . $_COOKIE['meeting_id'] ; 
+                    
+                    
+            $res=mysql_query($sql);
+            
+            if(mysql_errno() > 0){
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }else{
+                 if (mysql_num_rows($res) > 0){                      
+                 
+                    $sql = "UPDATE meeting 
+                                    SET Online = 'n'  
+                             WHERE                                                            
+                                         xMeeting = " . $_COOKIE['meeting_id'] ; 
+                                         
+                    mysql_query($sql);
+                    
+                    if(mysql_errno() > 0) {
+                           $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                    }  
+                 } 
+            }
+} 
+else {   
+    if(AA_checkControl() == 0){
+        echo "<p>$strErrNoControl1</p>";
+        echo "<form action='./meeting_team_add.php' method='post'>    
+            <p><input name='' value='' checked='checked' onclick='submit()' type='checkbox'>
+            <input name='arg' value='sperren' type='hidden'> 
+                $strMeetingWithUpload  &nbsp; ($strErrNoControl2)</p>
+            </form>"; 
+        return;
+    }
 }
-
 ?>
 <table>
 <tr>
