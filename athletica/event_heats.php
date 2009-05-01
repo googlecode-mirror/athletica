@@ -283,7 +283,8 @@ if($round > 0)
 					wettkampf AS w
 				LEFT JOIN 
 					runde AS r USING(xWettkampf)
-				WHERE r.xRunde = ".$round.";";
+				WHERE r.xRunde ".$SqlRound.";";
+        
 		$res_c = mysql_query($sql);
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -503,7 +504,7 @@ if($round > 0)
 						, ss.Position ASC;";
 			$query = $sql;        
 		}
-        
+         
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0)		// DB error

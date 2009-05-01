@@ -297,7 +297,7 @@ if($round > 0)
 					  LEFT JOIN 
 						  anmeldung AS a USING(xAnmeldung)
 					  WHERE 
-						  s.xWettkampf = ".$event."
+						   ".$sqlEvents."   
 					  AND
 						  a.Gruppe = '".$cGroup."' 
 					  AND 
@@ -306,7 +306,7 @@ if($round > 0)
 			|| ($combined && empty($cGroup))){	// combined last event or combined without groups, take all starts
 			$query = "SELECT COUNT(*)"
 					. " FROM start AS s"
-					. " WHERE s.xWettkampf = $event"
+					. " WHERE $sqlEvents"
 					. " AND s.Anwesend=0";
 		}
 		if($teamsm && !empty($cGroup)){ // team sm event with group (tech)
@@ -317,7 +317,7 @@ if($round > 0)
 					  LEFT JOIN
 						  anmeldung AS a USING(xAnmeldung)
 					  WHERE 
-						  s.xWettkampf = ".$event."
+						  ".$sqlEvents."   
 					  AND
 						  a.Gruppe = '".$cGroup."'
 					  AND 
