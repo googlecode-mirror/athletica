@@ -1479,7 +1479,7 @@ class PRINT_Statistics extends PRINT_Page
 <?php
 	}
     
-    function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax)
+    function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax, $span=1)
     {
         if(($this->lpp - $this->linecnt) < 5)    // page break check
         {
@@ -1502,8 +1502,18 @@ class PRINT_Statistics extends PRINT_Page
                 <td class='stats_col1'><strong><?php echo $col1; ?></strong></th>
            <?php
            }
+           if ($span == 2){
+               ?>
+                  <td class='stats_col2'><?php echo $col2; ?></th>
+               <?php
+           }
+           else {
+               ?>
+                 <td class='stats_col2_bold'><?php echo $col2; ?></th>
+                 <?php
+           }
      ?>
-        <td class='stats_col2_bold'><?php echo $col2; ?></th>
+        
         <td class='stats_col3_bold'><?php echo $col3; ?></th>
         <?php
         if(!empty($col4) || $col4 == '0' || !empty($assTax) || $assTax == '0'){
@@ -1526,7 +1536,7 @@ class PRINT_Statistics extends PRINT_Page
            
          if(!empty($assTax) || $assTax == '0' ){
             ?>
-            <td class='stats_col3'><?php echo $assTax .".00"; ?></td>
+            <td class='stats_col3' colspan='<?php echo $span; ?>'><?php echo $assTax .".00"; ?></td>
             <?php
         }
         else {
@@ -1558,7 +1568,7 @@ class PRINT_Statistics extends PRINT_Page
 		}
 		if(!empty($col5) || $col5 == '0'){
 			?>
-		<td class='stats_tot3'><?php echo $col5; ?></td>
+		<td class='stats_tot3' ><?php echo $col5; ?></td>
 			<?php
 		}
 		?>
@@ -1566,7 +1576,7 @@ class PRINT_Statistics extends PRINT_Page
 <?php
     }
     
-    function printTotalLineTax($col1, $col2, $col3, $col4="", $col5="")
+    function printTotalLineTax($col1, $col2, $col3, $col4="", $col5="",$span=1)
     {
         $this->linecnt = $this->linecnt + 2;        // increment line count
 ?>
@@ -1582,11 +1592,15 @@ class PRINT_Statistics extends PRINT_Page
         }
         if(!empty($col5) || $col5 == '0'){
             ?>
-        <td class='stats_tot3'><?php echo $col5; ?></td>
+        <td class='stats_tot3' colspan='<?php echo $span; ?>'><?php echo $col5.".00"; ?></td>
             <?php
         }
-        ?>
+         if ($span==1){
+        ?>                   
         <td class='stats_tot3'>&nbsp;</td> 
+        <?php
+        }
+        ?>
 	</tr>
 <?php
 	}

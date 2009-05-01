@@ -124,8 +124,7 @@ class GUI_Page
 		}		// ET scroll-option
 ?>
 	// close function for faq windows (hide)
-	function closeFaq(id){
-		
+	function closeFaq(id){      		
 		if(document.getElementById("faq"+id).checked){
 			top.frames[2].location.href='./controller.php?act=deactivateFaq&id='+id;
 		}else{
@@ -207,8 +206,9 @@ class GUI_Page
 
 	function endPage()
 	{
-		$faq = new GUI_Faq();
+		$faq = new GUI_Faq();   
 		$faq->showFaq($this->title);
+        
 ?>
 </body>
 </html>
@@ -914,7 +914,7 @@ class GUI_Statistics extends GUI_ListPage
 
 
 	function printLine($col1, $col2, $col3, $col4="", $col5="")
-	{
+	{ 
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>    
         <td><?php echo $col1; ?></td> 
@@ -939,7 +939,7 @@ class GUI_Statistics extends GUI_ListPage
 		$this->switchRowClass();
 	}
        
-function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
+function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='', $span=1)
     {
 ?>
     <tr class='<?php echo $this->rowclass[0]; ?>'>
@@ -954,10 +954,17 @@ function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
                <td ><strong><?php echo $col1; ?></strong></td>   
                <?php  
            }
+           if ($span == 2){
+               ?>
+                <td class='forms' colspan='<?php echo $span; ?>'><?php echo $col2; ?></th>  
+              <?php 
+           }
+           else {
         ?>
         <td class='forms_right_bold'><?php echo $col2; ?></th>
         <td class='forms_right_bold'><?php echo $col3; ?></th>
         <?php
+           }
         if(!empty($col4) || $col4 == '0' || !empty($assTax) || $assTax == '0'){
             ?>
         <td class='forms_right_bold'><?php echo $col4; ?></td>
@@ -975,9 +982,10 @@ function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
                   <td class='forms_right_bold'><?php echo $col5; ?></td>
                   <?php  
         }
+        
         if(!empty($assTax) || $assTax == '0'){
             ?>
-            <td class='forms_right'><?php echo $assTax .".00"; ?></td>
+            <td class='forms_right' colspan='<?php echo $span; ?>'><?php echo $assTax .".00"; ?></td>
             <?php
         }
         else {
@@ -1007,7 +1015,7 @@ function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
 		}
 		if(!empty($col5) || $col5 == '0'){
 			?>
-		<th class='statistic_total'><?php echo $col5; ?></th>
+		<th class='statistic_total' ><?php echo $col5; ?></th>
 			<?php
 		}
 		?>
@@ -1015,7 +1023,7 @@ function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
 <?php
     }
     
-    function printTotalLineTax($col1, $col2, $col3, $col4="", $col5="")
+    function printTotalLineTax($col1, $col2, $col3, $col4="", $col5="",$span=1)
     {
 ?>
     <tr>
@@ -1030,12 +1038,15 @@ function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='')
         }
         if(!empty($col5) || $col5 == '0'){
             ?>
-        <th class='statistic_total'><?php echo $col5; ?></th>
+        <th class='statistic_total' colspan='<?php echo $span; ?>'><?php echo $col5.".00"; ?></th>
             <?php
         }
+        if ($span==1){
         ?>
-        <th class='statistic_total'>&nbsp;</th>
-
+        <th class='statistic_total' >&nbsp;</th>
+           <?php
+        }
+        ?>
 	</tr>
 <?php
 	}
