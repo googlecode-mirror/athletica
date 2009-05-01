@@ -607,7 +607,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			$sqlCat = '';
 			$sqlMk = ''; 
 		}
-		else {
+		else {   
 			$sqlEventComb = '';        // the whole combined event
 			$sqlCat = " w.xKategorie = " .$cCat ." AND ";
 			$sqlMk = " w.Mehrkampfcode = ".$cCode;           
@@ -687,6 +687,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		$btn->printButton();
 	}
 
+    
+    
 ?>
 <p/>
 <table class='dialog'>
@@ -784,6 +786,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	//
 	// read merged rounds and select all events
 	//  
+    
+    
 
     $sqlEvents=AA_getMergedEvents($round);
     
@@ -910,6 +914,38 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
                      $sqlTable=" LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) ";  
                 } 
             }
+           
+            $sql_event = "SELECT 
+                                r.xWettkampf
+                          FROM
+                                runde as r
+                          WHERE
+                                r.xRunde = ".$round;
+            $res_event = mysql_query($sql_event);   
+            if(mysql_errno() > 0)        // DB error
+                {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+            else if(mysql_num_rows($res_event) > 0) {   // data found   
+                      $row = mysql_fetch_row($res_event);
+                      $event = $row[0];
+            } 
+            
+             $mainEvent=AA_getMainRoundEvent($event,false);    
+             if ($mainEvent!=$event & $mainEvent!=''){
+                //$flagMain=false;
+                AA_printErrorMsg($strErrMergedRound);  
+                return;
+             }
+            // else {
+            //    $flagMain=true;  
+            // }    
+            
+            $sqlCats= AA_mergedCatEvent($cCat,$event); 
+            if (!empty($sqlCats)) {
+                 $sqlCat = " w.xKategorie IN $sqlCats AND ";   
+            }
+            
             
 			$sql = "SELECT
 						  s.xStart
@@ -944,7 +980,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					ORDER BY
 						".$argument.";";
 			  
-			$query = $sql;       
+			$query = $sql;     
            
 		}else{  
 			// no combined
@@ -1036,7 +1072,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					".$sqlGroup ."  
 					ORDER BY
 						".$argument.")";    
-			$query = $sql;    
+			$query = $sql;  
+            
 		}
 	}
 	else {							// relay event
@@ -1136,7 +1173,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             ORDER BY
                     ".$argument.";";
                     
-		$query = $sql;                                
+		$query = $sql; 
+       
 	}                   
 	
 	$result = mysql_query($query);
