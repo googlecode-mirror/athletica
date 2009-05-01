@@ -184,18 +184,18 @@ function AA_heats_seedEntries($event)
         }
     }else{ // combined 
         if(!empty($cGroup)){
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet"
-                    . " FROM start as s, anmeldung as a"
-                    . " WHERE s.xWettkampf = " . $event
+            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet,r.xRunde"
+                    . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)"
+                    . " WHERE " . $sqlEvents
                     . " AND s.xAnmeldung = a.xAnmeldung"
                     . " AND a.Gruppe = '$cGroup'"
                     . " AND s.Anwesend = 0"
                     . " AND s.xAnmeldung > 0"
                     . " ORDER BY $order";
         }else{
-            $query = "SELECT xStart, if(BestleistungMK = 0, 0, BestleistungMK) as best, a.xAthlet"
-                    . " FROM start as s, anmeldung as a"
-                    . " WHERE s.xWettkampf = " . $event
+            $query = "SELECT xStart, if(BestleistungMK = 0, 0, BestleistungMK) as best, a.xAthlet,r.xRunde"
+                    . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)"
+                    . " WHERE " . $sqlEvents
                     . " AND s.xAnmeldung = a.xAnmeldung"
                     . " AND s.Anwesend = 0"
                     . " AND s.xAnmeldung > 0"
@@ -213,7 +213,7 @@ function AA_heats_seedEntries($event)
                 . " ORDER BY $order";       
     }    
 	$result = mysql_query($query); 
-    
+     
 	$entries = mysql_num_rows($result);		// keep nbr of entries       
    
 	if(mysql_errno() > 0)		// DB error
@@ -373,12 +373,18 @@ function AA_heats_seedEntries($event)
                                        $remark=AA_getResultRemark($row[2]);                                     
                                     }        
                                     if ($eventMerged){
+                                        if ($combined) {
+                                            $roundTogether= $row[3]; 
+                                        }
+                                        else {
+                                              $roundTogether= $row[2];   
+                                        }
 									    mysql_query("INSERT INTO serienstart SET"
 												. " Position = " . $pos
 												. ", Bahn = " . $pos
 												. ", xSerie = " . $heats[$i]
                                                 . ", xStart = " . $row[0] 
-												. ", RundeZusammen = " . $row[2]
+												. ", RundeZusammen = " . $roundTogether
                                                 . ", Bemerkung = '" . $remark ."'");  
                                     }
                                    else {
@@ -431,12 +437,18 @@ function AA_heats_seedEntries($event)
 										}
 									}
                                     if ($eventMerged){
+                                        if ($combined) {
+                                            $roundTogether= $row[3]; 
+                                        }
+                                        else {
+                                              $roundTogether= $row[2];   
+                                        }
                                         mysql_query("INSERT INTO serienstart SET"
                                                 . " Position = " . $pos
                                                 . ", Bahn = " . $pos
                                                 . ", xSerie = " . $heats[$i]
                                                 . ", xStart = " . $row[0] 
-                                                . ", RundeZusammen = " . $row[2]);   
+                                                . ", RundeZusammen = " . $roundTogether);   
                                     }
                                     else {
 									    $sql = "INSERT INTO serienstart SET"

@@ -26,6 +26,8 @@ function AA_timetable_display($arg = 'monitor')
 {
 	require('./config.inc.php');
 	require('./lib/common.lib.php');
+    
+   
      
 	$result = mysql_query("
 		SELECT DISTINCT
@@ -115,7 +117,7 @@ function AA_timetable_display($arg = 'monitor')
                 , k.Kurzname
 				, d.Anzeige
 		");   
-       
+      
 		if(mysql_errno() > 0)	// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -130,9 +132,61 @@ function AA_timetable_display($arg = 'monitor')
 			$events = array();	// array to hold last processed round per event
 			?>
 <table class=timetable> 
-			<?php
+			<?php   
+            
 			while ($row = mysql_fetch_row($res))
 			{   
+                 //
+                // read merged rounds an select all events
+                //
+     
+                $sqlEvents = "";
+                $eventMerged = false;
+                $result = mysql_query("SELECT xRundenset FROM rundenset
+                        WHERE    xRunde = $row[0] 
+                        AND    xMeeting = ".$_COOKIE['meeting_id']);
+                if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }else{
+                    $rsrow = mysql_fetch_array($result); // get round set id
+                    mysql_free_result($result);
+                }
+                $event = $row[10];
+   
+    
+                if($rsrow[0] > 0){
+                    $sql = "SELECT
+                                r.xWettkampf 
+                            FROM
+                                rundenset AS s
+                            LEFT JOIN 
+                                runde AS r USING(xRunde)
+                            WHERE
+                                s.xMeeting = ".$_COOKIE['meeting_id']." 
+                                AND s.xRundenset = ".$rsrow[0].";";
+                    $result = mysql_query($sql);
+                    if(mysql_errno() > 0){
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        $sqlEvents .= " st.xWettkampf = ".$event." ";
+                    }else{ 
+                        if(mysql_num_rows($result) == 0){ // no merged rounds
+                            $sqlEvents .= " st.xWettkampf = ".$event." ";
+                        }else{   
+                            $eventMerged = true;
+                            $sqlEvents .= "( st.xWettkampf = ".$event." ";
+                            while($row_m = mysql_fetch_array($result)){
+                                if($row_m[0] != $event){ // if there are additional events (merged rounds) add them as sql statement
+                                    $sqlEvents .= " OR st.xWettkampf = ".$row_m[0]." ";
+                                }
+                            }
+                            $sqlEvents .= ") ";       
+                        }
+                    mysql_free_result($result);  
+                    }
+                }else{
+                    $sqlEvents .= " st.xWettkampf = ".$event." ";
+                }  
+                
 				$combGroup = "";	// combined group if set
 				$combined = false;	// is combined event
 				$teamsm = false;	// is team sm event
@@ -351,11 +405,32 @@ function AA_timetable_display($arg = 'monitor')
 							mysql_free_result($result);
 						}
 					}elseif($combined || $teamsm){ // for combined rounds, count starts for correct group
-						 
+						
+                         if($roundSet > 0){
+                               
+                        if($roundSetMain == 0){
+                            $starts = "m";                               
+                        }else{
 						if($row[17] == 1){ // if this is a combined last event, every athlete starts
 							$starts = $row[5];
 						}elseif(empty($row[15])){ // if no group is set
 							$starts = $row[5];
+                            $sql_c="SELECT COUNT(*) FROM
+                                            start as st
+                                            , anmeldung as a
+                                        WHERE    st.xAnmeldung = a.xAnmeldung
+                                        AND    $sqlEvents
+                                        AND    a.Gruppe = '$row[15]'
+                                        AND st.Anwesend = 0";
+                           
+                            $result = mysql_query($sql_c);
+                            if(mysql_errno() > 0) {     
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }else{
+                                $start_row = mysql_fetch_array($result);
+                                $starts = $start_row[0];
+                            }
+                           
 						}else{      
 							$result = mysql_query("SELECT COUNT(*) FROM
 											start as st
@@ -364,6 +439,7 @@ function AA_timetable_display($arg = 'monitor')
 										AND	st.xWettkampf = $row[10]
 										AND	a.Gruppe = '$row[15]'
                                         AND st.Anwesend = 0");  
+                                       
 							
 							if(mysql_errno() > 0) {	 
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -375,10 +451,36 @@ function AA_timetable_display($arg = 'monitor')
 							$combGroup = "&nbsp;g".$row[15];
 						}
 						
+                        }
+                         }
+                         else {
+                             if($row[17] == 1){ // if this is a combined last event, every athlete starts
+                            $starts = $row[5];
+                        }elseif(empty($row[15])){ // if no group is set
+                            $starts = $row[5];
+                        }else{      
+                            $result = mysql_query("SELECT COUNT(*) FROM
+                                            start as st
+                                            , anmeldung as a
+                                        WHERE    st.xAnmeldung = a.xAnmeldung
+                                        AND    st.xWettkampf = $row[10]
+                                        AND    a.Gruppe = '$row[15]'
+                                        AND st.Anwesend = 0");  
+                            
+                            if(mysql_errno() > 0) {     
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }else{
+                                $start_row = mysql_fetch_array($result);
+                                $starts = $start_row[0];
+                                mysql_free_result($result);
+                            }
+                            $combGroup = "&nbsp;g".$row[15];
+                        }
+                         }
 					}elseif($roundSet > 0){
 						   
 						if($roundSetMain == 0){
-							$starts = "m";
+							$starts = "m";                                
 						}else{
 							  
 							$result = mysql_query("SELECT COUNT(*) FROM
