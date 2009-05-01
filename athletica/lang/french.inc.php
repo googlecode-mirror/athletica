@@ -226,7 +226,7 @@ $strNoMeetingSelected = "Aucun meeting sélectionné.";
 $strNoPageBreak = "Sans de saut de page";  
 
 $strOmegaNoPath = 'Le chemin indiqué pour le chronométrage n’existe pas. Les changements n’ont pas été enregistrés.';
-$strOmegaNoPathBackup = 'Le chemin du chronométrage OMEGA n’existe pas. La configuration du chronométrage a été remise à zéro.';
+$strOmegaNoPathBackup = 'Le chemin du chronométrage Swiss-Timing n’existe pas. La configuration du chronométrage a été remise à zéro.';
 $strOK = "OK"; 
 $strOKDelete = "Entrée dans banque de données supprimée"; 
 $strOKInsert = "Nouvelle entrée dans banque de données"; 
@@ -444,7 +444,7 @@ $strSvmFromBase = "Inscrire les équipes existantes";
 $strSvmBaseNotFound = "Aucune équipe ne se trouve dans les données de base";
 $strTeamNameRemark = "Attention! Lors du téléchargement de ce nom dans la liste des meilleurs, il sera changé en:<br>Nom de la société + No  continu";
 $strTeamsAutoAssign = "Attribuer les équipes";
-$strTimingOmega = "Chronométrage Omega";
+$strTimingOmega = "Chronométrage Swiss-Timing";
 $strTimingResults = "Résultats du chronométrage";
 $strXmlParseErr = "Erreur lors du traitement XML";
 $strErrNoControl = "<b>Attention:</b> Vous n’avez pas encore synchronisé votre meeting à l'autorisation<br>
@@ -741,6 +741,23 @@ $strEnrolSheet = " Feuille d'appel ";
 $strErrResultsInProgress = "Il y a encore des résultats en cours de traitement. <br>Prière d'évaluer et de classer les résultats d'abord! ";
 $strAssTax = "Taxe à la fédération";
 
-$strEffortsUpdateInfo4 = "Manière de procéder avec les données d'athlète enregistrées manuellement (nom, prénom, société)";                             
+$strEffortsUpdateInfo4 = "Manière de procéder avec les données d'athlète enregistrées manuellement (nom, prénom, société)";  
+
+$strErrNoControl1 = "<b>Attention:</b> Vous n’avez pas encore synchronisé votre meeting à l'autorisation<br>
+            (Administration -> ajustement avec l’autorisation de meeting en ligne). Ceci est une condition pour<br>
+            l’établissement de relais, d’équipes et pour le téléchargement dans la liste des meilleurs!<br>
+            Si vous ne souhaitez pas de téléchargement dans la liste des meilleurs, désactivez le point <br>
+            \"Meeting avec téléchargement ultérieur des résultats\".";
+$strLicensePrinted  = "Licence valable";
+$strNoAccessAttempt  = "Essai manqué"; 
+$strErrNoControl2  = "<b>Attention:</b> Ceci ne peut pas être annulé.";   
+
+$strCatLicense = "Catégories avec Licence";
+$strActiv = "Active, U23, U20, U18";
+$strU16 = "U16";  
+$strU14 = "U14, U123, U10";
+$strActivCHF = "CHF 4.--  par début";
+$strU16CHF = "CHF 2.--  par début";  
+$strU14CHF = "CHF 1.--  par début";                                
 
 ?>

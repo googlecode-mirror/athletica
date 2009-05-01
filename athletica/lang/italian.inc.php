@@ -391,7 +391,7 @@ $strTimeFormat = "Ora (hhmm)";
 $strTimetable = "Orario di gara";
 $strTimetableChanged = "Cambiamento all’orario di gara";
 $strTiming = "Cronometraggio";
-$strTimingOmega = "Cronometraggio Omega";
+$strTimingOmega = "Cronometraggio Swiss-Timing";
 $strTimingResults = "Risultati dal cronometraggio";
 $strTopPerformance = "Miglior prestazione";
 $strTotal = "Totale";
@@ -555,7 +555,7 @@ $strLoginToMeeting = "Login per Meeting";
 $strMergeHere = "Raggruppare con"; 
 $strMergeMain = "Turno principale"; 
 $strOmegaNoPath = "Il percorso indicato per il cronometraggio non esiste. I cambiamenti non sono stati salvati."; 
-$strOmegaNoPathBackup = "Il percorso per il cronometraggio OMEGA non esiste. La configurazione del cronometraggio è stata annullata."; 
+$strOmegaNoPathBackup = "Il percorso per il cronometraggio Swiss-Timing non esiste. La configurazione del cronometraggio è stata annullata."; 
 $strOmegaSponsor = "Sponsor"; 
 $strPerSvmTeam = "e secondo squadre CSI"; 
 $strPrintTimetableComp = "Stampa programma orario (segretariato)"; 
@@ -699,5 +699,13 @@ $strClub2 = "Seconda società";
 $strEnrolSheet = "Foglio di appello"; 
 $strErrResultsInProgress = "Vi sono ancora risultati in elaborazione. <br>Si invita a valutare e ordinare prima i risultati!"; 
 $strAssTax = "Tassa della federazione"; 
+
+$strCatLicense = "Categorie con Licenza";
+$strActiv = "Attivo, U23, U20, U18";
+$strU16 = "U16";  
+$strU14 = "U14, U123, U10";  
+$strActivCHF = "CHF 4.--  al inizio";
+$strU16CHF = "CHF 2.--  al inizio";  
+$strU14CHF = "CHF 1.--  al inizio";
 
 ?>

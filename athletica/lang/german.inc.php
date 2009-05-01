@@ -203,6 +203,7 @@ $strErrNoControl = "<b>Achtung:</b> Sie haben Ihr Meeting noch nicht mit der Mee
 			das Erstellen von Staffeln, Mannschaften und für den Upload in die Bestenliste!<br>
 			Wünschen Sie keinen Upload in die Bestenliste, deaktivieren Sie den Punkt<br>
 			\"Meeting mit späterem Resultate Upload\" in der Meetingdefinition.";
+
 $strErrNoControl2 = "Der Resultate Upload bei diesem Meeting ist nicht aktiviert!<br>Aktivieren Sie diese Funktion wie im nachfolgenden Bild gezeigt:";
 $strErrNotValid = " nicht gültig!";
 $strErrInvalidBackupFile = "Ungültige Sicherungsdatei!";
@@ -384,7 +385,7 @@ $strOmegaPass = "Passwort";
 $strOmegaFtppath = "FTP Pfad";
 $strOmegaNoConf = "Zeitmessung: Noch keine Konfiguration vorhanden";
 $strOmegaNoPath = "Der angegebene Pfad für die Zeitmessung existiert nicht. Die Änderungen wurden nicht gespeichert.";
-$strOmegaNoPathBackup = 'Der Pfad für die OMEGA-Zeitmessung existiert nicht. Die Zeitmessungs-Konfiguration wurde zurückgesetzt.';
+$strOmegaNoPathBackup = 'Der Pfad für die Swiss-Timing-Zeitmessung existiert nicht. Die Zeitmessungs-Konfiguration wurde zurückgesetzt.';
 $strOmegaPathWriteFailed = "Im eingegebenen Pfad kann Athletica nicht schreiben";
 $strOmegaSponsor = 'Sponsor';
 $strOn = "Ein";
@@ -559,7 +560,7 @@ $strTimeFormat = "Zeit (hhmm)";
 $strTimetableChanged = "Zeitplan geändert";
 $strTiming = "Zeitmessung";
 $strTimingExport = "Serien für Zeitmessung exportieren";
-$strTimingOmega = "Omega Zeitmessung";
+$strTimingOmega = "Swiss-Timing Zeitmessung";
 $strTimingAlge = "Alge Zeitmessung";
 $strTimingResults = "Resultate aus Zeitmessung";
 $strTopPerformance = "Bestleistung";
@@ -746,4 +747,25 @@ $strErrResultsInProgress = "Es sind noch Resultate in Bearbeitung. <br> Bitte zu
 $strAssTax = "Verbandsabgabe"; 
 
 $strEffortsUpdateInfo4 = "Verhalten bei manuell eingetragenen Athletendaten (Name, Vorname, Verein):";
+
+$strLicensePrinted = "Lizenz gültig";
+
+$strNoAccessAttempt = "Fehlversuch";
+$strNoAccessAttemptShort = "X";
+
+$strErrNoControl1 = "<b>Achtung:</b> Sie haben Ihr Meeting noch nicht mit der Meetingbewilligung<br>
+            abgeglichen (Administration -> Abgleich mit der Online-Meetingbewilligung). Dies ist Voraussetzung für<br>
+            das Erstellen von Staffeln, Mannschaften und für den Upload in die Bestenliste!<br>
+            Wünschen Sie keinen Upload in die Bestenliste, deaktivieren Sie den Punkt<br>
+            \"Meeting mit späterem Resultate Upload\".";
+            
+$strErrNoControl2 = "<b>Achtung:</b> Dies kann nicht wieder rückgängig gemacht werden.";
+$strCatLicense = "Kategorien mit Lizenz";
+$strActiv = "Aktive, U23, U20, U18";
+$strU16 = "U16";  
+$strU14 = "U14, U123, U10"; 
+$strActivCHF = "CHF 4.-- pro Start";
+$strU16CHF = "CHF 2.-- pro Start";  
+$strU14CHF = "CHF 1.-- pro Start";   
+
 ?>
