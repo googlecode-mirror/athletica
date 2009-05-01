@@ -418,7 +418,7 @@ else {
 		// get all results ordered by ranking; for invalid results (Rang=0), the
 		// rank is set to max_rank to put them to the end of the list.
 		$max_rank = 999999999;  
-		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";		
+		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99 OR r.Leistung = -98, -9, r.Leistung) * -1), r.Leistung)";		
 		                		
 		$order= $order_heat;  		
 		
@@ -516,7 +516,7 @@ else {
 							 ".$order_perf.", 
 							 sf.Name;";        				 
 		}    
-		
+		 
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1061,7 +1061,8 @@ else {
 								if($row_att['Leistung'] < 0){
                                     $perf3 = $row_att['Leistung'];
                                     if ($perf3 == $GLOBALS['cfgMissedAttempt']['db']){
-                                        $perf3 = '-';
+                                       // $perf3 = '-';
+                                        $perf3 = $GLOBALS['cfgMissedAttempt']['code'];
                                     }
 									foreach($cfgInvalidResult as $value)	// translate value
 									{
@@ -1074,9 +1075,16 @@ else {
 									$text_att .= ($row_att['Leistung']=='-') ? '-' : AA_formatResultMeter($row_att['Leistung']);
                                     if ($saison == "O") {        // outdoor
 									    if($row_att['Info'] != "-" && !empty($row_att['Info']) && $row[3] != $cfgDisciplineType[$strDiscTypeThrow]){
-                                            if ($row[8] != 0){
-										        $text_att .= " , ".$row_att['Info'];  
-                                            } 
+                                                
+                                                if ($row[3] == $cfgDisciplineType[$strDiscTypeHigh]){
+                                                    $text_att .= " , ".$row_att['Info'];  
+                                                }
+                                                else {
+                                                     if ($row[8] != 0){
+                                                        $text_att .= " , ".$row_att['Info'];   
+                                                     } 
+                                                }
+                                            
 									    }
                                         elseif ($row_att['Info'] == "-"  && $row[3] != $cfgDisciplineType[$strDiscTypeThrow] && $row_att['Leistung'] > 0){
                                                  $text_att .= " , ".$row_att['Info'];  
