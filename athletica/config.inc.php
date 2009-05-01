@@ -16,7 +16,7 @@
  * Application Info
  */
 $cfgApplicationName = 'Athletica';
-$cfgApplicationVersion = '3.4';
+$cfgApplicationVersion = '3.4.1';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
@@ -68,7 +68,8 @@ $cfgBackupCompatibles = array(
 	'3.3.15', 
     '3.3.16',    
     '3.3.17_Beta',     
-    '3.4'       
+    '3.4',
+    '3.4.1'              
 );
 
 
@@ -158,6 +159,7 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
 				, 3942 => 'H5MAN'	// 5Kampf Halle M
 				, 395 => 'HWOMU18'  
                 , 403 => 'ACup'     // Erdgas Athletic Cup
+                , 799 => '..Ka'     // ...kampf
 				);
 
 /**	
@@ -369,11 +371,15 @@ $cfgInvalidResult = array("DNS"=>array ("code"=>-1
 								, "NRS"=>array ("code"=>-4
 													, "short"=>$strNoResultShort
 													, "long"=>$strNoResult
-													)
+													)                                  
 								, "WAI"=>array ("code"=>'-'
 													, "short"=>$strQualifyWaivedShort
 													, "long"=>$strQualifyWaived
 													)
+                                , "NAA"=>array ("code"=>'X'
+                                                    , "short"=>$strNoAccessAttemptShort
+                                                    , "long"=>$strNoAccessAttempt
+                                                    )                                   
 								);
 
 /**
@@ -382,7 +388,11 @@ $cfgInvalidResult = array("DNS"=>array ("code"=>-1
  */
 $cfgMissedAttempt = array("code"=>'-'
 									, "db"=>-99
-								);
+								,
+                          "code"=>'X'
+                                    , "db"=>-98
+                                );      
+                                
 
 /**
  * Program Mode
