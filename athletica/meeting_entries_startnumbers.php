@@ -578,19 +578,19 @@ if(mysql_errno() > 0){
 		
 		<input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" >	</td>
         
-    </td>
+        </td>  
     <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
     
     
     
     <td class='forms'>
         
-        <input type="text" size="3" value="0" name="of_track1_<?php echo $row[0] ?>" ">    </td>
+        <input type="text" size="3" value="0" name="of_track1_<?php echo $row[0] ?>" >    </td>
     <td class='forms_right'>
        
         <input type="text" size="3" value="0" name="to_track1_<?php echo $row[0] ?>" >    </td>
     
-    </td> 
+    
     <td class='forms_right_grey'><?php echo $max_startnr_track1; ?></td>
     
     
@@ -611,7 +611,7 @@ if(mysql_errno() > 0){
        
         <input type="text" size="3" value="0" name="to_tech_<?php echo $row[0] ?>" >    </td>
    
-    </td> 
+    
     <td class='forms_right_grey'><?php echo $max_startnr_tech; ?></td>
 </tr>
 		<?php
