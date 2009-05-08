@@ -184,14 +184,15 @@ function AA_heats_seedEntries($event)
         }
     }else{ // combined 
         if(!empty($cGroup)){
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet,r.xRunde"
-                    . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)"
+            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet"
+                    . " FROM start as s, anmeldung as a "
                     . " WHERE " . $sqlEvents
                     . " AND s.xAnmeldung = a.xAnmeldung"
                     . " AND a.Gruppe = '$cGroup'"
                     . " AND s.Anwesend = 0"
                     . " AND s.xAnmeldung > 0"
                     . " ORDER BY $order";
+                    
         }else{
             $query = "SELECT xStart, if(BestleistungMK = 0, 0, BestleistungMK) as best, a.xAthlet,r.xRunde"
                     . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)"
@@ -200,6 +201,7 @@ function AA_heats_seedEntries($event)
                     . " AND s.Anwesend = 0"
                     . " AND s.xAnmeldung > 0"
                     . " ORDER BY best DESC, RAND()";
+                   
         }
     }
     if($teamsm && !empty($cGroup)){    // teamsm event with groups
