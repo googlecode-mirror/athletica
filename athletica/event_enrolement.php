@@ -110,12 +110,13 @@ else {
 
 if(!empty($_GET['comb'])) {
 	$comb = $_GET['comb'];
-	list($cCat, $cCode) = explode("_", $comb);
+	list($cCat, $cCode, $cDisz) = explode("_", $comb);
 }
 else {
 	$comb = 0;
 	$cCat = 0;
 	$cCode = 0;
+    $cDisz = 0;
 }
 
 
@@ -610,7 +611,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		else {   
 			$sqlEventComb = '';        // the whole combined event
 			$sqlCat = " w.xKategorie = " .$cCat ." AND ";
-			$sqlMk = " w.Mehrkampfcode = ".$cCode;           
+			$sqlMk = " w.Mehrkampfcode = ".$cCode ." AND w.xDisziplin = ".$cDisz;           
 		} 
         
         $sqlGroup = '';
@@ -943,10 +944,14 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             
             $sqlCats= AA_mergedCatEvent($cCat,$event); 
             if (!empty($sqlCats)) {
-                 $sqlCat = " w.xKategorie IN $sqlCats AND ";   
+                if (empty($sqlEventComb)){
+                 $sqlCat = " w.xKategorie IN $sqlCats AND ";  
+                }
+                else {
+                     $sqlCat = " AND w.xKategorie IN $sqlCats ";  
+                } 
             }
-            
-            
+                        
 			$sql = "SELECT
 						  s.xStart
 						, s.Anwesend
@@ -981,7 +986,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						".$argument.";";
 			  
 			$query = $sql;     
-           
+            
 		}else{  
 			// no combined
 			/*$query = "SELECT s.xStart"
@@ -1174,7 +1179,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
                     ".$argument.";";
                     
 		$query = $sql; 
-       
+        
 	}                   
 	
 	$result = mysql_query($query);
