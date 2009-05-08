@@ -36,6 +36,7 @@ $limit1 = 0;
 $limit2 = 0;
 $limit3 = 0;
 
+$allNr = false;
 
 ?>
 
@@ -94,10 +95,9 @@ if($_GET['arg'] == 'assign')
 					, wettkampf AS w READ
 					, start AS s READ
 					, team AS t READ
-			");
-		
-            $result = mysql_query("
-                SELECT 
+			");  
+          
+            $sql="SELECT 
                     DISTINCT (a.xAnmeldung) ,
                     w.xKategorie , 
                     at.xVerein , 
@@ -122,8 +122,9 @@ if($_GET['arg'] == 'assign')
                 WHERE 
                     a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                     ORDER BY      
-                         $argument, discSort, $argument2
-               "); 
+                         $argument, discSort, $argument2";    
+            
+            $result = mysql_query($sql); 
           
 			if(mysql_errno() > 0)		// DB error
 			{
@@ -131,55 +132,156 @@ if($_GET['arg'] == 'assign')
 			}
 			else if(mysql_num_rows($result) > 0)  // data found
 			{ 
+            $noCat = true;   
+           
+              // check if choosen per name/club or per category
+              while ($row = mysql_fetch_row($result))
+              { 
+                if (($_GET["of_$row[1]"] != 0)   ||
+                     ($_GET["of_tech_$row[1]"] != 0) ||
+                      ($_GET["of_track1_$row[1]"] != 0) ||
+                      ($_GET["of_track2_$row[1]"] != 0)) 
+                {
+                      $noCat = false;   
+                }  
+              } 
+               
+              if ($noCat){       // set per name or per club  
+                  
+                   $sql="SELECT 
+                            DISTINCT (a.xAnmeldung) ,
+                            w.xKategorie , 
+                            at.xVerein , 
+                            a.xTeam, 
+                            at.Name, 
+                            at.Vorname,
+                            t.Name, 
+                            IF( (d.Typ = ".$cfgDisciplineType[$strDiscTypeTrack]." 
+                                    || d.Typ = ".$cfgDisciplineType[$strDiscTypeTrackNoWind]."   
+                                     ),2, IF( (d.Typ = ".$cfgDisciplineType[$strDiscTypeDistance]."
+                                     || d.Typ = ".$cfgDisciplineType[$strDiscTypeRelay]."                                       
+                                     ),3, 1 ) ) as discSort
+                         FROM 
+                            anmeldung AS a
+                            LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet        
+                            INNER JOIN verein AS v ON at.xVerein = v.xVerein 
+                            INNER JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
+                            INNER JOIN wettkampf AS w USING (xWettkampf)
+                            INNER JOIN disziplin AS d On (w.xdisziplin = d.xDisziplin)
+                            INNER JOIN kategorie AS k ON k.xKategorie = w.xKategorie
+                            LEFT JOIN team AS t ON t.xTeam = a.xTeam 
+                         WHERE 
+                            a.xMeeting = " . $_COOKIE['meeting_id'] . " 
+                         ORDER BY      
+                            $argument2 , discSort";    
+              }
+              
+              $result = mysql_query($sql); 
+              if(mysql_errno() > 0)        // DB error
+                    {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+              }         
+              
 			  $k = 0;	// initialize current category
 			  $v = 0;	// initialize current club   
+              $first = true;
               
               $arr_enrolment = array();   
 			  
 			  // Assign startnumbers
 			  while ($row = mysql_fetch_row($result))
-			  {
-				// set per category from, to  and per disciplines (all or tech and/or track under 400m and/or track over 400m)
-				
-                if (($v != $row[2])         // new club
+			  { 
+              
+				// set per category from, to  and per disciplines (all or tech and/or track under 400m and/or track over 400m)  
+                if (($v != $row[2] )         // new club
                             && ($clubgap > 0)           // gap between clubs
                             && ($v > 0)                 // not first row
-                            && ($_GET['sort']=="club")) // gap after cat
-                             
-                    {  
-                     if (!empty($_GET["of_$row[1]"])){
-                        $nbr = $nbr + $clubgap - 1;    // calculate next number  all disciplines
+                            && ($_GET['sort']=="club")) // gap after cat 
+                    { 
+                     
+                     if ($noCat){           // set per name or per club 
+                            $nbr = $nbr + $clubgap - 1;    // calculate next number  all disciplines     
                      }
                      else {
-                             if (!empty($_GET["of_tech_$row[1]"])){ 
-                                 $nbr1 = $nbr1 + $clubgap - 1;    // calculate next number tech  
-                             }
-                             if (!empty($_GET["of_track1_$row[1]"])){    
-                                  $nbr2 = $nbr2 + $clubgap - 1;    // calculate next number track under 400m
-                             }
-                             if (!empty($_GET["of_track2_$row[1]"])){
-                                  $nbr3 = $nbr3 + $clubgap -1 ;    // calculate next number track over 400m  
-                             }   
+                            if (!empty($_GET["of_$row[1]"])){  
+                                $nbr = $nbr + $clubgap - 1;    // calculate next number  all disciplines
+                            }
+                            else { 
+                                if (!empty($_GET["of_tech_$row[1]"])){ 
+                                    $nbr1 = $nbr1 + $clubgap - 1;    // calculate next number tech  
+                                }
+                                if (!empty($_GET["of_track1_$row[1]"])){    
+                                    $nbr2 = $nbr2 + $clubgap - 1;    // calculate next number track under 400m
+                                }
+                                if (!empty($_GET["of_track2_$row[1]"])){
+                                    $nbr3 = $nbr3 + $clubgap -1 ;    // calculate next number track over 400m  
+                                }  
+                            }
                      }
-                }
-				if ($k != $row[1]){			// new category 
-                
-                    $nbr = 0;  
-                    $nbr1 = 0; 
-                    $nbr2 = 0; 
-                    $nbr3 = 0; 
-                    $limit = 0;
-                    $limit1 = 0;
-                    $limit2 = 0;
-                    $limit3 = 0;
-                    $all = false;
-                    
-                    if (!empty($_GET["of_$row[1]"])){
-                        $nbr = $_GET["of_$row[1]"];
-                        $limit = $_GET["to_$row[1]"]; 
+                    }
+            
+                if ($noCat) {                  // set per name or per club 
+                    if ($first){  
+                        $nbr = 0;  
+                        $nbr1 = 0; 
+                        $nbr2 = 0; 
+                        $nbr3 = 0; 
+                        $limit = 0;
+                        $limit1 = 0;
+                        $limit2 = 0;
+                        $limit3 = 0;
+                        $all = false;
+                        
+                        $nbr = 1;
+                        $limit = 9999999;
                         $all = true;                          
-                    } 
+                        $allNr = true;
+                                 
+                        $nbr=($nbr==0 && $limit>0)?1:$nbr;   
+                        $nbr1=($nbr1==0 && $limit1>0)?1:$nbr1;
+                        $nbr2=($nbr2==0 && $limit2>0)?1:$nbr2; 
+                        $nbr3=($nbr3==0 && $limit3>0)?1:$nbr3; 
+                        
+                        $first = false;
+                    }
                     else {
+                         if(($limit > 0 && $nbr > $limit) || $limit == 0){
+                            $nbr = 0;
+                            $limit = 0;
+                         } 
+                    
+                        if(($limit1 > 0 && $nbr1 > $limit1) || $limit1 == 0){
+                            $nbr1 = 0;
+                            $limit1 = 0;
+                        } 
+                        if(($limit2 > 0 && $nbr2 > $limit2) || $limit2 == 0){
+                            $nbr2 = 0;
+                            $limit2 = 0;
+                        }
+                        if(($limit3 > 0 && $nbr3 > $limit3) || $limit3 == 0){
+                            $nbr3 = 0;
+                            $limit3 = 0;
+                        } 
+                    } 
+                }
+                else {
+				    if ($k != $row[1]  ){			// new category      
+                        $nbr = 0;  
+                        $nbr1 = 0; 
+                        $nbr2 = 0; 
+                        $nbr3 = 0; 
+                        $limit = 0;
+                        $limit1 = 0;
+                        $limit2 = 0;
+                        $limit3 = 0;
+                        $all = false;
+                    
+                        if (!empty($_GET["of_$row[1]"])){
+                            $nbr = $_GET["of_$row[1]"];
+                            $limit = $_GET["to_$row[1]"]; 
+                            $all = true;                          
+                        } 
+                        else {
                            if (!empty($_GET["of_tech_$row[1]"])){
                                 $nbr1 = $_GET["of_tech_$row[1]"];
                                 $limit1 = $_GET["to_tech_$row[1]"];  
@@ -191,31 +293,32 @@ if($_GET['arg'] == 'assign')
                            if (!empty($_GET["of_track2_$row[1]"])){
                                   $nbr3 = $_GET["of_track2_$row[1]"];
                                   $limit3 = $_GET["to_track2_$row[1]"]; 
-                           }
-                    }  
-                    $nbr=($nbr==0 && $limit>0)?1:$nbr;   
-                    $nbr1=($nbr1==0 && $limit1>0)?1:$nbr1;
-                    $nbr2=($nbr2==0 && $limit2>0)?1:$nbr2; 
-                    $nbr3=($nbr3==0 && $limit3>0)?1:$nbr3;   
-				}else{ 
-                    if(($limit > 0 && $nbr > $limit) || $limit == 0){
-                        $nbr = 0;
-                        $limit = 0;
-                    } 
-					
-					if(($limit1 > 0 && $nbr1 > $limit1) || $limit1 == 0){
-						$nbr1 = 0;
-						$limit1 = 0;
-					} 
-                    if(($limit2 > 0 && $nbr2 > $limit2) || $limit2 == 0){
-                        $nbr2 = 0;
-                        $limit2 = 0;
-                    }
-                     if(($limit3 > 0 && $nbr3 > $limit3) || $limit3 == 0){
-                        $nbr3 = 0;
-                        $limit3 = 0;
-                    }
-				}     
+                           } 
+                        }  
+                        $nbr=($nbr==0 && $limit>0)?1:$nbr;   
+                        $nbr1=($nbr1==0 && $limit1>0)?1:$nbr1;
+                        $nbr2=($nbr2==0 && $limit2>0)?1:$nbr2; 
+                        $nbr3=($nbr3==0 && $limit3>0)?1:$nbr3; 
+                
+				    }else{ 
+                        if(($limit > 0 && $nbr > $limit) || $limit == 0){
+                            $nbr = 0;
+                            $limit = 0;
+                        }   
+					    if(($limit1 > 0 && $nbr1 > $limit1) || $limit1 == 0){
+						    $nbr1 = 0;
+						    $limit1 = 0;
+					    } 
+                        if(($limit2 > 0 && $nbr2 > $limit2) || $limit2 == 0){
+                            $nbr2 = 0;
+                            $limit2 = 0;
+                        }
+                        if(($limit3 > 0 && $nbr3 > $limit3) || $limit3 == 0){
+                            $nbr3 = 0;
+                            $limit3 = 0;
+                        }
+				    }   
+                }   
 				
                 switch ($row[7]){
                        case 1:  if ($all){
@@ -230,7 +333,7 @@ if($_GET['arg'] == 'assign')
                                                 $arr_enrolment [$row[0]] = 'y';   
                                                 $nbr++;
                                             }                          
-                                     }
+                                     }  
                                 }
                                 else {  
                                       if (!isset($arr_enrolment[$row[0]])){ 
@@ -313,7 +416,9 @@ if($_GET['arg'] == 'assign')
 					    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 				
-				$k = $row[1];	// keep current category
+                if (!$noCat) {
+				    $k = $row[1];	// keep current category
+                }
 				$v = $row[2];	// keep current club    
 				                                            
 			  }
