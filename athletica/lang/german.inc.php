@@ -766,6 +766,8 @@ $strU16 = "U16";
 $strU14 = "U14, U123, U10"; 
 $strActivCHF = "CHF 4.-- pro Start";
 $strU16CHF = "CHF 2.-- pro Start";  
-$strU14CHF = "CHF 1.-- pro Start";   
+$strU14CHF = "CHF 1.-- pro Start";  
+
+$strErrMergeGroup = "Mehrkämpfe mit Gruppen können nicht zusammengefasst werden."; 
 
 ?>

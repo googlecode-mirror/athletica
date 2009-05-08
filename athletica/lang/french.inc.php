@@ -752,12 +752,14 @@ $strLicensePrinted  = "Licence valable";
 $strNoAccessAttempt  = "Essai manqué"; 
 $strErrNoControl2  = "<b>Attention:</b> Ceci ne peut pas être annulé.";   
 
-$strCatLicense = "Catégories avec Licence";
+$strCatLicense = "Catégories avec licence";
 $strActiv = "Active, U23, U20, U18";
 $strU16 = "U16";  
 $strU14 = "U14, U123, U10";
 $strActivCHF = "CHF 4.--  par début";
 $strU16CHF = "CHF 2.--  par début";  
-$strU14CHF = "CHF 1.--  par début";                                
+$strU14CHF = "CHF 1.--  par début";      
+
+$strErrMergeGroup = "Les concours multiples avec groupes ne peuvent pas être regroupés";                           
 
 ?>
