@@ -418,8 +418,8 @@ else {
 		// get all results ordered by ranking; for invalid results (Rang=0), the
 		// rank is set to max_rank to put them to the end of the list.
 		$max_rank = 999999999;  
-		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99 OR r.Leistung = -98, -9, r.Leistung) * -1), r.Leistung)";		
-		                		
+		$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, (If (r.Leistung = -98, -8,r.Leistung))) * -1), r.Leistung)";		
+		// $sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99 OR r.Leistung = -98, -9, r.Leistung) * -1), r.Leistung)";                		
 		$order= $order_heat;  		
 		
 		if($relay == FALSE) {     							
@@ -473,7 +473,8 @@ else {
 							 at.Name, 
 							 at.Vorname,
 							 leistung_neu " 
-							 .$order_perf;     				  
+							 .$order_perf;   
+                   
 		}
 		else {						// relay event
 				   
@@ -570,9 +571,9 @@ else {
 						$list->printInfoLine($info_save2);
 						$flagInfoLine2=false;  
 					}
-				}
-				 
-				$row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : $row_res[3]);
+				} 
+				
+                $row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : ($row_res[3]==8) ? -98 : $row_res[3]);                                                                                             
 				
 				if($row_res[0] != $id)	// athlete not processed yet
 				{  
@@ -706,15 +707,20 @@ else {
 						$year = '';
 					}
 
-					// performance
+					// performance                      
 					if($row_res[3] < 0) {	// invalid result
-						foreach($cfgInvalidResult as $value)	// translate value
-						{
-							if($value['code'] == $row_res[3]) {
-								$perf = $value['short'];
-							}
-						}
-					}
+                        if ($row_res[3] == '-98'){                           
+                            $perf = $cfgInvalidResult['NAA']['code']; 
+                        }
+                        else {
+						    foreach($cfgInvalidResult as $value)	// translate value
+						        {   
+							    if($value['code'] == $row_res[3]) {
+								    $perf = $value['short'];
+							    }
+						    }
+                        }
+					}                    
 					else if(($row[3] == $cfgDisciplineType[$strDiscTypeJump])
 						|| ($row[3] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
 						|| ($row[3] == $cfgDisciplineType[$strDiscTypeThrow])

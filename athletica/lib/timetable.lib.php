@@ -88,6 +88,7 @@ function AA_timetable_display($arg = 'monitor')
 				, w.Mehrkampfcode
 				, rs.xRundenset
 				, rs.Hauptrunde
+                , d.xDisziplin
 			FROM
 				runde AS r
 				, wettkampf AS w
@@ -117,7 +118,7 @@ function AA_timetable_display($arg = 'monitor')
                 , k.Kurzname
 				, d.Anzeige
 		");   
-      
+       
 		if(mysql_errno() > 0)	// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -264,7 +265,7 @@ function AA_timetable_display($arg = 'monitor')
 						$class = "";
 						//$href = "event_heats.php?round=$row[0]";
 						if($combined){ 
-							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]&group=$row[15]";
+							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]_$row[21]&group=$row[15]";
 						}else{
 							$href = "event_enrolement.php?category=$row[11]&event=$row[10]";
 						}
@@ -272,7 +273,7 @@ function AA_timetable_display($arg = 'monitor')
 					case($cfgRoundStatus['enrolement_pending']):
 						$class = "st_enrlmt_pend";
 						if($combined){  
-							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]";
+							$href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]_$row[21]";
 						}else{
 							$href = "event_enrolement.php?category=$row[11]&event=$row[10]";
 						}
