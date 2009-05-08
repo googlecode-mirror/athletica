@@ -153,50 +153,63 @@ elseif($_POST['arg'] == "merge_add"){
 		{
 			$GLOBALS['AA_ERROR'] = $strErrHeatsAlreadySeeded;
 		}else{
-			
-            $c1=AA_countRound($r);
-            $c2=AA_countRound($mr); 
-            if ( $c1==$c2)  {
+			// check group  (rounds with groups can not be merged)
+             $res = mysql_query("SELECT r.Gruppe FROM runde As r WHERE r.xRunde = ".$mr. " OR r.xRunde = ".$r); 
+             if(mysql_errno() > 0){
+                        $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
+             }else{
+                 if(mysql_num_rows($res) > 0){
+                        $row = mysql_fetch_array($res);
+                        if (!empty($row[0])){
+                             $GLOBALS['AA_ERROR'] = $strErrMergeGroup;
+                        }
+                 }
+             }
+            if (empty($GLOBALS['AA_ERROR'])) { 
+                $c1=AA_countRound($r);
+                $c2=AA_countRound($mr); 
+                if ( $c1==$c2)  {
             
-			    // round set not yet created
-			    if(empty($rs)){
-				    // get next roundset number
-				    $res = mysql_query("SELECT MAX(xRundenset) FROM rundenset");
-				    $max = 0;
-				    if(mysql_num_rows($res) > 0){
-					    $row = mysql_fetch_array($res);
-					    $max = $row[0];
-				    }
-				    $max++;
+			        // round set not yet created
+			        if(empty($rs)){
+				        // get next roundset number
+				        $res = mysql_query("SELECT MAX(xRundenset) FROM rundenset");
+				        $max = 0;
+				        if(mysql_num_rows($res) > 0){
+					        $row = mysql_fetch_array($res);
+					        $max = $row[0];
+				        }
+				        $max++;
 				
-				    mysql_query("INSERT INTO rundenset SET
-						xRundenset = $max
-						, Hauptrunde = 1
-						, xRunde = $mr
-						, xMeeting = ".$_COOKIE['meeting_id']);
-				    if(mysql_errno() > 0){
-					    $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
-				    }else{
-					    $rs = $max;
-				    }
-			    }
+				        mysql_query("INSERT INTO rundenset SET
+						    xRundenset = $max
+						    , Hauptrunde = 1
+						    , xRunde = $mr
+						    , xMeeting = ".$_COOKIE['meeting_id']);
+				        if(mysql_errno() > 0){
+					        $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
+				        }else{
+					        $rs = $max;
+				        }
+			        }
 			      
-			    // insert new round  
-			    if($rs > 0){ 
-				    mysql_query("INSERT INTO rundenset SET
-						xRundenset = $rs
-						, Hauptrunde = 0
-						, xRunde = $r
-						, xMeeting = ".$_COOKIE['meeting_id']);
-				    if(mysql_errno() > 0){
-					    $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
-				    }
-			    } 
-                AA_getAllRoundsforChecked($event,$action='add',$r);     // set checked automatic
-            }
-            else {   
-                AA_printErrorMsg($strMergeRoundsErr);    
-            }   
+			        // insert new round  
+			        if($rs > 0){ 
+				        mysql_query("INSERT INTO rundenset SET
+						    xRundenset = $rs
+						    , Hauptrunde = 0
+						    , xRunde = $r
+						    , xMeeting = ".$_COOKIE['meeting_id']);
+				        if(mysql_errno() > 0){
+					        $GLOBALS['AA_ERROR'] = mysql_errno().": ".mysql_error();
+				        }
+			        } 
+                    AA_getAllRoundsforChecked($event,$action='add',$r);     // set checked automatic
+                }
+                else {   
+                    AA_printErrorMsg($strMergeRoundsErr);    
+                }  
+            } 
 		}   
 		mysql_query("UNLOCK TABLES");  
 	}
