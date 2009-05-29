@@ -46,10 +46,10 @@ if($_GET['formaction'] == 'print') {		// page for printing
 if ($_GET['list']=='team')
 {
 	if($print == true) {
-		$doc = new PRINT_TeamPage($_COOKIE['meeting']);
+		$doc = new PRINT_TeamsPage($_COOKIE['meeting']);
 	}
 	else {
-		$doc = new GUI_TeamPage($_COOKIE['meeting']);
+		$doc = new GUI_TeamsPage($_COOKIE['meeting']);
 	}
 }
 else {
