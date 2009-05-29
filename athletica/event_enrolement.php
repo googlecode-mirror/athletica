@@ -971,7 +971,9 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN 
 						verein AS v ON(at.xVerein = v.xVerein)
 					LEFT JOIN
-						wettkampf AS w ON(s.xWettkampf = w.xWettkampf) "
+						wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
+                    LEFT JOIN
+                        disziplin AS d ON(w.xDisziplin   = d.xDisziplin) "
                     . $sqlTable ."
 					WHERE        "
 						. $sqlEventComb   						
