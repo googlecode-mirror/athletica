@@ -48,7 +48,7 @@ $dCode = 0;
 // get athlete info per contest category
 
 $results = mysql_query("
-	SELECT  
+	SELECT DISTINCT 
 		a.xAnmeldung
 		, at.Name
 		, at.Vorname
@@ -83,16 +83,14 @@ $results = mysql_query("
 	AND w.Mehrkampfcode = d.Code  
 	AND w.Mehrkampfcode > 0
 	AND ka.xKategorie = a.xKategorie 
-    AND st.anwesend = 0 
-	GROUP BY
-		a.xAnmeldung
+    AND st.anwesend = 0 	
 	ORDER BY    	 
 		k.Anzeige
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 "); 
-  
-  /*           
+ 
+  /*        
    $results= mysql_query("SELECT  
         a.xAnmeldung
         , at.Name
