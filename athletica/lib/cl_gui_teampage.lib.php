@@ -7,6 +7,63 @@ if (!defined('AA_CL_GUI_TEAMPAGE_LIB_INCLUDED'))
 
  	include('./lib/cl_gui_relaypage.lib.php');
 
+    
+    
+    
+  /********************************************
+ *
+ * GUI_TeamsPage
+ *
+ *    Class to print team lists
+ *
+ *******************************************/
+
+
+class GUI_TeamsPage extends GUI_RelayPage
+{
+    function printHeaderLine()
+    {
+        ?>
+    <tr>
+        <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strDisciplines']; ?></th>
+    </tr>
+        <?php
+    }
+
+
+    function printDiscHeaderLine()
+    {
+        ?>
+    <tr>
+        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
+    </tr>
+        <?php
+    }
+
+
+    function printLine($nbr, $name, $year, $disc)
+    {
+        if(!empty($disc)) {    // new discipline
+            $this->switchRowClass();
+        }
+        ?>
+    <tr class='<?php echo $this->rowclass[0]; ?>'>
+        <td class='forms_right'><?php echo $nbr; ?></td>
+        <td><?php echo $name; ?></td>
+        <td class='forms_ctr'><?php echo $year; ?></td>
+        <td><?php echo $disc; ?></td>
+    </tr>
+        <?php
+    }
+
+} // end GUI_TeamsPage  
+    
+       
 /********************************************
  *
  * GUI_TeamPage
