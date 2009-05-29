@@ -576,7 +576,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 						$formula = substr($row[1],0,6);
 					}
 					else {
-                        if ($row[4] > 497 & $row[4] <= 499) {
+                        if ($row[4] >= 497 & $row[4] <= 499) {
                            $setFormula = ", Punkteformel='4X100'";
                            $formula = '4X100';
                         }
