@@ -1051,7 +1051,7 @@ function meeting_get_disciplines(){
 		$strDiscTypeRelay, $strDiscTypeDistance, $discs_def, $combs_def, $first,$catcode,$birth_date,$athletesex;
 	 
 	$combs_def = array();	  // delete the selected disziplines from previous enrolement
-	  
+	                   
 	$result = mysql_query("
 		SELECT
 			d.Kurzname as DiszKurzname
@@ -1071,14 +1071,13 @@ function meeting_get_disciplines(){
 			disziplin AS d
 			, wettkampf as w
 			, kategorie as k
-		WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-        
+		WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
 		AND w.xDisziplin = d.xDisziplin
 		AND w.xKategorie = k.xKategorie
 		ORDER BY
-			k.Kurzname, w.Mehrkampfcode, d.Anzeige
+			 k.Geschlecht, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige
 	"); 
-   
+    
 	if(mysql_errno() > 0)
 	{
 		AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -1099,35 +1098,63 @@ function meeting_get_disciplines(){
     // get age of athlete
     $age = 0;
     $currYear = date('Y');  
-    $age = $currYear -  substr($birth_date,0,4); 
-      
-    while ($event_row = mysql_fetch_row($result)){ 
-            if(($catcode != '' && $event_row[7] == $catcode) || ($catcode == '' && $event_row[12] == $age && $event_row[11] == $athletesex)){ 
-                $event_rows[] = $event_row;  
-            }else{
-                $temp_rows[] = $event_row;
-            }
+    $age = $currYear -  substr($birth_date,0,4);   
+    $same_age = false;   
+   
+    while ($event_row = mysql_fetch_row($result)){          
+         if(($catcode != '' && $event_row[7] == $catcode) || ($catcode != '' && $event_row[12] == $age && $event_row[11] == $athletesex)){  
+                  $event_rows[] = $event_row;  
+                  $same_age = true; 
+         }
+         elseif ($catcode != '' && $event_row[12] > $age && $event_row[11] == $athletesex ) {  
+                     if (!$same_age){    
+                        $event_rows[] = $event_row;
+                     } 
+         }  
+    }    
+   
+    $kName= $event_rows[0][4];
+    
+    $order = "ASC";
+    if ($athletesex == 'w'){
+         $order = "DESC";  
     }
-    // if no category matchs, get the right gender on top
-    if(count($event_rows) == 0){
-            $top_rows = array();
-            $event_rows = $temp_rows;
-            $i = 0;
-            foreach($temp_rows as $temp_row){
-                if($temp_row[11] == $sex){
-                    $tmp = $temp_row;
-                    $top_rows[] = $temp_row;
-                    array_splice($event_rows,$i,1);
-                    //array_unshift($event_rows, $tmp);
-                    $i--;
-                }
-                $i++;
-            }
-            $event_rows = array_merge($top_rows, $event_rows);
-    }else{
-            $event_rows = array_merge($event_rows, $temp_rows);
+    $sql="SELECT
+            d.Kurzname as DiszKurzname
+            , d.Typ as DiszTyp
+            , w.xWettkampf
+            , w.Typ
+            , k.Kurzname as KatKurzname
+            , k.Name
+            , d.Code as DiszCode
+            , k.Code as KatCode
+            , k.xKategorie
+            , w.Info
+            , w.Mehrkampfcode
+            , k.Geschlecht
+            , k.Alterslimite
+        FROM
+            disziplin AS d
+            , wettkampf as w
+            , kategorie as k
+        WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
+        AND w.xDisziplin = d.xDisziplin
+        AND w.xKategorie = k.xKategorie
+        ORDER BY
+            k.Geschlecht ".$order.", k.Alterslimite DESC, w.Mehrkampfcode, d.Anzeige";   
+    
+    $result = mysql_query($sql);  
+    if(mysql_errno() > 0)
+    {
+        AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
     }
-        
+     while ($event_row = mysql_fetch_row($result)){ 
+             if ($event_row[4] != $kName){
+                  $event_rows[] = $event_row;
+             }
+         
+     }   
+  
     // display list of events
     // while ($event_row = mysql_fetch_row($result))  
     foreach($event_rows as $event_row) 
@@ -1252,7 +1279,7 @@ function meeting_get_disciplines(){
 				<td class='dialog-top' nowrap="nowrap" id="topperftd<?php echo $combCat.$comb ?>">
 					<input type="checkbox" value="<?php echo $event_row[8]."_".$comb ?>" name="combined[]" id="combinedCheck<?=$event_row[8]?>_<?=$comb?>" 
 						onclick="check_combined('<?php echo $event_row[8]."_".$comb ?>', this);
-							validate_discipline(<?php echo "'".$combCat.$comb."', '".$event_row[11]."', ".$event_row[12] ?>,this);"<?=$checked?>>
+							validate_discipline(<?php echo "'".$combCat.$comb."', '".$event_row[11]."', ".$event_row[12] ?>,this.checked);"<?=$checked?>>
 					<?php echo $comb_row['Name']; ?>
 				</td>
 				<td class='dialog-top' nowrap="nowrap">
@@ -1265,7 +1292,7 @@ function meeting_get_disciplines(){
 							?>
 							<script type="text/javascript">
 								check_combined('<?=$event_row[8]?>_<?=$comb?>', document.getElementById('combinedCheck<?=$event_row[8]?>_<?=$comb?>'));
-								validate_discipline('<?=$combCat?><?=$comb?>', '<?=$event_row[11]?>', <?=$event_row[12]?>);
+								validate_discipline('<?=$combCat?><?=$comb?>', '<?=$event_row[11]?>', <?=$event_row[12]?>,this.checked);
 							</script>
 							<?php
 						}
@@ -1296,16 +1323,18 @@ function meeting_get_disciplines(){
 			}
 			
 			
-			$checked = (isset($discs_def[$event_row[2]]) && $first!='') ? ' checked="checked"' : '';
+			$checked = (isset($discs_def[$event_row[2]]) && $first!='') ? ' checked="checked"' : '';   
 			
             $info = (strlen($event_row[9])==0)?"":"(".$event_row[9].")";
-			
-			printf("<td class=\"dialog-top\" nowrap=\"nowrap\" id='topperftd$event_row[2]'>
-				<input name='start_$event_row[2]' type='hidden' id='start$event_row[2]'
-								value='start_$event_row[0]'/>
-				<input name='events[]' type='checkbox' value='"
-				. $event_row['2'] . "' onclick=\"validate_discipline($event_row[2], '$event_row[11]', $event_row[12])\" $checked/>$event_row[0] $info</td>");
-			
+           
+            ?>
+            <td class="dialog-top" nowrap="nowrap" id='topperftd<?php echo $event_row[2]?>'>
+                <input name='start_<?php echo $event_row[2]?>' type='hidden' id='start<?php echo $event_row[2]?>'
+                                value='start_<?php echo $event_row[0]?>'/>
+                <input name='events[]' type='checkbox' value='<?php echo $event_row['2'] ?>'
+                 onclick="validate_discipline(<?php echo $event_row[2] .',\'' . $event_row[11].'\',' . $event_row[12].','?>this.checked)" <?=$checked?>/><?php echo $event_row[0] .$info?></td>
+            <?php
+			  			
 			$effort = (isset($discs_def[$event_row[2]]) && $effort=='' && $first!='') ? $discs_def[$event_row[2]] : $effort;
 			
 			printf("<td class=\"dialog-top\" nowrap=\"nowrap\">
@@ -2026,13 +2055,13 @@ $page->printPageTitle($strNewEntryFromBase);
 		}
 	}
 	
-	function validate_discipline(disc, sex, limit,o){
-		
+	function validate_discipline(disc, sex, limit, o){    
+        
 		year = <?php echo date('Y') ?>;
-		if(document.getElementById("newyear")){
-			athleteAge = year - document.getElementById("newyear").value;
+		if(document.getElementById("newyear")){              
+			athleteAge = year - document.getElementById("newyear").value;             
 		}else{
-			athleteAge = year - document.entry.year.value; // if searched for license number
+			athleteAge = year - document.entry.year.value; // if searched for license number              
 		}
 		athleteSex = "";
 		if(document.getElementById("sexw")){
@@ -2045,14 +2074,13 @@ $page->printPageTitle($strNewEntryFromBase);
 		}else{
 			athleteSex = document.entry.sex.value; // if searched for license number
 		}
-	   
-		
-		if(o.checked){  
+	    		
+		if(o){  
 			if(athleteSex != sex && athleteSex != ""){ // invalid gender
 				document.getElementById("topperftd"+disc).className="highlight_red";
 				return;
 				}
-		
+		     
 			if(athleteAge > limit && athleteAge != year){ // invalid age
 				document.getElementById("topperftd"+disc).className="highlight_red";
 		   			return;
@@ -2061,6 +2089,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		else {
 		     document.getElementById("topperftd"+disc).className="cat"; 
 		}
+       
 		
 	}
 	
@@ -2495,7 +2524,7 @@ if(!empty($club2) && false){ // not yet in use
             $licenseNrDisabled = "disabled";
         }
     ?>    
-    <th class='dialog'><?php echo $strLicensePrinted;PPPPPP ?></th>
+    <th class='dialog'><?php echo $strLicensePrinted; ?></th>
     <td class='forms'><input name='licensePrinted' type='text' size='4'
         id="newlicensePrinted" value='<?php echo $licensePrinted; ?>'
         <?php echo $licenseNrDisabled ?>/></td>
