@@ -118,7 +118,7 @@ document.getElementById("progress").width="150";
 		}
 		
 	}
-	
+	          
 	// function for sending a post request... usually for sending form data
 	//  - host should return ini data
 	function send_post($host, $uri, $post, $parseType="ini", $fileName=""){
@@ -134,29 +134,26 @@ document.getElementById("progress").width="150";
 		fwrite($sock, "Content-length: " . strlen($data) . "\r\n");
 		fwrite($sock, "Accept: */*\r\n");
 		fwrite($sock, "\r\n");
-		fwrite($sock, "$data\r\n");
-		fwrite($sock, "\r\n");
+		fwrite($sock, "$data\r\n\r\n");  
 		
 		$headers = "";
 		$totalbytes = 0;
 		while ($str = trim(fgets($sock, 4096))){
 			$headers .= "$str\n";
-			if(strpos($str, "400") !== false || strpos($str, "404") !== false || strpos($str, "403") !== false){
+			if(strpos($str, "400") !== false || strpos($str, "404") !== false || strpos($str, "403") !== false || strpos($str, "503") !== false){
 				fclose($sock); // server return error (not found / bad request)
 				AA_printErrorMsg($strErrHttpBad);
 				return false;
 			}
-		}
-		//echo $headers;
+		}     
 		
 		$body = "";
 		while (!feof($sock)){
-			$body .= fread($sock, 8192);
-		}
-		//echo $body;
+			$body .= fread($sock, 8192); 
+		}      
 		fclose($sock);
 		
-		
+       
 		// get temp directory
 		$temppath = dirname($_SERVER['SCRIPT_FILENAME'])."/tmp/";
 		if(!is_dir($temppath)){
@@ -177,9 +174,15 @@ document.getElementById("progress").width="150";
 				return parse_ini_file($filePath);
 			}
 		}elseif($parseType == "file" && !empty($fileName)){
-			// save data into file
-			$filePath .= $temppath.$fileName;
-			$fp = fopen($filePath, 'wb');
+			// save data into file 	
+            
+            if (strpos($body, "\r\n\r\n") != false){      // separate body from header because of Fredy's PC   
+                $body = substr($body, strpos($body, "\r\n\r\n") + 4);   
+            }  
+            		
+            $filePath .= $temppath.$fileName;
+			$fp = fopen($filePath, 'wb');   
+            
 			if (@fwrite($fp, $body) === FALSE) {
 				fclose($fp);
 				AA_printErrorMsg($strErrHttpWrite);
