@@ -421,6 +421,12 @@ th.team_entry_nbr { width:35px; padding-left:0px; padding-right:5px;
 th.team_entry_name { width:300px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.teams_entry_name { width:200px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
+th.team_entry_year { width:50px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 th.team_entry_cat { width:50px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
@@ -430,6 +436,9 @@ th.team_entry_club { width:250px; padding-left:0px; padding-right:5px;
 th.team_entry_disc { width:100px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.teams_entry_disc { width:400px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 
 /* list item */
 td.team_entry_tic { vertical-align:top; text-align:right;
@@ -437,6 +446,8 @@ td.team_entry_tic { vertical-align:top; text-align:right;
 				padding-top:0px; padding-bottom:2px; }
 td.team_entry_name { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
+td.team_entry_year { vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
 td.team_entry_cat { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
 td.team_entry_club { vertical-align:top; padding-left:0px; padding-right:5px;
