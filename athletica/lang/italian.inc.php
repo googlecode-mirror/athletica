@@ -700,12 +700,25 @@ $strEnrolSheet = "Foglio di appello";
 $strErrResultsInProgress = "Vi sono ancora risultati in elaborazione. <br>Si invita a valutare e ordinare prima i risultati!"; 
 $strAssTax = "Tassa della federazione"; 
 
-$strCatLicense = "Categorie con Licenza";
-$strActiv = "Attivo, U23, U20, U18";
+$strEffortsUpdateInfo4  ="Procedura da seguire con i dati dell'atleta registrati manualmente (cognome, nome, società)";
+
+$strErrNoControl1 = "Attenzione: la vostra manifestazione non é ancora stata annunciata online.<br>
+            Questa é la condizione preliminare richiesta per la preparazione delle staffette,<br>
+            delle squadre e per l’aggiornamento delle liste stagionali!<br>Se non desiderate avere<br>
+            aggiornamenti nelle liste stagionali, disattivate il punto: “Eseguire più tardi l’aggiornament<br>
+            dei risultati della manifestazione”.";
+            
+$strLicensePrinted  ="Licenza valida";
+$strNoAccessAttempt = "Prova non valida";
+$strErrNoControl2  ="<b>Attenzione:</b> questo non può essere annullato";  
+
+$strCatLicense = "Categorie con licenza";   
+
+$strActiv = "Attivi, U23, U20, U18";
 $strU16 = "U16";  
 $strU14 = "U14, U123, U10";  
-$strActivCHF = "CHF 4.--  al inizio";
-$strU16CHF = "CHF 2.--  al inizio";  
-$strU14CHF = "CHF 1.--  al inizio";
+$strActivCHF = "CHF 4.--  per disciplina";
+$strU16CHF = "CHF 2.--  per disciplina";  
+$strU14CHF = "CHF 1.--  per disciplina";
 
 ?>
