@@ -1963,7 +1963,7 @@ $dis2 = false;
         AND w.xDisziplin = d.xDisziplin
         AND w.xKategorie = k.xKategorie
         ORDER BY
-            k.Geschlecht ".$order.", k.Alterslimite DESC, w.Mehrkampfcode, d.Anzeige";         
+            k.Geschlecht ".$order.", k.Alterslimite DESC, k.Kurzname, w.Mehrkampfcode, d.Anzeige";         
     
     $result = mysql_query($sql);  
     if(mysql_errno() > 0)
