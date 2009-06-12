@@ -894,9 +894,9 @@ td.sheet_totalpts { width:60px; font-weight:bold; text-align:right;
  * Statistics
  * -----------
  */
-th.stats_col1 { width:200px; padding:5px; padding-bottom:2px;
+th.stats_col1 { width:150px; padding:5px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.stats_col2 { width:150px; text-align:right; padding:5px; padding-bottom:2px;
+th.stats_col2 { width:250px; text-align:right; padding:5px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.stats_col3 { width:100px; text-align:right; padding:5px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
