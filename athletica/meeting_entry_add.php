@@ -925,13 +925,9 @@ if ($_POST['arg']=="add")
 																	AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 																}else{
 																	$row_p = mysql_fetch_array($res_p);
-																	if (!empty($row_p[0])){
-                                                                        $_POST[$p] = $row_p[0];          // season best effort current year
-                                                                    }
-                                                                    else {
-                                                                        $_POST[$p] = $row_p[1];         // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
-                                                                    }
 																	
+                                                                    $_POST[$p] = $row_p[1];         // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                                                                      
 																}
 															}
 														}
@@ -1217,13 +1213,9 @@ function meeting_get_disciplines(){
 				echo $sql;
 			}else{
 				$rowPerf = mysql_fetch_array($res);
-                if (!empty($rowPerf['season_effort'])) {
-                    $effort = $rowPerf['season_effort'];             // season best effort current year
-                }
-                else {
-                     $effort = $rowPerf['notification_effort'];      // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)       
-                }
-				
+                
+                $effort = $rowPerf['notification_effort'];      // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)       
+                    
 		}
 		}
 		$effort = ltrim($effort, "0:");
@@ -1261,14 +1253,10 @@ function meeting_get_disciplines(){
 						AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 						echo $sql;
 					}else{
-						$row_perf_comb = mysql_fetch_array($res_perf_comb);
-                        if (!empty($row_perf_comb['season_effort'])){
-                             $val = $row_perf_comb['season_effort'];             // season best effort current year
-                        }
-                        else {
-                            $val = $row_perf_comb['notification_effort'];        // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
-                        }
-						
+						$row_perf_comb = mysql_fetch_array($res_perf_comb);   
+                        
+                        $val = $row_perf_comb['notification_effort'];        // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                                                						
 						$val = ltrim($val,"0:");
 						$val = (substr($val,-2)==".0")?substr($val,0,-2):$val;
 					}	

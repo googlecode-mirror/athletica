@@ -173,11 +173,9 @@ if(mysql_errno > 0){
 			
 			$effort = "";
 			$rowperf = mysql_fetch_array($resperf);
-			if(!empty($rowperf[0])){
-				$effort = $rowperf[0];                   // season best effort current year
-			}else{
-				$effort = $rowperf[1];                   // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
-			}
+			
+			$effort = $rowperf[1];                   // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+			
 			$effort = ltrim($effort, "0:");
 			
 			if(!empty($effort)){

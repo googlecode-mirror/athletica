@@ -83,14 +83,9 @@ if (isset($_POST['updateEfforts'])){
 					   AND season = '".$saison."';";
 			$res = mysql_query($sql); 
 			
-			$rowPerf = mysql_fetch_array($res); 
-            if (!empty($rowPerf[0])){
-               $perf = $rowPerf['season_effort'];               // season best effort current year
-            }
-            else {
-                $perf = $rowPerf['notification_effort'];       // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
-            }
-					
+			$rowPerf = mysql_fetch_array($res);  
+            $perf = $rowPerf['notification_effort'];       // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                                                                     					
 										
 			if(($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeTrack])
 				|| ($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
@@ -128,13 +123,9 @@ if (isset($_POST['updateEfforts'])){
                  $res = mysql_query($sql);   
                  
                  $rowPerf = mysql_fetch_array($res); 
-                 if (!empty($rowPerf[0])){
-                    $perf = $rowPerf['season_effort'];               // season best effort current year
-                 }
-                 else {
-                    $perf = $rowPerf['notification_effort'];       // best effort previous year (Indoor: best of both / Outdoor: best of outdoor)
-                 }
-                                                                          
+                 
+                 $perf = $rowPerf['notification_effort'];       // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                                                                                                                                       
                  if($perf != NULL) {    // invalid performance
                         $sql = "UPDATE anmeldung SET 
                                         BestleistungMK = $perf
