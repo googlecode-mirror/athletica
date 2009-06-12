@@ -284,9 +284,9 @@ else if(mysql_num_rows($result) > 0)  // data found
 	   }  
 	 
 		 if ($pl) { 
-		    if ($row[23] > 0 && !isset($cfgCombinedDef[$row[23]])){ 
-		       $disc=substr($disc,0,-3).")";  
-			} 
+		    //if ($row[23] > 0 && !isset($cfgCombinedDef[$row[23]])){  
+		    //   $disc=substr($disc,0,-3).")";  
+			//} 
 		   
 			if((is_a($doc, "PRINT_CatEntryPage"))
 				|| (is_a($doc, "GUI_CatEntryPage")))
@@ -450,7 +450,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			$perf = AA_formatResultTime($row[12]);
 		}
 		else {
-			$perf = AA_formatResultMeter($row[12]);
+			$perf = AA_formatResultMeter($row[12]);              
 		}
 		  
 		if((!is_a($doc, "PRINT_CatDiscEntryPage")) 
@@ -459,70 +459,82 @@ else if(mysql_num_rows($result) > 0)  // data found
 			&& (!is_a($doc, "GUI_ClubCatDiscEntryPage")))
 		{   
 		 
-		  
-			if($perf == 0 || ( $row[23] > 0 && !isset($cfgCombinedDef[$row[23]]) && $perf > 0 )) {  
+		    // 403 = Athletic Cup
+            // 799 = ...kampf
+            // show all disziplines (also if performance is 0) by Athletic Cup and ...kampf              
+			if( ($perf == 0 && $row[23] != 403 && $row[23] != 799) || ( $row[23] > 0 && $row[23] != 403 && $row[23] != 799 && !isset($cfgCombinedDef[$row[23]]) && $perf > 0 )) {            
 				//$Info = ($row[17]!="") ? ' ('.$row[17].')' : '';  								
 	 		   	$Info = ($row[18]!="") ? ' ('.$row[18].')' : ''; 
 				
 				$noFee=false;  
-				if  ($row[18]!="" && $m != $row[19]) {   
+				if  ($row[18]!="" && $m != $row[19]) { 
 					if ($row[23] > 0 && isset($cfgCombinedDef[$row[23]])){  // normal combined
 						$disc = $disc . $sep . $row[19] . $Info;    // add combined 
+                        
 					}
-					else {                                         // combined with choosed disziplines
-						   if ($m != $row[19] && $disc=='') {
-						   	   if ($perf == 0){
+					else {  // combined with choosed disziplines
+						   if ($m != $row[19] && $disc=='') {     
+						   	   if ($perf == 0){     
 					     			$disc = $row[18] ." ("  . $row[9]  . " / ";    // add combined  
 							   }
-							   else {
+							   else {     
 							        $disc = $row[18] ." ("  . $row[9] .",".$perf . " / ";    // add combined 
 							   }
 						   }
-						   elseif ($m != $row[19]) {
-						   	   			 if ($perf == 0){ 
+						   elseif ($m != $row[19]) {     
+						   	   			 if ($perf == 0){     
 						               	 		$disc = substr($disc,0,-2).") , " . $row[18] ." (" . $row[9]  . " / ";    // add combined 
 										 }
-										 else {
+										 else {   
 										      	$disc = substr($disc,0,-2).") , " . $row[18] ." (" . $row[9] .",".$perf . " / ";    // add combined       
 										 }
 						   }
-						   else {
-						   	     if ($perf == 0){  
+						   else {  
+						   	     if ($perf == 0){      
 						         		$disc = $disc . $sep . $row[18] ." (" . $row[9]  . " / ";    // add combined 
 								 }
-								 else {
+								 else {  
 								      $disc = $disc . $sep . $row[18] ." (" . $row[9] .",".$perf . " / ";    // add combined 
 								 }
 						   }
 					    
 					}  
 				}
-				else { 
-					 if ($row[23] > 0 && isset($cfgCombinedDef[$row[23]])){    // normal combined   					    
-					 	if  ($row[18]!="" && $m == $row[19]) { 
+				else {  
+					 if ($row[23] > 0 && isset($cfgCombinedDef[$row[23]])){    // normal combined                      
+					 	if  ($row[18]!="" && $m == $row[19]) {   
 						  	$noFee=true;                        // the same combined
 					 		}
-					 	else { 
-							$disc = $disc . $sep . $row[9] . $Info;	// add discipline
+					 	else {  
+							$disc = $disc . $sep . $row[9] . $Info .",". $perf.")";	// add discipline                               
 						}
 					 }
-					 else {  
+					 else { 
 					 		if ($row[23] > 0 && (!isset($cfgCombinedDef[$row[23]]))){    // combined with choosed disziplines 					 		   
-					 			 if ($perf > 0) {
-					             	$disc = $disc . $row[9] .$sep . $perf ." / ";	// add discipline  
+					 			 if ($perf > 0) {   
+					             	$disc = $disc . $row[9] .$sep . $perf ." / ";	// add discipline    
 					        	 }
-					        	 else {
+					        	 else {   
 					     		 	$disc = $disc . $row[9] ." / ";	// add discipline 
 								 } 
 							} 
 							else {         // not combined
-							      	$disc = $disc . $sep . $row[9] . $Info;	// add discipline   
+							      	$disc = $disc . $sep . $row[9] . $Info;	// add discipline                                        
 							}  	
 					 }
 				}   
-			}else{     
-				    $Info = ($row[17]!="") ? $row[17] .', ' : '';    				    
-					$disc = $disc . $sep . $row[9] . " (".$Info . $perf.")";	// add discipline
+			}else{    
+				    $Info = ($row[17]!="") ? $row[17] .', ' : '';  
+                    if ($Info == '' && $perf == 0) {
+                            $disc = $disc . $sep . $row[9];    // add discipline  
+                    } 
+                    elseif ($perf == 0){  
+                            $Info=substr($Info,0,-2);   
+                            $disc = $disc . $sep . $row[9] . " (".$Info .")";    // add discipline  
+                    }	
+                    else {			    
+					    $disc = $disc . $sep . $row[9] . " (".$Info . $perf.")";	// add discipline
+                    }
 			 
 		  	}
 			$sep = ", ";
