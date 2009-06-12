@@ -769,5 +769,6 @@ $strU16CHF = "CHF 2.-- pro Start";
 $strU14CHF = "CHF 1.-- pro Start";  
 
 $strErrMergeGroup = "Mehrkämpfe mit Gruppen können nicht zusammengefasst werden."; 
+$strErrNoControl3 = "Der Resultate Upload bei diesem Meeting ist deaktiviert.";
 
 ?>

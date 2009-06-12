@@ -760,6 +760,8 @@ $strActivCHF = "CHF 4.--  par début";
 $strU16CHF = "CHF 2.--  par début";  
 $strU14CHF = "CHF 1.--  par début";      
 
-$strErrMergeGroup = "Les concours multiples avec groupes ne peuvent pas être regroupés";                           
+$strErrMergeGroup = "Les concours multiples avec groupes ne peuvent pas être regroupés";  
+
+$strErrNoControl3 =  "Le téléchargement des résultats pour ce meeting est désactivé.";                       
 
 ?>
