@@ -363,7 +363,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		$sName = $row[0];
 		
 		// check if combined type has predefined disciplines
-		$sql_k = "SELECT Geschlecht, Code FROM kategorie WHERE xKategorie = ".$_POST['cat'].";";
+		$sql_k = "SELECT Geschlecht, Code , Kurzname FROM kategorie WHERE xKategorie = ".$_POST['cat'].";";
 		$query_k = mysql_query($sql_k);
 		$row_k = mysql_fetch_assoc($query_k);
 			
@@ -375,7 +375,13 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		if(isset($cfgCombinedDef[$tmp])){
 			if ($tmp == 403 ) {
                $tt = $cfgCombinedDef[$tmp];  
-               $tt .= "_" .$row_k['Code'];
+               if ($row_k['Code'] != '') {
+                    $tt .= "_" .$row_k['Code'];  
+               }
+               else {
+                    $tt .= "_" .$row_k['Kurzname'];  
+               }
+              
             }
             else {
                 $tt = $cfgCombinedDef[$tmp]; 
@@ -395,6 +401,19 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				if($k == count($cfgCombinedWO[$tt])){
 					$combEnd = 1;
 				}
+                if ($val == 100) {         // code 100 = 1000m (a single event inside the athletic cup)
+                         mysql_query("INSERT INTO wettkampf SET
+                        Typ = ".$cfgEventType[$strEventTypeSingle]."
+                        , Haftgeld = '$penalty'
+                        , Startgeld = '$disfee' 
+                        , Info = ''
+                        , xKategorie = ".$_POST['cat']."
+                        , xDisziplin = $d
+                        , xMeeting = ".$_COOKIE['meeting_id']);
+                }
+                else {
+                    
+                
 				mysql_query("INSERT INTO wettkampf SET
 						Typ = ".$cfgEventType[$strEventTypeSingleCombined]."
 						, Haftgeld = '$penalty'
@@ -407,7 +426,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 						, Mehrkampfende = $combEnd
 						, Mehrkampfreihenfolge = $k");
 				
-	   
+	            }
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					break;
@@ -415,11 +434,13 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				
 			}
 			
-			// set conversion table               
-			$_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
-			$_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
-			$_POST['conv_changed'] = 'yes';
-			AA_meeting_changeCategory($t);
+             if ($val != 100) { 
+			    // set conversion table               
+			    $_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
+			    $_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
+			    $_POST['conv_changed'] = 'yes';
+			    AA_meeting_changeCategory($t);
+             }
 			}
             else {
                 // setup a placeholder disciplin (take first disciplin of combined definition 'MAN')
