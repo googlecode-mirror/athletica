@@ -184,7 +184,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 
 					$disc_res = mysql_query("
 						SELECT
-							d.Kurzname
+							d.Kurzname, d.Typ, s.Bestleistung
 						FROM
 							disziplin AS d
 							, start AS s
@@ -195,7 +195,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 						ORDER BY
 							d.Anzeige
 					");
-
+                    
 					if(mysql_errno() > 0)		// DB error
 					{
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -205,7 +205,22 @@ else if(mysql_num_rows($result) > 0)  // data found
 						$sep = '';	
 						while ($disc_row = mysql_fetch_row($disc_res))
 						{
-							$disc = $disc . $sep . $disc_row[0];	// add discipline	
+							$disc = $disc . $sep . $disc_row[0];	// add discipline  
+                           
+                            if(($disc_row[1] == $cfgDisciplineType[$strDiscTypeTrack])
+                                || ($disc_row[1] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+                                || ($disc_row[1] == $cfgDisciplineType[$strDiscTypeRelay])
+                                || ($disc_row[1] == $cfgDisciplineType[$strDiscTypeDistance]))
+                                {
+                                $perf = AA_formatResultTime($disc_row[2]);
+                            }
+                            else {
+                                $perf = AA_formatResultMeter($disc_row[2]);              
+                            }
+                            
+                            if ($perf > 0){
+                                $disc = $disc . "(" . $perf. ")"; 
+                            }	
 							$sep = ", ";	
 						}
 						mysql_free_result($disc_res);
