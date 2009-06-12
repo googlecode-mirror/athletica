@@ -175,21 +175,31 @@ if(mysql_errno() > 0){
 // COMMENT ROH:
 // we check only rounds with heats_done and results_in_progress to improve performance
 $res = mysql_query("
-	SELECT xRunde FROM
-		runde
-		LEFT JOIN wettkampf USING(xWettkampf)
+	SELECT r.xRunde, ru.Hauptrunde, ru.xMeeting FROM
+		runde as r
+		LEFT JOIN wettkampf as w USING(xWettkampf)
+        LEFT JOIN rundenset as ru ON (r.xRunde = ru.xRunde)
 	WHERE
 		ZeitmessungAuto = 1
 		AND Zeitmessung = 1
-		AND xMeeting = ".$_COOKIE['meeting_id']."
+		AND w.xMeeting = ".$_COOKIE['meeting_id']."           
 		AND (Status = ".$cfgRoundStatus['heats_done']." OR Status = ".$cfgRoundStatus['results_in_progress'].")"
 );
-
+  
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
-	while($row = mysql_fetch_array($res)){
-		AA_timing_getResultsAuto($row[0]);
+	while($row = mysql_fetch_array($res)){  
+        if ($row[1] == NULL || $row[1] == 1){ 
+                if ($row[1] == 1) {
+                    if ($row[2] == $_COOKIE['meeting_id']) {
+                        AA_timing_getResultsAuto($row[0]);                          
+                    }  
+                }
+                else {
+                     AA_timing_getResultsAuto($row[0]);                       
+                }  
+            }  
 	}
 }
 
