@@ -13,8 +13,7 @@ require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
 require('./lib/meeting.lib.php');  
-
-
+                                        
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;		// abort
@@ -1073,7 +1072,7 @@ function meeting_get_disciplines(){
 		ORDER BY
 			 k.Geschlecht, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige
 	"); 
-    
+   
 	if(mysql_errno() > 0)
 	{
 		AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -1137,7 +1136,7 @@ function meeting_get_disciplines(){
         AND w.xDisziplin = d.xDisziplin
         AND w.xKategorie = k.xKategorie
         ORDER BY
-            k.Geschlecht ".$order.", k.Alterslimite DESC, w.Mehrkampfcode, d.Anzeige";   
+            k.Geschlecht ".$order.", k.Alterslimite DESC,  k.Kurzname, w.Mehrkampfcode, d.Anzeige";   
     
     $result = mysql_query($sql);  
     if(mysql_errno() > 0)
