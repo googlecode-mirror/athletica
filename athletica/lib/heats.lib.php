@@ -194,7 +194,7 @@ function AA_heats_seedEntries($event)
                     . " ORDER BY $order";
                     
         }else{
-            $query = "SELECT xStart, if(BestleistungMK = 0, 0, BestleistungMK) as best, a.xAthlet,r.xRunde"
+            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet,r.xRunde"
                     . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)"
                     . " WHERE " . $sqlEvents
                     . " AND s.xAnmeldung = a.xAnmeldung"
