@@ -117,8 +117,8 @@ if($login){
 		return;
 	}elseif($cControl == 2){
 		?>
-		<p><?=$strErrNoControl2?></p><br/>
-		<img src="img/nosync_<?=$_COOKIE['language']?>.gif" alt="" style="border: solid 1px #000000;"/>
+		<p><?=$strErrNoControl3?></p><br/>
+		<!--<img src="img/nosync_<?=$_COOKIE['language']?>.gif" alt="" style="border: solid 1px #000000;"/>  -->
 		<?php
 		return;
 	}
@@ -151,7 +151,7 @@ if($login){
 <tr>
 	<td>
 		<table class='admin'>
-		<form action='admin_results.php' name='base' method='post' target='_self'>
+		<form action='admin_results.php' name='base' method='post' target='_self' >
 		<input type="hidden" name="arg" value="login">
 		<tr>
 			<td>
