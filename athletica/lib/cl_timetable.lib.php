@@ -465,6 +465,7 @@ class Timetable
 				AA_utils_logRoundEvent($this->round, $txt);
                 
 			}
+           
 		}	// ET round status
 	}
     
@@ -483,7 +484,7 @@ class Timetable
        $cfgSVM_arr_NT = $cfgSVM[$this->svmCode."_NT"];                  // _NT = nulltime   
        
        $sql="SELECT 
-                r.xRunde, w.xWettkampf , d.Code 
+                r.xRunde, w.xWettkampf , d.Code , d.Typ
              FROM
                 wettkampf as w
                 LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
@@ -502,7 +503,20 @@ class Timetable
             }
        $nulltime=$this->hour . $this->min;
        $i=0;
-       while ($row=mysql_fetch_row($result)){    
+      
+       while ($row=mysql_fetch_row($result)){ 
+           
+             if ($row[3]   == $cfgDisciplineType[$strDiscTypeTrack] ||
+                        $row[3]   == $cfgDisciplineType[$strDiscTypeTrackNoWind] ||  
+                        $row[3]   == $cfgDisciplineType[$strDiscTypeDistance] ||  
+                        $row[3]   == $cfgDisciplineType[$strDiscTypeRelay] )  
+               {                                                                    // discipline type track
+                    $this->type = 6; // round type "Serie"  
+              }   
+              else {                                                                // discipline type tech
+                 $this->type = 9; // round type "ohne" 
+              } 
+              
              foreach ($cfgSVM_arr as $key => $val){  
                     if ($val == $row[2]){
                         $keep_key=$key; 
