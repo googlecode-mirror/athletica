@@ -191,7 +191,7 @@ function processSingle($xCategory, $category)
 		AND t.xKategorie = $xCategory
 		AND v.xVerein = t.xVerein
 	");
-
+    
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		return;
@@ -258,7 +258,7 @@ function processSingle($xCategory, $category)
 				d.Anzeige
 				, pts DESC
   		");
-	   
+	    
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -776,7 +776,7 @@ function processSingle($xCategory, $category)
 //
 
 function processCombined($xCategory, $category, $type)
-{  
+{   
 	global $rFrom, $rTo, $limitRank;
 	require('./config.inc.php');
 
@@ -914,7 +914,7 @@ function processCombined($xCategory, $category, $type)
 					ru.Datum
 					, ru.Startzeit
 			");    
-            
+           
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -950,10 +950,18 @@ function processCombined($xCategory, $category, $type)
 					// calculate points
 					$points = $points + $pt_row[4];	// accumulate points
                     
-					if($pt_row[4] > 0) {					// any points for this event
-						$info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ")";
-						$sep = ", ";
-					}
+                    if ($perf != $cfgInvalidResult['DNS']['code']){ 
+					    if ($perf < 0){ 
+                            foreach($cfgInvalidResult as $value)    // translate value
+                                {if($value['code'] == $perf) {
+                                        $perf = $value['short'];
+                                    }
+                                } 
+                        } 
+					    $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ")";
+					    $sep = ", ";
+                    }
+					
 				}	// END WHILE combined events
 				mysql_free_result($res);
 			}
