@@ -57,7 +57,10 @@ $GLOBALS['AA_ERROR'] = '';
 // change event data
 if ($_POST['arg']=="change_event")
 {
-	AA_meeting_changeEvent();
+   
+	    AA_meeting_changeEvent();
+    
+    
 }
 // delete a single event
 else if ($_POST['arg']=="del_event")
@@ -313,6 +316,19 @@ $page->startPage();
 		document.forms["mergeRounds"+mr].submit();
 		
 	}
+    
+    
+    function info_warning() {
+        var box=confirm("<?php echo $GLOBALS['strChangeInfo']; ?>");
+       
+        if(box==false){               
+               document.forms['event'].info.value = document.forms['event'].info_keep.value;  
+        } 
+           
+        document.event.submit();   
+    }
+       
+    
 //-->
 </script>
 
@@ -372,12 +388,14 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
 		<input name='act_disc' type='hidden' value='<?php echo $i; ?>' />
 
-		<input class='text' name='info' type='text' maxlength='15'
-			value="<?php echo $row[12]; ?>"
-			onChange='document.event.submit()' />
+		<input class='text' name='info' id='info' type='text' maxlength='15'
+			value="<?php echo $row[12]; ?>" 
+			onChange='info_warning()' />
+        <input name='info_keep' id='info_keep' type='hidden' value='<?php echo $row[12]; ?>' />    
 	</td>
 </tr>
-<?php
+<?php       
+
 	// disciplines, where wind may be measured
 	if(($row[10] == $cfgDisciplineType[$strDiscTypeTrack])
 		|| ($row[10] == $cfgDisciplineType[$strDiscTypeJump]))
