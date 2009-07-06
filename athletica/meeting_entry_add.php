@@ -5,7 +5,8 @@
  *	meeting_entry_add.php
  *	---------------------
  *	
- */                 
+ */                   
+
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -70,6 +71,57 @@ $catcode = '';
 $birth_date = '';
 $athletesex = '';
 
+if ($_GET['argument'] == 'change_sex'){
+        // hold entered data
+        $first = $_GET['firstname'];
+        $name = $_GET['name'];
+        $day = $_GET['day'];
+        $month = $_GET['month'];
+        $year = $_GET['year'];
+        $sex = $_GET['sex'];
+        $athletesex = $_GET['sex']; 
+        $country = $_GET['country'];
+        $region = $_GET['region'];
+        $clubtext = $_GET['club'];
+        $clubinfotext = $_GET['clubinfo'];
+        $clubtext2 = $_GET['club2'];
+        $startnbr = $_GET['startnbr'];
+        $category = $_GET['category'];
+        $catcode = $category;
+        $birth_date = $_GET['year'];
+        $team = $_GET['team'];
+        $combined = $_GET['combined'];
+        $licensenr =  $_GET['licNr'];   
+        $licensePrinted =  $_GET['licPrinted'];
+        
+        if(isset($_GET['combs'])){
+            $combs = explode(';-;', $_GET['combs']);
+            foreach($combs as $comb){
+                $comb = trim($comb);
+                $combn = explode(';', $comb);
+                
+                $combid = trim($combn[0]);
+                $combbest = (isset($combn[1])) ? trim($combn[1]) : '';
+                
+                $combs_def[$combid] = $combbest;
+            }
+        }
+        
+        if(isset($_GET['discs'])){
+            $discs = explode(';-;', $_GET['discs']);
+            foreach($discs as $disc){
+                $disc = trim($disc);
+                $discn = explode(';', $disc);
+                
+                $discid = trim($discn[0]);
+                $discbest = (isset($discn[1])) ? trim($discn[1]) : '';
+                
+                $discs_def[$discid] = $discbest;
+            }
+        }
+     }  
+
+
 if(!empty($_GET['asfb'])) {  
 	$allow_search_from_base = $_GET['asfb'];
 	setcookie('asfb',$_GET['asfb'],time()+100000);
@@ -81,12 +133,15 @@ if(!empty($_GET['asfb'])) {
 	$month = $_GET['month'];
 	$year = $_GET['year'];
 	$sex = $_GET['sex'];
+    $athletesex = $_GET['sex'];  
 	$country = $_GET['country'];
 	$region = $_GET['region'];
 	$clubtext = $_GET['club'];
 	$clubinfotext = $_GET['clubinfo'];
 	$startnbr = $_GET['startnbr'];
 	$category = $_GET['category'];
+    $catcode = $_GET['category'];  
+    $birth_date = $_GET['year'];   
 	$team = $_GET['team'];
 	$combined = $_GET['combined'];
 	
@@ -472,6 +527,11 @@ if ($_POST['arg']=="add")
 	$name = $_POST['name'];
 	$first = $_POST['first'];
 	$year = $_POST['year'];
+    
+    $athletesex = $_POST['sex'];         
+    $category = $_POST['category'];
+    $catcode = $category;
+    $birth_date = $_POST['year'];
 	
 	// check if license number is valid when entering a new athlete with license
 	$licInvalid = false;
@@ -1095,8 +1155,15 @@ function meeting_get_disciplines(){
     $currYear = date('Y');  
     $age = $currYear -  substr($birth_date,0,4);   
     $same_age = false;   
-   
-    while ($event_row = mysql_fetch_row($result)){          
+    $first = true;     
+
+    while ($event_row = mysql_fetch_row($result)){ 
+         if ($kName != $event_row[4] && $first==false && $keep_age == $event_row[12]){
+            continue;
+         } 
+         $kName=$event_row[4]; 
+         $keep_age=$event_row[12];  
+         $first=false;       
          if(($catcode != '' && $event_row[7] == $catcode) || ($catcode != '' && $event_row[12] == $age && $event_row[11] == $athletesex)){  
                   $event_rows[] = $event_row;  
                   $same_age = true; 
@@ -1107,7 +1174,7 @@ function meeting_get_disciplines(){
                      } 
          }  
     }    
-   
+    
     $kName= $event_rows[0][4];
     
     $order = "ASC";
@@ -1137,7 +1204,7 @@ function meeting_get_disciplines(){
         AND w.xKategorie = k.xKategorie
         ORDER BY
             k.Geschlecht ".$order.", k.Alterslimite DESC,  k.Kurzname, w.Mehrkampfcode, d.Anzeige";   
-    
+   
     $result = mysql_query($sql);  
     if(mysql_errno() > 0)
     {
@@ -1546,9 +1613,8 @@ $page->printPageTitle($strNewEntryFromBase);
 			document.getElementById('clubtext').value = s.replace(/\+/g, " ");
             document.getElementById('clubtext2').value = s2.replace(/\+/g, " ").substring(0,s2.length-1); // last char is always a 0   
 			document.getElementById('clubinfotext').value = ci.replace(/\+/g, " ").substring(0,ci.length-1); // last char is always a 0
-			document.getElementById('countryselectbox').value = res.getElementsByTagName("country")[0].firstChild.nodeValue;
-           
-			document.getElementById('categoryselectbox').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;
+			document.getElementById('countryselectbox').value = res.getElementsByTagName("country")[0].firstChild.nodeValue;             
+			document.getElementById('categoryselectbox').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;              
 			if(res.getElementsByTagName("sex")[0].firstChild.nodeValue == 'm'){
 				document.getElementById('sexm').checked = true;
 				document.getElementById('sexm_hidden').value = 1;
@@ -1576,6 +1642,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}else{
 			top.frames[2].location.href = "status.php?msg="+num+" athletes found";
 		}
+                     
 	}
 	
 	function base_search_show(num){
@@ -1857,23 +1924,92 @@ $page->printPageTitle($strNewEntryFromBase);
 	function check_category(){
 		// on change of category, set disciplines of current category on top
 		
+        document.getElementById('argument').value='change_sex';  
+        
 		var cat = document.getElementById("categoryselectbox").value;
-		var tcat = document.getElementById("cat"+cat);
-		var otherplace = tcat.parentNode;
-		
-		// if cat is already on top place, return
-		if(otherplace.id == "place1"){ return; }
-		
-		otherplace.removeChild(tcat);
-		
-		//remove cat on first place
-		var firstcat = document.getElementById("place1").firstChild;
-		document.getElementById("place1").removeChild(firstcat);
-		
-		//add selected cat on top
-		document.getElementById("place1").appendChild(tcat);
-		otherplace.appendChild(firstcat);
-		
+        var gLicNr = '';
+        var gLicPrinted = '';
+       
+        if (document.getElementById("cat"+cat)) {
+		    var tcat = document.getElementById("cat"+cat);
+           
+            var otherplace = '';
+            if (tcat.parentNode) {
+		        otherplace = tcat.parentNode;
+            }
+        
+		   
+            // if cat is not already on top place            
+            if(otherplace.id != "place1"){ 
+		        otherplace.removeChild(tcat);
+		    
+		        //remove cat on first place
+		        var firstcat = document.getElementById("place1").firstChild;
+		        document.getElementById("place1").removeChild(firstcat);
+		    
+		        //add selected cat on top
+		        document.getElementById("place1").appendChild(tcat);
+		        otherplace.appendChild(firstcat); 
+            }
+        }
+       
+        gName = document.getElementById('newname').value;
+              
+        gFirstname = document.getElementById('newfirstname').value;
+        gDay = document.getElementById('newday').value;
+        gMonth = document.getElementById('newmonth').value;
+        gYear = document.getElementById('newyear').value;
+        gSex = (document.getElementById('sexm').checked) ? 'm' : ((document.getElementById('sexw').checked) ? 'w' : '');
+        gCountry = document.getElementById('countryselectbox').value;
+        gRegion = document.getElementById('regionselectbox').value;
+         
+        gClub = document.getElementById('clubtext').value;
+        gClubInfo = document.getElementById('clubinfotext').value;
+        gClub2 = document.getElementById('clubtext2').value; 
+        gStartnbr = document.getElementById('startnbr').value;
+        gCategory = document.getElementById('categoryselectbox').value;        
+        gTeam = document.getElementById('teamselectbox').value;        
+        gCombined = document.getElementById('combinedgroup').value;  
+       
+        if (document.getElementById('newlicensenr')){          
+            gLicNr = document.getElementById('newlicensenr').value;  
+        }
+         
+        if (document.getElementById('newlicensePrinted')) {
+            gLicPrinted = document.getElementById('newlicensePrinted').value;   
+        }       
+        
+        gComb = '';
+        for(var a=0; a<document.getElementsByName('combined[]').length; a++){
+            var tmp = document.getElementsByName('combined[]')[a];
+            if(tmp.checked){
+                var best = document.getElementById('topcomb'+tmp.value).value;
+                gComb += ((gComb!='') ? ';-;' : '')+tmp.value+';'+best;
+            }
+        }
+        gComb = (gComb!='') ? '&combs='+gComb : '';
+       
+        gDisc = '';
+        for(var a=0; a<document.getElementsByName('events[]').length; a++){
+            var tmp = document.getElementsByName('events[]')[a];
+            if(tmp.checked){
+                var best = document.getElementById('topperf'+tmp.value).value;
+                gDisc += ((gDisc!='') ? ';-;' : '')+tmp.value+';'+best;
+            }
+        }
+       
+        for(var a=0; a<document.getElementsByName('eventscombtemp[]').length; a++){
+            var tmp1 = document.getElementsByName('eventscombtemp[]')[a];
+            var tmp = document.getElementById('start'+tmp1.value);
+            if(tmp.checked){
+                var best = document.getElementById('topperf'+tmp1.value).value;
+                gDisc += ((gDisc!='') ? ';-;' : '')+tmp1.value+';'+best;
+            }
+        }
+        gDisc = (gDisc!='') ? '&discs='+gDisc : '';           
+                
+		document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted;                                                                                                     
+       
 	}
 	
 	function check_year(){
@@ -1910,9 +2046,8 @@ $page->printPageTitle($strNewEntryFromBase);
 				document.getElementById("categoryselectbox").value = categories[sex][a][1];
 				break;
 			}
-		}
-		
-		check_category();
+		}    		
+		check_category();    
 	}
 	
 	function check_sex(){
@@ -1949,6 +2084,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		gRegion = document.getElementById('regionselectbox').value;
 		gClub = document.getElementById('clubtext').value;
 		gClubInfo = document.getElementById('clubinfotext').value;
+        gClub2 = document.getElementById('clubtext2').value;  
 		gStartnbr = document.getElementById('startnbr').value;
 		gCategory = document.getElementById('categoryselectbox').value;		
 		gTeam = document.getElementById('teamselectbox').value;		
@@ -1982,7 +2118,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}
 		gDisc = (gDisc!='') ? '&discs='+gDisc : '';
 		
-		document.location.href='meeting_entry_add.php?asfb='+asfb+'&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb;
+		document.location.href='meeting_entry_add.php?asfb='+asfb+'&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb;
 		
 	}
 	
@@ -1998,6 +2134,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		gRegion = document.getElementById('regionselectbox').value;
 		gClub = document.getElementById('clubtext').value;
 		gClubInfo = document.getElementById('clubinfotext').value;
+        gClub2 = document.getElementById('clubtext2').value;  
 		gStartnbr = document.getElementById('startnbr').value;
 		gCategory = document.getElementById('categoryselectbox').value;		
 		gTeam = document.getElementById('teamselectbox').value;		
@@ -2031,7 +2168,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}
 		gDisc = (gDisc!='') ? '&discs='+gDisc : '';
 		
-		document.location.href = 'meeting_entry_add.php?licType='+o.value+'&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb;
+		document.location.href = 'meeting_entry_add.php?licType='+o.value+'&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb;
 		
 	}
 	
@@ -2493,8 +2630,9 @@ if(!empty($club2) && false){ // not yet in use
 	?>
 	<th class='dialog'><?php echo $strLicenseNr; ?></th>
 	<td class='forms'><input name='licensenr' type='text' size='12'
-		id="newlicensenr" value='<?php echo $_POST['licensenr'] ?>'
+		id="newlicensenr" value='<?php echo isset($_POST['licensenr']) ?  $_POST['licensenr'] : $licensenr ?>'
 		<?php echo $licenseNrDisabled ?>/></td>
+    <input type="hidden" id="newlicnr" name="newlicensenr" value="<?php echo $licNr ?>">     
 	<?php
 	}
 	?>
@@ -2515,6 +2653,7 @@ if(!empty($club2) && false){ // not yet in use
     <td class='forms'><input name='licensePrinted' type='text' size='4'
         id="newlicensePrinted" value='<?php echo $licensePrinted; ?>'
         <?php echo $licenseNrDisabled ?>/></td>
+     <input type="hidden" id="newlicPrinted" name="newlicensePrinted" value="<?php echo $licPrinted ?>">     
    <?php
     }
     ?>
@@ -2557,6 +2696,7 @@ if(!empty($club2) && false){ // not yet in use
 	<td class='forms'>
 		<input type="radio" name="sex" id="sexm" value="m" <?php echo $sexm ?> onChange='check_sex()'><?php echo $strSexMShort ?>
 		<input type="radio" name="sex" id="sexw" value="w" <?php echo $sexw ?> onChange='check_sex()'><?php echo $strSexWShort ?>
+        <input name='argument' id='argument' type='hidden' value='' /> 
 	</td>
 </tr>
 <tr>
@@ -2567,7 +2707,7 @@ if(!empty($club2) && false){ // not yet in use
 </tr>
 <tr>
 	<?php
-	$clubtext = (isset($_POST['clubtext']) && $first!='') ? $_POST['clubtext'] : '';
+	$clubtext = (isset($_POST['clubtext']) && $first!='') ? $_POST['clubtext'] : isset($_GET['club']) ? $_GET['club'] : '';
 	$clubinfotext = (isset($_POST['clubinfotext']) && $first!='') ? $_POST['clubinfotext'] : $clubinfotext;
 	?>
 	<th class='dialog'><?php echo $strClub ?></th>
