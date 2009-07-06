@@ -25,7 +25,7 @@ $presets = AA_results_getPresets($round);	// read GET/POST variables
 
 $performance = 0;		// initialize
 
-
+$svm = AA_checkSVM(0, $round); // decide whether to show club or team name   
 
 
 //
@@ -515,7 +515,7 @@ if($round > 0)
 				, at.Name
 				, at.Vorname
 				, at.Jahrgang
-				, v.Name
+				, if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 				, rs.xResultat
 				, rs.Leistung
@@ -531,6 +531,7 @@ if($round > 0)
 				, anmeldung AS a
 				, athlet AS at
 				, verein AS v
+            LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
 			LEFT JOIN rundentyp AS rt
 				ON rt.xRundentyp = r.xRundentyp
 			LEFT JOIN resultat AS rs
@@ -641,7 +642,7 @@ if($round > 0)
 		<th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
 		<th class='dialog'><?php echo $strYearShort; ?></th>
 		<th class='dialog'><?php echo $strCountry; ?></th>
-		<th class='dialog'><?php echo $strClub; ?></th>
+		<th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
 <?php
 					if($status == $cfgRoundStatus['results_done'])
 					{
