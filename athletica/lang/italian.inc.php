@@ -721,4 +721,7 @@ $strActivCHF = "CHF 4.--  per disciplina";
 $strU16CHF = "CHF 2.--  per disciplina";  
 $strU14CHF = "CHF 1.--  per disciplina";
 
+$strErrNoControl3 ="Il carimento dei risultati per questo meeting è disattivato.";
+
+
 ?>
