@@ -226,7 +226,7 @@ function AA_heats_seedEntries($event)
 	else if($entries > 0)
 	{            
 		mysql_query("LOCK TABLES resultat READ, rundenset READ, wettkampf READ , meeting READ, runde WRITE, serie WRITE"
-							. ", serienstart WRITE");
+							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin as d READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -324,7 +324,58 @@ function AA_heats_seedEntries($event)
 							if($filmnumber){
 								$filmnr = AA_heats_getNextFilm();
 							}
-							
+                            
+                             // get TV Name
+                            $tvname = '';  
+                            $sql="SELECT 
+                                        k.Name, k.Geschlecht, d.Name, d.Code 
+                                  FROM
+                                        runde AS r
+                                        LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+                                        LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie) 
+                                        LEFT JOIN disziplin AS d ON (w.xDisziplin = d.xDisziplin) 
+                                  WHERE
+                                        r.xrunde = " . $round ."
+                                        AND w.xMeeting = " . $_COOKIE['meeting_id'] ;
+                                        
+                            if(mysql_errno() > 0) {        // DB error
+                                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                    }                                      
+                            $res_tv=mysql_query($sql);                              
+                           
+                            $lang = $_COOKIE['language'];                        
+                            if (mysql_num_rows($res_tv) == 1){
+                                $row_tv = mysql_fetch_row($res_tv); 
+                                if ($row_tv[1] == 'm'){
+                                    $tvname = $cfgTVDef[$lang]['m'];
+                                }
+                                else {
+                                     $tvname = $cfgTVDef[$lang]['w']; 
+                                }
+                                $tvname .= '(' . $row_tv[0] . ') ';
+                                if ($row_tv[3] >= 232 && $row_tv[3]<= 301) {
+                                    $tvname .= $cfgTVDef[$lang][232];
+                                }
+                                elseif ($row_tv[3] >= 347 && $row_tv[3]<= 353) {
+                                    $tvname .= $cfgTVDef[$lang][347];
+                                }
+                                 elseif ($row_tv[3] >= 356 && $row_tv[3]<= 361) {
+                                    $tvname .= $cfgTVDef[$lang][356];
+                                }
+                                 elseif ($row_tv[3] >= 375 && $row_tv[3]<= 381) {
+                                    $tvname .= $cfgTVDef[$lang][375];
+                                }
+                                 elseif ($row_tv[3] >= 387 && $row_tv[3]<= 391) {
+                                    $tvname .= $cfgTVDef[$lang][387];
+                                }
+                                elseif ($row_tv[3] >= 385 && $row_tv[3]<= 386) {
+                                    $tvname .= $cfgTVDef[$lang][385];
+                                }
+                                else {
+                                     $tvname .=  $row_tv[2]; 
+                                }
+                            }                               
+                           							
 							$h = ceil($entries/$size);	// calc. nbr of heats	
                             
 							for($i = 1; $i <= $h; $i++)  
@@ -333,8 +384,9 @@ function AA_heats_seedEntries($event)
 											. " xRunde = " . $round
 											. ", xAnlage = 0"
 											. ", Bezeichnung = " . $i
-											. ", Film = ".$filmnr);  
-
+											. ", Film = ".$filmnr
+                                            . ", TVName = '".$tvname."'");      
+                                
 								if(mysql_errno() > 0) {		// DB error
 									AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 								}
@@ -645,7 +697,7 @@ function AA_heats_seedQualifiedAthletes($event)
 	else if(mysql_num_rows($result) > 0)
 	{         
 		mysql_query("LOCK TABLES resultat READ, runde WRITE, rundenset READ,serie WRITE"
-							. ", serienstart WRITE");
+							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin as d READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -749,7 +801,59 @@ function AA_heats_seedQualifiedAthletes($event)
                             }
                           
 							unset($heats);					// array to store heat ID's
-							for($i=1; $i <= $h; $i++)
+                            
+                           // get TV Name
+                            $tvname = '';
+                            $sql="SELECT 
+                                        k.Name, k.Geschlecht, d.Name, d.Code
+                                  FROM
+                                        runde AS r
+                                        LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+                                        LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie) 
+                                        LEFT JOIN disziplin AS d ON (w.xDisziplin = d.xDisziplin) 
+                                  WHERE
+                                        r.xrunde = " . $round ."
+                                        AND w.xMeeting = " . $_COOKIE['meeting_id'] ;
+                                        
+                            if(mysql_errno() > 0) {        // DB error
+                                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                    }                                      
+                            $res_tv=mysql_query($sql);
+                           
+                            $lang = $_COOKIE['language'];                        
+                            if (mysql_num_rows($res_tv) == 1){
+                                $row_tv = mysql_fetch_row($res_tv); 
+                                if ($row_tv[1] == 'm'){
+                                    $tvname = $cfgTVDef[$lang]['m'];
+                                }
+                                else {
+                                     $tvname = $cfgTVDef[$lang]['w']; 
+                                }
+                                $tvname .= '(' . $row_tv[0] . ') ';
+                                if ($row_tv[3] >= 232 && $row_tv[3]<= 301) {
+                                    $tvname .= $cfgTVDef[$lang][232];
+                                }
+                                elseif ($row_tv[3] >= 347 && $row_tv[3]<= 353) {
+                                    $tvname .= $cfgTVDef[$lang][347];
+                                }
+                                 elseif ($row_tv[3] >= 356 && $row_tv[3]<= 361) {
+                                    $tvname .= $cfgTVDef[$lang][356];
+                                }
+                                 elseif ($row_tv[3] >= 375 && $row_tv[3]<= 381) {
+                                    $tvname .= $cfgTVDef[$lang][375];
+                                }
+                                 elseif ($row_tv[3] >= 387 && $row_tv[3]<= 391) {
+                                    $tvname .= $cfgTVDef[$lang][387];
+                                }
+                                elseif ($row_tv[3] >= 385 && $row_tv[3]<= 386) {
+                                    $tvname .= $cfgTVDef[$lang][385];
+                                }
+                                else {
+                                     $tvname .=  $row_tv[2]; 
+                                }
+                            }
+                            
+							for($i=1; $i <= $h; $i++)        
 							{   if($_POST['final'] == TRUE) {                                       
                                     $b=$cfgAlphabeth[$i-1]; 
                                     $filmnr =  $filmnr_final - $i;  
@@ -762,8 +866,9 @@ function AA_heats_seedQualifiedAthletes($event)
 											. " xRunde = " . $round
 											. ", xAnlage = 0"
 											. ", Bezeichnung = '" . $b ."'"
-											. ", Film = ".$filmnr);
-
+											. ", Film = ".$filmnr
+                                            . ", TVName = '".$tvname."'");
+                                
 								if(mysql_errno() > 0) {		// DB error
 									AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 								}
