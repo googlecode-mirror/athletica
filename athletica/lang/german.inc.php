@@ -770,5 +770,6 @@ $strU14CHF = "CHF 1.-- pro Start";
 
 $strErrMergeGroup = "Mehrkämpfe mit Gruppen können nicht zusammengefasst werden."; 
 $strErrNoControl3 = "Der Resultate Upload bei diesem Meeting ist deaktiviert.";
+$strChangeInfo = "Das Info Feld darf erst nach dem letzten Meetingabgleich geändert werden. Wollen Sie das Info Feld wirklich ändern?"
 
 ?>
