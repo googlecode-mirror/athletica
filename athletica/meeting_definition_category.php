@@ -387,6 +387,10 @@ elseif($_POST['arg']=="change_starttime"){
         }
         
 	}
+    
+  if (!empty($GLOBALS['AA_ERROR'])){                
+        AA_printErrorMsg($GLOBALS['AA_ERROR']);    
+  }
 }
 // request to change last event of combined
 elseif($_POST['arg'] == "change_lastdisc"){
