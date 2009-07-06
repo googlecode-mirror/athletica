@@ -2518,8 +2518,9 @@ function AA_checkGroup($group,$cat,$comb){
 					AND w.xMeeting = ".$_COOKIE['meeting_id']."
 					AND a.Gruppe = '" . $group ."' 
 					ORDER BY g ASC;";
-	        
+	
 	$res = mysql_query($qGroup);
+   
   	if(mysql_errno() > 0)
 		{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -2530,6 +2531,34 @@ function AA_checkGroup($group,$cat,$comb){
 	}
 	return $groupexist;    
 }	
+
+/**    
+     * Check if group exist for this events
+     * ------------------------------------
+     */   
+function AA_checkGroupEvent($event,$cGroup){    
+   
+   $groupexist=false;
+   $qGroup="SELECT 
+                Gruppe 
+            FROM 
+                runde 
+            WHERE 
+                Gruppe= " .$cGroup ." 
+                AND xWettkampf = ". $event;  
+             
+    $res = mysql_query($qGroup);  
+   
+      if(mysql_errno() > 0)
+        {
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+        if (mysql_num_rows($res) > 0) {
+            $groupexist=true;
+        }
+    }
+    return $groupexist;    
+}    
 
 /**
      * check if relay name exist in same category and discipline
