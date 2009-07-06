@@ -362,15 +362,6 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					            
 						// skip result if more than MaxRes athletes of a team are on top
 						if(isset($cClubs[$row[2]]) && $cClubs[$row[2]] > $countMaxRes){   
-						 
-					     	mysql_query("UPDATE serienstart SET"
-						  						. " Rang = 0"
-						  	   					. "	WHERE "
-						  						. "	xSerienstart = " . $row[0]);    
-						   
-						  	if(mysql_errno() > 0) {   								
-						  				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-						  	}
 							          						
 							mysql_query("UPDATE resultat SET
 									Punkte = 0
@@ -381,10 +372,8 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 							}
 							continue; // skip
 						}
-					}
+					}       
 					
-					if($point > 0){
-						 
 						if($rank != $row[1] && $i > 0){
 							
 							$p = $pts / $i; // divide points for athletes with the same rank
@@ -411,18 +400,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
                         }
                         else {
                             $point += $pStep; 
-                        }
-						
-					}else{
-						   
-						mysql_query("UPDATE resultat SET
-								Punkte = 0
-							WHERE
-								xSerienstart = $row[0]");
-						if(mysql_errno() > 0) {
-							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-						}
-					}
+                        }    
 				}
 				
 				// check on last entries
