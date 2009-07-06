@@ -548,8 +548,8 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time="", $svm = false)
-	{  
+		, $wind=FALSE, $heatwind='', $time="", $svm = false, $eval)
+	{   
 		$this->relay = $relay;
 		$this->points = $points;
 		$this->wind = $wind;
@@ -597,6 +597,18 @@ class PRINT_RankingList extends PRINT_Page
             $this->linecnt = $this->linecnt + $lines + 1;    // increment line count
 			}
 		}
+        elseif ($eval == $cfgEvalType[$strEvalTypeDiscDefault]){
+                if(!empty($time)){
+?>
+                    <tr>  
+                        <th class='rank_datetime' colspan='10'>
+                        <?php echo $time; ?>
+                        </th>
+                    </tr>
+<?php
+            $this->linecnt = $this->linecnt + $lines + 1;    // increment line count
+            }
+        }
 
 		
 
@@ -650,8 +662,9 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark)
+		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark, $secondResult=false)
 	{    
+        if (!$secondResult){
         if(($this->lpp - $this->linecnt) < 5)		// page break check
 		{   
 			printf("</table>");			   			
@@ -661,12 +674,18 @@ class PRINT_RankingList extends PRINT_Page
 			$this->printHeaderLine($this->relay, $this->pointinfo, $this->windinfo);   
 		}   
        
-        // count more lines if string is to long (club string)  
+        // count more lines if string is to long (club string) 
+       
         $t1 = 0;
         $w = AA_getStringWidth($club, 12);  
         $t1 = ceil(($w / 157));         
 		$this->linecnt = $this->linecnt + $t1;			// increment line count
-	   	
+        }
+     
+      if ($secondResult){
+          $this->linecnt++;  
+        } 
+	  	
 ?>
 	<tr>
 		<td class='rank_rank'><?php echo $rank; ?></td>

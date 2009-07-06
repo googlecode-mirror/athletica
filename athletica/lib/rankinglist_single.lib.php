@@ -144,7 +144,7 @@ $results = mysql_query("
 		, r.Datum
 		, r.Startzeit
 ");   
-      
+   
  }
  else {      
 	   $results = mysql_query("
@@ -234,9 +234,10 @@ else {
 	
 	while($row = mysql_fetch_row($results))
 	{   
-		// for a combined event, the rounds are merged, so jump until the next event
+		             
+        // for a combined event, the rounds are merged, so jump until the next event
 		if($cRounds > 1){
-			$cRounds--;
+			$cRounds--;                    
 			continue;
 		}
 		$roundSQL = "s.xRunde = $row[0]";
@@ -300,7 +301,7 @@ else {
 			}
 			mysql_free_result($res);
 		}
-
+         
 		if($evnt != $row[4])		// new event -> repeat title
 		{   
 			// if this is a combined event, dont fragment list by rounds
@@ -313,11 +314,13 @@ else {
 								wettkampf as w
 								, runde as r
 							WHERE	w.xWettkampf = $row[4]
+                            AND r.status = 4 
 							AND	r.xWettkampf = w.xWettkampf");
+                
 				if(mysql_errno() > 0){
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}else{
-					$cRounds = mysql_num_rows($res_c);
+					$cRounds = mysql_num_rows($res_c);                        
 					$roundSQL = "s.xRunde IN (";
 					while($row_c = mysql_Fetch_array($res_c)){
 						$roundSQL .= $row_c[0].",";
@@ -371,7 +374,7 @@ else {
 				  $flagSubtitle=true;       // set flag to print the subtitle later    
 			}  
 		}
-
+       
 		$relay = AA_checkRelay($row[4]);	// check, if this is a relay event
 		$svm = AA_checkSVM($row[4]);    
 		
@@ -414,7 +417,7 @@ else {
 				$sqlSeparate=" AND ss.RundeZusammen = " . $row[13];   
 			 }  
 		} 
-	 
+	    
 		// get all results ordered by ranking; for invalid results (Rang=0), the
 		// rank is set to max_rank to put them to the end of the list.
 		$max_rank = 999999999;  
@@ -474,7 +477,7 @@ else {
 							 at.Vorname,
 							 leistung_neu " 
 							 .$order_perf;   
-                   
+           
 		}
 		else {						// relay event
 				   
@@ -509,21 +512,21 @@ else {
 					   WHERE s.xRunde = ".$row[0]." 
 					  ".$limitRankSQL." 
 					  ".$valid_result." 
-					  ".$sqlSeparate."  
+					  ".$sqlSeparate."                         
 					GROUP BY r.xSerienstart 
 					ORDER BY ".$order." 
 							 rank, 
 							 r.Leistung 
 							 ".$order_perf.", 
-							 sf.Name;";        				 
+							 sf.Name;";                              
 		}    
-		 
+		
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else {
-			  if (mysql_num_rows($res)==0){   
+			  if (mysql_num_rows($res)==0){                          
 					continue;             
 			  }  
 			// initialize variables
@@ -584,18 +587,22 @@ else {
 						$count_rank=0;
 						$nr=0;
 						// heat name
+                        
 						if($eval == $cfgEvalType[$strEvalTypeHeat]) {
 							if(empty($type))	{			// no round type defined
 								$type = $strFinalround . " ";
+                                
 							}
 							$title = $type . $row_res[5];	// heat name with nbr.
+                             
 						}
 						else {
 							$title = $type;	// heat name withour nbr.
+                             
 						}
 						
 						$title = trim($title);
-
+                         
 						// wind per heat
 						if(($row[3] == $cfgDisciplineType[$strDiscTypeTrack])
 								&& ($row[8] == 1)
@@ -644,7 +651,7 @@ else {
 					   	}     
 					   
 					   	$list->startList();  
-						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode);
+						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval);
                         
                           
                          if ($athleteCat && !$relay){ 					    
@@ -998,7 +1005,7 @@ else {
 					$list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat,$remark);
 				 
 					if($secondResult){
-						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode);
+						$list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode,"","", $secondResult);
 					}
 					$perf_save=$row_res[3];// keep performance
 					// 
