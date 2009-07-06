@@ -144,7 +144,7 @@ if(!empty($_GET['group'])) {
 $relay = AA_checkRelay($event);
 $combined = AA_checkCombined($event, $round);
 
- 
+$svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
 
 //
 // Update absent status
@@ -421,6 +421,7 @@ $menu->printMenu();
 $img_nbr="img/sort_inact.gif";
 $img_name="img/sort_inact.gif";
 $img_club="img/sort_inact.gif";
+$img_team="img/sort_inact.gif"; 
 
 if ($arg=="nbr") {
 	$argument="a.Startnummer";
@@ -434,6 +435,9 @@ if ($arg=="nbr") {
 } else if ($arg=="club") {
 	$argument="v.Sortierwert, a.Startnummer, d.Anzeige";
 	$img_club="img/sort_act.gif";
+} else if ($arg=="team") {
+    $argument="t.Name, a.Startnummer, d.Anzeige";
+    $img_team="img/sort_act.gif";
 } else if ($arg=="relay") {
 	$argument="st.Name";
 	$img_name="img/sort_act.gif";
@@ -611,7 +615,13 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		else {   
 			$sqlEventComb = '';        // the whole combined event
 			$sqlCat = " w.xKategorie = " .$cCat ." AND ";
-			$sqlMk = " w.Mehrkampfcode = ".$cCode ." AND w.xDisziplin = ".$cDisz;           
+            if (empty($cDisz)) {
+                $sqlMk = " w.Mehrkampfcode = ".$cCode;           
+            }
+            else {
+                $sqlMk = " w.Mehrkampfcode = ".$cCode ." AND w.xDisziplin = ".$cDisz;           
+            }
+			
 		} 
         
         $sqlGroup = '';
@@ -702,7 +712,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 	{
 ?>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=nbr&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>'><?= $strStartnumber; ?>
+			<a href='event_enrolement.php?arg=nbr&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>&round=<?= $round;?>'><?= $strStartnumber; ?>
 				<img src='<?= $img_nbr; ?>' />
 			</a>
 		</th>
@@ -714,7 +724,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			</a>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=name&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>'><?= $strName; ?>
+			<a href='event_enrolement.php?arg=name&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>&round=<?= $round;?>'><?= $strName; ?>
 
 				<img src='<?= $img_name; ?>' />
 			</a>
@@ -724,9 +734,21 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		<?= $strYear; ?>
 		</th>
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=club&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>'><?= $strClub; ?>
+            <?php if($svm){ 
+                ?>
+               <a href='event_enrolement.php?arg=team&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>&round=<?= $round;?>'><?php  echo $strTeam; ?> 
+                <img src='<?= $img_team; ?>' />
+                </a>
+                <?php
+            }
+                else{ 
+                  ?> 
+			<a href='event_enrolement.php?arg=club&category=<?= $category; ?>&event=<?= $event; ?>&comb=<?= $comb; ?>&catFrom=<?= $catFrom; ?>&catTo=<?= $catTo; ?>&discFrom=<?= $discFrom; ?>&discTo=<?= $discTo; ?>&mDate=<?= $mDate; ?>&round=<?= $round;?>'><?php  echo $strClub; ?>  
 				<img src='<?= $img_club; ?>' />
 			</a>
+            <?php
+                }
+            ?>
 		</th> 
 		<?php  
 							
@@ -772,7 +794,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             </a>
         </th>		
 		<th class='dialog'>
-			<a href='event_enrolement.php?arg=relay_club&category=<?= $category; ?>&event=<?= $event; ?>'><?= $strClub; ?>
+			<a href='event_enrolement.php?arg=relay_club&category=<?= $category; ?>&event=<?= $event; ?>'><?php if ($svm) { echo $strTeam; } else { echo $strClub; }?>
 				<img src='<?= $img_club; ?>' />
 			</a>
 		</th>
@@ -958,8 +980,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						, a.Startnummer
 						, at.Name
 						, at.Vorname
-						, at.Jahrgang
-						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
+						, at.Jahrgang                          
+						, if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))    
 						, a.xAnmeldung
 						, s.Bezahlt                         
 					FROM
@@ -970,6 +992,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						start AS s ON(s.xAnmeldung = a.xAnmeldung)
 					LEFT JOIN 
 						verein AS v ON(at.xVerein = v.xVerein)
+                    LEFT JOIN
+                        team AS t ON(a.xTeam = t.xTeam)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
                     LEFT JOIN
@@ -986,9 +1010,9 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						 w.xMeeting = ".$_COOKIE['meeting_id']."
 					ORDER BY
 						".$argument.";";
-			  
-			$query = $sql;     
-            
+			
+			$query = $sql; 
+                                             
 		}else{  
 			// no combined
 			/*$query = "SELECT s.xStart"
@@ -1016,7 +1040,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
-						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
+                         , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))  
 						, a.xAnmeldung  
 						, d.Name
 					    ".$sqlDate."
@@ -1029,6 +1053,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						start AS s ON(s.xAnmeldung = a.xAnmeldung)
 					LEFT JOIN 
 						verein AS v ON(at.xVerein = v.xVerein)
+                    LEFT JOIN
+                        team AS t ON(a.xTeam = t.xTeam)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 					LEFT JOIN
@@ -1050,7 +1076,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						, at.Name
 						, at.Vorname
 						, at.Jahrgang
-						, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
+						  , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
 						, a.xAnmeldung  
 						, d.Name
 					    ".$sqlDate."  
@@ -1064,6 +1090,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						start AS s ON(s.xAnmeldung = a.xAnmeldung)
 					LEFT JOIN 
 						verein AS v ON(at.xVerein = v.xVerein)
+                    LEFT JOIN
+                        team AS t ON(a.xTeam = t.xTeam)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 					LEFT JOIN
@@ -1079,8 +1107,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					".$sqlGroup ."  
 					ORDER BY
 						".$argument.")";    
-			$query = $sql;  
-            
+			$query = $sql;                    
 		}
 	}
 	else {							// relay event
@@ -1154,25 +1181,28 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
     $sql = "SELECT 
                     s.xStart 
                     , s.Anwesend 
-                    , st.Name ,
-                    IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) ,
-                    a.Startnummer 
+                    , st.Name 
+                    , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
+                    , a.Startnummer 
                     , at.Name 
                     , at.Vorname 
-                    , at.Jahrgang , 
-                    s.Bezahlt 
+                    , at.Jahrgang  
+                    , s.Bezahlt 
                     , d.Name 
                     , st.Startnummer                      
             FROM 
                 staffel AS st 
                 LEFT JOIN start AS s USING(xStaffel) 
-                LEFT JOIN verein AS v ON(st.xVerein = v.xVerein) 
+                LEFT JOIN verein AS v ON(st.xVerein = v.xVerein)
+               
                 LEFT JOIN staffelathlet AS stat ON(stat.xStaffelstart = s.xStart) 
                 LEFT JOIN start AS s2 ON(s2.xStart = stat.xAthletenstart)
                 LEFT JOIN anmeldung AS a ON (s2.xAnmeldung=a.xAnmeldung) 
+                 
                 LEFT JOIN athlet AS at USING(xAthlet) 
                 LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
                 LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
+                LEFT JOIN team AS t ON (st.xTeam = t.xTeam) 
             WHERE                            
                     ".$sqlEvents." 
             GROUP BY 
@@ -1180,8 +1210,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             ORDER BY
                     ".$argument.";";
                     
-		$query = $sql; 
-        
+		$query = $sql;          
 	}                   
 	
 	$result = mysql_query($query);
