@@ -771,7 +771,7 @@ function AA_results_printHeader($category, $event, $round)
 	$page->printPageTitle($GLOBALS['strResults'] . ": " . $_COOKIE['meeting']);
 
 	$menu = new GUI_Menulist();
-	$menu->addButton($cfgURLDocumentation . 'help/event/results.html', $GLOBALS['strHelp'], '_blank');
+	$menu->addButton($cfgURLDocumentation . 'doc/de/help/event/results.html', $GLOBALS['strHelp'], '_blank');
 	$menu->printMenu();
 ?>
 
