@@ -221,8 +221,17 @@ if($_GET['arg'] == 'assign')
                     }
             
                 if ($noCat) {                  // set per name or per club 
-                    if ($first){  
-                        $nbr = 0;  
+                    if ($first){                         
+                        if (!empty($_GET["name_of"]) && $_GET["sort"] == 'name'){
+                            $nbr = $_GET["name_of"];                                 // set nbr of per name
+                        }
+                        elseif (!empty($_GET["club_of"]) && $_GET["sort"] == 'club'){    
+                                 $nbr = $_GET["club_of"];                             // set nbr of per club
+                        }
+                        else {
+                           $nbr = 0;   
+                        } 
+                        
                         $nbr1 = 0; 
                         $nbr2 = 0; 
                         $nbr3 = 0; 
@@ -232,7 +241,7 @@ if($_GET['arg'] == 'assign')
                         $limit3 = 0;
                         $all = false;
                         
-                        $nbr = 1;
+                       
                         $limit = 9999999;
                         $all = true;                          
                         $allNr = true;
@@ -465,7 +474,7 @@ if($_GET['arg'] == 'assign')	// refresh list
 }
 ?>
 
-<script>
+<script type="text/javascript">     
 
 function check_rounds(){
 	   
@@ -474,40 +483,66 @@ function check_rounds(){
 		check = confirm("<?php echo $strStartNrConfirm ?>");
 		return check;
 	//}
-	
+    
 }
+         
+function check_of(){
+    
+    // check of values in name_of and club_of
+   
+   if (document.getElementById("name").checked){       
+       document.getElementById("club_of").value = '';
+   }
+   else {           
+        document.getElementById("name_of").value = '';  
+   } 
+}   	
+
   
 
 </script>
 
-<form action='meeting_entries_startnumbers.php' method='get'>
+<form action='meeting_entries_startnumbers.php' method='get' id='startnr'>
 <input type='hidden' name='arg' value='assign'>
 <table class='dialog'>
 <tr>
 	<th class='dialog'><?php echo $strSortBy; ?></th>
+    <th class='dialog'><?php echo $strOf; ?></th>     
 	<th class='dialog' colspan='12'><?php echo $strRules; ?></th>
 </tr>
 <tr>
 	<td class='dialog'>
-		<input type='radio' name='sort' id='name' value='name' checked>
-			<?php echo $strName; ?></input>	</td>
-	<td class='dialog'>
-		</td>
-	<td />
-			
-    <td>&nbsp;</td>
+		<input type='radio' name='sort' id='name' onChange='check_of()' value='name' checked ">
+    </td>         
+     </td>
+</tr>
+<tr>
+	<td><?php echo $strName; ?>
+   	</td>	
+	<td class='forms'> 
+		<input type="text" size="3" value="0" name="name_of" id="name_of"> 
+    </td>  
 </tr>
 
 <tr>
 	<td class='dialog'>
-		<input type='radio' name='sort' id='club' value='club'>
-			<?php echo $strClub; ?></input>	</td>
-	<td class='dialog' colspan='5'>
-		<?php echo $strGapBetween . " " . $strClub; ?>	</td>
-	<td class='dialog'>
-		<input class='nbr' type='text' name='clubgap' maxlength='4' value='<?php echo $clubGap; ?>'>	</td>
-    <td class='dialog'>&nbsp;</td>
-</tr> 
+		<input type='radio' name='sort' id='club' value='club' onChange='check_of()'>
+    </td>
+</tr>
+<tr>
+    <td>
+         <?php echo $strClub; ?></input>   
+    </td>
+    <td class='forms'>
+        <input type="text" size="3" value="0" name="club_of" >  
+     </td> 
+     <td class='dialog' colspan='5'>
+        <?php echo $strGapBetween . " " . $strClub; ?>    </td>
+    <td class='dialog'>
+        <input class='nbr' type='text' name='clubgap' maxlength='4' value='<?php echo $clubGap; ?>'>    </td>
+    <td class='dialog'>&nbsp;</td> 
+</tr>
+
 
 
 
