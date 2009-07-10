@@ -26,7 +26,7 @@ $strBackupBaseTablesSkipped = 'Les données de base n’ont pas été enregistrées.<b
 $strBackupInfo = 'Cette fonction vous permet d’actualiser les données initiales (athlètes, meilleures performances, relais, sociétés).';
 $strBackupRestoreInfo = 'Sélectionnez une protection Athletica existante pour entrer les données et pour mettre Athletica au niveau de la donnée de protection.';
 $strBackupTimingReset = 'Un ou plusieurs chemins de chronométrage n’ont pas été trouvés et ont été remis à zéro.<br/>Veuillez contrôler les réglages sur Meeting > Chronométrage.';
-$strBackupOK = 'Sicherung anlegen';
+$strBackupOK = 'Créer une sauvegarde';
 $strBackupFile = "Fichier de sauvegarde"; 
 $strBeginningWith = "Commençant par";  
 $strBuildTimetable = "Établir horaire";  
@@ -760,8 +760,10 @@ $strActivCHF = "CHF 4.--  par début";
 $strU16CHF = "CHF 2.--  par début";  
 $strU14CHF = "CHF 1.--  par début";      
 
-$strErrMergeGroup = "Les concours multiples avec groupes ne peuvent pas être regroupés";  
+$strErrMergeGroup = "Les concours multiples avec groupes ne peuvent pas être regroupés"; 
+$strErrNoControl3 =  "Le téléchargement des résultats pour ce meeting est désactivé."; 
+$strChangeInfo = "La case Info ne doit être changée qu'après le dernier ajustement du meeting. Voulez-vous vraiement changer la case Info?";
 
-$strErrNoControl3 =  "Le téléchargement des résultats pour ce meeting est désactivé.";                       
+                      
 
 ?>
