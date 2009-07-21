@@ -386,16 +386,25 @@ $cfgSVM = array(    '20_01' => array(40,50,70,90,110,160,271,301,560,310,320,330
 /**
  *    TV Name Disciplines
  */
-$cfgTVDef = array("de" => array (232 => 'Hürden'        
+$cfgTVDef = array("de" => array (232 => '50m Hurdles'
+                                , 252 => '60m Hurdles'  
+                                , 258 => '80m Hurdles' 
+                                , 259 => '100m Hurdles'  
+                                , 268 => '110m Hurdles' 
+                                , 280 => '200m Hurdles' 
+                                , 289 => '300m Hurdles'  
+                                , 298 => '400m Hurdles' 
                                 , 347 => 'Kugel'
-                                , 356 => 'Diskus'
+                                , 356 => 'Discus'
                                 , 375 => 'Hammer'
-                                , 387 => 'Speer'
-                                , 385 => 'Ball' 
-                                , 'm' => 'Männer' 
-                                , 'w'=> 'Frauen'                                                    
+                                , 387 => 'Javelin'
+                                , 385 => 'Ball'                                 
+                                , 'm' => 'Men' 
+                                , 'w'=> 'Women'                                                    
                                 ),
-                  "fr" => array (232 => 'Haies'        
+                  "fr" => array (259 => 'Haies' 
+                                , 268 => '110m Hurdles' 
+                                , 298 => '400m Hurdles'        
                                 , 347 => 'Poids'
                                 , 356 => 'Disque'
                                 , 375 => 'Marteau'
@@ -404,14 +413,16 @@ $cfgTVDef = array("de" => array (232 => 'Hürden'
                                 , 'm' => 'Hommes' 
                                 , 'w'=> 'Femmes'                                                                     
                                 ),
-                  "it" => array (232 => 'Hürden'        
+                  "it" => array (259 => 'Ostacoli' 
+                                , 268 => '110m Hurdles' 
+                                , 298 => '400m Hurdles'               
                                 , 347 => 'Peso'
                                 , 356 => 'Disco'
                                 , 375 => 'Martello'
                                 , 387 => 'Giavellotto'
                                 , 385 => 'Pallina' 
-                                , 'm' => 'Männer' 
-                                , 'w'=> 'Frauen'                                                                     
+                                , 'm' => 'Uomini' 
+                                , 'w'=> 'Donne'                                                                     
                                 ));  
   
 /**
@@ -459,8 +470,8 @@ $cfgInvalidResult = array("DNS"=>array ("code"=>-1
 $cfgMissedAttempt = array("code"=>'-'
 									, "db"=>-99
 								,
-                          "code"=>'X'
-                                    , "db"=>-98
+                          "codeX"=>'X'
+                                    , "dbx"=>-98
                                 );      
                                 
 
