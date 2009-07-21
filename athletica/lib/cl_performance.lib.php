@@ -246,9 +246,12 @@ class PerformanceAttempt extends Performance
 		// get tokanized performance if entered without separators
 		if(strpos($time, $GLOBALS['cfgResultsSeparator']) === false){  
 			
-		   	if ($performance == $GLOBALS['cfgInvalidResult']['WAI']['code'] 
-                || $performance == $GLOBALS['cfgInvalidResult']['NAA']['code'] )
-		   	  	{ $performance = $GLOBALS['cfgMissedAttempt']['db'];   
+		   	if ($performance == $GLOBALS['cfgInvalidResult']['WAI']['code']) {
+                $performance = $GLOBALS['cfgMissedAttempt']['db'];                
+            }
+            elseif  ($performance == $GLOBALS['cfgInvalidResult']['NAA']['code'] ) {
+                
+		   	  	$performance = $GLOBALS['cfgMissedAttempt']['dbx'];   
 		  	}
 		  	else {
 		    	$performance = substr($performance,0,-2).$GLOBALS['cfgResultsSeparator'].substr($performance,strlen($performance)-2);
@@ -287,6 +290,7 @@ class PerformanceAttempt extends Performance
 				if((($t[0] <= $GLOBALS['cfgInvalidResult']['DNS']['code'])
 					&& ($t[0] >= $GLOBALS['cfgInvalidResult']['NRS']['code']) )
 					||  ($t[0] == $GLOBALS['cfgMissedAttempt']['db'])
+                    ||  ($t[0] == $GLOBALS['cfgMissedAttempt']['dbx']) 
                     ||  ($t[0] == $GLOBALS['cfgInvalidResult']['NAA']['code'])) 
 				{
 					$meter = $t[0];
@@ -322,7 +326,7 @@ class PerformanceAttempt extends Performance
             elseif ((count($t) == 1)      // one element: may be 'X'  
                 && ($t[0] == 'X' || $t[0] == 'x')) 
                 {
-                     $meter =  $GLOBALS['cfgMissedAttempt']['db'];       
+                     $meter =  $GLOBALS['cfgMissedAttempt']['dbx'];       
                 }  
 		}    
 		return $meter;

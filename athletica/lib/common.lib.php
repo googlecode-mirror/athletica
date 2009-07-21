@@ -932,6 +932,9 @@ require('./config.inc.php');
 		else  if($meter == $GLOBALS['cfgMissedAttempt']['db']) {
 			$meter = $GLOBALS['cfgMissedAttempt']['code'];
 		}
+        elseif($meter == $GLOBALS['cfgMissedAttempt']['dbx']) {
+            $meter = $GLOBALS['cfgMissedAttempt']['codeX'];
+        }
 
 		return $meter;
 	}
