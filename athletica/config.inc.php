@@ -16,7 +16,7 @@
  * Application Info
  */
 $cfgApplicationName = 'Athletica';
-$cfgApplicationVersion = '3.4.4';
+$cfgApplicationVersion = '3.4.5';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
@@ -72,7 +72,8 @@ $cfgBackupCompatibles = array(
     '3.4.1', 
     '3.4.2',   
     '3.4.3', 
-    '3.4.4'                                                                                                     
+    '3.4.4',   
+    '3.4.5'                                                                                                     
 );
 
 
