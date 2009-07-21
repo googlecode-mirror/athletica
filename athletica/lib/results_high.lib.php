@@ -27,12 +27,12 @@ $performance = 0;		// initialize
 
 $svm = AA_checkSVM(0, $round); // decide whether to show club or team name   
 
-
+$click = true;           // true = User clicks at this athlete      false = user save athlete before 
 //
 // update result(s)
 //
 if($_POST['arg'] == 'save_res')
-{
+{   $click = false;
 	// check if athlet valid
 	if(AA_checkReference("serienstart", "xSerienstart", $_POST['start']) == 0)
 	{
@@ -54,6 +54,7 @@ if($_POST['arg'] == 'save_res')
 				, resultat WRITE
 				, wertungstabelle READ
 				, wertungstabelle_punkte READ
+                , meeting READ
 		");
 
 		// validate result
@@ -96,9 +97,14 @@ if($_POST['arg'] == 'save_res')
 		}else{
 			$Xcount = 0;
 		}
+        
+        $prog_mode = AA_results_getProgramMode();                
 		
 		if($info == $cfgResultsHighOut || $Xcount >= 3) {		// last attempt
-			$_POST['athlete'] = $_POST['athlete'] + 1;	// next athlete
+            if($cfgProgramMode[$prog_mode]['name'] == $strProgramModeBackoffice) {
+               $_POST['athlete'] = $_POST['athlete'] + 1;    // next athlete    
+            }   
+			
 			$points = 0;
 		}
 		else {
@@ -221,7 +227,7 @@ else if($_GET['arg'] == 'results_done')
 					serienstart.xSerienstart
 					,resultat.Leistung DESC
 			");
-
+            
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -240,7 +246,7 @@ else if($_GET['arg'] == 'results_done')
 
 				// process every result
 				while($row = mysql_fetch_row($result))
-				{
+				{  
 					// new athlete: save last athlete's data
 					if(($ss != $row[2]) && ($ss != 0))
 					{
@@ -278,13 +284,12 @@ else if($_GET['arg'] == 'results_done')
 						$leistung = $row[0];		
 						$serienstart = $row[2];
 						$serie = $row[3];
-						$topX = substr_count($row[1], 'X');
-
+						$topX = substr_count($row[1], 'X');                         
 						$tt = TRUE;
 					}
 
 					// count total invalid attempts
-					$totX = $totX + substr_count($row[1], 'X');
+					$totX = $totX + substr_count($row[1], 'X');                     
 					$ss = $row[2];				// keep athlete's ID
 				}
 				mysql_free_result($result);
@@ -300,7 +305,7 @@ else if($_GET['arg'] == 'results_done')
 							, $topX
 							, $totX)
 					");
-
+                      
 					if(mysql_errno() > 0) {		// DB error
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}
@@ -418,7 +423,7 @@ else if($_GET['arg'] == 'results_done')
 					FROM
 						resultat
 					WHERE xSerienstart = $row[0]
-					AND Leistung = ". $cfgInvalidResult['DSQ']['code']
+					AND (Leistung = ". $cfgInvalidResult['DSQ']['code']."OR Leistung = ". $cfgInvalidResult['NRS']['code'] .")" 
 				);
 
 				if(mysql_errno() > 0) {		// DB error
@@ -548,7 +553,7 @@ if($round > 0)
 				, ss.Position
 				, rs.xResultat DESC
 		");
-
+       
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -593,8 +598,14 @@ if($round > 0)
 				// terminate last row if new athlete and not first item
 				if(($a != $row[4]) && ($i != 0))
 				{
+                   if($_POST['athlete'] == ($i+1) && $cfgProgramMode[$prog_mode]['name'] == $strProgramModeField) {
+                        if ($row[15] == 'XXX' && !$click){
+                            $_POST['athlete'] = $_POST['athlete'] + 1;
+                        }
+                    }        
+                     
 					if($_POST['athlete'] == $i)		// active item
-					{
+					{  
 						echo "<td>";
 						$btn->set("event_results.php?arg=del_start&item=$a&round=$round", $strDelete);
 						$btn->printButton();
@@ -743,7 +754,9 @@ if($round > 0)
                    <?php  
                      
                     }
+                
 				}		// ET new athlete
+               
 
 				$new_perf = '';
 				if($_POST['athlete'] == $i)				// only current athlet
@@ -760,16 +773,31 @@ if($round > 0)
 					{
 						// read all performances achieved in current heat and
 						// better than last entered performance
-
+                    if ($cfgProgramMode[$prog_mode]['name'] == $strProgramModeField) {
+                        if(in_array($row[15], $cfgResultsHighStayDecentral)) {
+                            $new_perf = AA_formatResultMeter($last_perf);
+                            $new_info = $row[15];
+                            $item = $row[13];
+                        }
+                        else 
+                        {
+                            $new_perf = getNextHeight($row[2], $last_perf);
+                            $new_info = '';
+                        } 
+                        
+                    }
+                    else {
 						if(in_array($row[15], $cfgResultsHighStay)) {
 							$new_perf = AA_formatResultMeter($last_perf);
 							$new_info = $row[15];
 							$item = $row[13];
 						}
-						else {
+						else 
+                        {
 							$new_perf = getNextHeight($row[2], $last_perf);
 							$new_info = '';
-						}
+						} 
+                    }  
 ?>
 		<form action='event_results.php' method='post'
 			name='perf'>
@@ -784,7 +812,7 @@ if($round > 0)
 					onChange='checkSubmit(document.perf)' />
 			<input class='texttiny' type='text' name='attempts' maxlength='3'
 				value='<?php echo $new_info; ?>'
-					onChange='document.perf.submit()' />
+					onChange='document.perf.submit()' onBlur='document.perf.submit()' />
 		</td>
 		</form>   
         
@@ -793,7 +821,7 @@ if($round > 0)
 					}
 
 					if((is_null($row[14]) == false)	// result to display
-						&& (empty($item))) {				// next height
+						&& (empty($item))) {				// next height                         
 						?>
 		<td nowrap>
 			<?php echo AA_formatResultMeter($row[14]) . "<br/>( $row[15] )"; ?>
@@ -814,7 +842,8 @@ if($round > 0)
 						. " ( $row[15] )</td>";
 				}
               
-
+           
+            
 			}
             
           
@@ -888,7 +917,7 @@ function getNextHeight($heat, $curr_perf)
 		ORDER BY
 			r.Leistung ASC
 	");
-
+    
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}

@@ -798,9 +798,9 @@ function AA_results_printHeader($category, $event, $round)
 	}
 
 	function checkSubmit(perfForm, focus)
-	{  
-		if(perfForm.perf.value <= 0 || perfForm.perf.value == '-')
-		{
+	{   
+		if(perfForm.perf.value <= 0 || perfForm.perf.value == '-' || perfForm.perf.value == 'x' || perfForm.perf.value == 'X')
+		{   
 			if(perfForm.wind) {
 				perfForm.wind.value = '';
 			}
@@ -808,10 +808,10 @@ function AA_results_printHeader($category, $event, $round)
 				perfForm.attempts.value = '';
 			}
 			submitResult(perfForm, focus);
-		}else{
-			if(perfForm.wind && perfForm.wind.value != ''){
-				submitResult(perfForm, focus);
-			}
+		}else{ 
+             if(perfForm.wind && (perfForm.wind.value != '-' && perfForm.wind.value != '')){ 
+                  submitResult(perfForm, focus);   
+            }  
 		}
 	}
 
