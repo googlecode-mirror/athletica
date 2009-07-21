@@ -1937,7 +1937,7 @@ $dis2 = false;
         ORDER BY
              k.Geschlecht, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige
     ");
-   
+    
     if(mysql_errno() > 0)            // DB error
     {
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1976,21 +1976,59 @@ $dis2 = false;
         // fetch all rows and put the disciplines of the entry category on top
         $event_rows = array();
         $temp_rows = array();   
-        $same_age = false;   
+        $same_age = false;  
+        $first = true; 
+        $firstFill = false;            
+        $comb_keep = 0;
    
-        while ($event_row = mysql_fetch_row($res)){          
+        while ($event_row = mysql_fetch_row($res)){  
+            
             if(($catcode != '' && $event_row[6] == $catcode) || ($catcode != '' && $event_row[5] == $agelimit && $event_row[11] == $sex)){  
-                  $event_rows[] = $event_row;  
-                  $same_age = true; 
+                  if (!$same_age){ 
+                        //$event_rows[] = $event_row;  
+                        if ($event_row[9] == 0) {
+                            $same_age = true;
+                            $event_rows[] = $event_row;    
+                        }
+                        else {
+                            $firstFill = true;
+                            if ($comb_keep != $event_row[9] && !$first && $event_row[6] != $catcode){
+                                if (count($event_rows) > 1) {  
+                                    $same_age = true;
+                                }
+                                else {
+                                   $event_rows[] = $event_row;     
+                                }
+                            }
+                            else {
+                                 $event_rows[] = $event_row;    
+                            } 
+                        }                     
+                  } 
             }
             elseif ($catcode != '' && $event_row[5] > $agelimit && $event_row[11] == $sex ) {  
-                     if (!$same_age){    
-                        $event_rows[] = $event_row;
+                     if (!$same_age){ 
+                        if (!$firstFill){   
+                            $event_rows[] = $event_row;
+                        }
+                        if ($event_row[9] == 0) {   
+                            $same_age = true;  
+                        }
+                        else {                                 
+                            if ($comb_keep != $event_row[9] && !$first && $event_row[6] != $cat_keep){
+                                if (count($event_rows) > 1) {
+                                    $same_age = true;
+                                }
+                            }  
+                        }                    
                      } 
-            }  
-    }    
+            } 
+          $first = false;  
+          $comb_keep = $event_row[9]; 
+          $cat_keep = $event_row[6];       
+    }        
    
-    $kName= $event_rows[0][4];
+    $kName= $event_rows[0][4];                                        
     
     $order = "ASC";
     if ($sex == 'w'){
@@ -2020,21 +2058,22 @@ $dis2 = false;
         AND w.xKategorie = k.xKategorie
         ORDER BY
             k.Geschlecht ".$order.", k.Alterslimite DESC, k.Kurzname, w.Mehrkampfcode, d.Anzeige";         
-    
+  
     $result = mysql_query($sql);  
     if(mysql_errno() > 0)
     {
         AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
     }
+    
+   // $event_rows = array();
+    
      while ($event_row = mysql_fetch_row($result)){ 
              if ($event_row[4] != $kName){
                   $event_rows[] = $event_row;
              }
          
-     }    
-        
-      
-        
+     }                   
+             
     foreach($event_rows as $event_row)
         {   
             if($last_cat != $event_row[3]){    // new row with title for separating categories
@@ -2160,7 +2199,7 @@ $dis2 = false;
                                 <?php echo $comb_row[0]; ?><?php echo $span_end ?>
                             </td>
                             <td class='dialog-top' colspan='2'>
-                                <input class="perfmeter<?=$manualMK;?>" type="text" name="topcomb_<?php echo $row[0] ?>" value="<?php echo $row[21] ?>" size="5"                                       onchange="updateStarts('change_topcomb', <?php echo $row[0] ?>, <?php echo $event_row[0] ?>)">
+                                <input class="perfmeter<?=$manualMK;?>" type="text" name="topcomb_<?php echo $row[0] ?>" value="<?php echo $row[21] ?>" size="5" onchange="updateStarts('change_topcomb', <?php echo $row[0] ?>, <?php echo $event_row[0] ?>)">
                             </td>
                             <td class='dialog' colspan='2' id='td_<?php echo $event_row[8]."_".$comb ?>'>
                                 <table>
