@@ -722,6 +722,8 @@ $strU16CHF = "CHF 2.--  per disciplina";
 $strU14CHF = "CHF 1.--  per disciplina";
 
 $strErrNoControl3 ="Il carimento dei risultati per questo meeting è disattivato.";
+$strErrMergeGroup = "I concorsi multipli con gruppi non possono essere raggruppati.";
+$strChangeInfo = "La casella Info può essere modificata solamente dopo l'ultimo aggiornamento del meeting. Volete procedere ugualmente?";
 
 
 ?>
