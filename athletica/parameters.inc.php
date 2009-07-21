@@ -68,8 +68,17 @@ $cfgResultsHighStay = array(		// stay on same height
 								, "--"
 								, "-X"
 								, "X-"
-								, "XX"
+								, "XX"                                  
 							);
+$cfgResultsHighStayDecentral = array(        // stay on same height
+                                 "-"
+                                , "X"
+                                , "--"
+                                , "-X"
+                                , "X-"
+                                , "XX" 
+                                , "XXX"                                 
+                            );
 
 $cfgResultsHighOut = "XXX";		// last high result
 // separator transformation mask	(valid separators in user entries)
