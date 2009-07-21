@@ -544,7 +544,7 @@ else {
 			
 			// process every result
 			while($row_res = mysql_fetch_array($res))
-			{        
+			{   
 				if ($flagSubtitle ){  
 					$nr = 0;    
 					if ($heatSeparate) {
@@ -576,8 +576,8 @@ else {
 					}
 				} 
 				
-                $row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : ($row_res[3]==8) ? -98 : $row_res[3]);                                                                                             
-				
+                $row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : (($row_res[3]==8) ? -98 : $row_res[3]));                                                                                             
+				 
 				if($row_res[0] != $id)	// athlete not processed yet
 				{  
 					if(($h == 0)						// first header line or ...
@@ -717,13 +717,16 @@ else {
 					// performance                      
 					if($row_res[3] < 0) {	// invalid result
                         if ($row_res[3] == '-98'){                           
-                            $perf = $cfgInvalidResult['NAA']['code']; 
+                            $perf = $cfgInvalidResult['NAA']['code'];                             
                         }
+                        elseif ($row_res[3] == '-99'){                           
+                            $perf = $cfgInvalidResult['WAI']['short']; 
+                       }
                         else {
 						    foreach($cfgInvalidResult as $value)	// translate value
 						        {   
 							    if($value['code'] == $row_res[3]) {
-								    $perf = $value['short'];
+								    $perf = $value['short'];                                       
 							    }
 						    }
                         }
@@ -1072,10 +1075,13 @@ else {
 							$text_att = "";
 							while($row_att = mysql_fetch_array($res_att)){
 								if($row_att['Leistung'] < 0){
-                                    $perf3 = $row_att['Leistung'];
+                                    $perf3 = $row_att['Leistung'];                                       
                                     if ($perf3 == $GLOBALS['cfgMissedAttempt']['db']){
                                        // $perf3 = '-';
                                         $perf3 = $GLOBALS['cfgMissedAttempt']['code'];
+                                    }
+                                    elseif  ($perf3 == $GLOBALS['cfgMissedAttempt']['dbx']){ 
+                                             $perf3 = $GLOBALS['cfgMissedAttempt']['codeX'];  
                                     }
 									foreach($cfgInvalidResult as $value)	// translate value
 									{
