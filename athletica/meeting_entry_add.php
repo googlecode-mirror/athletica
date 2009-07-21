@@ -58,6 +58,9 @@ $athlete_id = 0;
 if(!empty($_POST['athlete_id'])){
 	$athlete_id = $_POST['athlete_id']; // store athleteid from search request
 }
+elseif(!empty($_POST['athleteId'])){
+    $athlete_id = $_POST['athleteId']; // store athleteid from search request
+}
 		 
 // check if search from base is activated
 $allow_search_from_base = "true";
@@ -73,11 +76,12 @@ $athletesex = '';
 
 if ($_GET['argument'] == 'change_sex'){
         // hold entered data
+        $athleteId = $_GET['athleteId'];
         $first = $_GET['firstname'];
         $name = $_GET['name'];
         $day = $_GET['day'];
         $month = $_GET['month'];
-        $year = $_GET['year'];
+        $year = $_GET['year'];         
         $sex = $_GET['sex'];
         $athletesex = $_GET['sex']; 
         $country = $_GET['country'];
@@ -127,7 +131,8 @@ if(!empty($_GET['asfb'])) {
 	setcookie('asfb',$_GET['asfb'],time()+100000);
 	
 	// hold entered data
-	$first = $_GET['firstname'];
+	$athleteId = $_GET['athleteId'];
+    $first = $_GET['firstname'];  
 	$name = $_GET['name'];
 	$day = $_GET['day'];
 	$month = $_GET['month'];
@@ -1155,7 +1160,8 @@ function meeting_get_disciplines(){
     $currYear = date('Y');  
     $age = $currYear -  substr($birth_date,0,4);   
     $same_age = false;   
-    $first = true;     
+    $first = true;  
+    
 
     while ($event_row = mysql_fetch_row($result)){ 
          if ($kName != $event_row[4] && $first==false && $keep_age == $event_row[12]){
@@ -1598,7 +1604,8 @@ $page->printPageTitle($strNewEntryFromBase);
             s2 = new String(unescape(res.getElementsByTagName("clubname2")[0].firstChild.nodeValue));           
 			ci = new String(unescape(res.getElementsByTagName("clubinfo")[0].firstChild.nodeValue));
 			
-			document.getElementById('newlicensenr').value = res.getElementsByTagName("license")[0].firstChild.nodeValue;
+			 document.getElementById('athleteId').value = res.getElementsByTagName("athleteId")[0].firstChild.nodeValue;         
+            document.getElementById('newlicensenr').value = res.getElementsByTagName("license")[0].firstChild.nodeValue;
             document.getElementById('newlicensePrinted').value = res.getElementsByTagName("licensePrinted")[0].firstChild.nodeValue;  
 			document.getElementById('newname').value = unescape(res.getElementsByTagName("name")[0].firstChild.nodeValue);
 			document.getElementById('newname').value = n.replace(/\+/g, " ");
@@ -1927,22 +1934,23 @@ $page->printPageTitle($strNewEntryFromBase);
         document.getElementById('argument').value='change_sex';  
         
 		var cat = document.getElementById("categoryselectbox").value;
+        
         var gLicNr = '';
         var gLicPrinted = '';
-       
+        var gAthleteId = 0;   
+        /*
         if (document.getElementById("cat"+cat)) {
 		    var tcat = document.getElementById("cat"+cat);
            
             var otherplace = '';
             if (tcat.parentNode) {
 		        otherplace = tcat.parentNode;
-            }
-        
+            }              
 		   
             // if cat is not already on top place            
             if(otherplace.id != "place1"){ 
 		        otherplace.removeChild(tcat);
-		    
+		        
 		        //remove cat on first place
 		        var firstcat = document.getElementById("place1").firstChild;
 		        document.getElementById("place1").removeChild(firstcat);
@@ -1951,15 +1959,22 @@ $page->printPageTitle($strNewEntryFromBase);
 		        document.getElementById("place1").appendChild(tcat);
 		        otherplace.appendChild(firstcat); 
             }
-        }
-       
+        }    
+        */
+        if (document.getElementById('athleteId')){
+            gAthleteId = document.getElementById('athleteId').value;
+        } 
+        
         gName = document.getElementById('newname').value;
-              
+         
         gFirstname = document.getElementById('newfirstname').value;
         gDay = document.getElementById('newday').value;
+        
         gMonth = document.getElementById('newmonth').value;
         gYear = document.getElementById('newyear').value;
+         
         gSex = (document.getElementById('sexm').checked) ? 'm' : ((document.getElementById('sexw').checked) ? 'w' : '');
+        
         gCountry = document.getElementById('countryselectbox').value;
         gRegion = document.getElementById('regionselectbox').value;
          
@@ -2006,13 +2021,17 @@ $page->printPageTitle($strNewEntryFromBase);
                 gDisc += ((gDisc!='') ? ';-;' : '')+tmp1.value+';'+best;
             }
         }
-        gDisc = (gDisc!='') ? '&discs='+gDisc : '';           
-                
-		document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted;                                                                                                     
-       
+        gDisc = (gDisc!='') ? '&discs='+gDisc : '';   
+        if (gSex == ''){
+            gSex = 'm';
+        }        
+      
+        document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted+'&athleteId='+gAthleteId;                                                                                                     
+          		
 	}
 	
 	function check_year(){
+         
 		now = new Date();
 		age = 0;
 		year = document.getElementById("newyear").value;
@@ -2038,20 +2057,23 @@ $page->printPageTitle($strNewEntryFromBase);
 				break;
 			}
 		}*/
-		
-		age = curr - year;
-		var sex = (document.getElementById("sexw").checked) ? 0 : 1;
-		for(var a=0; a<categories[sex].length; a++){            
-			if(age<=categories[sex][a][0]){
-				document.getElementById("categoryselectbox").value = categories[sex][a][1];
-				break;
-			}
-		}    		
-		check_category();    
+		if (document.getElementById("sexw").checked || document.getElementById("sexm").checked) {
+            
+		    age = curr - year;
+		    var sex = (document.getElementById("sexw").checked) ? 0 : 1;
+		    for(var a=0; a<categories[sex].length; a++){            
+			    if(age<=categories[sex][a][0]){
+				    document.getElementById("categoryselectbox").value = categories[sex][a][1];
+				    break;
+			    }
+		    }   
+       
+		    check_category();   
+        } 
 	}
 	
 	function check_sex(){
-		
+		 
 		check_year();
 		
 	}
@@ -2180,7 +2202,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	}
 	
 	function validate_discipline(disc, sex, limit, o){    
-        
+       
 		year = <?php echo date('Y') ?>;
 		if(document.getElementById("newyear")){              
 			athleteAge = year - document.getElementById("newyear").value;             
@@ -2530,7 +2552,8 @@ if(!empty($club2) && false){ // not yet in use
 <tr>
 	<td class='forms' colspan='4'>
 		<!--<table>-->
-<?php   
+<?php 
+
 	meeting_get_disciplines();
 ?>
 			<!--</table>-->
@@ -2632,7 +2655,8 @@ if(!empty($club2) && false){ // not yet in use
 	<td class='forms'><input name='licensenr' type='text' size='12'
 		id="newlicensenr" value='<?php echo isset($_POST['licensenr']) ?  $_POST['licensenr'] : $licensenr ?>'
 		<?php echo $licenseNrDisabled ?>/></td>
-    <input type="hidden" id="newlicnr" name="newlicensenr" value="<?php echo $licNr ?>">     
+    <input type="hidden" id="newlicnr" name="newlicensenr" value="<?php echo $licNr ?>"> 
+    <input type="hidden" id="athleteId" name="athleteId" value="<?php echo $athleteId ?>">         
 	<?php
 	}
 	?>

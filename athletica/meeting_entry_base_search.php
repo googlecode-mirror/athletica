@@ -112,7 +112,8 @@ if(mysql_errno > 0){
         
 		if(empty($club2)){ $club2 = 0; }
 		
-		echo "<name>".urlencode(trim($row['lastname']))."</name>\n";
+		echo "<athleteId>".urlencode(trim($row['id_athlete']))."</athleteId>\n";   
+        echo "<name>".urlencode(trim($row['lastname']))."</name>\n";
 		echo "<firstname>".urlencode(trim($row['firstname']))."</firstname>\n";
 		echo "<clubname>".urlencode(trim($clubName))."</clubname>\n";
         echo "<clubname2>".urlencode(trim($clubName2))."0</clubname2>\n";  
