@@ -1488,6 +1488,7 @@ else if(mysql_num_rows($result) > 0)  // data found
     
     $agelimit = $row[14];
     $catcode = $row[15];
+    $catKN =  $row[7];
     $sex = '';
     /*if(substr($catcode,0,1) == 'M' || substr($catcode,3,1) == 'M'){
         $sex = "M";
@@ -1926,7 +1927,7 @@ $dis2 = false;
             , w.Mehrkampfcode
             , w.Typ
             , k.Geschlecht
-            , d.xDisziplin
+            , d.xDisziplin                
         FROM
             wettkampf as w
             , disziplin AS d
@@ -1937,7 +1938,7 @@ $dis2 = false;
         ORDER BY
              k.Geschlecht, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige
     ");
-    
+     
     if(mysql_errno() > 0)            // DB error
     {
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1977,57 +1978,86 @@ $dis2 = false;
         $event_rows = array();
         $temp_rows = array();   
         $same_age = false;  
-        $first = true; 
-        $firstFill = false;            
-        $comb_keep = 0;
+        $first = true;            
+        $cat_keep = 0;
+        $catKN_keep = 0;     
    
-        while ($event_row = mysql_fetch_row($res)){  
+         while ($event_row = mysql_fetch_row($res)){  
             
-            if(($catcode != '' && $event_row[6] == $catcode) || ($catcode != '' && $event_row[5] == $agelimit && $event_row[11] == $sex)){  
-                  if (!$same_age){ 
-                        //$event_rows[] = $event_row;  
-                        if ($event_row[9] == 0) {
-                            $same_age = true;
-                            $event_rows[] = $event_row;    
+            if(($catcode != '' && $event_row[6] == $catcode) || ($catcode != '' && $event_row[5] == $agelimit && $event_row[11] == $sex)){                     
+                   if (!$same_age){
+                        if ($cat_keep == $event_row[6] && !$first) {  
+                            $event_rows[] = $event_row;   
                         }
-                        else {
-                            $firstFill = true;
-                            if ($comb_keep != $event_row[9] && !$first && $event_row[6] != $catcode){
-                                if (count($event_rows) > 1) {  
-                                    $same_age = true;
-                                }
-                                else {
-                                   $event_rows[] = $event_row;     
-                                }
+                        else {     
+                            if (!$first) {  
+                                $same_age = true;   
                             }
-                            else {
-                                 $event_rows[] = $event_row;    
+                            else { 
+                                $event_rows[] = $event_row;   
                             } 
-                        }                     
-                  } 
+                            $first = false;  
+                        }  
+                    } 
             }
-            elseif ($catcode != '' && $event_row[5] > $agelimit && $event_row[11] == $sex ) {  
-                     if (!$same_age){ 
-                        if (!$firstFill){   
-                            $event_rows[] = $event_row;
+            elseif ($catcode != '' && $event_row[5] > $agelimit && $event_row[11] == $sex ) { 
+                    if (!$same_age){
+                        if ($catKN_keep == $event_row[3] && !$first) {  
+                            $event_rows[] = $event_row;                             
                         }
-                        if ($event_row[9] == 0) {   
-                            $same_age = true;  
-                        }
-                        else {                                 
-                            if ($comb_keep != $event_row[9] && !$first && $event_row[6] != $cat_keep){
-                                if (count($event_rows) > 1) {
-                                    $same_age = true;
-                                }
-                            }  
-                        }                    
-                     } 
+                        else {                             
+                            if (!$first) {  
+                                $same_age = true;    
+                            }
+                            else { 
+                                $event_rows[] = $event_row;   
+                            } 
+                            $first = false;  
+                        }  
+                    }  
             } 
-          $first = false;  
-          $comb_keep = $event_row[9]; 
-          $cat_keep = $event_row[6];       
-    }        
+            
+          // self made categories
+          if ($catcode == '') {
+               if ($event_row[3] == $catKN || ($event_row[5] == $agelimit && $event_row[11] == $sex)){  
+                     if (!$same_age){
+                        if ($catKN_keep == $event_row[3] && !$first) {  
+                            $event_rows[] = $event_row;                                   
+                        }
+                        else {                               
+                            if (!$first) { 
+                                $same_age = true;   
+                            }
+                            else { 
+                                $event_rows[] = $event_row;  
+                            } 
+                            $first = false;  
+                        }  
+                    }
+               }
+                elseif ($event_row[5] > $agelimit && $event_row[11] == $sex ) {  
+                    if (!$same_age){
+                        if ($catKN_keep == $event_row[3] && !$first) {  
+                            $event_rows[] = $event_row;  
+                        }
+                        else {       
+                            if (!$first) {  
+                                $same_age = true; 
+                            }
+                            else { 
+                                $event_rows[] = $event_row;  
+                            } 
+                            $first = false;  
+                        }  
+                    }
+                }   
+          }   
+         
+     $cat_keep = $event_row[6]; 
+     $catKN_keep = $event_row[3];   
+    }    
    
+  
     $kName= $event_rows[0][4];                                        
     
     $order = "ASC";
