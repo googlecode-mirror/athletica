@@ -114,7 +114,7 @@ else if($_POST['arg'] == 'change_qual')
 		// if flag waived was set, search for next best athlete to qualify
 		//
 		if($_POST['qual'] == $cfgQualificationType['waived']['code']){
-			if($_POST['oldqual'] == $cfgQualificationType['top']['code'] //.. on rank in same heat
+			/*if($_POST['oldqual'] == $cfgQualificationType['top']['code'] //.. on rank in same heat
 				|| $_POST['oldqual'] == $cfgQualificationType['top_rand']['code']){
 				
 				$result = mysql_query("SELECT
@@ -141,8 +141,15 @@ else if($_POST['arg'] == 'change_qual')
 					}
 				}
 				
-			}elseif($_POST['oldqual'] == $cfgQualificationType['perf']['code'] //.. on performance
-				|| $_POST['oldqual'] == $cfgQualificationType['perf_rand']['code']){
+			}else
+            */
+            if($_POST['oldqual'] == $cfgQualificationType['perf']['code'] //.. on performance
+				|| $_POST['oldqual'] == $cfgQualificationType['perf_rand']['code']
+                || $_POST['oldqual'] == $cfgQualificationType['top']['code'] //.. on rank in same heat
+                || $_POST['oldqual'] == $cfgQualificationType['top_rand']['code']){
+                
+                
+                
 					$sql = "SELECT 
 								  serienstart.xSerienstart
 								, resultat.Leistung
