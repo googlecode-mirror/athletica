@@ -19,13 +19,14 @@ if (!defined('AA_CL_PRINT_RELAYPAGE_LIB_INCLUDED'))
 class PRINT_RelayPage extends PRINT_Page
 {
 	function printHeaderLine()
-	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+	{          
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
 		}
+        
 ?>
 	<tr>
 		<th class='relay_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
@@ -41,14 +42,15 @@ class PRINT_RelayPage extends PRINT_Page
 
 
 	function printLine($name, $cat, $club, $disc, $perf, $nbr)
-	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
-		{
+	{          
+		if(($this->lpp - $this->linecnt) < 11)		// page break check
+		{   
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
 			$this->printHeaderLine();
 		}
+        
 ?>
 	<tr>
 		<td class='relay_nbr'><?php echo $nbr; ?></td>
@@ -64,33 +66,43 @@ class PRINT_RelayPage extends PRINT_Page
 
 
 	function printAthletes($athletes)
-	{
-		if(($this->lpp - $this->linecnt) < 3)		// page break check
-		{
-			printf("</table>");
-			$this->insertPageBreak();
-			printf("<table>");
-			$this->printHeaderLine();
-		}
-        
-         // count more lines if string is to long ($athletes string)  
+	{   		
+        // count more lines if string is to long ($athletes string)  
         $t = 0;
         $w = AA_getStringWidth($athletes, 12);
-        $t = ceil(($w / 600));  
+        $t = ceil(($w / 600));        
         $this->linecnt+=$t;         
 		
+        // different space of browsers by empty line
+        if (empty($athletes) && (eregi('msie', $_SERVER['HTTP_USER_AGENT']))) {    
+              $this->linecnt++; 
+        }
+        elseif (empty($athletes)) {                   
+               $this->linecnt=$this->linecnt + 0.3; 
+        }
+      
+       if (eregi('msie', $_SERVER['HTTP_USER_AGENT']) && empty($athletes)) {     // force IE to print empty line like firefox  
 ?>
 	<tr>
-		<td class='relay_athletes' colspan='5'><?php echo $athletes; ?></td>
+		<td class='relay_athletes' colspan='6'><?php echo $athletes; ?>&nbsp;</td>     
 	</tr>
 <?php
+       }
+       else {
+?>
+    <tr>
+        <td class='relay_athletes' colspan='6'><?php echo $athletes; ?></td>
+    </tr>
+<?php  
+           
+       }
 	}
 
 
 
 	function printSubTitle($title)
-	{
-		if(($this->lpp - $this->linecnt) < 5)		// page break check
+	{   
+		if(($this->lpp - $this->linecnt) < 16)		// page break check
 		{
 			$this->insertPageBreak();
 		}
@@ -115,7 +127,7 @@ class PRINT_CatRelayPage extends PRINT_RelayPage
 {
 	function printHeaderLine()
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 13)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -136,7 +148,7 @@ class PRINT_CatRelayPage extends PRINT_RelayPage
 
 	function printLine($name, $club, $disc, $perf, $nbr)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -171,7 +183,7 @@ class PRINT_ClubRelayPage extends PRINT_RelayPage
 {
 	function printHeaderLine()
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 9)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -191,14 +203,15 @@ class PRINT_ClubRelayPage extends PRINT_RelayPage
 
 
 	function printLine($name, $cat, $disc, $perf, $nbr)
-	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+	{  
+		if(($this->lpp - $this->linecnt) < 8)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
 			$this->printHeaderLine();
 		}
+        
 ?>
 	<tr>
 		<td class='relay_nbr'><?php echo $nbr; ?></td>
@@ -225,8 +238,8 @@ class PRINT_ClubRelayPage extends PRINT_RelayPage
 class PRINT_CatDiscRelayPage extends PRINT_RelayPage
 {
 	function printHeaderLine()
-	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+	{  
+		if(($this->lpp - $this->linecnt) < 13)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -246,7 +259,7 @@ class PRINT_CatDiscRelayPage extends PRINT_RelayPage
 
 	function printLine($name, $club, $perf, $nbr)
 	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -280,7 +293,7 @@ class PRINT_ClubCatRelayPage extends PRINT_RelayPage
 {
 	function printHeaderLine()
 	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
+		if(($this->lpp - $this->linecnt) < 13)		// page break check
 		{
 			printf("</table>");
 			$this->insertPageBreak();
@@ -299,9 +312,9 @@ class PRINT_ClubCatRelayPage extends PRINT_RelayPage
 
 
 	function printLine($name, $disc, $perf, $nbr)
-	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
-		{
+	{   
+		if(($this->lpp - $this->linecnt) < 12)		// page break check
+		{   
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
@@ -333,9 +346,9 @@ class PRINT_ClubCatRelayPage extends PRINT_RelayPage
 class PRINT_ClubCatDiscRelayPage extends PRINT_RelayPage
 {
 	function printHeaderLine()
-	{
-		if(($this->lpp - $this->linecnt) < 4)		// page break check
-		{
+	{     
+		if(($this->lpp - $this->linecnt) < 11)		// page break check
+		{  
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
@@ -352,9 +365,9 @@ class PRINT_ClubCatDiscRelayPage extends PRINT_RelayPage
 
 
 	function printLine($name, $perf, $nbr)
-	{
-		if(($this->lpp - $this->linecnt) < 2)		// page break check
-		{
+	{   //echo " pirnt line linecnt=$this->linecnt";
+		if(($this->lpp - $this->linecnt) < 10)		// page break check
+		{   
 			printf("</table>");
 			$this->insertPageBreak();
 			printf("<table>");
@@ -369,6 +382,51 @@ class PRINT_ClubCatDiscRelayPage extends PRINT_RelayPage
 <?php
 		$this->linecnt++;
 	}
+    
+    function printAthletes($athletes)
+    {           
+         // count more lines if string is to long ($athletes string)  
+        $t = 0;
+        $w = AA_getStringWidth($athletes, 12);           
+        $t = ceil(($w / 350));   
+        $this->linecnt+=$t;         
+        
+        // different space of browsers by empty line
+        if (empty($athletes) && (eregi('msie', $_SERVER['HTTP_USER_AGENT']))) {    
+                 $this->linecnt++;  
+        }
+        elseif (empty($athletes)) {
+             $this->linecnt=$this->linecnt + 0.6; 
+        }
+      
+        if (eregi('msie', $_SERVER['HTTP_USER_AGENT']) && empty($athletes)) {    // force IE to print empty line like firefox
+?>
+    <tr>
+        <td class='relay_athletes' colspan='6'><?php echo $athletes; ?>&nbsp;</td>
+    </tr>
+<?php
+        }
+        else {
+?>
+    <tr>
+        <td class='relay_athletes' colspan='6'><?php echo $athletes; ?></td>
+    </tr>
+<?php            
+        }
+    }
+    
+    function printSubTitle($title)
+    {    
+        if(($this->lpp - $this->linecnt) < 13)        // page break check
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 2;    // needs two lines (see style sheet)
+?>
+        <div class='hdr2'><?php echo $title; ?></div>
+<?php
+    }
+
 
 } // end PRINT_ClubCatDiscRelayPage
 
