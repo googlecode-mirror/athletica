@@ -172,14 +172,14 @@ $cfgTrackOrder = array(					4=>array (1=>3
      $cfgPrtLinesPerPage = 57;        // printer dependent
 }
 else 
-   if(eregi('msie 7', $_SERVER['HTTP_USER_AGENT'])) {  
-        $cfgPageContentHeight = 275;    // content layer height in mm, will position header an footer on printings         
-        $cfgPrtLinesPerPage = 60;        // printer dependent   
+   if(eregi('msie 6', $_SERVER['HTTP_USER_AGENT'])) {  
+         $cfgPageContentHeight = 250;    // content layer height in mm, will position header an footer on printings 
+         $cfgPrtLinesPerPage = 57;        // printer dependent  
 }
-else { 
-     $cfgPageContentHeight = 250;    // content layer height in mm, will position header an footer on printings 
-     $cfgPrtLinesPerPage = 57;        // printer dependent  
-     
+else {    
+      $cfgPageContentHeight = 275;    // content layer height in mm, will position header an footer on printings         
+      $cfgPrtLinesPerPage = 60;        // printer dependent  
+          
 
 }                                      
 $cfgCookieExpires = 31536000;	// Secs, after which cookies will expire
