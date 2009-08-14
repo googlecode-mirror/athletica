@@ -86,7 +86,8 @@ if ($_GET['argument'] == 'change_sex'){
         $athletesex = $_GET['sex']; 
         $country = $_GET['country'];
         $region = $_GET['region'];
-        $clubtext = $_GET['club'];
+        $clubtext = $_GET['clubtext'];    
+        $club=$_GET['clubnr'];     
         $clubinfotext = $_GET['clubinfo'];
         $clubtext2 = $_GET['club2'];
         $startnbr = $_GET['startnbr'];
@@ -496,7 +497,7 @@ if ($_POST['arg']=="cancel")
 // add athlete
 //
 if ($_POST['arg']=="add")
-{   
+{        
 	$_POST['name'] = (isset($_POST['name'])) ? $_POST['name'] : $_POST['name_hidden'];
 	$_POST['first'] = (isset($_POST['first'])) ? $_POST['first'] : $_POST['firstname_hidden'];
 	$_POST['year'] = (isset($_POST['year'])) ? $_POST['year'] : $_POST['year_hidden'];
@@ -773,7 +774,7 @@ if ($_POST['arg']=="add")
 										if($licnr>0){     
 											$sql = "UPDATE athlet 
 													   SET Lizenznummer = ".$licnr." 
-													   , Geschlecht = '" .$sex."' 
+													   , Geschlecht = '" .$sex."'                                                        
 													 WHERE xAthlet = ".$xAthlet."";
 											$query = mysql_query($sql);
 										   
@@ -1083,6 +1084,7 @@ if ($_POST['arg']=="add")
 										if($allow_search_from_base == "true"){ // clean only if searched from base
 											$club=0;
 											$clubtext="";
+                                            $clubtext2=""; 
 											$region = 0;
 											$_POST['clubinfotext'] = "";
 										}
@@ -1978,7 +1980,10 @@ $page->printPageTitle($strNewEntryFromBase);
         gCountry = document.getElementById('countryselectbox').value;
         gRegion = document.getElementById('regionselectbox').value;
          
-        gClub = document.getElementById('clubtext').value;
+        gClubText = document.getElementById('clubtext').value;
+        gClub = document.getElementById('clubtext').value;   
+        gClubNr= document.getElementById('newclub').value;   
+       
         gClubInfo = document.getElementById('clubinfotext').value;
         gClub2 = document.getElementById('clubtext2').value; 
         gStartnbr = document.getElementById('startnbr').value;
@@ -2024,10 +2029,10 @@ $page->printPageTitle($strNewEntryFromBase);
         gDisc = (gDisc!='') ? '&discs='+gDisc : '';   
         if (gSex == ''){
             gSex = 'm';
-        }        
+        }   
       
-        document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&club='+gClub+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted+'&athleteId='+gAthleteId;                                                                                                     
-          		
+        document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&clubtext='+gClubText+'&club='+gClub+'&clubnr='+gClubNr+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted+'&athleteId='+gAthleteId;                                                                                                                                                                     
+       
 	}
 	
 	function check_year(){
@@ -2487,7 +2492,7 @@ if($nbr == 0) {			// start number not selected yet
 
  <?php
     }
-    elseif (lg != '') {
+    elseif ($lg != '') {
       ?>   
  
 <tr>
@@ -2733,6 +2738,7 @@ if(!empty($club2) && false){ // not yet in use
 	<?php
 	$clubtext = (isset($_POST['clubtext']) && $first!='') ? $_POST['clubtext'] : isset($_GET['club']) ? $_GET['club'] : '';
 	$clubinfotext = (isset($_POST['clubinfotext']) && $first!='') ? $_POST['clubinfotext'] : $clubinfotext;
+    
 	?>
 	<th class='dialog'><?php echo $strClub ?></th>
 	<td class='forms'><input type="text" id="clubtext" name="clubtext"
