@@ -6,7 +6,7 @@
  *	---------------------
  *	
  */                   
-
+        
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -14,7 +14,7 @@ require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
 require('./lib/meeting.lib.php');  
-                                        
+
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;		// abort
@@ -61,6 +61,10 @@ if(!empty($_POST['athlete_id'])){
 elseif(!empty($_POST['athleteId'])){
     $athlete_id = $_POST['athleteId']; // store athleteid from search request
 }
+elseif(!empty($_GET['athleteId'])){
+    $athlete_id = $_GET['athleteId']; // store athleteid from search request
+}
+   
 		 
 // check if search from base is activated
 $allow_search_from_base = "true";
@@ -508,6 +512,27 @@ if ($_POST['arg']=="add")
 	$_POST['categoryselectbox'] = (isset($_POST['categoryselectbox'])) ? $_POST['categoryselectbox'] : $_POST['categoryselectbox_hidden'];
 	$_POST['sex'] = (isset($_POST['sex'])) ? $_POST['sex'] : (($_POST['sexm_hidden']==1 || empty($_POST['sexm_hidden']) ) ? 'm' : 'w');
 	
+    // check if club exist
+   if($club == 0){
+       $sqlClub="SELECT 
+                        xVerein
+                 FROM
+                        verein
+                 WHERE
+                        Sortierwert='".$_POST['clubtext']."'";
+      
+       $resClub=mysql_query($sqlClub); 
+       if(mysql_errno() > 0) {
+               AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());                 
+               $_POST['club'] = $club;
+       }else{
+            if (mysql_num_rows($resClub) > 0) {
+                $rowClub=mysql_fetch_row($resClub);
+                $club=$rowClub[0];
+            }
+       }
+   }
+    
 	// check if user wants to create a new club
 	if($club == 0){
 		if(empty($_POST['clubtext'])){
@@ -538,6 +563,8 @@ if ($_POST['arg']=="add")
     $category = $_POST['category'];
     $catcode = $category;
     $birth_date = $_POST['year'];
+    
+    $clubtext = $_POST['clubtext'];  
 	
 	// check if license number is valid when entering a new athlete with license
 	$licInvalid = false;
@@ -1079,15 +1106,16 @@ if ($_POST['arg']=="add")
 										$athlete_id=0;
 										$_POST['licensenr'] = '';
 										$_POST['sex'] = "";
-										$startnbr = "";
+										$startnbr = "";  
 										
-										if($allow_search_from_base == "true"){ // clean only if searched from base
+										//if($allow_search_from_base == "true"){ // clean only if searched from base
 											$club=0;
 											$clubtext="";
                                             $clubtext2=""; 
 											$region = 0;
 											$_POST['clubinfotext'] = "";
-										}
+                                            $_POST['clubtext'] = "";  
+										//}
 										
 									}				// xAthlet not OK
 									else {
@@ -1562,6 +1590,10 @@ $page->printPageTitle($strNewEntryFromBase);
 	// base search functions using ajax
 	//
 	function base_search(){  
+        if (document.getElementById('newyear_hidden').value != '' ) {
+            return; 
+        }
+       
 		if(allowSearch == false){ return; }
 		
 		if(xhReq.readyState > 0){
@@ -1572,12 +1604,15 @@ $page->printPageTitle($strNewEntryFromBase);
 		sFirstname = document.getElementById('newfirstname').value;
 		sYear = document.getElementById('newyear').value;
 		
+        document.getElementById('newyear_hidden').value=sYear;
+      
 		xhReq.open("get", "meeting_entry_base_search.php?name="+sName+"&firstname="+sFirstname+"&year="+sYear+"&id="+sId, true);
 		requestTimer = setTimeout(request_timeout, 10000); //10sec        
 		xhReq.onreadystatechange = base_search_result;
 		xhReq.send(null);
 		
 		sId = 0;
+        
 	}
 	
 	function base_select(id){
@@ -1585,7 +1620,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		base_search();
 	}
 	
-	function base_search_result(){
+	function base_search_result(){  
 		if(!valid_request()){ return; }
 		num = res.getElementsByTagName("num")[0].firstChild.nodeValue;
 		base_search_show(num);
@@ -1645,6 +1680,7 @@ $page->printPageTitle($strNewEntryFromBase);
 			
 			document.entry.startnbr.focus();
 			document.entry.startnbr.select();
+          
 			check_category();
 		}else if(num == 0){
 			top.frames[2].location.href = "status.php?msg=No athlete found";
@@ -1726,7 +1762,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		sId = 0;
 	}
 	
-	function club_search_result(){
+	function club_search_result(){  
 		if(!valid_request()){ 
 			if(res){ // if result returned but error
 				document.getElementById('clubtext').className="highlight_orange";
@@ -1769,7 +1805,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}
 	}
 	
-	function club_select(id){
+	function club_select(id){ 
 		sId = id.value;
 		club_search();
 	}
@@ -2029,14 +2065,13 @@ $page->printPageTitle($strNewEntryFromBase);
         gDisc = (gDisc!='') ? '&discs='+gDisc : '';   
         if (gSex == ''){
             gSex = 'm';
-        }   
-      
+        } 
+     
         document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&clubtext='+gClubText+'&club='+gClub+'&clubnr='+gClubNr+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted+'&athleteId='+gAthleteId;                                                                                                                                                                     
-       
-	}
+       	}
 	
 	function check_year(){
-         
+        
 		now = new Date();
 		age = 0;
 		year = document.getElementById("newyear").value;
@@ -2072,7 +2107,7 @@ $page->printPageTitle($strNewEntryFromBase);
 				    break;
 			    }
 		    }   
-       
+            
 		    check_category();   
         } 
 	}
@@ -2082,7 +2117,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		check_year();
 		
 	}
-	
+    	
 	// show disciplines for selected combined event
 	function check_combined(str, o){   
 		var d = document.getElementById("div_"+str);
@@ -2696,7 +2731,7 @@ if(!empty($club2) && false){ // not yet in use
 	<td class='forms' colspan="1">
 	<input type="hidden" name="name_hidden" id="newname_hidden" value="">
 	<input type="hidden" name="firstname_hidden" id="newfirstname_hidden" value="">
-	<input type="hidden" name="year_hidden" id="newyear_hidden" value="">
+	<input type="hidden" name="year_hidden" id="newyear_hidden" value="<?php echo $year; ?>">
 	<input type="hidden" name="day_hidden" id="newday_hidden" value="">
 	<input type="hidden" name="month_hidden" id="newmonth_hidden" value="">
 	<input type="hidden" name="clubtext_hidden" id="clubtext_hidden" value="">
@@ -2704,6 +2739,8 @@ if(!empty($club2) && false){ // not yet in use
 	<input type="hidden" name="categoryselectbox_hidden" id="categoryselectbox_hidden" value="">
 	<input type="hidden" name="sexm_hidden" id="sexm_hidden" value="">
 	<input type="hidden" name="sexw_hidden" id="sexw_hidden" value="">
+    
+    
 	
 	<input class='nbr' name='day' type='text'
 		maxlength='2' value='<?=$day?>'
@@ -2713,7 +2750,7 @@ if(!empty($club2) && false){ // not yet in use
 		id="newmonth" onkeyup="check_birth_date(document.entry.month,2,document.entry.year)" >
 	<input name='year' type='text'
 		maxlength='4' value='<?php echo $year; ?>'
-		id="newyear" onkeyup="base_search()" size="4" onblur="check_year()">
+		id="newyear" onkeyup="base_search()" size="4" onchange="check_year()">
 	<input type="hidden" name="club2" id="newclub2" value="">
 	<input type="hidden" name="athlete_id" id="newathleteid" value="<?php echo $athlete_id ?>">
 	</td>
@@ -2723,8 +2760,8 @@ if(!empty($club2) && false){ // not yet in use
 	?>
 	<th class='dialog'><?php echo $strSex ?></th>
 	<td class='forms'>
-		<input type="radio" name="sex" id="sexm" value="m" <?php echo $sexm ?> onChange='check_sex()'><?php echo $strSexMShort ?>
-		<input type="radio" name="sex" id="sexw" value="w" <?php echo $sexw ?> onChange='check_sex()'><?php echo $strSexWShort ?>
+		<input type="radio" name="sex" id="sexm" value="m" <?php echo $sexm ?> onclick='check_sex()' ><?php echo $strSexMShort ?>
+		<input type="radio" name="sex" id="sexw" value="w" <?php echo $sexw ?> onclick='check_sex()' ><?php echo $strSexWShort ?>
         <input name='argument' id='argument' type='hidden' value='' /> 
 	</td>
 </tr>
@@ -2736,8 +2773,9 @@ if(!empty($club2) && false){ // not yet in use
 </tr>
 <tr>
 	<?php
-	$clubtext = (isset($_POST['clubtext']) && $first!='') ? $_POST['clubtext'] : isset($_GET['club']) ? $_GET['club'] : '';
-	$clubinfotext = (isset($_POST['clubinfotext']) && $first!='') ? $_POST['clubinfotext'] : $clubinfotext;
+	
+    $clubtext = (isset($_POST['clubtext'])) ? $_POST['clubtext'] : (isset($_GET['club']) ? $_GET['club'] : '');  
+	$clubinfotext = (isset($_POST['clubinfotext'])) ? $_POST['clubinfotext'] : $clubinfotext;
     
 	?>
 	<th class='dialog'><?php echo $strClub ?></th>
@@ -2825,8 +2863,24 @@ if(!empty($club2) && false){ // not yet in use
 
 <script type="text/javascript">
 <!--
-	if(document.entry) {
-		document.entry.name.focus();
+	if(document.entry) {  
+       
+       if  (document.entry.name.value == '') {  
+            document.entry.name.focus();               
+       }           
+       else if (document.entry.first.value=='') {  
+           document.entry.first.focus();
+       } 
+       else if (document.entry.year.value=='') {  
+           document.entry.year.focus();
+       } 
+       else if (document.entry.clubtext.value=='') {  
+           document.entry.clubtext.focus();
+       } 
+       else if (document.entry.startnbr.value=='') {  
+           document.entry.startnbr.focus();
+       }
+      
 	}
 //-->
 </script>
