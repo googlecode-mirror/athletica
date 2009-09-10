@@ -5,8 +5,8 @@
  *	meeting_entry_add.php
  *	---------------------
  *	
- */                   
-        
+ */   
+                                   
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -23,6 +23,7 @@ if(AA_connectToDB() == FALSE)	// invalid DB connection
 if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
+
 
 // initialize variables
 $category = 0;
@@ -102,6 +103,7 @@ if ($_GET['argument'] == 'change_sex'){
         $combined = $_GET['combined'];
         $licensenr =  $_GET['licNr'];   
         $licensePrinted =  $_GET['licPrinted'];
+        $licenseType = $_GET['licType'];
         
         if(isset($_GET['combs'])){
             $combs = explode(';-;', $_GET['combs']);
@@ -314,6 +316,7 @@ if(isset($_POST['searchfield'])){
                         $currYear = date('Y');  
                         $age = $currYear -  substr($birth_date,0,4);   
                         
+                                                
 						//
 						// get club id from club code
 						//
@@ -1167,7 +1170,7 @@ function meeting_get_disciplines(){
 		ORDER BY
 			 k.Geschlecht, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige
 	"); 
-   
+  
 	if(mysql_errno() > 0)
 	{
 		AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -1191,8 +1194,7 @@ function meeting_get_disciplines(){
     $age = $currYear -  substr($birth_date,0,4);   
     $same_age = false;   
     $first = true;  
-    
-
+  
     while ($event_row = mysql_fetch_row($result)){ 
          if ($kName != $event_row[4] && $first==false && $keep_age == $event_row[12]){
             continue;
@@ -1200,11 +1202,11 @@ function meeting_get_disciplines(){
          $kName=$event_row[4]; 
          $keep_age=$event_row[12];  
          $first=false;       
-         if(($catcode != '' && $event_row[7] == $catcode) || ($catcode != '' && $event_row[12] == $age && $event_row[11] == $athletesex)){  
+         if(($catcode != '' && $event_row[7] == $catcode) || ($event_row[12] == $age && $event_row[11] == $athletesex)){  
                   $event_rows[] = $event_row;  
                   $same_age = true; 
          }
-         elseif ($catcode != '' && $event_row[12] > $age && $event_row[11] == $athletesex ) {  
+         elseif ($event_row[12] > $age && $event_row[11] == $athletesex ) {  
                      if (!$same_age){    
                         $event_rows[] = $event_row;
                      } 
@@ -1658,7 +1660,8 @@ $page->printPageTitle($strNewEntryFromBase);
             document.getElementById('clubtext2').value = s2.replace(/\+/g, " ").substring(0,s2.length-1); // last char is always a 0   
 			document.getElementById('clubinfotext').value = ci.replace(/\+/g, " ").substring(0,ci.length-1); // last char is always a 0
 			document.getElementById('countryselectbox').value = res.getElementsByTagName("country")[0].firstChild.nodeValue;             
-			document.getElementById('categoryselectbox').value = res.getElementsByTagName("category")[0].firstChild.nodeValue;              
+			document.getElementById('categoryselectbox').value = res.getElementsByTagName("category")[0].firstChild.nodeValue; 
+                         
 			if(res.getElementsByTagName("sex")[0].firstChild.nodeValue == 'm'){
 				document.getElementById('sexm').checked = true;
 				document.getElementById('sexm_hidden').value = 1;
@@ -1966,7 +1969,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	//
 	// other functions
 	//
-	function check_category(){
+	function check_category(){ 
 		// on change of category, set disciplines of current category on top
 		
         document.getElementById('argument').value='change_sex';  
@@ -2066,8 +2069,10 @@ $page->printPageTitle($strNewEntryFromBase);
         if (gSex == ''){
             gSex = 'm';
         } 
-     
-        document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&clubtext='+gClubText+'&club='+gClub+'&clubnr='+gClubNr+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted+'&athleteId='+gAthleteId;                                                                                                                                                                     
+        
+        gLizType = document.getElementById('licensetypeselectbox').value; 
+       
+        document.location.href='meeting_entry_add.php?argument=change_sex&name='+gName+'&firstname='+gFirstname+'&day='+gDay+'&month='+gMonth+'&year='+gYear+'&sex='+gSex+'&country='+gCountry+'&region='+gRegion+'&clubtext='+gClubText+'&club='+gClub+'&clubnr='+gClubNr+'&clubinfo='+gClubInfo+'&club2='+gClub2+'&startnbr='+gStartnbr+'&category='+gCategory+'&team='+gTeam+'&combined='+gCombined+gDisc+gComb+'&licNr='+gLicNr+'&licPrinted='+gLicPrinted+'&athleteId='+gAthleteId+'&licType='+gLizType;                                                                                                                                                                     
        	}
 	
 	function check_year(){
