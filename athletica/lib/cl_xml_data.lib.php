@@ -144,7 +144,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		$updateType = $value;
 	}
 	
-	function gen_result_xml($file){
+	function gen_result_xml($file){  
 		//global	$opentags;
 		global	$cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
 			$strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
@@ -760,6 +760,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$perf = AA_alabusTime($row_results['Leistung']);
 								$this->write_xml_finished("timeResult",$perf);
 							}
+                            
 							$wind = "";
 							if($row[1] == 1){
 								$wind = strtr($row_results['Wind'],",",".");
@@ -828,7 +829,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							
 							$this->write_xml_close("effort");							
 							
-						}else{
+						}else{  
 							//
 							// athlete results
 							//
@@ -885,7 +886,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 									continue; // next result/athlete
 								}
                                 
-                                 
+                                
                                 // license_paid = license printed (information from basa data)
                                 // only upload results from athletes with license available (=license printed)    
                                 if($row_results['Lizenztyp'] <= 1 && $row_results['license_paid'] == 'n'){  								   
@@ -928,7 +929,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 										
 								$this->write_xml_open("efforts");
 							}
-							
+							  
 							$perf = 0; // result for alabus
 							$wind = "";
 							$perfRounded = 0; // result for combined detail text
@@ -952,7 +953,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$perfRounded = AA_formatResultTime($row_results['Leistung'], true);
 								$this->write_xml_finished("timeResult",$perf);
 								$wind = strtr($row_results['Wind'],",",".");
-							}
+							}                            
 							
 							if($row[1] == 0 || $wind == "-" || $wind == ""){
 								$wind = " ";
@@ -1028,11 +1029,15 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								}else{
 									while($row_wind = mysql_fetch_array($res_wind)){
 										
-										if($row_wind[0] <= 2){
-											$this->write_xml_open("effort");
-											$this->write_xml_finished("DateOfEffort",$row_results['Datum']);
+										if($row_wind[0] <= 2){   
 											
 											$perf = AA_alabusDistance($row_wind[1]);
+                                             if ($perf == -98){                             // -98 = Fehlversuch
+                                               break; 
+                                            }
+                                            $this->write_xml_open("effort");
+                                            $this->write_xml_finished("DateOfEffort",$row_results['Datum']);
+                                            
 											$this->write_xml_finished("distanceResult",$perf);
 											
 											$wind = strtr($row_wind[0],",",".");
