@@ -6,7 +6,7 @@
  *    -----------------
  *    
  */
-          
+         
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_page.lib.php');
@@ -1473,7 +1473,7 @@ $result = mysql_query("
     AND a.xAthlet = at.xAthlet
     AND a.xKategorie = k.xKategorie   
 ");
-
+  
  if(mysql_errno() > 0)        // DB error
 {
     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1981,10 +1981,10 @@ $dis2 = false;
         $first = true;            
         $cat_keep = 0;
         $catKN_keep = 0;     
-           
+                                                
          while ($event_row = mysql_fetch_row($res)){  
             
-            if(($catcode != '' && $event_row[6] == $catcode) || ($catcode != '' && $event_row[5] == $agelimit && $event_row[11] == $sex)){                     
+            if(($catcode != '' && $event_row[6] == $catcode) || ($event_row[5] == $agelimit && $event_row[11] == $sex)){  
                    if (!$same_age){                              
                         if ($catKN_keep == $event_row[3] && !$first) {   
                             $event_rows[] = $event_row; 
@@ -2001,7 +2001,7 @@ $dis2 = false;
                         }  
                     } 
             }
-            elseif ($catcode != '' && $event_row[5] > $agelimit && $event_row[11] == $sex ) { 
+            elseif ($event_row[5] > $agelimit && $event_row[11] == $sex ) {   
                     if (!$same_age){
                         if ($catKN_keep == $event_row[3] && !$first) {  
                             $event_rows[] = $event_row;                                
