@@ -56,22 +56,40 @@ if($_GET['id'] != 0){
 	$sqlName = "";
 	$sqlFirstname = "";
 }
-
+/*
 $sql = "SELECT b.*, 
 			   k.xKategorie 
-		  FROM base_athlete AS b 
-	 LEFT JOIN kategorie AS k ON(b.license_cat = k.Code) 
-		 WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId." 
-	  ORDER BY lastname DESC, 
-			   firstname DESC;";
+		FROM 
+               base_athlete AS b 
+	    LEFT JOIN kategorie AS k ON(b.license_cat = k.Code) 
+		WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId." 
+	    ORDER BY lastname DESC, 
+		        firstname DESC;";  
+*/               
+$today=date(Y);               
+$sql = "SELECT 
+                b.*, 
+                MIN(k.Alterslimite) as min_agelimit, 
+                b.sex                
+          FROM 
+                base_athlete AS b,  
+                kategorie AS k 
+          WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId."  
+                AND b.sex = k.Geschlecht and k.aktiv = 'y'  
+                AND ( ( ($today - substring( b.birth_date, 1, 4  ))  <= k.Alterslimite )  OR  (b.license_cat = k.Code)  )
+          GROUP BY b.id_athlete
+          ORDER BY lastname DESC, 
+                   firstname DESC, k.Alterslimite ASC";               
 
-$res = mysql_query($sql);
+$res = mysql_query($sql);    
+
 if(mysql_errno > 0){
 	echo "<state>error</state>";
 }else{
 	echo "<result>\n";
 	echo "<state>ok</state>\n";
-	$num = mysql_num_rows($res);
+	$num = mysql_num_rows($res);      
+    
 	$row = mysql_fetch_assoc($res);
 	
 	// special char translation table
@@ -79,7 +97,25 @@ if(mysql_errno > 0){
 	//$encoded = strtr($str, $trans);
 	
 	echo "<num>$num</num>\n";
-	if($num == 1){
+                                               
+	if($num == 1){         
+        $sql_k = "SELECT 
+                        k.xKategorie
+                    FROM 
+                        kategorie AS k
+                    WHERE
+                        k.Alterslimite = ". $row['min_agelimit'].
+                        " AND k.Geschlecht ='". $row['sex']."' ".
+                        "AND k.aktiv = 'y'";
+        
+         $res_k = mysql_query($sql_k);  
+         if(mysql_errno > 0){
+            echo "<state>error</state>";
+         }else{
+              $row_k = mysql_fetch_assoc($res_k);     
+              echo "<category>".$row_k['xKategorie']."</category>\n";    
+         }
+                         
 		$club = $row['account_code'];
 		$club2 = $row['second_account_code'];
 		//
@@ -131,8 +167,7 @@ if(mysql_errno > 0){
 		echo "<id>".$row['id_athlete']."</id>\n";
 		echo "<club>".$club."</club>\n";
 		echo "<club2>".$club2."</club2>\n";
-		echo "<country>".$row['nationality']."</country>\n";
-		echo "<category>".$row['xKategorie']."</category>\n";
+		echo "<country>".$row['nationality']."</country>\n";        
 		echo "<sex>".$row['sex']."</sex>\n";
 		echo "<clubinfo>".urlencode(trim($row['account_info']))."0</clubinfo>\n";
 									// '0' is needed by xml result node if club info is empty
@@ -189,6 +224,7 @@ if(mysql_errno > 0){
 	}elseif($num <= 10){
 		
 		do{
+           
 			$club = $row['account_code'];
 			//
 			// get club id from club code
@@ -207,6 +243,8 @@ if(mysql_errno > 0){
 			echo "<month>".substr($row['birth_date'],5,2)."</month>\n";
 			echo "<id>".$row['id_athlete']."</id>\n";
 			echo "<club>".urlencode(trim($club))."</club>\n"; 
+                                                                 
+            
             
 			
 		}while($row = mysql_fetch_assoc($res));
