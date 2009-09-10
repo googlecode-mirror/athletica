@@ -31,6 +31,11 @@ if(!empty($_GET['round'])){
 else if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
+
+$singleRound=0;
+if(!empty($_POST['singleRound'])){
+    $singleRound = $_POST['singleRound'];
+}
   
 //
 // update rank manually
@@ -256,7 +261,7 @@ else if(($layout == $cfgDisciplineType[$strDiscTypeJump])
 // high jump, pole vault
 else if($layout == $cfgDisciplineType[$strDiscTypeHigh])
 {
-	AA_results_High($round, $layout);
+	AA_results_High($round, $layout, $singleRound);
 }
 
  //  }
