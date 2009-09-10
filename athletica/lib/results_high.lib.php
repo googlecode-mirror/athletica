@@ -10,8 +10,8 @@ if (!defined('AA_RESULTS_HIGH_LIB_INCLUDED'))
 {
 	define('AA_RESULTS_HIGH_LIB_INCLUDED', 1);
 
-function AA_results_High($round, $layout)
-{      
+function AA_results_High($round, $layout, $singleRound)
+{  
 require('./lib/cl_gui_button.lib.php');
 
 require('./config.inc.php');
@@ -19,13 +19,18 @@ require('./lib/common.lib.php');
 require('./lib/heats.lib.php');
 require('./lib/results.lib.php');
 require('./lib/utils.lib.php');
-require('./lib/cl_performance.lib.php'); 
+require('./lib/cl_performance.lib.php');      
 
 $presets = AA_results_getPresets($round);	// read GET/POST variables
 
-$performance = 0;		// initialize
+$performance = 0;		// initialize    
 
-$svm = AA_checkSVM(0, $round); // decide whether to show club or team name   
+$svm = AA_checkSVM(0, $round); // decide whether to show club or team name
+
+if ($singleRound > 0){    
+    $single_svm = AA_checkSVM(0, $singleRound); // decide whether to show club or team name      
+}
+       
 
 $click = true;           // true = User clicks at this athlete      false = user save athlete before 
 //
@@ -44,19 +49,21 @@ if($_POST['arg'] == 'save_res')
 		if(!empty($GLOBALS['AA_ERROR'])) {
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
 		}
-
+       
 		mysql_query("
 			LOCK TABLES
 				disziplin READ
 				, runde READ
+                , runde AS r READ 
 				, serienstart READ
 				, wettkampf READ
+                , wettkampf AS w READ 
 				, resultat WRITE
 				, wertungstabelle READ
 				, wertungstabelle_punkte READ
                 , meeting READ
 		");
-
+       
 		// validate result
 		$perf = new PerformanceAttempt($_POST['perf']);
 		$performance = $perf->getPerformance();
@@ -126,7 +133,14 @@ if($_POST['arg'] == 'save_res')
                 $points=0;
             }
             else{
-                $points = AA_utils_calcPoints($presets['event'], $performance, 0, mysql_result($query_sex, 0, 'Geschlecht'));
+                if ($single_svm) {
+                      $single_presets = AA_results_getPresets($singleRound);    // read GET/POST variables
+                      $points = AA_utils_calcPoints($single_presets['event'], $performance, 0, mysql_result($query_sex, 0, 'Geschlecht'));   
+                }
+                else {
+                   $points = AA_utils_calcPoints($presets['event'], $performance, 0, mysql_result($query_sex, 0, 'Geschlecht'));  
+                }
+                
 		    }
            
         }
@@ -528,6 +542,8 @@ if($round > 0)
 				, at.Land
                 , ss.Bemerkung
                 , at.xAthlet
+                , r.xRunde 
+                , ss.RundeZusammen  
 			FROM
 				runde AS r
 				, serie AS s
@@ -594,7 +610,13 @@ if($round > 0)
 
 			$btn = new GUI_Button('', '');	// create button object
 			while($row = mysql_fetch_row($result))
-			{   
+			{   if ($row[20] > 0){
+                    $singleRound = $row[20];
+                }
+                else {
+                      $singleRound = $row[19];  
+                }
+                
 				// terminate last row if new athlete and not first item
 				if(($a != $row[4]) && ($i != 0))
 				{
@@ -631,6 +653,7 @@ if($round > 0)
 					if($status == $cfgRoundStatus['results_done']) {
 						$c = 1;		// increment colspan to include ranking
 					}
+ 
 ?>
 	<tr>
 		<form action='event_results.php#heat_<?php echo $row[3]; ?>' method='post'
@@ -640,6 +663,7 @@ if($round > 0)
 			<?php echo $title; ?>
 			<input type='hidden' name='arg' value='change_heat_name' />
 			<input type='hidden' name='round' value='<?php  echo $round; ?>' />
+            <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
 			<input type='hidden' name='item' value='<?php echo $row[2]; ?>' />
 			<input class='nbr' type='text' name='id' maxlength='2'
 				value='<?php echo $row[3]; ?>'
@@ -718,6 +742,7 @@ if($round > 0)
 		<td>
 			<input type='hidden' name='arg' value='save_rank' />
 			<input type='hidden' name='round' value='<?php echo $round; ?>' />
+             <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
 			<input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
 			<input type='hidden' name='item' value='<?php echo $row[4]; ?>' />
 			<input class='nbr' type='text' name='rank' maxlength='3'
@@ -741,6 +766,7 @@ if($round > 0)
         <td>
             <input type='hidden' name='arg' value='save_remark' />
             <input type='hidden' name='round' value='<?php echo $round; ?>' />
+             <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
             <input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
             <input type='hidden' name='item' value='<?php echo $row[4]; ?>' />
             <input type='hidden' name='xAthlete' value='<?php echo $row[18]; ?>' />    
@@ -804,6 +830,7 @@ if($round > 0)
 		<td nowrap colspan='2'> 
 			<input type='hidden' name='arg' value='save_res' />
 			<input type='hidden' name='round' value='<?php echo $round; ?>' />
+             <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
 			<input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
 			<input type='hidden' name='start' value='<?php echo $row[4]; ?>' />
 			<input type='hidden' name='item' value='<?php echo $item; ?>' />
