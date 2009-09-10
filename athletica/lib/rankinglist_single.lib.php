@@ -144,8 +144,8 @@ $results = mysql_query("
 		, r.Datum
 		, r.Startzeit
 ");   
-   
- }
+
+  }
  else {      
 	   $results = mysql_query("
 	SELECT 
@@ -452,7 +452,8 @@ else {
 							 k.Name , 
 							 k1.Name , 							
 							 k1.Anzeige ,
-                             ss.Bemerkung  
+                             ss.Bemerkung,
+                             w.Punkteformel  
 						FROM serie AS s USE INDEX(Runde)
 				   LEFT JOIN serienstart AS ss USING(xSerie) 
 				   LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -477,7 +478,7 @@ else {
 							 at.Vorname,
 							 leistung_neu " 
 							 .$order_perf;   
-           
+               
 		}
 		else {						// relay event
 				   
@@ -625,10 +626,10 @@ else {
 
 						// add column header 'points' if required
 						$points= FALSE;
-						if($row[7] != '0') {
+						if($row[7] != '0' || $row_res[23] != '0') {
 							$points= TRUE;
 						}
-
+                       
 						if ($show_efforts == 'sb_pb'){
 							$base_perf = true;
 						} 
@@ -761,7 +762,13 @@ else {
 					if($row[7] != '0') {
 						$points = $row_res[7];
 					}
-
+                    else {
+                        if($row_res[23] != '0') {
+                            $points = $row_res[7];
+                        }
+                    }
+                    
+                    
 					// wind info
 					$wind = '';
 					$secondResult = false;                   
