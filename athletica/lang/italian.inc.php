@@ -714,7 +714,7 @@ $strErrNoControl2  ="<b>Attenzione:</b> questo non può essere annullato";
 
 $strCatLicense = "Categorie con licenza";   
 
-$strActiv = "Attivi, U23, U20, U18";
+$strActiv_statistic = "Attivi, U23, U20, U18";
 $strU16 = "U16";  
 $strU14 = "U14, U123, U10";  
 $strActivCHF = "CHF 4.--  per disciplina";

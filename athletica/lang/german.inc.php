@@ -761,7 +761,7 @@ $strErrNoControl1 = "<b>Achtung:</b> Sie haben Ihr Meeting noch nicht mit der Me
             
 $strErrNoControl2 = "<b>Achtung:</b> Dies kann nicht wieder rückgängig gemacht werden.";
 $strCatLicense = "Kategorien mit Lizenz";
-$strActiv = "Aktive, U23, U20, U18";
+$strActiv_statistic = "Aktive, U23, U20, U18";
 $strU16 = "U16";  
 $strU14 = "U14, U123, U10"; 
 $strActivCHF = "CHF 4.-- pro Start";
