@@ -1038,7 +1038,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 	$doc->printTotalLineTax($strTotal, $tf, $td, $te, $ts);
    
     $doc->printLineTax($strCatLicense);  
-    $doc->printLineTax($strActiv,$strActivCHF,'','','',$assTax1,2); 
+    $doc->printLineTax($strActiv_statistic,$strActivCHF,'','','',$assTax1,2); 
     $doc->printLineTax($strU16,$strU16CHF,'','','',$assTax2,2);  
     $doc->printLineTax($strU14,$strU14CHF,'','','',$assTax3,2); 
      
