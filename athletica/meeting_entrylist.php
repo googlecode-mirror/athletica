@@ -135,17 +135,17 @@ else if(mysql_num_rows($result) > 0)  // data found
 			$rowclass = 'odd';
 		}
 
-		?>
+		?> 
 <tr class='<?php echo $rowclass; ?>'
 	onClick='selectAthlete(<?php echo $row[0]; ?>)' style="cursor: pointer;">
 
 	<td class='forms_right'>
-		<a name='item<?php echo $row[0]; ?>'></a>
+		<a name='item<?php echo $row[0]; ?>'  id='item<?php echo $row[0]; ?>'></a>
 		<?php echo $row[1]; ?>
 	</td>
 	<td nowrap><?php echo $row[2]. " ".$row[3]; ?></td>
 	<td nowrap><?php echo $row[4]; ?></td>
-</tr>
+</tr>     
 		<?php
 	}
 	mysql_free_result($result);
@@ -153,8 +153,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 ?>
 </table>
 
-<script>
-	document.all.item<?php echo $_GET['item']; ?>.scrollIntoView("true");
+<script>  	
+    document.getElementById('item<?php echo $_GET['item']; ?>').scrollIntoView("true");  
 </script>
 <?php
 $page->endPage();
