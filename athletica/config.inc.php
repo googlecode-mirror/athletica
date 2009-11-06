@@ -197,9 +197,7 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'H5MAN' => array(252,310,351,330,90)
 			, 'H5MAN_F' => 3
 			, 'HWOMU18' => array(256,310,352,330,90)
-			, 'HWOMU18_F' => 4              
-            , 'ACup_U18M' => array(40,330,310,347)
-            , 'ACup_U18M_F' => 1
+			, 'HWOMU18_F' => 4  
             , 'ACup_U16M' => array(35,330,310,349)
             , 'ACup_U16M_F' => 1
             , 'ACup_U14M' => array(30,330,310,352,386)
@@ -226,8 +224,6 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
             , 'ACup_M08_F' => 1 
             , 'ACup_M07' => array(10,100,330,385)  
             , 'ACup_M07_F' => 1  
-            , 'ACup_U18W' => array(40,330,310,352)
-            , 'ACup_U18W_F' => 2
             , 'ACup_U16W' => array(35,330,310,352)
             , 'ACup_U16W_F' => 2
             , 'ACup_U14W' => array(30,330,310,352,386)
@@ -605,7 +601,7 @@ $cfgContentTypes = array(	'txt' => array('mt' => "text" // mime type
 **/
 $cfgLicenseType = array(	$strLicenseTypeNormal => 1
 				,$strLicenseTypeDayLicense => 2
-				,$strLicenseTypeNoLicense => 3
+				,$strLicenseTypeNoLicense => 3  
 			);
 
 /**
