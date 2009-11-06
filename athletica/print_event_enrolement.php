@@ -82,6 +82,9 @@ if(isset($_GET['pagebreak'])){
 	$pagebreak = $_GET['pagebreak'];
 }
 
+$sort = "at.Name, at.Vorname";
+
+
 // start a new HTML page for printing
 $doc = new PRINT_EnrolementPage($_COOKIE['meeting']);
        
@@ -238,20 +241,39 @@ else
                     $sqlEvents.=" AND r.Datum = '" . $mDate . "' ";
                 else
                     $sqlEvents.=" r.Datum = '" . $mDate . "' ";    
-         }
-                     
+         }   
+                            
 		  // read event entries
 		  if($relay == FALSE) {		// single event
+          
+              if(isset($_GET['sort'])){
+                if  ($_GET['sort'] == 'nbr') {
+                    $sort = "a.Startnummer, at.Name, at.Vorname"; 
+                }
+                elseif ($_GET['sort'] == 'club') {  
+                    $sort = "v.Sortierwert, at.Name, at.Vorname"; 
+                }  
+                elseif ($_GET['sort'] == 'bestperf') {  
+                    $sort = "s.Bestleistung, at.Name, at.Vorname"; 
+                }  
+                else {  
+                    $sort = "at.Name, at.Vorname"; 
+                }  
+              }
+                              
 			  if($combined){
 			  	  $sqlEvt = '';
 			  	  if ($_GET['event'] > 0){   
 			  	  		$sqlEvt = " AND w.xWettkampf = ". $event; 
 				  }
+                  if ($_GET['sort'] == 'bestperf') {  
+                        $sort = "a.BestleistungMK, at.Name, at.Vorname"; 
+                  }
 				  $query = "SELECT a.Startnummer"
 						  . ", at.Name"
 						  . ", at.Vorname"
 						  . ", at.Jahrgang"
-						  . ", IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)"
+						  . ", IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) "
 						  . ", a.BestleistungMK"
 						  . ", d.Typ"
 						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
@@ -274,13 +296,13 @@ else
 						  . " AND a.xAthlet = at.xAthlet"
 						  . " AND at.xVerein = v.xVerein"
 						  . " GROUP BY a.xAnmeldung"
-						  . " ORDER BY at.Name, at.Vorname";
+						  . " ORDER BY $sort";
 			  }else{
 				  $query = "SELECT DISTINCT a.Startnummer"
 						  . ", at.Name"
 						  . ", at.Vorname"
 						  . ", at.Jahrgang"
-						  . ", if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))"
+						  . ", if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)) "
 						  . ", s.Bestleistung"
 						  . ", d.Typ"
 						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
@@ -301,18 +323,32 @@ else
 						  . " AND a.xAthlet = at.xAthlet"
 						  . " AND at.xVerein = v.xVerein"
                           . $sqlGroup
-						  . " ORDER BY $sortAddition at.Name, at.Vorname";    
+						  . " ORDER BY $sortAddition $sort";    
 			  }
 		  }
 		  else {							// relay event
 			 
 			//
 			// get each athlete from all registered relays
-			//
+			//      
+            
+           $sort = "st.Name";
+           if(isset($_GET['sort'])){
+                if  ($_GET['sort'] == 'nbr') {
+                    $sort = "st.Startnummer, st.Name "; 
+                }
+           elseif ($_GET['sort'] == 'club') {  
+                    $sort = "v.Sortierwert, st.Name "; 
+           }             
+           else {  
+                $sort = "st.Name "; 
+                }  
+           }
+            
 			$query = "SELECT s2.xStart"
 					. ", s2.Anwesend"
 					. ", st.Name"
-					. ", if('$svm', t.Name, v.Name)"
+					. ", if('$svm', t.Name, v.Name) "
 					. ", a.Startnummer"
 					. ", at.Name"
 					. ", at.Vorname"
@@ -336,9 +372,10 @@ else
 					. " AND a.xAnmeldung = s2.xAnmeldung"
 					. " AND at.xAthlet = a.xAthlet"
 					. " GROUP BY stat.xAthletenstart"
-					. " ORDER BY $sortAddition v.Sortierwert, st.Name, stat.position ";
+					. " ORDER BY $sortAddition $sort , stat.position ";
 		  }
-        
+           
+         
 		  $res = mysql_query($query);
           $first=true;
           $athleteLine = '';
