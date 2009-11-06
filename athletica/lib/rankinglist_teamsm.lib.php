@@ -29,7 +29,7 @@ function AA_rankinglist_TeamSM($category, $event, $formaction, $break, $cover, $
 		return;		// abort
 	}
 	
-	global $rFrom, $rTo, $limitRank;
+	global $rFrom, $rTo, $limitRank, $date;
 	$rFrom = 0; $rTo = 0; // limits rank if limitRank set to true
 	$limitRank = false;
 	if($_GET['limitRank'] == "yes" && substr($formaction,0,6) == "export"){ // check if ranks are limited
@@ -118,7 +118,7 @@ function AA_rankinglist_TeamSM($category, $event, $formaction, $break, $cover, $
 
 function processDiscipline($event, $disctype, $catname, $discname, $windmeas, $list){
 	
-	global $rFrom, $rTo, $limitRank;
+	global $rFrom, $rTo, $limitRank, $date;
 	require('config.inc.php');
 	
 	$teams = array();	// team array
