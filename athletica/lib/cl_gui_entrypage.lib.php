@@ -36,13 +36,16 @@ class GUI_EntryPage extends GUI_ListPage
 		<th class='dialog'>&nbsp;</th>
 			<?php
 		}
-		?>
+       
+      
+       ?>  
+         
 	</tr>
 <?php
 	}
 
 
-	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid = '')
+	function printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid = '', $perf,$mkcode)
 	{  
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
@@ -51,7 +54,22 @@ class GUI_EntryPage extends GUI_ListPage
 		<td class='forms_ctr'><?php echo $year; ?></td>
 		<td><?php echo $cat; ?></td>
 		<td><?php echo $club; ?></td>
-		<td><?php echo $disc; ?></td>
+		
+    <?php    
+        if ($mkcode > 0 && $perf != 0){
+           
+            ?>
+            <td><?php echo $disc . " (" .$perf .")"; ?></td>  
+           <?php 
+        }
+        else {
+            ?>
+            <td><?php echo $disc; ?></td>
+           <?php 
+            
+        }
+        ?>
+        
      <!--   <td class='forms_right'><?php echo $fee; ?></td>   -->
 		<?php 
 		if(isset($_GET['payment']) && isset($_GET['discgroup'])){
@@ -59,7 +77,7 @@ class GUI_EntryPage extends GUI_ListPage
 		<td><?php echo $paid ?></td>
 			<?php
 		}
-		?>
+        ?>
 	</tr>
 <?php
 		$this->switchRowClass();
@@ -102,7 +120,7 @@ class GUI_CatEntryPage extends GUI_EntryPage
 
 
 	function printLine($nbr, $name, $year, $club, $disc)
-	{
+	{ 
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
@@ -145,7 +163,7 @@ class GUI_ClubEntryPage extends GUI_EntryPage
 
 
 	function printLine($nbr, $name, $year, $cat, $disc)
-	{
+	{  
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
@@ -153,6 +171,7 @@ class GUI_ClubEntryPage extends GUI_EntryPage
 		<td class='forms_ctr'><?php echo $year; ?></td>
 		<td><?php echo $cat; ?></td>
 		<td><?php echo $disc; ?></td>
+       
 	</tr>
 <?php
 		$this->switchRowClass();
@@ -187,7 +206,7 @@ class GUI_CatDiscEntryPage extends GUI_EntryPage
 
 
 	function printLine($nbr, $name, $year, $club, $perf)
-	{
+	{ 
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
@@ -195,6 +214,7 @@ class GUI_CatDiscEntryPage extends GUI_EntryPage
 		<td class='forms_ctr'><?php echo $year; ?></td>
 		<td><?php echo $club; ?></td>
 		<td class='forms_right'><?php echo $perf; ?></td>
+        
 	</tr>
 <?php
 		$this->switchRowClass();
@@ -228,7 +248,7 @@ class GUI_ClubCatEntryPage extends GUI_EntryPage
 
 
 	function printLine($nbr, $name, $year, $disc)
-	{ 
+	{  
 ?>                     
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
@@ -269,7 +289,7 @@ class GUI_ClubCatDiscEntryPage extends GUI_EntryPage
 
 
 	function printLine($nbr, $name, $year, $perf)
-	{
+	{ 
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $nbr; ?></td>
