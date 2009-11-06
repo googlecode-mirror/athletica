@@ -31,16 +31,21 @@ $contestcat_clause="";
 $athlete_clause="";
 $licType_clause=""; 
 
+
 // basic sort argument (default: sort by name)
 if ($_GET['sort'] == "nbr") {
 	$argument = "a.Startnummer, d.Anzeige";
-} else {
+} elseif ($_GET['sort'] == "bestperf" && ($_GET['discgroup'] || $_GET['discipline'] > 0)) { 
+      $argument = "s.Bestleistung, at.Name, at.Vorname"; 
+}
+ else
+ {
 	//$argument = "at.Name, at.Vorname, d.Anzeige";
 	$argument = "at.Name, at.Vorname, at.xAthlet, d2.Name, d.Anzeige";   
 }
 
 // sort according to "group by" arguments
-if ($_GET['discgroup'] == "yes") {
+if ($_GET['discgroup'] == "yes") { 
 	$argument = "d.Anzeige, " . $argument;
 }
 if ($_GET['catgroup'] == "yes") {
@@ -58,7 +63,7 @@ if($_GET['athletecat'] > 0) {		// category selected
 	$cat_clause = " AND a.xKategorie = " . $_GET['athletecat'];
 }
 if($_GET['discipline'] > 0) {		// discipline selected
-	$disc_clause = " AND w.xDisziplin = " . $_GET['discipline'];      
+	$disc_clause = " AND w.xDisziplin = " . $_GET['discipline'];   
 }
 if($_GET['club'] > 0) {		// club selected
 	$club_clause = " AND v.xVerein = " . $_GET['club'];
@@ -67,10 +72,15 @@ if($_GET['licenseType'] > 0) {		// licensetype selected
 		if ($_GET['licenseType']==1){
 		     $licType_clause = " AND at.Lizenztyp IN (0, " . $_GET['licenseType']. ") ";   
 		}
-		else {
-			$licType_clause = " AND at.Lizenztyp = " . $_GET['licenseType'];
+		elseif ($_GET['licenseType']==4){ 
+               $licType_clause = " AND at.Lizenztyp IN (0, 1) AND ba.license_paid = 'n' ";      
+        }
+        else {
+        	 $licType_clause = " AND at.Lizenztyp = " . $_GET['licenseType'];
 		}
-}      
+}   
+
+ 
 if($_GET['category'] > 0){
 	$contestcat_clause = " AND w.xKategorie = " .$_GET['category']; 
 }  
@@ -208,6 +218,7 @@ $result = mysql_query("
 		ON at.xRegion = re.xRegion
 	LEFT JOIN disziplin AS d2 
 		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
+    LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)                             
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
 	AND a.xAthlet = at.xAthlet
 	AND at.xVerein = v.xVerein
@@ -222,13 +233,13 @@ $result = mysql_query("
 	$contestcat_clause
 	$date_clause
 	$athlete_clause 
-	$licType_clause  
+	$licType_clause     
 	$limitNrSQL
 	ORDER BY
 		$argument
 	
 ");  
-          
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -315,7 +326,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			}
 			else
 			{  
-				$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid);  
+				$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $perf, $mkcode);  
 			}                                     
 		  
 		  if ($_GET['discgroup']=="yes" 
@@ -333,6 +344,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$ioc = "";
 				$paid = "";
 				$m = "";
+                $mkcode = "";  
 		  }  
 		  elseif (($_GET['discgroup']=="yes") 
 							&& ( ($_GET['catgroup']=="yes") 
@@ -351,6 +363,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$ioc = "";
 				$paid = "";
 				$m = "";
+                $mkcode = "";  
 		  }  
 		}
 	
@@ -440,6 +453,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$club = $row[8];		// use team name
 			}
 			$ioc = $row[13];
+            $mkcode=$row[23];
+            
 		}
 		
 		if(($row[11] == $cfgDisciplineType[$strDiscTypeTrack])
@@ -606,7 +621,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		}
 		else
 		{  
-			$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid); 
+			$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $perf ); 
 			
 		}
 	}

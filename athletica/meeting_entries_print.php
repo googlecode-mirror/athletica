@@ -130,6 +130,13 @@ $page->printPageTitle($strPrint);
 </tr>
 
 <tr>
+    <td class='dialog' colspan='3'>
+        <input type='radio' name='sort' value='bestperf'>
+            <?php echo $strEfforts; ?></input>
+    </td>
+</tr>
+
+<tr>
 	<th class='dialog' colspan='3'><?php echo $strLimitSelection; ?></th>
 </tr>
 <tr>
@@ -190,9 +197,13 @@ $page->printPageTitle($strPrint);
 	                             } 
 	                       }
 	                    ?>
-	                    		</select>      
+	                    		<option value="4"><?=$strLicenseTypeNormalNotPayed;?></option
+                                </select>      
 	                    </td>
 	                 </tr>
+                     
+                    
+                     
 
             <tr>
                 <?php 
