@@ -65,15 +65,16 @@ div.st_res_work {
 	background-color:#FFB272;   
 }  
 p.st_res_work {
-    background-color:#FFB272;
+    background-color:#FFB272;  
     width: 280px;
     padding-left: 10px;
     padding-top: 10px;  
     padding-bottom: 10px;  
 }  
 div.st_res_done {
-	background-color:#FFB272;
+	background-color:#FF7328; 
 	font-weight:bold;
+   
 }
 div.st_anct_pend {
 	background-color:#BBFFBB;
@@ -229,7 +230,7 @@ td.dialog {
 	height: 18px;
 }
 td.dialog-top {
-	vertical-align: top;
+	vertical-align: top; 
 }
 td.dialog_right {
 	text-align:right;
