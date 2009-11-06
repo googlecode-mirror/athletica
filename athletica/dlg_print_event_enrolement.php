@@ -118,6 +118,40 @@ $menu->printMenu();*/
 	<?php
 	}
 	?>
+    
+ <tr>
+    <th class='dialog' colspan='3'><?php echo $strSortBy; ?></th>
+</tr>
+<tr>
+    <td class='dialog' colspan='3'>
+        <input type='radio' name='sort' value='name' checked>
+            <?php echo $strName; ?></input>
+    </td>
+</tr>
+<tr>
+    <td class='dialog' colspan='3'>
+        <input type='radio' name='sort' value='nbr'>
+            <?php echo $strStartnumbers; ?></input>
+    </td>
+</tr>  
+<tr>
+    <td class='dialog' colspan='3'>
+        <input type='radio' name='sort' value='club'>
+            <?php echo $strClub; ?></input>
+    </td>
+</tr>   
+    
+    <tr>
+    <td class='dialog' colspan='3'>
+        <input type='radio' name='sort' value='bestperf'>
+            <?php echo $strEfforts; ?></input>
+    </td>
+</tr>   
+     
+    
+    
+    
+    
 	
 </table>
 <br>
