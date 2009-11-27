@@ -107,6 +107,16 @@ mysql_free_result($result);
 	AND k.xKategorie = w.xKategorie
 	AND d.xDisziplin = w.xDisziplin
 ");*/
+
+$mRounds= AA_getMergedRounds($round);
+$sqlRound = '';
+if (empty($mRounds)){
+   $sqlRound = "= ". $round;  
+}
+else {
+     $sqlRound = "IN ". $mRounds;  
+}
+
 $sql = "SELECT
 			  DATE_FORMAT(r.Datum, '".$cfgDBdateFormat."')
 			, TIME_FORMAT(r.Startzeit, '".$cfgDBtimeFormat."')
@@ -130,7 +140,7 @@ $sql = "SELECT
 		LEFT JOIN 
 			disziplin AS d ON(d.xDisziplin = w.xDisziplin)
 		WHERE
-			r.xRunde = ".$round.";";
+			r.xRunde  ".$sqlRound.";";
 $result = mysql_query($sql);
 
 if(mysql_errno() > 0)		// DB error
@@ -138,8 +148,14 @@ if(mysql_errno() > 0)		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else
-{
-	$row = mysql_fetch_row($result);
+{   
+	while($row = mysql_fetch_row($result)) {
+         $catMerged .= $row[5] ." / ";
+        }   
+    $titel = substr($catMerged,0,-2);
+    
+    $result = mysql_query($sql);
+    $row = mysql_fetch_row($result);
 	$event = $row[4];				// event ID
 	$tracks = $row[2];			// nbr of tracks
 
@@ -159,7 +175,7 @@ else
 	$menu->addButton($cfgURLDocumentation . 'help/event/print_heats.html', $strHelp, '_blank');
 	$menu->printMenu();
 
-	$page->printSubTitle("$row[6], $row[5]");
+	$page->printSubTitle("$row[6], $titel");
 ?>
 <form action='print_contest.php' method='post' target='_blank' name='qual'>
 <input name='round' type='hidden' value='<?php echo $round; ?>' />
@@ -221,7 +237,7 @@ else
 
 	$qual_top = $row[8];
 	$qual_perf = $row[9];
-
+    
 	mysql_free_result($result);
 }
 

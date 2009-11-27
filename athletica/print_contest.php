@@ -111,9 +111,16 @@ mysql_query("UNLOCK TABLES");
 // Content
 // -------
 
-
+$mRounds= AA_getMergedRounds($round);
+$sqlRound = '';
+if (empty($mRounds)){
+   $sqlRound = "= ". $round;  
+}
+else {
+     $sqlRound = "IN ". $mRounds;  
+}
 // get round info
-$result = mysql_query("SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
+$sql = "SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 							. ", TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')"
 							. ", r.Bahnen"
 							. ", rt.Name"
@@ -135,11 +142,13 @@ $result = mysql_query("SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 							. ", disziplin AS d"
 							. " LEFT JOIN rundentyp AS rt"
 							. " ON rt.xRundentyp = r.xRundentyp"
-							. " WHERE r.xRunde = " . $round
+							. " WHERE r.xRunde " . $sqlRound
 							. " AND w.xWettkampf = r.xWettkampf"
 							. " AND k.xKategorie = w.xKategorie"
-							. " AND d.xDisziplin = w.xDisziplin");   
- 
+							. " AND d.xDisziplin = w.xDisziplin";   
+                            
+$result = mysql_query($sql);
+
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -148,8 +157,16 @@ else
 {
 	
 	$combined = AA_checkCombined(0, $round);
-	$svm = AA_checkSVM(0, $round); // decide whether to show club or team name
-	
+	$svm = AA_checkSVM(0, $round); // decide whether to show club or team name   
+    
+    if (!empty($mRounds)){        
+        while ($row = mysql_fetch_row($result)) {
+            $catMerged .= $row[5]. " / ";
+        }   
+        $titel = substr($catMerged,0,-2);  
+    }
+    
+    $result = mysql_query($sql);  
 	$row = mysql_fetch_row($result);
 	
 	// remember staffelläufer
@@ -231,8 +248,15 @@ else
 			$doc->resultinfo = "X = $strHighInvalid, O = $strHighValid";
 			break;
 	}
-
-	$doc->cat = "$row[5]";
+    
+   
+    if (empty($mRounds)){
+        $doc->cat = "$row[5]";   
+    }
+    else {  
+         $doc->cat = "$titel";  
+    }        
+	
 	if($row[10] == '0'){ // do not show "(ohne)"
 		$doc->event = "$row[6]";
 	}else{
@@ -328,7 +352,7 @@ else
 					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
 					. ", ss.Bahn"
 					. ", s.Film"
-					. ", IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land"
+					. ", IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land"  
 					. " FROM runde AS r"
 					. ", serie AS s"
 					. ", serienstart AS ss"
@@ -341,7 +365,7 @@ else
 					. " LEFT JOIN anlage AS an"
 					. " ON an.xAnlage = s.xAnlage"
 					. " LEFT JOIN team as t ON a.xTeam = t.xTeam"
-					. " LEFT JOIN region AS re ON at.xRegion = re.xRegion "
+					. " LEFT JOIN region AS re ON at.xRegion = re.xRegion " 
 					. " WHERE r.xRunde = " . $round
 					. " AND s.xRunde = r.xRunde"
 					. " AND ss.xSerie = s.xSerie"
@@ -386,7 +410,7 @@ else
 					. " ORDER BY heatid ". $order.", ss.Position");   
 		}       
 		$result = mysql_query($query);
-
+       
 		if(mysql_errno() > 0)		// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
