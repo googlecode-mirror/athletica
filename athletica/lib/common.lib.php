@@ -2670,7 +2670,92 @@ function AA_get_MaxPointDisc($points_disc)
     }
     return $max;
 }
-	       
+
+ /**    
+     * get points of the best more than the half of the best disciplines
+     * -----------------------------------------------------------------
+     */   
+function AA_get_MoreBestPointDisc($points_disc)
+{   $more=ceil(sizeof($points_disc)/2);
+
+    arsort($points_disc, SORT_NUMERIC);    //sort descending by points   
+    
+    $max = 0;   
+    foreach($points_disc as $key => $val) {
+        if ($i < $more){                    // only more than the half of the best disciplines
+            $max+=$val;
+        }   
+    }     
+    return $max;
+}
+
+/**    
+     * get points of the best discipline, if same points --> than the second best etc.
+     * -------------------------------------------------------------------------------
+     */   
+function AA_get_BestPointDisc($points_disc_keep, $points_disc, $key_keep, $key_act)
+{   
+    arsort($points_disc_keep, SORT_NUMERIC);    //sort descending by points
+    arsort($points_disc, SORT_NUMERIC);    //sort descending by points   
+    
+    $points_compare1 = array();
+    $points_compare2 = array();   
+    
+    $max_key = 0;
+    
+    foreach($points_disc_keep as $key => $val) {
+         $points_compare1[] = $val;
+     }
+     
+    foreach($points_disc as $key => $val) {
+         $points_compare2[] = $val;
+     }  
+     
+    foreach($points_compare1 as $key => $val) {
+        if ($points_compare1[$key] < $points_compare2[$key]) {
+            $max_key =  $key_keep; 
+            break;
+        }
+        elseif  ($points_compare1[$key] > $points_compare2[$key]) {   
+                  $max_key =  $key_act;  
+                  break;  
+        }   
+          // same points --> check next discipline
+    }   
+   
+    return $max_key;
+}
+
+/**    
+     * check if event is the last combined event (mehrkampfende = 1)
+     * -------------------------------------------------------------
+     */   
+function AA_checkCombinedLast($event)
+{   
+   $comb_last=false;
+   $sql="SELECT 
+                mehrkampfcode 
+            FROM 
+                wettkampf as w
+                LEFT JOIN meeting as m ON (m.xMeeting = w.xMeeting) 
+            WHERE  
+                w.xWettkampf = ". $event ." 
+                AND w.Mehrkampfende = 1 
+                AND m.xMeeting = ".$_COOKIE['meeting_id'];  
+             
+    $res = mysql_query($sql);  
+   
+    if(mysql_errno() > 0)
+        {
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }else{
+        if (mysql_num_rows($res) > 0) {
+            $comb_last=true;
+        }
+    }
+    return $comb_last;    
+}
+    
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

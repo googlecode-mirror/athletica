@@ -181,6 +181,8 @@ else
 		{              		
 			$points_arr[] = $points;     
             $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);
+            $points_arr_more_disc[] = AA_get_MoreBestPointDisc($points_disc); 
+            $points_arr_more_disc_all[] = $points_disc; 
 			$name_arr[] = $name;   		
 			$year_arr[] = $year;
 			$club_arr[] = $club;
@@ -191,6 +193,7 @@ else
 			$info = '';
 			$points = 0;
 			$sep = '';
+            
 		}
        
 		// print previous before processing new category
@@ -217,7 +220,7 @@ else
 
 			$list->startList();
 			$list->printHeaderLine($lastTime);
-
+            
 		    arsort($points_arr, SORT_NUMERIC);	// sort descending by points
 			$rank = 1;									// initialize rank
 			$r = 0;										// start value for ranking
@@ -228,8 +231,7 @@ else
              $max_rank=$no_rank;
             
 		     foreach($points_arr as $key => $val) {
-                $r++;
-                
+                $r++;     
                 if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
                     continue;
                 }
@@ -253,7 +255,7 @@ else
     		asort($rank_arr, SORT_NUMERIC);    // sort descending by rank     
             
             foreach($rank_arr as $key => $v)
-            {   
+            {  
                 $val=$points_arr[$key];
                 $rank=$v;
                 
@@ -326,8 +328,8 @@ else
                 w.Mehrkampfreihenfolge ASC
                 , ru.Datum
                 , ru.Startzeit
-        ");     
-    
+        ");  
+     
       /*  
 		$res = mysql_query("
 			SELECT
@@ -417,9 +419,9 @@ else
                    if ($count_disc<=$disc_nr)  {
                        if($pt_row[4] > 0) {       // any points for this event 
                            $points = $points + $pt_row[4];      // calculate points   
-                           $points_disc[$pt_row[11]]=$pt_row[4];                             
-					        $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
-					        $sep = ", ";     
+                           $points_disc[$pt_row[9]]=$pt_row[4]; 
+					       $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+					       $sep = ", ";     
                        }
                         elseif ($pt_row[4] == 0 && $pt_row[2] >= 0){          //  athlete with 0 points                                   
                                 $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
@@ -457,7 +459,9 @@ else
 	if(!empty($a))		// add last athlete if any
 	{
 		$points_arr[] = $points;     
-        $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);
+        $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);   
+        $points_arr_more_disc[] = AA_get_MoreBestPointDisc($points_disc);
+        $points_arr_more_disc_all[] = $points_disc; 
 		$name_arr[] = $name;
 		$year_arr[] = $year;
 		$club_arr[] = $club;
@@ -522,7 +526,29 @@ else
             $rank_arr[$key]  = $rank;   
         }   
               
-        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank   
+        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank         
+                  
+         foreach($rank_arr as $key => $v){
+                $val=$points_arr[$key];  
+                $rank=$v;   
+               
+                if ($rank == $rank_keep){
+                    if  ($points_arr_more_disc[$key_keep] < $points_arr_more_disc[$key]){
+                        $rank_arr[$key_keep]++; 
+                   }
+                   elseif ($points_arr_more_disc[$key_keep] > $points_arr_more_disc[$key]){
+                           $rank_arr[$key]++;  
+                   }
+                   else {       // always same points --> check 
+                           $max_key = AA_get_BestPointDisc($points_arr_more_disc_all[$key_keep], $points_arr_more_disc_all[$key], $key_keep, $key);
+                           $rank_arr[$max_key]++;   
+                   }    
+                }            
+                $rank_keep = $rank;  
+                $key_keep = $key; 
+         }
+         
+         asort($rank_arr, SORT_NUMERIC);    // sort descending by rank          
                        
         foreach($rank_arr as $key => $v)
         {   
@@ -532,10 +558,11 @@ else
             if ($rank>=$no_rank) {
                 $rank='';
             }
-                         
+           
             $list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
             $list->printInfo($info_arr[$key]);   
 
+            
 			// insert points into combined top performance of entry
 			mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);		
 		}   		
