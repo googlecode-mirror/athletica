@@ -29,6 +29,15 @@ if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
 
+$mRounds= AA_getMergedRounds($round);
+$sqlRound = '';
+if (empty($mRounds)){
+   $sqlRound = "= ". $round;  
+}
+else {
+     $sqlRound = "IN ". $mRounds;  
+}
+
 $sql = "SELECT 
 			  r.xWettkampf
 			, rt.Name
@@ -49,7 +58,8 @@ $sql = "SELECT
 		LEFT JOIN 
 			kategorie AS k ON(w.xKategorie = k.xKategorie) 
 		WHERE 
-			r.xRunde = ".$round.";";
+			r.xRunde ".$sqlRound.";";
+            
 $res = mysql_query($sql);
 							
 $combined = false;
@@ -62,22 +72,31 @@ if(mysql_errno() > 0)		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else
-{
-	$row = mysql_fetch_row($res);
-	$event = $row[0];				// event ID
-	$title = $row[2] . ", " . $row[3];
-	if(!is_null($row[1])) {
-		$roundname = $row[1];
+{   $first = true;
+	while($row = mysql_fetch_row($res)){
+        if ($first){
+	        $event = $row[0];				// event ID
+	        $title = $row[2] . ", " . $row[3];
+	        if(!is_null($row[1])) {
+		        $roundname = $row[1];
+	            }
+	        if($row[6] == $cfgEventType[$strEventTypeSingleCombined]){
+		        $combined = true;
+		        $cGroup = $row[5];
+		        $cLast = $row[7];
+	        }
+	        if($row[6] == $cfgEventType[$strEventTypeTeamSM]){
+		        $teamsm = true;
+		        $cGroup = $row[5];
+            }
+            $first = false;  
+        }
+        else {
+         
+            $title .=  " / " . $row[3];
+        }
 	}
-	if($row[6] == $cfgEventType[$strEventTypeSingleCombined]){
-		$combined = true;
-		$cGroup = $row[5];
-		$cLast = $row[7];
-	}
-	if($row[6] == $cfgEventType[$strEventTypeTeamSM]){
-		$teamsm = true;
-		$cGroup = $row[5];
-	}
+    
 	mysql_free_result($res);
 }
 
@@ -434,6 +453,11 @@ if($round > 0)
 					 <td><input name='mode' type='radio' value='2'>
 						 <?php echo $strModeTopSeparated; ?></input></td>
 				 </tr>
+                 <tr>
+                     <td />
+                     <td><input name='mode' type='radio' value='3'>
+                         <?php echo $strTeam; ?></input></td>
+                 </tr>
 <?php
 		}
 	}	// ET 1st round
@@ -547,5 +571,5 @@ if($round > 0)
 <?php
 	$page->endPage();
 }		// ET round selected
-
+ 
 ?>
