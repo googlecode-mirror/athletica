@@ -774,5 +774,7 @@ $strChangeInfo = "Das Info Feld darf erst nach dem letzten Meetingabgleich geänd
 $strAthleteRegistered = "Athlet ist bereits erfasst. Wollen Sie weiter fahren?";     
 $strAthleteNoDisciplin = "Athlet hat keine Disziplinen angekreuzt!";
 $strLicenseTypeNormalNotPayed = "Normale Lizenz ungültig";
+$strCtrlHelp = "Auswahl mehrerer Athleten mit Ctrl-Taste.";
+$strNoTeam = "Keine Manschaften vorhanden für diesen Wettkampf";
 
 ?>
