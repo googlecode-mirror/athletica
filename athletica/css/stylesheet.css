@@ -254,6 +254,18 @@ td.forms {
 	padding-bottom:0px;
 }
 
+td.forms_bottom {
+    vertical-align:bottom;
+    padding-left:0px;
+    padding-right:0px;
+    padding-top:0px;
+    padding-bottom:0px; 
+}
+
+td.blue {
+    color: blue;
+}
+
 td.forms_ctr {
 	vertical-align:middle;
 	text-align:center;
