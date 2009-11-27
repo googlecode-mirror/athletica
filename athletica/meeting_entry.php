@@ -158,19 +158,61 @@ if($_POST['arg'] == "change_licensenr"){
         AA_printErrorMsg($strErrLicenseNotValid);
     }else{
         
-        // a license number forces license type normal and athleitca gen 'no'
-        mysql_query("UPDATE athlet SET
-                Lizenznummer = ".$_POST['licensenr']."
-                , Lizenztyp = 1
-                , Athleticagen = 'n'
-            WHERE
-                xAthlet = ".$_POST['athlete']);
-        
-        if(mysql_errno() > 0){
+        // check if licensenr is in base date of athlete  
+        $sql="SELECT a.Name,
+                     a.Vorname,
+                     a.Geburtstag
+              FROM 
+                    athlet as a
+              WHERE
+                    xAthlet = ".$_POST['athlete'];
+                    
+         $res = mysql_query($sql);
+         
+         if(mysql_errno() > 0){
             AA_printErrorMsg(mysql_errno().": ".mysql_error());
+        }
+        else {
+             if ($row=mysql_fetch_row($res)){
+                 
+                $sql_ba="SELECT ba.license
+                      FROM 
+                            base_athlete as ba
+                      WHERE
+                            ba.lastname = '". $row[0] ."' AND ba.firstname = '". $row[1] ."' AND ba.birth_date = '". $row[2] ."' AND ba.license = '". $_POST['licensenr']."'";                                                                                                     
+                $res_ba = mysql_query($sql_ba);
+         
+                if(mysql_errno() > 0){
+                    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                }
+                else {
+                    if (mysql_num_rows($res_ba) == 1){ 
+                        // a license number forces license type normal and athleitca gen 'no'
+                        mysql_query("UPDATE athlet SET
+                                            Lizenznummer = ".$_POST['licensenr']."
+                                            , Lizenztyp = 1
+                                            , Athleticagen = 'n'
+                                     WHERE
+                                            xAthlet = ".$_POST['athlete']);
+        
+                        if(mysql_errno() > 0){
+                            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                        }
+                       
+                    }
+                    else { 
+                         ?>
+                            <script type="text/javascript">    
+                            check = alert("<?php echo $strNoSuchLicense; ?>");  
+                            </script>  
+                        <?php
+                    }   
+                }  
+             }
         }
     }
 }
+
 
 //
 // Change license type
@@ -1662,8 +1704,8 @@ function change_licensenr(){
 </tr>
 
 <?php   
-//$dis = ($row[13]!='') ? ' disabled="disabled"' : '';  
-$dis = '';
+
+$dis = ($row[23]==3) ? '': 'disabled="disabled"' ;  
 $dis2 = false;
 ?>
 
@@ -1676,7 +1718,7 @@ $dis2 = false;
         <input name='athlete' type='hidden' value='<?php echo $row[3]; ?>' />
         <input name='licensenr' type='text' size='12' id='licensenr'
             value='<?php echo empty($row[13]) ? '' : $row[13]; ?>'
-            onChange='change_licensenr()' disabled="disabled"/>
+            onChange='change_licensenr()' <?php echo $dis; ?>/>
         
     </td>
     </form>
@@ -1717,6 +1759,8 @@ $dis2 = false;
     if ($row[28] == 3 || ($row[28] >= 5 && $row[28] <= 7 )){
         $manual_club = "manual";
     }
+    
+$dis = '';
 ?>
 <tr>
     <form action='meeting_entry.php' method='post' name='data'>
@@ -1733,7 +1777,7 @@ $dis2 = false;
         
     </td>
     <?php
-       if  ($row[29] == 'n'){
+       if  ($row[29] == 'n' || (empty($row[29]) && $row[23] == 3)){
            $licensePrinted = $strNo;            
        }
        else {
@@ -2116,11 +2160,7 @@ $dis2 = false;
                 ($start_row['BaseEffort']=='y' || $start_row['Bestleistung']=='0')?$manual='':$manual=" manual"; 
                  
                 
-                // check if this is a valid selection (age on category)
-                //if($event_row[5] < $agelimit || (substr($event_row[6],0,1) != $sex && substr($event_row[6],3,1) != $sex)){
-                
-                //echo $event_row[5] ."<". $agelimit ."||". $event_row[11] ."!=". $sex ."<br>";
-                
+                // check if this is a valid selection (age on category)     
                 if($event_row[5] < $agelimit || $event_row[11] != $sex){
                     $span = "<span class='highlight_red'>";
                     $span_end = "</span>";
