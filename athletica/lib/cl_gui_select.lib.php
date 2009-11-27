@@ -50,14 +50,16 @@ class GUI_Select
 	var $name;
 	var $options;
 	var $size;
+    var $multiple;
 
-	function GUI_Select($name, $size, $action='')
-	{
+	function GUI_Select($name, $size, $action='',$multiple)
+	{     
 		$this->action = $action;
 		$this->checked = '';
 		$this->name = $name;
 		$this->size = $size;
 		$this->options = array();
+        $this->multiple = $multiple; 
 	}
 
 	/*	addOption()
@@ -137,11 +139,24 @@ class GUI_Select
 	function printList($dis = false, $manual_club = '')
 	{   
 		$dis = ($dis) ? ' disabled="disabled"' : '';
+       if ($this->multiple == 'multiple'){
+            ?>      
+            <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>[]'  size='<?php echo $this->size; ?>' <?php echo $this->multiple; ?>       
+            onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
         
+     
+     <?php
+           
+       }
+       else { 
 ?>      
-	 <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>'     
+	 <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>' <?php echo $this->multiple; ?>       
 		onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
+        
+     
 <?php
+        }
+        
 		foreach ($this->options as $key=>$value)
 		{
 			if($key == "$this->checked") {
