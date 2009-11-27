@@ -30,7 +30,8 @@ function AA_heats_seedEntries($event)
 	$combined = AA_checkCombined($event); // combined event
 	$teamsm = AA_checkTeamSM($event); // team sm event
 	$cGroup = $_POST['cGroup']; // combined group to seed
-    
+    $comb_last = AA_checkCombinedLast($event); // combined event last discipline
+   
     if (isset($_POST['round']))  
          $round = $_POST['round'];   
     else
@@ -96,7 +97,14 @@ function AA_heats_seedEntries($event)
 			{
 				$filmnumber = true;
 			}
-	} elseif($svmContest){	// SVM mode
+	} 
+    elseif  ($mode == 3 && !$svmContest){
+             $order = "t.Name";    // field disciplines
+             $badValue = "0";
+             $orderFirst = '';
+        
+    }
+    elseif($svmContest){	// SVM mode
 		if(($row[0] == $cfgDisciplineType[$strDiscTypeTrack])
 			|| ($row[0] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
 			|| ($row[0] == $cfgDisciplineType[$strDiscTypeRelay])
@@ -111,7 +119,8 @@ function AA_heats_seedEntries($event)
 				$badValue = "0";
 			}
 	}
-	else {				// top performance mode
+	
+    else{				// top performance mode
 		
 		if(($row[0] == $cfgDisciplineType[$strDiscTypeTrack])
 			|| ($row[0] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
@@ -151,8 +160,8 @@ function AA_heats_seedEntries($event)
 	//
 	if(!$combined){
         if($relay == FALSE && !$svmContest) {    // single event
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde"
-                    . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) " 
+            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde, t.Name"
+                    . " FROM start as s LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung) LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) " 
                     . " WHERE " //xWettkampf = " . $event
                     . $sqlEvents
                     . " AND s.Anwesend = 0"
@@ -162,8 +171,8 @@ function AA_heats_seedEntries($event)
                     . " ORDER BY $order";   
         }
         elseif($relay == FALSE && $svmContest){ // single event but svm             
-            $query = "SELECT s.xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde"
-                    . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
+            $query = "SELECT s.xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde, t.Name"
+                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
                     . " WHERE " //xWettkampf = " . $event
                     . $sqlEvents
                     . " AND s.Anwesend = 0"
@@ -173,19 +182,21 @@ function AA_heats_seedEntries($event)
                     . " ORDER BY $orderFirst $order";    
         }
         else {                        // relay event
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde"
-                    . " FROM start as s LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
+            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde, t.Name"
+                    . " FROM start as s Left JOIN staffel as st ON (s.xStaffel = st.xStaffel) LEFT JOIN team as t ON (t.xTeam = st.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
                     . " WHERE " // xWettkampf = " . $event
                     . $sqlEvents
                     . " AND s.Anwesend = 0"
-                    . " AND s.xStaffel > 0"
+                    . " AND s.xStaffel > 0"    
                     . " AND r.xRunde ". $sqlRounds
                     . " ORDER BY $order";     
         }
     }else{ // combined 
-        if(!empty($cGroup)){
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet"
-                    . " FROM start as s, anmeldung as a "
+        if ($comb_last == 1) {      // last combined --> all athletes together
+             $order = str_replace("DESC", "ASC", $order);   // last combined checks the best points --> order always ASC
+             if(!empty($cGroup)){
+                $query = "SELECT xStart, if(BestleistungMK = 0, $badValue, BestleistungMK) as best, a.xAthlet, t.Name"
+                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam)"
                     . " WHERE " . $sqlEvents
                     . " AND s.xAnmeldung = a.xAnmeldung"
                     . " AND a.Gruppe = '$cGroup'"
@@ -193,20 +204,43 @@ function AA_heats_seedEntries($event)
                     . " AND s.xAnmeldung > 0"
                     . " ORDER BY $order";
                     
-        }else{
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet,r.xRunde"
-                    . " FROM start as s, anmeldung as a LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
+            }else{           
+                $query = "SELECT xStart, if(BestleistungMK = 0, $badValue, BestleistungMK) as best, a.xAthlet,r.xRunde, t.Name"
+                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
                     . " WHERE " . $sqlEvents
                     . " AND s.xAnmeldung = a.xAnmeldung"
                     . " AND s.Anwesend = 0"
                     . " AND s.xAnmeldung > 0"
-                    . " ORDER BY best DESC, RAND()";
+                    . " ORDER BY $order";   
+            }
+            
+        }
+        else {
+            if(!empty($cGroup)){
+                $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet, t.Name"
+                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam)"
+                    . " WHERE " . $sqlEvents
+                    . " AND s.xAnmeldung = a.xAnmeldung"
+                    . " AND a.Gruppe = '$cGroup'"
+                    . " AND s.Anwesend = 0"
+                    . " AND s.xAnmeldung > 0"
+                    . " ORDER BY $order";
+                    
+            }else{           
+                $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet,r.xRunde, t.Name"
+                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
+                    . " WHERE " . $sqlEvents
+                    . " AND s.xAnmeldung = a.xAnmeldung"
+                    . " AND s.Anwesend = 0"
+                    . " AND s.xAnmeldung > 0"
+                    . " ORDER BY $order";       
                    
+            }
         }
     }
     if($teamsm && !empty($cGroup)){    // teamsm event with groups
-        $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best"
-                . " FROM start as s, anmeldung as a"
+        $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, t.Name"
+                . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam)"
                 . " WHERE s.xWettkampf = " . $event
                 . " AND s.xAnmeldung = a.xAnmeldung"
                 . " AND a.Gruppe = '$cGroup'"
@@ -214,15 +248,52 @@ function AA_heats_seedEntries($event)
                 . " AND s.xAnmeldung > 0"
                 . " ORDER BY $order";       
     }    
-	$result = mysql_query($query); 
     
+     if ($_POST['mode'] == 3) {  
+        // count team
+        $count_team = 0;
+        $pos = strpos($query, "ORDER");   
+        $query_team = substr($query, 0, $pos);
+        $query_team .= " GROUP BY t.Name";  
+        $res_group = mysql_query($query_team);  
+        if(mysql_errno() > 0)        // DB error
+            {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+        else {
+           $count_team = mysql_num_rows($res_group);
+        } 
+     }
+   
+	$result = mysql_query($query); 
+   
 	$entries = mysql_num_rows($result);		// keep nbr of entries   
-                              
-      
+    $noTeam = true;
+    while ($row_check = mysql_fetch_row($result)) {    // only check for teams for this event
+          if ($_POST['mode'] == 3) {
+                if ($combined && empty($cGroup)){
+                    if (!empty($row_check[4]) ){
+                        $noTeam = false;
+                     }
+                }
+                else {
+                     if (!empty($row_check[3]) ){
+                        $noTeam = false;
+                     }
+                }
+          }
+    }
+    
+    $result = mysql_query($query);          // reset to first record
+    
 	if(mysql_errno() > 0)		// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
+    if ($noTeam && $_POST['mode'] == 3){        // no teams exist for this event
+         AA_printErrorMsg($strNoTeam); 
+    }  
+    
 	// entries for this event found
 	else if($entries > 0)
 	{            
@@ -258,7 +329,7 @@ function AA_heats_seedEntries($event)
 			{
 				mysql_free_result($res);
 				$OK = TRUE;   
-                                 
+                
 
 				//
 				// Delete current start per heat
@@ -408,6 +479,13 @@ function AA_heats_seedEntries($event)
                            							
 							$h = ceil($entries/$size);	// calc. nbr of heats	
                             
+                            if ($_POST['mode'] == 3) {
+                                if ($h > $count_team && $count_team != 0){
+                                    $h =  $count_team;
+                                }
+                            }
+                            
+                            
 							for($i = 1; $i <= $h; $i++)  
 							{   
 								if ($row_tv[5] != 9) {      // typ != ohne  
@@ -442,7 +520,7 @@ function AA_heats_seedEntries($event)
 							// Mode: open or top performances together
 							// ---------------------------------------
 							if(($_POST['mode'] == 0)
-								|| ($_POST['mode'] == 1 ))    
+								|| ($_POST['mode'] == 1 ) || ($_POST['mode'] == 3))    
 							{
 								// seed qualified athletes to heats
 								// distribute athletes from center to outer tracks
@@ -450,18 +528,36 @@ function AA_heats_seedEntries($event)
 								$p = 1;						// first position
                                                                
 								while ($row = mysql_fetch_row($result))
-								{  
+								{      
                                         if ($p > $size) {	// heat full -> start new heat
-										    $i++;		// next heat
-										    $p = 1;	// restart with first position   
+                                            if ($_POST['mode'] == 3 ) {
+                                                if ($combined && empty($cGroup)){ 
+                                                    if ($row[4] != $team_keep){
+                                                        $i++;        // next heat
+                                                        $p = 1;    // restart with first position  
+                                                    }
+                                                }
+                                                else {
+                                                    if ($row[3] != $team_keep){
+                                                        $i++;        // next heat
+                                                        $p = 1;    // restart with first position  
+                                                    }
+                                                } 
+                                            } 
+                                            else {   
+										        $i++;		// next heat
+										        $p = 1;	// restart with first position 
+                                            }  
 									    }    
-                               
-									if(!empty($cfgTrackOrder[$tracks][$p])) {
+                                        
+									
+                                    if(!empty($cfgTrackOrder[$tracks][$p]) && $_POST['mode'] != 3) {
 										$pos = $cfgTrackOrder[$tracks][$p];
 									}
 									else {
 										$pos = $p;
 									}
+                                   
                                     $remark='';  
                                     if ($combined){
                                        $remark=AA_getResultRemark($row[2]);                                     
@@ -494,8 +590,22 @@ function AA_heats_seedEntries($event)
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
 									$p++;		// next position
-                                  
-								}    
+                                if ($combined){
+                                    $team_keep=$row[4];
+                                }
+                                else {
+                                   $team_keep=$row[3]; 
+                                }
+                                
+								} 
+                                 
+                                for ($j=($i+1);$j<$h;$j++) {
+                                     
+                                      
+                                      $sql_del="DELETE FROM serie WHERE Bezeichnung=".($j+1);
+                                      mysql_query($sql_del);
+                                       
+                                }
 							}
 							//
 							// Mode: top performances separated
@@ -568,11 +678,12 @@ function AA_heats_seedEntries($event)
 							}		// ET mode
 						}		// ET DB error (status update)  
 					}		// ET DB error (delete rounds)
-				}		// ET DB error (delete starts)
+				}		// ET DB error (delete starts) 
 			}		// ET results
 		}		// ET round still active   
 		mysql_query("UNLOCK TABLES");
-	}		// ET DB error, entries found
+	}
+     		// ET DB error, entries found
 }
 
 
