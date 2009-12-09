@@ -555,9 +555,10 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 				}
 				mysql_query("UPDATE serie as s SET Wind = '".$wind."'
 						WHERE xRunde = $round AND Film = $nr");
-			                                                      
+                        
+			                                                                             
 				foreach($results as $val){  
-                    
+                    $reaction_time=false;
 					if($val[0] == $nr){ 
 						// add results to timingRes (array key is the registration id of the athlete)
 						//$timingRes[$val[4]] = $val;
@@ -579,7 +580,10 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 							break;
 							default:
 							$perf = ceil($val[7] / 10);
-							
+							if (floor($val[8]) == 0){      // perf = 0.  --> reaction time
+                                 $reaction_time=true;
+                                 break;
+                            }
 							$sex = 'M';
 							if(!$relay){
 								/*$sql = "SELECT Geschlecht
@@ -610,64 +614,62 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 							}  
 							
 						}
+						if (!$reaction_time) {
+						    if($relay == false){
 						
-						if($relay == false){
-						
-							$res = mysql_query("
-								SELECT xResultat, sst.xSerienstart FROM
-									resultat as r
-									LEFT JOIN serienstart as sst USING(xSerienstart)
-									LEFT JOIN serie as s USING (xSerie)
-									LEFT JOIN start as st ON sst.xStart = st.xStart
-									LEFT JOIN anmeldung as a ON st.xAnmeldung = a.xAnmeldung
-								WHERE s.xRunde = $round
-								AND s.Film = $nr
-								AND a.Startnummer = ".$val[4]
-							);
+							    $res = mysql_query("
+								    SELECT xResultat, sst.xSerienstart FROM
+									    resultat as r
+									    LEFT JOIN serienstart as sst USING(xSerienstart)
+									    LEFT JOIN serie as s USING (xSerie)
+									    LEFT JOIN start as st ON sst.xStart = st.xStart
+									    LEFT JOIN anmeldung as a ON st.xAnmeldung = a.xAnmeldung
+								    WHERE s.xRunde = $round
+								    AND s.Film = $nr
+								    AND a.Startnummer = ".$val[4]
+							        );
 							
-							if(mysql_num_rows($res) == 0){ 
-								// insert result
-								$res = mysql_query("
-									SELECT sst.xSerienstart FROM
-										serie as s
-										LEFT JOIN serienstart as sst USING(xSerie)
-										LEFT JOIN start as st USING(xStart)
-										LEFT JOIN anmeldung as a USING(xAnmeldung)
-									WHERE	a.Startnummer = ".$val[4]."
-									AND	s.Film = $nr
-									AND	s.xRunde = $round"
-								);
+							    if(mysql_num_rows($res) == 0){ 
+								    // insert result
+								    $res = mysql_query("
+									    SELECT sst.xSerienstart FROM
+										    serie as s
+										    LEFT JOIN serienstart as sst USING(xSerie)
+										    LEFT JOIN start as st USING(xStart)
+										    LEFT JOIN anmeldung as a USING(xAnmeldung)
+									    WHERE	a.Startnummer = ".$val[4]."
+									    AND	s.Film = $nr
+									    AND	s.xRunde = $round"
+								        );
 								
-								if(mysql_num_rows($res) == 0){
-									// no athlete with this registration id is started
-									if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
-								}else{
-									$row = mysql_fetch_array($res);
-                                    $count_results++; 
-                                    $points = AA_utils_calcPoints($event, $perf, 0, $sex,$row[0]);                                     
-									mysql_query("
-										INSERT INTO resultat
-										SET 	Leistung = '$perf'
+								    if(mysql_num_rows($res) == 0){
+									    // no athlete with this registration id is started
+									    if($noerror==false){ AA_printErrorMsg($strErrTimingWrongRegid); }
+								    }else{
+									    $row = mysql_fetch_array($res);
+                                        $count_results++; 
+                                        $points = AA_utils_calcPoints($event, $perf, 0, $sex,$row[0]);                                     
+									    mysql_query("
+										    INSERT INTO resultat
+										    SET 	Leistung = '$perf'
 											, Punkte = '$points'
 											, xSerienstart = ".$row[0]
-									);
-									/*echo ("INSERT INTO resultat as r
-										SET 	Leistung = '$perf'
-											, xSerienstart = ".$row[0]); */
-								}
-							}else{
-								// update
-                                $count_results++;  
-                                $row = mysql_fetch_array($res);  
-                                $points = AA_utils_calcPoints($event, $perf, 0, $sex, $row[1]);                                      
+									        );
+									        
+								    }
+							    }else{
+								    // update
+                                    $count_results++;  
+                                    $row = mysql_fetch_array($res);  
+                                    $points = AA_utils_calcPoints($event, $perf, 0, $sex, $row[1]);                                      
 								
-								mysql_query("UPDATE resultat as r SET Leistung = '$perf'
-										, Punkte = '$points'
-									WHERE xResultat = ".$row[0]);
+								    mysql_query("UPDATE resultat as r SET Leistung = '$perf'
+										    , Punkte = '$points'
+									        WHERE xResultat = ".$row[0]);
 								
-							}
+							    }
 								//
-						}else{		// relay event
+						    }else{		// relay event
 								//
 							
 							// set startnumber - 999 because of this omega trick (nbr = 999XXX)
@@ -685,7 +687,7 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 								AND s.Film = $nr
 								AND sf.Startnummer = ".$val[4]
 							); */
-							  $res = mysql_query("
+							    $res = mysql_query("
 							   		SELECT 
 							   			r.xResultat, sst.xSerienstart ,  k.Geschlecht
 							   		FROM
@@ -699,16 +701,16 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 									AND s.Film = $nr
 									AND sf.Startnummer = ".$val[4]);  
                               
-                              if(mysql_errno() > 0) {
+                                if(mysql_errno() > 0) {
                                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error()); 
-                              }   
-						   	  $row = mysql_fetch_array($res);  						 
-						   	  if(mysql_num_rows($res) == 0){ 
+                                }   
+						   	    $row = mysql_fetch_array($res);  						 
+						   	    if(mysql_num_rows($res) == 0){ 
 						   	  		// no athlete with this registration id is started
 									if($noerror==false)	{
 							 			AA_printErrorMsg($strErrTimingWrongRegid); 
-							 		}
-						   	  }else{
+							 	}
+						   	    }else{
                                     $sex=$row[2];       
                                     $points = AA_utils_calcPoints($event, $perf, 0, $sex, $row[1]); 
                                     
@@ -730,7 +732,8 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 											WHERE xResultat = ".$row[0]);   								
 									}
 						   	  }			
-						}
+						    }
+                        }
 					}  			 				
 				}  		  // end foreach		
 				
@@ -1170,34 +1173,23 @@ function AA_results_setNotStarted($round)
 		mysql_query("LOCK TABLES serie READ"
 					. ", resultat WRITE, serienstart WRITE");
 
-		$result = mysql_query("SELECT serienstart.xSerienstart"
+		$result = mysql_query("SELECT DISTINCT serienstart.xSerienstart"
 								. " FROM serienstart"
 								. ", serie"
 								. " LEFT JOIN resultat"
 								. " ON serienstart.xSerienstart = resultat.xSerienstart"
-								. " WHERE resultat.xSerienstart is NULL"
+								. " WHERE resultat.Leistung = ". $GLOBALS['cfgInvalidResult']['DNS']['code'] . " or resultat.Leistung = ". $GLOBALS['cfgInvalidResult']['NRS']['code'] 
 								. " AND serienstart.xSerie = serie.xSerie"
 								. " AND serie.xRunde = " . $round);
-	
+	   
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else
 		{
-			// add result "Did Not Start" to every athlete
-			$performance = $GLOBALS['cfgInvalidResult']['DNS']['code'];
-			$info = $GLOBALS['cfgResultsInfoFill'];
+			// add result "Did Not Start or "No Result" to every athlete    
 			while($row = mysql_fetch_row($result))
-			{
-				mysql_query("INSERT INTO resultat SET"
-							. " Leistung=" . $performance
-							. ", Info='" . $info
-							. "', xSerienstart=" . $row[0]);
-
-				if(mysql_errno() > 0) {
-					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-				}
-
+			{   
 				mysql_query("UPDATE serienstart SET"
 							. " Rang = 0"
 							. " WHERE xSerienstart=" . $row[0]);
