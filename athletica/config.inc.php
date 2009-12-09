@@ -156,14 +156,23 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
 				, 402 => 'U16M'
 				, 400 => 'WOM'
 				, 401 => 'U18W'
+                , 392 => '5MAN'     // Fünfkampf M
+                , 393 => '5MANU20'  // Fünfkampf U20 M
 				, 399 => 'U16W'
 				, 396 => 'HMAN'		// Halle
 				, 397 => 'HMANU20'
 				, 398 => 'HMANU18'
 				, 394 => 'HWOM'		// 5Kampf Halle W
 				, 3942 => 'H5MAN'	// 5Kampf Halle M
-				, 395 => 'HWOMU18'  
+				, 395 => 'HWOMU18'  // 5Kampf Halle U18 W
                 , 403 => 'ACup'     // Erdgas Athletic Cup
+                , 405 => '5MANU18'  // Fünfkampf U18 M
+                , 416 => '5WOM'     // Fünfkampf W
+                , 417 => '5WOMU20'  // Fünfkampf U20 W
+                , 418 => '5WOMU18'  // Fünfkampf U18 W
+                , 796 => '..La'     // ...lauf  
+                , 797 => '..Sp'     // ...sprung  
+                , 798 => '..Wu'     // ...wurf  
                 , 799 => '..Ka'     // ...kampf
 				);
 
@@ -184,7 +193,7 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'WOM_F' => 4
 			, 'U18W' => array(259,330,388,50,310,352,90)
 			, 'U18W_F' => 4
-			, 'U16W' => array(35,330,352,310,100)
+			, '' => array(35,330,352,310,100)
 			, 'U16W_F' => 2
 			, 'HMAN' => array(30,330,351,310,252,320,100)
 			, 'HMAN_F' => 3
@@ -195,8 +204,22 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'HWOM' => array(255,310,349,330,90)
 			, 'HWOM_F' => 4
 			, 'H5MAN' => array(252,310,351,330,90)
-			, 'H5MAN_F' => 3
-			, 'HWOMU18' => array(256,310,352,330,90)
+			, 'H5MAN_F' => 3 
+            
+            , '5MAN' => array(40,330,351,310,100)
+            , '5MAN_F' => 3
+             , '5MANU20' => array(40,330,348,310,100) 
+            , '5MANU20_F' => 3 
+             , '5MANU18' => array(40,330,347,310,100) 
+            , '5MANU18_F' => 3
+             , '5WOM' => array(40,330,351,349,100) 
+            , '5WOM_F' => 3
+             , '5WOMU20' => array(40,330,349,310,100) 
+            , '5WOMU20_F' => 3
+             , '5WOMU18' => array(40,330,352,310,100) 
+            , '5WOMU18_F' => 3
+            
+			, 'HWOMU18' => array(255,310,352,330,90)
 			, 'HWOMU18_F' => 4  
             , 'ACup_U16M' => array(35,330,310,349)
             , 'ACup_U16M_F' => 1
