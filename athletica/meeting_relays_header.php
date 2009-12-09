@@ -32,6 +32,7 @@ $page->printPageTitle($strRelays . ": " . $_COOKIE['meeting']);
 $menu = new GUI_Menulist();
 $menu->addButton("meeting_relays_print.php", "$strPrint ...", "detail");
 $menu->addButton("meeting_relay_add.php?cat=$category", $strNewEntry, "detail");
+$menu->addButton("meeting_relays_startnumbers.php", "$strStartnumbers", "detail");
 $menu->addButton($cfgURLDocumentation . 'help/meeting/relays.html', $strHelp, '_blank');
 $menu->printMenu();
 $page->endPage();

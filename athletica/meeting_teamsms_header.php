@@ -32,6 +32,7 @@ $page->printPageTitle($strTeamsTeamSM . ": " . $_COOKIE['meeting']);
 $menu = new GUI_Menulist();
 $menu->addButton("meeting_teamsms_print.php", "$strPrint ...", "detail");
 $menu->addButton("meeting_teamsm_add.php?cat=$category", $strNewEntry, "detail");
+$menu->addButton("meeting_teamsms_startnumbers.php", "$strStartnumbers", "detail");
 //$menu->addButton($cfgURLDocumentation . 'help/meeting/teams.html', $strHelp, '_blank');
 $menu->printMenu();
 $page->endPage();
