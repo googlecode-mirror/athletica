@@ -132,7 +132,12 @@ function AA_heats_seedEntries($event)
 				$filmnumber = true;
 			}
 			else {
-				$order = "best DESC, RAND()";	// field disciplines
+                  if(($row[0] == $cfgDisciplineType[$strDiscTypeHigh])){  
+                      $order = "best DESC, RAND()";    // field disciplines  (high)
+                  }
+                  else {
+                       $order = "best ASC, RAND()";    // field disciplines  
+                  }  
 				$badValue = "0";
 			}
 			mysql_free_result($result);
