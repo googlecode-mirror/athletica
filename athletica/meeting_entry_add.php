@@ -6,7 +6,7 @@
  *	---------------------
  *	
  */   
- 
+     
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
@@ -14,7 +14,6 @@ require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/common.lib.php');
 require('./lib/cl_performance.lib.php');
 require('./lib/meeting.lib.php');  
-
           
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
@@ -146,9 +145,9 @@ if ($athlete_id > 0){
 // check if search from base is activated
 $allow_search_from_base = "true";
 if(isset($_COOKIE['asfb'])){
-	$allow_search_from_base = $_COOKIE['asfb']; 
+	$allow_search_from_base = $_COOKIE['asfb'];  
 }
-
+ 
 $discs_def = array();
 $combs_def = array();
 $catcode = '';
@@ -697,7 +696,8 @@ if ($_POST['arg']=="add")
     $gebDate = sprintf("%04d-%02d-%02d", $_POST['year'], $_POST['month'], $_POST['day']);     
    
     if ( empty($_POST['hidden_clubathletesearch']) ){
-         if (isset($_POST['hidden_asfb']) &&  $_POST['hidden_asfb'] == 'false') {
+         if (isset($_POST['hidden_asfb']) &&  $_POST['hidden_asfb'] == false || $_POST['asfb'] == false) {
+            
             $sql_at = "SELECT 
                             s.xStart ,
                             a.xAnmeldung ,
@@ -764,7 +764,8 @@ if ($_POST['arg']=="add")
         else { 
           
               $AthReg = false;    
-              // check if athlete already registered      
+              // check if athlete already registered  
+             
               $sql_ba = "SELECT
                                 ba.license
                          FROM
@@ -798,7 +799,7 @@ if ($_POST['arg']=="add")
                     AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
               }else{
                     $AthNoDisc = true;  
-                    if(mysql_num_rows($result_at) > 0){ // no athlete was found
+                    if(mysql_num_rows($result_at) > 0){ // athlete was found
                         $arr_checkedDisc = array();
                         $arr_checkedCombs = array(); 
                         $i=0;
@@ -834,10 +835,11 @@ if ($_POST['arg']=="add")
               if(!$result_at){
                     AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
               }else{
-                    if(mysql_num_rows($result_at) > 0){ // no athlete was found
+                    if(mysql_num_rows($result_at) > 0){ // athlete was found
                         $AthReg = true; 
                     }   
               } 
+              
          }  
       
        ?>
@@ -1970,8 +1972,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		}
 	}
 	
-	function set_status(msg){
-		//alert(msg);
+	function set_status(msg){ 
 		top.frames[2].location.href = "status.php?msg="+msg;
 	}
 	
@@ -2364,8 +2365,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	// other functions
 	//
 	function check_category(asfb){ 
-		// on change of category, set disciplines of current category on top
-		 
+		// on change of category, set disciplines of current category on top  
         document.getElementById('argument').value='change_sex';  
         
 		var cat = document.getElementById("categoryselectbox").value;
@@ -2724,7 +2724,7 @@ $page->printPageTitle($strNewEntryFromBase);
 		for(var i=0; i<clubs.length ;i++){
 			if(clubs[i][1].substr(0,clubsearch.length) == clubsearch && clubsearch.length != 0){
 				//document.getElementById('newclub').value = clubs[i][0];
-				//alert(clubsearch);
+				
 				window.setTimeout("IE_selectset("+clubs[i][0]+")", 50);
 				break;
 			}
@@ -3049,7 +3049,7 @@ if($nbr == 0) {			// start number not selected yet
 		<?php echo $strCategory ?>
 	</th>  	
 		<?php 
-		$dd = new GUI_CategoryDropDown($category, "check_category()", true); 
+		$dd = new GUI_CategoryDropDown($category, "check_category($allow_search_from_base)", true); 
 		?>  
 </tr>
 <tr>
@@ -3294,7 +3294,7 @@ if(!empty($club2) && false){ // not yet in use
 			maxlength='5' value='<?php echo $startnbr ?>' /> <?php echo $strNextNr.": ".$nbr; ?>
 	</td>
 	<th class='dialog'><?php echo $strCategory ?></th>
-	<?php $dd = new GUI_CategoryDropDown($category, "check_category()", true); ?>
+	<?php $dd = new GUI_CategoryDropDown($category, "check_category($allow_search_from_base)", true); ?>
 </tr>
 <tr>
 	<th class='dialog'><?php echo $strTeam; ?></th>
