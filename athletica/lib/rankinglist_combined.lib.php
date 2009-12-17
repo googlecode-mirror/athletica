@@ -62,7 +62,7 @@ $results = mysql_query("
 		, ka.Code
 		, ka.Name
 		, ka.Alterslimite 
-        , d.Code 		
+        , d.Code             
 	FROM
 		anmeldung AS a
 		, athlet AS at
@@ -89,7 +89,7 @@ $results = mysql_query("
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 "); 
- 
+   
   /*        
    $results= mysql_query("SELECT  
         a.xAnmeldung
@@ -175,14 +175,22 @@ else
 	
 	while($row = mysql_fetch_row($results))
 	{  $dCode = $row[13];
+     
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
 		{              		
 			$points_arr[] = $points;     
-            $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);
-            $points_arr_more_disc[] = AA_get_MoreBestPointDisc($points_disc); 
-            $points_arr_more_disc_all[] = $points_disc; 
+           if ($dCode_keep == 403){     // Athletic Cup
+                 $points_arr_max_disc[$xKat][] = $points_disc;    
+            }
+            else {
+                 $points_arr_max_disc[$xKat][] = AA_get_MaxPointDisc($points_disc); 
+            }     
+           
+            $points_arr_more_disc[$xKat][] = AA_get_MoreBestPointDisc($points_disc);  
+           
+            $points_arr_more_disc_all[$row[9]][] = $points_disc; 
 			$name_arr[] = $name;   		
 			$year_arr[] = $year;
 			$club_arr[] = $club;
@@ -252,8 +260,60 @@ else
             
             } 
             
-    		asort($rank_arr, SORT_NUMERIC);    // sort descending by rank     
+    		asort($rank_arr, SORT_NUMERIC);    // sort descending by rank    
+           
+            $rank_keep = 0; 
+                      
+            foreach($rank_arr as $key => $v) {
+                  $val=$points_arr[$key];  
+                  $rank=$v;  
+                   
+                  if ($rank == $rank_keep){ 
+                   if ($dCode_keep == 403){          // Athletic Cup
+                        $c=0;
+                        $c_max_disc1 = 0;
+                        $c_max_disc2 = 0; 
+                        for ($i=0;$i<3;$i++){
+                            if ($points_arr_max_disc[$xKat][$key_keep][$i] > $points_arr_max_disc[$xKat][$key][$i]){
+                                $c_max_disc1++; 
+                            }
+                            if ($points_arr_max_disc[$xKat][$key_keep][$i] < $points_arr_max_disc[$xKat][$key][$i]){
+                                $c_max_disc2++; 
+                            }
+                        }
+                        
+                        if ($c_max_disc1 == 2 && $c_max_disc2 == 1){    // two disciplines more points
+                            $rank_arr[$key]++;      
+                        }
+                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 2){    // two disciplines more points
+                            $rank_arr[$key_keep]++; 
+                        }
+                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 1){      // one discipline same points and total same points
+                                $k=AA_get_BestPointDisc($points_arr_max_disc{$xKat}[$key_keep],$points_arr_max_disc[$xKat][$key],$key_keep,$key); 
+                                $rank_arr[$k]++;   
+                        }                    
+                   }
+                   else {        // other combined events
+                        if  ($points_arr_more_disc[$xKat][$key_keep] < $points_arr_more_disc[$xKat][$key]){  
+                            $rank_arr[$key_keep]++;  
+                        }
+                        elseif ($points_arr_more_disc[$xKat][$key_keep] > $points_arr_more_disc[$xKat][$key]){  
+                                $rank_arr[$key]++;   
+                        }
+                        else {       // always same points --> check 
+                            $max_key = AA_get_BestPointDisc($points_arr_more_disc_all[$xKat][$key_keep], $points_arr_more_disc_all[$xKat][$key], $key_keep, $key);
+                            $rank_arr[$max_key]++;  
+                        }   
+                   } 
+                }            
+                $rank_keep = $rank;  
+                $key_keep = $key;   
             
+            }   
+            
+            asort($rank_arr, SORT_NUMERIC);    // sort descending by rank    
+             
+             
             foreach($rank_arr as $key => $v)
             {  
                 $val=$points_arr[$key];
@@ -285,6 +345,7 @@ else
 			}
 		}
 		$cat = $row[4];		// keep current category
+        $xKat = $row[9];
 		$catEntry = $row[10];
 		$catEntryLimit = $row[12];
 		$comb = $row[7];
@@ -375,8 +436,10 @@ else
 		{   $count_disc=0;
             $remark='';
             $points_disc = array();
+            
 			while($pt_row = mysql_fetch_row($res))
-			{   $remark=$pt_row[10];  
+			{    
+                $remark=$pt_row[10];  
 				$lastTime = $pt_row[8];
 				
 				if($pt_row[1] == $cfgDisciplineType[$strDiscTypeJump]){
@@ -416,10 +479,30 @@ else
                  
 				 // show only points for number of choosed disciplines if the diszipline is done	  
                 $count_disc++;    
-                   if ($count_disc<=$disc_nr)  {
+                   if ($count_disc<=$disc_nr)  { 
                        if($pt_row[4] > 0) {       // any points for this event 
-                           $points = $points + $pt_row[4];      // calculate points   
-                           $points_disc[$pt_row[9]]=$pt_row[4]; 
+                     
+                           $points = $points + $pt_row[4];      // calculate points 
+                           if ($dCode == 403) {                // Athletic Cup
+                               switch ($pt_row[1]){
+                                   case 1:
+                                   case 2: $c=0;          // track
+                                           break;
+                                   case 4:
+                                   case 6: $c=1;          // jump and high
+                                           break; 
+                                   case 8: $c=2;          // throw
+                                           break;  
+                                   default: $c=0;
+                                           break;
+                               }
+                                $points_disc[$c]=$pt_row[4];
+                           } 
+                           else {
+                                $points_disc[$pt_row[9]]=$pt_row[4];
+                               
+                           }
+                           
 					       $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
 					       $sep = ", ";     
                        }
@@ -437,14 +520,11 @@ else
                                  }
                          }  
                          $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pointTxt)";                      
-                         $sep = ", ";  
-                         
-                         //if($perf == null){ $perf = '0'; }
-                            //$info = $info . $sep . $pt_row[0] . "&nbsp;(" . "0, 0)";
-                            //$sep = ", ";  
+                         $sep = ", ";     
                        } 
                    }           
 			}	// END WHILE combined events
+           
 			mysql_free_result($res);
 		}     
        
@@ -453,15 +533,26 @@ else
 		$year = AA_formatYearOfBirth($row[3]);
 		$club = $row[5];
 		$ioc = $row[6];   	
-        $remark_arr[] = $remark;  	
+        $remark_arr[] = $remark; 
+        $xKat = $row[9]; 	
+        $points_disc_keep = $points_disc;
+        $dCode_keep = $dCode;
+        
 	}	// END WHILE athlete per category
   
 	if(!empty($a))		// add last athlete if any
 	{
-		$points_arr[] = $points;     
-        $points_arr_max_disc[] = AA_get_MaxPointDisc($points_disc);   
-        $points_arr_more_disc[] = AA_get_MoreBestPointDisc($points_disc);
-        $points_arr_more_disc_all[] = $points_disc; 
+		$points_arr[] = $points;  
+        
+         if ($dCode == 403){
+                 $points_arr_max_disc[$xKat][] = $points_disc;    
+            }
+            else {
+                 $points_arr_max_disc[$xKat][] = AA_get_MaxPointDisc($points_disc);  
+            }   
+        
+        $points_arr_more_disc[$xKat][] = AA_get_MoreBestPointDisc($points_disc);
+        $points_arr_more_disc_all[$xKat][] = $points_disc; 
 		$name_arr[] = $name;
 		$year_arr[] = $year;
 		$club_arr[] = $club;
@@ -507,9 +598,10 @@ else
 			}
             else {
                 if ($dCode == 403){         // Athletic Cup
-                    if ($points_arr_max_disc[$key] > $points_arr_max_disc[$k]){
+                
+                    if ($points_arr_max_disc[$xkat][$key] > $points_arr_max_disc[$xKat][$k]){
                         $rank_arr[$k]  = $r;
-                    }
+                    }   
                 }
             }  
             
@@ -526,46 +618,74 @@ else
             $rank_arr[$key]  = $rank;   
         }   
               
-        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank         
-                  
+        asort($rank_arr, SORT_NUMERIC);    // sort descending by rank       
+        
+         $rank_keep = 0; 
+                   
          foreach($rank_arr as $key => $v){
                 $val=$points_arr[$key];  
                 $rank=$v;   
                
-                if ($rank == $rank_keep){
-                    if  ($points_arr_more_disc[$key_keep] < $points_arr_more_disc[$key]){
-                        $rank_arr[$key_keep]++; 
+                if ($rank == $rank_keep){ 
+                   if ($dCode == 403){          // Athletic Cup
+                        $c=0;
+                        $c_max_disc1 = 0;
+                        $c_max_disc2 = 0; 
+                        for ($i=0;$i<3;$i++){
+                            if ($points_arr_max_disc[$xKat][$key_keep][$i] > $points_arr_max_disc[$xKat][$key][$i]){
+                                $c_max_disc1++; 
+                            }
+                            if ($points_arr_max_disc[$xKat][$key_keep][$i] < $points_arr_max_disc[$xKat][$key][$i]){
+                                $c_max_disc2++; 
+                            }
+                        }
+                        
+                        if ($c_max_disc1 == 2 && $c_max_disc2 == 1){    // two disciplines more points
+                            $rank_arr[$key]++;     
+                        }
+                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 2){    // two disciplines more points
+                            $rank_arr[$key_keep]++;   
+                        }
+                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 1){      // one discipline same points and total same points
+                                $k=AA_get_BestPointDisc($points_arr_max_disc{$xKat}[$key_keep],$points_arr_max_disc[$xKat][$key],$key_keep,$key);    
+                                $rank_arr[$k]++;  
+                        }                    
                    }
-                   elseif ($points_arr_more_disc[$key_keep] > $points_arr_more_disc[$key]){
-                           $rank_arr[$key]++;  
-                   }
-                   else {       // always same points --> check 
-                           $max_key = AA_get_BestPointDisc($points_arr_more_disc_all[$key_keep], $points_arr_more_disc_all[$key], $key_keep, $key);
-                           $rank_arr[$max_key]++;   
-                   }    
+                   else {        // other combined events
+                        if  ($points_arr_more_disc[$xKat][$key_keep] < $points_arr_more_disc[$xKat][$key]){  
+                            $rank_arr[$key_keep]++; 
+                        }
+                        elseif ($points_arr_more_disc[$xKat][$key_keep] > $points_arr_more_disc[$xKat][$key]){  
+                                $rank_arr[$key]++;    
+                        }
+                        else {       // always same points --> check 
+                            $max_key = AA_get_BestPointDisc($points_arr_more_disc_all[$xKat][$key_keep], $points_arr_more_disc_all[$xKat][$key], $key_keep, $key);
+                            $rank_arr[$max_key]++; 
+                        }   
+                   } 
                 }            
                 $rank_keep = $rank;  
                 $key_keep = $key; 
-         }
+                }
          
-         asort($rank_arr, SORT_NUMERIC);    // sort descending by rank          
+                asort($rank_arr, SORT_NUMERIC);    // sort descending by rank          
                        
-        foreach($rank_arr as $key => $v)
-        {   
-            $val=$points_arr[$key];  
-            $rank=$v;    
+                foreach($rank_arr as $key => $v)
+                    {   
+                    $val=$points_arr[$key];  
+                    $rank=$v;    
            
-            if ($rank>=$no_rank) {
-                $rank='';
-            }
+                    if ($rank>=$no_rank) {
+                        $rank='';
+                    }
            
-            $list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
-            $list->printInfo($info_arr[$key]);   
+                    $list->printLine($rank, $name_arr[$key], $year_arr[$key], $club_arr[$key], $val, $ioc_arr[$key]);  
+                    $list->printInfo($info_arr[$key]);   
 
             
-			// insert points into combined top performance of entry
-			mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);		
-		}   		
+			        // insert points into combined top performance of entry
+			        mysql_query("UPDATE anmeldung SET BestleistungMK = $val WHERE xAnmeldung = ".$x_arr[$key]);		
+		        }   		
 	}
 
 	mysql_free_result($results);
