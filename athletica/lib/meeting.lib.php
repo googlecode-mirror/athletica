@@ -1063,14 +1063,15 @@ function AA_meeting_getLG_Club($club){
                 verein AS v
                 LEFT JOIN base_account AS ba ON (v.xCode = ba.account_code)
           WHERE 
-                v.xVerein = " .$club;
-   
+                v.xVerein = " .$club ."
+                AND v.xCode != ''";
+    
     $result=mysql_query($sql);  
     
     if(mysql_errno() > 0){
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
     }else{
-         if (mysql_num_rows($result) == 1 ){ 
+         if (mysql_num_rows($result) == 1 ){                
                 $row = mysql_fetch_array($result);
                 if ($row[0] != '') {
                       $sql="SELECT 
