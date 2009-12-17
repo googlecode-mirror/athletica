@@ -2669,7 +2669,7 @@ function AA_get_MaxPointDisc($points_disc)
         $i++;
     }
     return $max;
-}
+}  
 
  /**    
      * get points of the best more than the half of the best disciplines
@@ -2680,11 +2680,17 @@ function AA_get_MoreBestPointDisc($points_disc)
 
     arsort($points_disc, SORT_NUMERIC);    //sort descending by points   
     
-    $max = 0;   
+    $max = 0;
+    $i = 0;   
     foreach($points_disc as $key => $val) {
         if ($i < $more){                    // only more than the half of the best disciplines
             $max+=$val;
-        }   
+            $i++;  
+        }
+        else {
+            break;
+        } 
+        
     }     
     return $max;
 }
