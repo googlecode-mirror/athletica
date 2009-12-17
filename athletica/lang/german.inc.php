@@ -96,8 +96,8 @@ $strConvformulaShot = "KUGEL";
 $strConvformulaTrip = "DREI";
 $strConvtableIAAF85Men = "IAAF 85, Männer";
 $strConvtableIAAF85Women = "IAAF 85, Frauen";
-$strConvtableSLV94Men = "SLV 94, Männer";
-$strConvtableSLV94Women = "SLV 94, Frauen";
+$strConvtableSLV2010Men = "SLV 2010, Männer";
+$strConvtableSLV2010Women = "SLV 2010, Frauen";
 $strConvtableSVMMenNL = "SVM NLA-C, Männer";
 $strConvtableSVMWomenNL = "SVM NLA-B, Frauen";
 $strConvtableRankingPoints = "Rangpunkte";
@@ -776,5 +776,7 @@ $strAthleteNoDisciplin = "Athlet hat keine Disziplinen angekreuzt!";
 $strLicenseTypeNormalNotPayed = "Normale Lizenz ungültig";
 $strCtrlHelp = "Auswahl mehrerer Athleten mit Ctrl-Taste.";
 $strNoTeam = "Keine Manschaften vorhanden für diesen Wettkampf";
+$strStartnumberShort = "Start-Nr.";  
+$strStrNrNotExist = "Diese Startnummer ist nicht vorhanden."; 
 
 ?>
