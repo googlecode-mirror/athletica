@@ -102,12 +102,12 @@ else {
 }
 
 if(!empty($_GET['round'])) {
-	$round = $_GET['round'];
+	$round = $_GET['round'];  
 }
 else {
 	$round = 0;
 }    
-
+ 
 if(!empty($_GET['comb'])) {
 	$comb = $_GET['comb'];
 	list($cCat, $cCode, $cDisz) = explode("_", $comb);
@@ -366,7 +366,7 @@ else if($_GET['arg'] == 'terminate')
 				ORDER BY
 					  runde.Datum ASC
 					, runde.Startzeit ASC;";
-		$result = mysql_query($sql);
+		$result = mysql_query($sql); 
 	}else{		// normal single event
 		$result = mysql_query("
 			SELECT
@@ -614,20 +614,14 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		}
 		else {   
 			$sqlEventComb = '';        // the whole combined event
-			$sqlCat = " w.xKategorie = " .$cCat ." AND ";
-            if (empty($cDisz)) {
-                $sqlMk = " w.Mehrkampfcode = ".$cCode;           
-            }
-            else {
-                $sqlMk = " w.Mehrkampfcode = ".$cCode ." AND w.xDisziplin = ".$cDisz;           
-            }
-			
+			$sqlCat = " w.xKategorie = " .$cCat ." AND ";    
+            $sqlMk = " w.Mehrkampfcode = ".$cCode;   
 		} 
         
         $sqlGroup = '';
-        if ($group != '') {
-            $sqlGroup = " AND r.Gruppe = '" .$group ."'";
-        }      		 
+       // if ($mk_group != '') {
+       //     $sqlGroup = " AND r.Gruppe = '" .$mk_group ."'";
+       // }      		 
 	  
 		$sql = "SELECT
 					xRunde
@@ -933,7 +927,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
             $sqlTable='';                                
             if ($comb > 0) {
                 if ($mk_group != ''){                    // combined event with groups   
-                     $sqlGroup2=" r.Gruppe = a.Gruppe AND r.xRunde = " .$round. " AND "; 
+                    // $sqlGroup2=" r.Gruppe = a.Gruppe AND r.xRunde = " .$round. " AND "; 
                      $sqlTable=" LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) ";  
                 } 
             }
@@ -1012,7 +1006,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 						".$argument.";";
 			
 			$query = $sql; 
-                                             
+           
 		}else{  
 			// no combined
 			/*$query = "SELECT s.xStart"
