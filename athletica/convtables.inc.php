@@ -14,8 +14,8 @@ include('./config.inc.php');
  *		table ($cvtFormulas).
  */
 $cvtTable = array("-"=>0
-					, $strConvtableSLV94Men=>1
-					, $strConvtableSLV94Women=>2
+					, $strConvtableSLV2010Men=>1
+					, $strConvtableSLV2010Women=>2
 					, $strConvtableIAAF85Men=>3
 					, $strConvtableIAAF85Women=>4
 					//, $strConvtableSVMMenNL=>5                // old formula
