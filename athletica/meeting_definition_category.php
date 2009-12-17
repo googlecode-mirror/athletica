@@ -915,8 +915,8 @@ else			// no DB error
 		<input name='comb' type='hidden' value='<?php echo $row[7]; ?>' />
 		<select name="combinedtype" onchange="document.combtype_<?php echo $row[1]."_".$row[7] ?>.submit()">
 			<!--<option value="-">-</option>-->
-				<?php
-				$res_comb = mysql_query("select Code, Name from disziplin where Typ = ".$cfgDisciplineType[$strDiscCombined]);
+				<?php               
+				$res_comb = mysql_query("select Code, Name from disziplin where Typ = ".$cfgDisciplineType[$strDiscCombined]. " ORDER BY Anzeige");
 				if(mysql_errno() > 0) {	// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}else{
@@ -1546,7 +1546,7 @@ else			// no DB error
 	<select name="combinedtype" onchange="document.addcombtype.submit()">
 		<option value="-">-</option>
 			<?php
-			$res_comb = mysql_query("select Code, Name from disziplin where Typ = ".$cfgDisciplineType[$strDiscCombined]);
+			$res_comb = mysql_query("select Code, Name from disziplin where Typ = ".$cfgDisciplineType[$strDiscCombined] ." ORDER BY Anzeige");
 			if(mysql_errno() > 0) {	// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
