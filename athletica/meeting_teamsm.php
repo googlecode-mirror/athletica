@@ -36,7 +36,7 @@ if ($_POST['arg']=="change")
 			WHERE
 				xTeamsm = ".$_POST['item']."");
 		
-		if(mysql_errno()>0){
+		if(mysql_errno()>0){ 
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
 		}
 	}else{
@@ -65,7 +65,7 @@ if($_POST['arg'] == "change_startnbr"){
         if(mysql_num_rows($res) == 0){
             
             mysql_query("UPDATE teamsm SET Startnummer = $n WHERE xTeamsm = ".$_POST['item']);
-            if(mysql_errno() > 0) {
+            if(mysql_errno() > 0) { 
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
             }
             
@@ -83,80 +83,106 @@ if($_POST['arg'] == "change_startnbr"){
 //
 // add team athlete
 //
-if ($_POST['arg']=="add_athlete")
+if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 {
-	if(!empty($_POST['athlete']) && !empty($_POST['item']) && !empty($_POST['event'])){          
+	if( $_POST['arg']=="add_athlete" && (!empty($_POST['athlete']) && !empty($_POST['item']) && !empty($_POST['event']))
+            || $_POST['arg']=="add_athlete_stnr" && (!empty($_POST['startnr']) && !empty($_POST['item']) && !empty($_POST['event']))  ){          
 		
-		mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
 		
-        foreach ($_POST['athlete'] as $key => $val){   
+        $msgError = 0;    
+        if ($_POST['arg']=="add_athlete_stnr"){
+           $sql = " SELECT xAnmeldung FROM anmeldung WHERE Startnummer = ".$_POST['startnr'];
+           $res = mysql_query($sql);
+           if(mysql_errno() > 0)    // check DB error
+                {  $msgError = 1;  
+                   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+           }
+           if (mysql_num_rows($res) > 0){
+              $row = mysql_fetch_row($res); 
+              $_POST['athlete'] = $row[0];  
+           }
+           else {
+               $msgError = 1; 
+               AA_printErrorMsg($strStrNrNotExist);  
+           }
+       }         
+        if ($msgError == 0){        
+            mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
+		       
+            if (!is_array($_POST['athlete'])){
+                $tmp_athlete= $_POST['athlete'];
+                $_POST['athlete'] = array();
+                $_POST['athlete'][] = $tmp_athlete;
+            }
+         
+            foreach ($_POST['athlete'] as $key => $val){   
            
-		   // check if athlete already starts for event and set if not
-		   $res = mysql_query("SELECT
-					xStart
-				FROM
-					start
-				WHERE
-					xAnmeldung = ".$_POST['athlete'][$key]."
-				AND	xWettkampf = ".$_POST['event']."");
+		        // check if athlete already starts for event and set if not
+		        $res = mysql_query("SELECT
+					        xStart
+				        FROM
+					        start
+				        WHERE
+					        xAnmeldung = ".$_POST['athlete'][$key]."
+				            AND	xWettkampf = ".$_POST['event']."");
        
-		    if(mysql_errno()>0){
-			    AA_printErrorMsg(mysql_errno().": ".mysql_error());
-		    }else{
+		        if(mysql_errno()>0){  
+			        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+		        }else{
 			
-			    if(mysql_num_rows($res) == 0){
+			        if(mysql_num_rows($res) == 0){
 				
-				    // get top performance
-				    $sql_xAthlet = "SELECT lizenznummer 
+				        // get top performance
+				        $sql_xAthlet = "SELECT lizenznummer 
 								  FROM athlet
 							 LEFT JOIN anmeldung USING(xAthlet) 
 								 WHERE xAnmeldung = ".$_POST['athlete'][$key].";";
-				    $query_xAthlet = mysql_query($sql_xAthlet);
+				        $query_xAthlet = mysql_query($sql_xAthlet);
 				
-				    $licence = (mysql_num_rows($query_xAthlet)==1 && mysql_result($query_xAthlet, 0, 'lizenznummer')!='') ? mysql_result($query_xAthlet, 0, 'lizenznummer') : '';
-				    $perf = 0;
-				    if($licence != ''){
-					    // need codes of category and discipline
-					    $res = mysql_query("
-						    SELECT disziplin.Code, kategorie.Code, disziplin.Typ FROM
-							    disziplin
-							    , kategorie
-							    , wettkampf
-						    WHERE	wettkampf.xWettkampf = ".$_POST['event']."
-						    AND	wettkampf.xDisziplin = disziplin.xDisziplin
-						    AND	wettkampf.xKategorie = kategorie.xKategorie");
+				        $licence = (mysql_num_rows($query_xAthlet)==1 && mysql_result($query_xAthlet, 0, 'lizenznummer')!='') ? mysql_result($query_xAthlet, 0, 'lizenznummer') : '';
+				        $perf = 0;
+				        if($licence != ''){
+					        // need codes of category and discipline
+					        $res = mysql_query("
+						        SELECT disziplin.Code, kategorie.Code, disziplin.Typ FROM
+							        disziplin
+							        , kategorie
+							        , wettkampf
+						        WHERE	wettkampf.xWettkampf = ".$_POST['event']."
+						            AND	wettkampf.xDisziplin = disziplin.xDisziplin
+						            AND	wettkampf.xKategorie = kategorie.xKategorie");
 					
-					    if($res){
-						    $rowCodes = mysql_fetch_array($res);
-						    $res = mysql_query("
-							    SELECT
-								    base_performance.best_effort
-								    , base_performance.season_effort
-							    FROM
-								    base_performance
-								    , base_athlete
-							    WHERE	base_athlete.license = ".$licence."
-							    AND	base_performance.id_athlete = base_athlete.id_athlete
-							    AND	base_performance.discipline = ".$rowCodes[0]);
-					    }
-					    if(mysql_errno() > 0){
-						    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-					    }else{
-						    $bigger = 0;
-						    $smaller = 0;
-						    $rowPerf = mysql_fetch_array($res);
-						    if($rowPerf[0] > $rowPerf[1]){
-							    $bigger = $rowPerf[0];
-							    $smaller = $rowPerf[1];
-						    }else{
-							    $bigger = $rowPerf[1];
-							    $smaller = $rowPerf[0];
-						    }
-						    if($bigger == 0 || empty($bigger)){ $bigger = $smaller; }
-						    if($smaller == 0 || empty($smaller)){ $smaller = $bigger; }
-						    //echo ltrim($bigger,"0");
+					        if($res){
+						        $rowCodes = mysql_fetch_array($res);
+						        $res = mysql_query("
+							        SELECT
+								        base_performance.best_effort
+								        , base_performance.season_effort
+							        FROM
+								        base_performance
+								        , base_athlete
+							        WHERE	base_athlete.license = ".$licence."
+							        AND	base_performance.id_athlete = base_athlete.id_athlete
+							        AND	base_performance.discipline = ".$rowCodes[0]);
+					        }
+					        if(mysql_errno() > 0){  
+						        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+					        }else{
+						        $bigger = 0;
+						        $smaller = 0;
+						        $rowPerf = mysql_fetch_array($res);
+						        if($rowPerf[0] > $rowPerf[1]){
+							        $bigger = $rowPerf[0];
+							        $smaller = $rowPerf[1];
+						        }else{
+							        $bigger = $rowPerf[1];
+							        $smaller = $rowPerf[0];
+						        }
+						        if($bigger == 0 || empty($bigger)){ $bigger = $smaller; }
+						        if($smaller == 0 || empty($smaller)){ $smaller = $bigger; }
+						            //echo ltrim($bigger,"0");
 						
-						    if(($rowCodes[2] == $cfgDisciplineType[$strDiscTypeTrack])
+						        if(($rowCodes[2] == $cfgDisciplineType[$strDiscTypeTrack])
 							    || ($rowCodes[2] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
 							    || ($rowCodes[2] == $cfgDisciplineType[$strDiscTypeRelay])
 							    || ($rowCodes[2] == $cfgDisciplineType[$strDiscTypeDistance]))
@@ -164,38 +190,39 @@ if ($_POST['arg']=="add_athlete")
 							    $pt = new PerformanceTime(trim($smaller));
 							    $perf = $pt->getPerformance();
 							
-						    }
-						    else {
-							    //echo $bigger;
-							    $perf = (ltrim($bigger,"0"))*100;
-						    }
-						    if($perf == NULL) {	// invalid performance
-							    $perf = 0;
-						    }
-					    }
-				    }
+						        }
+						        else {
+							        //echo $bigger;
+							        $perf = (ltrim($bigger,"0"))*100;
+						        }
+						        if($perf == NULL) {	// invalid performance
+							        $perf = 0;
+						        }
+					        }
+				        }
 				
-				    mysql_query("INSERT INTO start SET
-						xAnmeldung = ".$_POST['athlete'][$key]."
-						, xWettkampf = ".$_POST['event']."
-						, Bestleistung = $perf;");
-				    if(mysql_errno()>0){
-					    AA_printErrorMsg(mysql_errno().": ".mysql_error());
-				    }
+				        mysql_query("INSERT INTO start SET
+						    xAnmeldung = ".$_POST['athlete'][$key]."
+						    , xWettkampf = ".$_POST['event']."
+						    , Bestleistung = $perf;");
+				        if(mysql_errno()>0){ 
+					        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+				        }
 				
-			    }
+			        }
 			
-			    // insert
-			    mysql_query("INSERT INTO teamsmathlet SET
-					xTeamsm = ".$_POST['item']."
-					, xAnmeldung = ".$_POST['athlete'][$key]."");
-			    if(mysql_errno()>0){
-				    AA_printErrorMsg(mysql_errno().": ".mysql_error());
-			    }
-		    }
-		}          // end foreach
+			        // insert
+			        mysql_query("INSERT INTO teamsmathlet SET
+					    xTeamsm = ".$_POST['item']."
+					    , xAnmeldung = ".$_POST['athlete'][$key]."");
+			        if(mysql_errno()>0){ 
+				        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+			        }
+		        }
+		    }          // end foreach
         
-		mysql_query("UNLOCK TABLES");  
+		    mysql_query("UNLOCK TABLES");  
+        }
 	}
 }
 
@@ -226,7 +253,7 @@ if ($_GET['arg']=="del_athlete")
 			mysql_query($sql2);
 		}
 		
-		if(mysql_errno()>0){
+		if(mysql_errno()>0){ 
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
 		}
 	}
@@ -244,14 +271,14 @@ if ($_GET['arg']=="del")
 		mysql_query("DELETE FROM teamsmathlet
 			WHERE
 				xTeamsm = ".$_GET['item']."");
-		if(mysql_errno()>0){
+		if(mysql_errno()>0){ 
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
 		}else{
 			
 			mysql_query("DELETE FROM teamsm
 				WHERE
 					xTeamsm = ".$_GET['item']."");
-			if(mysql_errno()>0){
+			if(mysql_errno()>0){   
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}
 			
@@ -323,7 +350,7 @@ $result = mysql_query("
 ");
     
 if(mysql_errno() > 0)		// DB error
-{
+{              
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else if(mysql_num_rows($result) > 0)  // data found
@@ -546,8 +573,35 @@ else if(mysql_num_rows($result) > 0)  // data found
 		</td>
 		</form>         
   
-	</tr> 
+	</tr>
+    
+   
+    
+    
+    
+     
      <tr><td class="blue" colspan="5"><?php echo $strCtrlHelp; ?></td></tr>  
+     
+     <tr><td colspan="5"><hr></td></tr> 
+     
+     <tr><form action='meeting_teamsm.php' method='post' >
+    <td><?php echo $strStartnumberShort; ?>
+    </td>
+    <td class='forms' colspan='3'>
+       <input type="hidden" name="arg" value="add_athlete_stnr"> 
+       <input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
+        <input type="hidden" name="event" value="<?php echo $event ?>">
+        
+       <input name='startnr' type='text' value='' size="4" onchange='this.form.submit()'/>  
+    </td>
+    
+   
+    </form>
+ </tr> 
+     
+     
+     
+     
     <tr><td colspan="5"><br /><?php echo $strTeamSMClubRule; ?></td></tr> 
 	
 </table>

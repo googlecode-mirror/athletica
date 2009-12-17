@@ -31,59 +31,82 @@ $item = $_POST['item'];
 //
 // add new athlete directly
 //
-if ($_POST['arg']=="add_new")
+if ($_POST['arg']=="add_new" || $_POST['arg']=="add_new_stnr")
 {
 	// Error: Empty fields
-	if(empty($_POST['item']) || empty($_POST['event'])
-		|| empty($_POST['athlete']))
+   
+	if ($_POST['arg']=="add_new" && (empty($_POST['item']) || empty($_POST['event'])
+		|| empty($_POST['athlete'])) 
+        || ($_POST['arg']=="add_new_stnr" && (empty($_POST['item']) || empty($_POST['event'])
+        || empty($_POST['startnr'])) ) )
 	{
 		AA_printErrorMsg($strErrEmptyFields);
 	}
 	// OK
 	else
 	{
-		mysql_query("LOCK TABLES start WRITE");
+       $msgError = 0;    
+       if ($_POST['arg']=="add_new_stnr"){
+           $sql = " SELECT xAnmeldung FROM anmeldung WHERE Startnummer = ".$_POST['startnr'];
+           $res = mysql_query($sql);
+           if(mysql_errno() > 0)    // check DB error
+                {  $msgError = 1;   
+                   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+           }
+           if (mysql_num_rows($res) > 0){
+              $row = mysql_fetch_row($res); 
+              $_POST['athlete'] = $row[0];  
+           }
+           else {
+               $msgError = 1; 
+               AA_printErrorMsg($strStrNrNotExist);  
+           }
+       } 
+        
+        if ($msgError == 0){
+		    mysql_query("LOCK TABLES start WRITE");
 
-		if($_POST['position'] > 0)		// change
-		{
-			mysql_query("
-				INSERT INTO start SET
-					xWettkampf = " . $_POST['event'] . "
-					, xAnmeldung = " . $_POST['athlete']
-			);
+		    if($_POST['position'] > 0)		// change
+		        {
+			    mysql_query("
+				    INSERT INTO start SET
+					    xWettkampf = " . $_POST['event'] . "
+					    , xAnmeldung = " . $_POST['athlete']
+			    );
+            
+			    if(mysql_errno() == $cfgDBerrorDuplicate)
+			        {
+				    $result = mysql_query("
+					    SELECT
+						    xStart
+					    FROM
+						    start
+					    WHERE xWettkampf = " . $_POST['event'] . "
+					        AND xAnmeldung = " . $_POST['athlete']
+				    );
 
-			if(mysql_errno() == $cfgDBerrorDuplicate)
-			{
-				$result = mysql_query("
-					SELECT
-						xStart
-					FROM
-						start
-					WHERE xWettkampf = " . $_POST['event'] . "
-					AND xAnmeldung = " . $_POST['athlete']
-				);
-
-				if(mysql_errno() > 0)	// check DB error
-				{
-					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-				}
-				else	// no DB error
-				{
-					$row = mysql_fetch_row($result);
-					$_POST['athlete'] = $row[0];	// get ID
-					$_POST['arg']= "add_pos";		// continue by adding new position
-				}	// ET team test
-				mysql_free_result($result);
-			}
-			else if(mysql_errno() > 0) {
-				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-			}
-			else {
-				$_POST['athlete'] = mysql_insert_id();	// get new ID
-				$_POST['arg']= "add_pos";		// continue by adding new position
-			}
-		}
-		mysql_query("UNLOCK TABLES");
+				    if(mysql_errno() > 0)	// check DB error
+				        {
+					    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+				    }
+				    else	// no DB error
+				        {
+					    $row = mysql_fetch_row($result);
+					    $_POST['athlete'] = $row[0];	// get ID
+					    $_POST['arg']= "add_pos";		// continue by adding new position
+				    }	// ET team test
+				    mysql_free_result($result);
+			    }
+			    else if(mysql_errno() > 0) {
+				    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+			    }
+			    else {
+				    $_POST['athlete'] = mysql_insert_id();	// get new ID
+				    $_POST['arg']= "add_pos";		// continue by adding new position
+			    }
+		    }
+		    mysql_query("UNLOCK TABLES");
+        }
 	}	// ET empty fields
 }
 
@@ -843,7 +866,7 @@ else if (mysql_num_rows($result) > 0)
 		else	// OK
 		{
 			?>
-	<form action='meeting_relay.php' method='post' name='add_new'>
+	<form action='meeting_relay.php' method='post'>
 	<td class='forms' colspan='2'>
 		<input name='arg' type='hidden' value='add_new' />
 		<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
@@ -894,7 +917,7 @@ else if (mysql_num_rows($result) > 0)
 			?>
 	</td>
 	<td class='forms'><input name='position' class='nbr' type='text'
-		maxlength='2' value='' onchange='document.add_new.submit()'/>
+		maxlength='2' value='' onchange='this.form.submit()'/> 
 	</td>
 	</form>	
 			<?php
@@ -936,7 +959,7 @@ else if (mysql_num_rows($result) > 0)
 		else	// OK
 		{
 			?>
-	<form action='meeting_relay.php' method='post' name='add_new'>
+	<form action='meeting_relay.php' method='post' >
 	<td class='forms' colspan='4'>
 		<input name='arg' type='hidden' value='add_new' />
 		<input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
@@ -979,7 +1002,7 @@ else if (mysql_num_rows($result) > 0)
 			?>
 	</td>
 	<td class='forms'><input name='position' class='nbr' type='text'
-		maxlength='2' value='' onchange='document.add_new.submit()'/>
+		maxlength='2' value='' onchange='this.form.submit()'/> 
 	</td>
 	</form>	
 			<?php
@@ -1018,13 +1041,13 @@ else if (mysql_num_rows($result) > 0)
         else    // OK
         {
             ?>
-    <form action='meeting_relay.php' method='post' name='add_new'>
+    <form action='meeting_relay.php' method='post' >
     <td class='forms' colspan='2'>
         <input name='arg' type='hidden' value='add_new' />
         <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
         <input name='event' type='hidden' value='<?php echo $row[8]; ?>' />
         <input name='team' type='hidden' value='<?php echo $row[10]; ?>' />
-        <input name='relay' type='hidden' value='<?php echo $row[5]; ?>' />
+        <input name='relay' type='hidden' value='<?php echo $row[5]; ?>' /> 
             <?php    
             // Drop down list of all athletes in team 
             $dropdown = new GUI_Select("athlete", 1);
@@ -1039,7 +1062,7 @@ else if (mysql_num_rows($result) > 0)
             ?>
     </td>
     <td class='forms'><input name='position' class='nbr' type='text'
-        maxlength='2' value='' onchange='document.add_new.submit()'/>
+        maxlength='2' value='' onchange='this.form.submit()'/> 
     </td>
     </form>    
             <?php
@@ -1047,6 +1070,25 @@ else if (mysql_num_rows($result) > 0)
         ?>  
          
 </tr>
+<tr><form action='meeting_relay.php' method='post' >
+    <td><?php echo $strStartnumberShort; ?>
+    </td>
+    <td class='forms' colspan='3'>
+        <input name='arg' type='hidden' value='add_new_stnr' />
+        <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
+        <input name='event' type='hidden' value='<?php echo $row[8]; ?>' />
+        <input name='team' type='hidden' value='<?php echo $row[10]; ?>' />
+        <input name='relay' type='hidden' value='<?php echo $row[5]; ?>' />
+        
+       <input name='startnr' type='text' value='' size="4" />
+    </td>
+    
+    <td class='forms'>
+        <input name='position' class='nbr' type='text'
+        maxlength='2' value='' onchange='this.form.submit()'/>
+    </td>
+    </form>
+ </tr>
 </table>
 		<?php
 	}	// ET DB error relay athletes
