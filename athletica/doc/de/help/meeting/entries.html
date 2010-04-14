@@ -3,10 +3,10 @@
 
 <html>
 <head>
-	<meta content="text/html; charset=iso-8859-1" />
+    <meta content="text/html; charset=iso-8859-1" />
 
-	<title>Athletica Dokumentation</title>
-	<link rel="stylesheet" type="text/css" href="../../../css/stylesheet.css" />
+    <title>Documentation Athletica</title>
+    <link rel="stylesheet" type="text/css" href="../../../css/stylesheet.css" />
 </head>
 
 <body><div class="helpmain">
@@ -14,90 +14,69 @@
 
 <div class='helpnav'>
 <b>Meeting</b>
-| <a href='../event/index.html'>Wettkampf</a>
+| <a href='../event/index.html'>Épreuve</a>
 | <a href='../speaker/index.html'>Speaker</a>
 | <a href='../administration/index.html'>Administration</a>
 <br/>
-<a href='index.html'>Meetingauswahl</a>
-| <a href='definition.html'>Definition</a>
-| <b>Anmeldungen</b>
-| <a href='relays.html'>Staffeln</a>
-| <a href='teams.html'>Mannschaften</a>
-| <a href='teams_sm.html'>Team SM Mannschaften</a> 
-| <a href='timing.html'>Zeitmessung</a> 
-| <a href='print_layout.html'>Drucklayout</a>
+<a href='index.html'>Sélection de meeting</a>
+| <a href='definition.html'>Définition</a>
+| <b>Inscriptions</b>
+| <a href='relays.html'>Relais</a>
+| <a href='teams.html'>Équipes</a>
+| <a href='teams_sm.html'>Équipes CS Team</a> 
+| <a href='timing.html'>Chronométrage</a> 
+| <a href='print_layout.html'>Mise en page pour impression</a>
 </div>
 
-<h2>Anmeldungen</h2>
-Die Liste links zeigt alle gemeldeten Athleten. Diese Liste kann nach
-Startnummer oder Name sortiert werden. Durch einen Mausklick auf einen Athleten
-werden dessen Details im Hauptteil des Fensters angezeigt.
+<h2>Inscriptions</h2>
+La liste à gauche montre tous les athlètes inscrits. Cette liste peut être triée par dossard ou nom. En cliquant avec la souris sur un athlète, ses détails seront affichés dans la partie principale de la fenêtre.
 
-<h3>Befehle</h3>
-<h4>Bestleistungen aktualisieren</h4>
-Diese Funktion aktualisiert die Bestleistungen (genauer: Meldeleistungen f&uuml;r Bahneinteilung) mit den in den Stammdaten verf&uuml;gbaren Resultaten. Somit k&ouml;nnen bereits erfasste (oder via Meeting-Abgleich eingegangene) Anmeldungen und deren Meldeleistungen nachtr&auml;glich aktualisiert werden. Wird die Option &quot;Stehen lassen&quot; gew&auml;hlt, so werden von Hand eingetragenen Bestleistungen nicht &uuml;berschriben.
-<h4>Startnummern</h4>
-Im Hauptteil wird ein Formular zur
-<a href='startnumbers.html'>Startnummernverteilung</a> angezeigt.
-<h4>Drucken</h4>
-Im Hauptteil wird ein Formular zum <a href='print_entries.html'>Drucken</a>
-von Anmeldungslisten angezeigt.
-<h4>Neue Anmeldung</h4>
-Aufruf einer Eingabemaske zur Erfassung einzelner <a href='entry_add.html'>
-Anmeldungen</a>.
-<h4>Suchen</h4>
-Im Suchfeld kann entweder ein Athletenname oder eine Startnummer eingegeben
-werden. Durch Drücken der Eingabetaste wird der Suchauftrag abgeschickt und
-die Ergebnisliste im Hautteil angezeigt. Nach Anklicken eines Athleten in
-dieser Liste werden dessen spezifische Daten angezeigt.
+<h3>Ordres</h3>
+<h4>Actualiser les meilleures performances</h4>
+Cette fonction actualise les meilleures performances (plus précisément : performances annoncées pour l’organisation des séries) avec les résultats disponibles dans les données de base. Il est ainsi possible d’actualiser ultérieurement les inscriptions déjà enregistrées (ou arrivées via ajustement du meeting) et leurs performances annoncées. Si l’option &quot;ne pas toucher&quot; est sélectionnée, il ne sera pas écrit par-dessus les meilleures performances entrées manuellement.
+<h4>Dossards</h4>
+Dans la partie principale, un formulaire est affiché pour 
+<a href='startnumbers.html'>l’attribution des dossards</a>.
+<h4>Imprimer</h4>
+Dans la partie principale, un formulaire est affiché pour <a href='print_entries.html'>l’impression</a>
+Des listes d’inscription.
+<h4>Nouvelle inscription</h4>
+Appel d’un masque de saisie pour l’enregistrement de différentes <a href='entry_add.html'> inscriptions</a>.
+<h4>Rechercher</h4>
+Dans le champ de recherche on peut soit introduire un nom d’athlète ou un dossard. En pressant sur la touche de saisie la recherche est lancée et la liste des résultats est affichée dans la partie principale. Après avoir cliqué sur un athlète de cette liste, ses données spécifiques sont affichées.
 
-<h3>Anmeldung ändern</h3>
-Nach Anklicken einer Anmeldung aus der Liste links oder aus der Ergebnisliste
-nach einem Suchauftrag wird im Hauptteil ein Formular zu Änderung der
-Athletendaten geöffnet. Ausser <i>Verein</i> können alle Werte geändert
-werden (der Verein lässt sich nur in der
-<a href='../administration/athletes.html'>Athletendatenbank</a> ändern).
+<h3>Modifier une inscription </h3>
+Après avoir cliqué sur une inscription de la liste de gauche ou de la liste de résultats suite à une recherche, un formulaire pour modifier les données de l’athlète est ouvert dans la partie principale. À part <i>société</i> toutes les valeurs peuvent être modifiées (la société ne peut être modifiée que dans la 
+<a href='../administration/athletes.html'>banque de données des athlètes</a>).
 <br/>
-Beim Ändern der Startnummer wird geprüft, ob diese nicht bereits vergeben
-ist. Die Kategorie kann erst neu gesetzt werden, wenn alle
-Disziplinenanmeldungen gelöscht worden sind. Alle Änderungen werden sofort
-nach verlassen des entsprechenden Eingabefeldes in die Datenbank geschrieben.
+Lors du changement de dossard, il est contrôlé que celui-ci ne soit pas déjà attribué. La catégorie ne peut être remise que lorsque toutes les inscriptions aux disciplines ont été supprimées. Après avoir quitté le champ de saisie correspondant, toutes les modifications sont immédiatement inscrites dans la banque des données.
 <p />
-Eine Mannschaft kann nur zugeteilt werden, sofern diese Kategorie als
-Mannschaftswettbewerb (z.B. Vereinsmeisterschaft) durchgeführt wird und
-die <a href='teams.html'>Mannschaft</a> bereits erfasst wurde.
+Une équipe ne peut être répartie que si cette catégorie est organisée comme concours par équipe (par ex. championnats de société) et si l’ <a href='teams.html'>équipe</a> a déjà été enregistrée.
 <br />
-Eine Disziplin kann nur geändert werden, wenn der Athlet nicht bereits einer
-Wettkampfserie der entsprechenden Disziplin zugeteilt wurde. Wird eine
-Disziplin markiert erscheint ein neues Formularfeld zu Eingabe einer
-Bestleistung.
+Une discipline ne peut être changée que si l’athlète n’a pas encore été réparti dans une série de compétition de la discipline correspondante. Si une discipline est marquée, un nouveau champ formulaire apparaît pour entrer une meilleure performance.
 <p />
-Wurde der Athlet einer Disziplin (vorwiegend Staffel) einer anderen Kategorie
-zugeordnet, wird dies speziell angezeigt. Diese Disziplinenanmeldung kann
-ebenfalls gelöscht werden.
+Si l’athlète d’une discipline (surtout relais) a été réparti dans une autre catégorie, ce sera affiché spécialement. Cette inscription de discipline peut également être supprimée.
 
-<h3>Anmeldung löschen</h3>
-Nach Anklicken einer Anmeldung kann diese auch gelöscht werden. Dies ist nur
-möglich, wenn der Athlet nicht bereits in einer Wettkampfserie eingeteilt ist.
-Die allgemeinen Athletendaten bleiben dabei allerdings in der
-<a href='../administration/athletes.html'>Athletendatenbank</a> stehen.
+<h3>Supprimer une inscription</h3>
+Après avoir cliqué sur une inscription, celle-ci peut aussi être supprimée. Ceci n’est possible que si l’athlète n’a pas encore été réparti dans une série de la compétition. Les données générales des athlètes restent toutefois dans la 
+<a href='../administration/athletes.html'>banque de données des athlètes </a>.
 
 <p/>
 
 <div class='helpnav'>
 <b>Meeting</b>
-| <a href='../event/index.html'>Wettkampf</a>
+| <a href='../event/index.html'>Épreuve</a>
 | <a href='../speaker/index.html'>Speaker</a>
 | <a href='../administration/index.html'>Administration</a>
 <br/>
-<a href='index.html'>Meetingauswahl</a>
-| <a href='definition.html'>Definition</a>
-| <b>Anmeldungen</b>
-| <a href='relays.html'>Staffeln</a>
-| <a href='teams.html'>Mannschaften</a>
-| <a href='teams_sm.html'>Team SM Mannschaften</a> 
-| <a href='timing.html'>Zeitmessung</a> 
-| <a href='print_layout.html'>Drucklayout</a></div>
+<a href='index.html'>Sélection de meeting</a>
+| <a href='definition.html'>Définition</a>
+| <b>Inscriptions</b>
+| <a href='relays.html'>Relais</a>
+| <a href='teams.html'>Équipes</a>
+| <a href='teams_sm.html'>Équipes CS Team</a> 
+| <a href='timing.html'>Chronométrage</a> 
+| <a href='print_layout.html'>Mise en page pour l’impression</a></div>
 </div>
 
 
