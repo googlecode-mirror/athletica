@@ -97,7 +97,11 @@ $cfgRankingTiming = "OMEGA";	// Style sheet
  *	Track distribution
  *		order of best tracks for different nbr of track
  */
-$cfgTrackOrder = array(					4=>array (1=>3
+$cfgTrackOrder = array(		3=>array (1=>3
+                                         , 2=>1
+                                         , 3=>2  
+                                         )
+                    		,	4=>array (1=>3
 										 , 2=>2
 										 , 3=>4
 										 , 4=>1
