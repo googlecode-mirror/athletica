@@ -2,7 +2,7 @@
 
 /**********
  *
- *	speaker_results.php
+ *	speaker_results_new.php
  *	-------------------
  *	
  */
@@ -38,13 +38,13 @@ $presets = AA_results_getPresets($round);	// read GET/POST variables
 //
 // print HTML page header
 //
-$page = new GUI_Page('speaker_results');
+$page = new GUI_Page('speaker_results_new');
 $page->startPage();
 $page->printPageTitle($strResults. ": " . $_COOKIE['meeting']);
 $menu = new GUI_Menulist();
 $menu->addButton($cfgURLDocumentation . 'help/speaker/results.html', $strHelp, '_blank');
 $menu->addSearchfield('speaker_entry.php', '_self', 'post', 'speaker_results.php?round=' . $round);
-$menu->printMenu();
+$menu->printMenu();	
 
 //
 // print round selection menu

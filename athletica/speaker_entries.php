@@ -82,16 +82,20 @@ if($round > 0)
 	$img_nbr="img/sort_inact.gif";
 	$img_name="img/sort_inact.gif";
 	$img_club="img/sort_inact.gif";
+	$img_perf="img/sort_inact.gif";
 
 	if ($arg=="nbr" && !$relay) {        
 		$argument="a.Startnummer";
 		$img_nbr="img/sort_act.gif";
 	} else if ($arg=="name") {
-		$argument="at.Name, at.Vorname";
+		$argument="ss.Position";
 		$img_name="img/sort_act.gif";
 	} else if ($arg=="club") {
 		$argument="v.Sortierwert, a.Startnummer";
 		$img_club="img/sort_act.gif";
+	} else if ($arg=="perf") {
+		$argument="s.Bestleistung";
+		$img_perf="img/sort_act.gif";
 	} else if ($arg=="relay") {
 		$argument="st.Name";
 		$img_name="img/sort_act.gif";
@@ -129,18 +133,26 @@ if($round > 0)
 				, at.Name
 				, at.Vorname
 				, at.Jahrgang
-				, v.Name                  
+				, v.Name  
+                , at.xAthlet
+				, s.Bestleistung
+				, w.xDisziplin
+				, d.Typ
 			FROM
 				anmeldung AS a
 				, athlet AS at
 				, start AS s
 				, verein AS v
+				, wettkampf AS w
+				, disziplin AS d
 			WHERE s.xWettkampf " . $sqlEvent . "
                 " . $sqlGroup . "
 			    AND a.xAnmeldung = s.xAnmeldung
 			    AND at.xAthlet = a.xAthlet
 			    AND v.xVerein = at.xVerein
                 AND s.Anwesend = 0
+				AND w.xWettkampf = s.xWettkampf
+				AND d.xDisziplin = w.xDisziplin
 			ORDER BY " . $argument;
 	}
 	else {							// relay event
@@ -195,6 +207,12 @@ if($round > 0)
 				<img src='<?php echo $img_club; ?>' />
 			</a>
 		</th>
+		<th class='dialog'>
+			<a href='speaker_entries.php?arg=perf&round=<?php echo $round; ?>'>
+				<?php echo $strTopPerformance; ?>
+				<img src='<?php echo $img_perf; ?>' />
+			</a>
+		</th>
 			<?php
 		}
 		else		// relay event
@@ -234,15 +252,28 @@ if($round > 0)
 
 			// print row: onClick show athlete- or relay-details
 			?>
-	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[0]; ?>&relay=<?php echo $relay; ?>&round=<?php echo $round; ?>", "_self")' style="cursor: pointer;">
+	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[6]; ?>", "_self")' style="cursor: pointer;">
 			<?php
 			if($relay == FALSE)			// single event
 			{
+				
+			if(($row[9] == $cfgDisciplineType[$strDiscTypeTrack])
+			|| ($row[9] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+			|| ($row[9] == $cfgDisciplineType[$strDiscTypeRelay])
+			|| ($row[9] == $cfgDisciplineType[$strDiscTypeDistance]))
+		{
+			$perf = AA_formatResultTime($row[7]);
+		}
+		else {
+			$perf = AA_formatResultMeter($row[7]);
+		}
+				
 				?>
 		<td class='forms_right'><?php echo $row[1]; ?></td>
 		<td><?php echo "$row[2] $row[3]"; ?></td>
 		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[4]); ?></td>
 		<td><?php echo $row[5]; ?></td>
+		<td><?php echo $perf; ?></td>
 				<?php
 			}
 			else							// relay event

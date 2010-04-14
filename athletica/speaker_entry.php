@@ -69,7 +69,7 @@ if($_POST['arg']=='search')
 		$searchparam = " AND at.Name = '" . $_POST['searchfield'] . "'";
 	}
 
-	$result = mysql_query("
+	 $result = mysql_query("
 		SELECT
 			a.xAnmeldung
 			, a.Startnummer
@@ -77,6 +77,7 @@ if($_POST['arg']=='search')
 			, at.Vorname
 			, at.Jahrgang
 			, v.Name
+			, at.xAthlet
 		FROM
 			anmeldung AS a
 			, athlet AS at
@@ -86,8 +87,8 @@ if($_POST['arg']=='search')
 		AND v.xVerein = at.xVerein "
 		. $searchparam . "
 		ORDER BY
-			at.Name
-			, at.Vorname"
+			 at.Name
+			,at.Vorname"
 	);
 
 	if(mysql_errno() > 0)		// DB error
@@ -111,7 +112,7 @@ if($_POST['arg']=='search')
 	</tr>
 		<?php
 
-		while ($row = mysql_fetch_row($result))
+		while ($row2 = mysql_fetch_row($result))
 		{
 			$i++;
 			if( $i % 2 == 0 ) {		// even row number
@@ -121,11 +122,11 @@ if($_POST['arg']=='search')
 				$rowclass = "odd";
 			}
 			?>
-	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row[0]; ?>", "_self")' style="cursor: pointer;">
-		<td class='forms_right'><?php echo $row[1]; ?></td>
-		<td><?php echo "$row[2] $row[3]"; ?></td>
-		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[4]); ?></td>
-		<td><?php echo $row[5]; ?></td>
+	<tr class='<?php echo $rowclass; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $row2[6]; ?>", "_self")' style="cursor: pointer;">
+		<td class='forms_right'><?php echo $row2[1]; ?></td>
+		<td><?php echo "$row2[2] $row2[3]"; ?></td>
+		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row2[4]); ?></td>
+		<td><?php echo $row2[5]; ?></td>
 	</tr>
 			<?php
 		}
@@ -140,8 +141,8 @@ if($_POST['arg']=='search')
 	// one hit: save item to display further down
 	else if(mysql_num_rows($result) == 1)
 	{
-		$row = mysql_fetch_row($result);
-		$item = $row[0];
+		$row2 = mysql_fetch_row($result);
+		$item = $row2[6];
 	}
 	else
 	{
@@ -155,6 +156,71 @@ if($_POST['arg']=='search')
 //
 if ($item > 0)
 {
+	$xAthlet = $item;
+	
+	
+	
+	$result = mysql_query("
+		SELECT
+			a.xAnmeldung
+			, a.Startnummer
+			, at.Name
+			, at.Vorname
+			, at.Jahrgang
+			, v.Name
+			, at.xAthlet
+			, k.Name
+			, t.Name
+		FROM
+			anmeldung AS a
+			, athlet AS at
+			, verein AS v
+			, kategorie AS k
+		LEFT  JOIN team AS t
+				ON a.xTeam = t.xTeam
+		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
+		AND at.xAthlet = " . $item . "
+		AND a.xAthlet = " . $item . "
+		AND k.xKategorie = a.xKategorie
+		AND v.xVerein = at.xVerein 
+		ORDER BY
+			at.Name
+			, at.Vorname"
+	);
+	$row2 = mysql_fetch_row($result);
+	
+	
+	?>
+	
+	<table class='dialog'>
+	<tr>
+		<th class='dialog'><?php echo $strName; ?></th>
+		<th class='dialog'><?php echo "$row2[2] $row2[3]"; ?></th>
+	</tr>
+	<tr>
+		<th class='dialog'><?php echo $strStartnumberLong; ?></th>
+		<td class='dialog'><?php echo $row2[1]; ?></td>
+	</tr>
+	<tr>
+		<th class='dialog'><?php echo $strCategory; ?></th>
+		<td class='dialog'><?php echo $row2[7]; ?></td>
+	</tr>
+	<tr>
+		<th class='dialog'><?php echo $strYear; ?></th>
+		<td class='dialog'><?php echo AA_formatYearOfBirth($row2[4]); ?></td>
+	</tr>
+	<tr>
+		<th class='dialog'><?php echo $strClub; ?></th>
+		<td class='dialog'><?php echo $row2[5]; ?></td>
+	</tr>
+	<tr>
+		<th class='dialog'><?php echo $strTeam; ?></th>
+		<td class='dialog'><?php echo $row2[8]; ?></td>
+	</tr>
+</table>
+<p/>
+	<?php
+	
 	// athlet
 	if ($relay == 0) {
 		$query = "
@@ -189,7 +255,7 @@ if ($item > 0)
 				ON a.xTeam = t.xTeam
 			LEFT  JOIN rundentyp AS rt
 				ON ru.xRundentyp = rt.xRundentyp
-			WHERE a.xAnmeldung = $item
+			WHERE a.xAthlet = $item
 			AND at.xAthlet = a.xAthlet
 			AND v.xVerein = at.xVerein
 			AND k.xKategorie = a.xKategorie
@@ -257,13 +323,116 @@ if ($item > 0)
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
-	else if(mysql_num_rows($result) == 0)  // data found
-	{
-		AA_printErrorMsg($strErrNoResults);
-		mysql_free_result($result);
-	}
 	else
 	{
+	     
+		 $result2 = mysql_query("
+	SELECT DISTINCT a.xAnmeldung
+		, a.Startnummer
+		, at.Name
+		, at.Vorname
+		, at.Jahrgang
+		, k.Kurzname
+		, k.Name
+		, v.Name
+		, t.Name
+		, d.Kurzname
+		, d.Name
+		, d.Typ
+		, s.Bestleistung
+		, if(at.xRegion = 0, at.Land, re.Anzeige)
+		, ck.Kurzname
+		, ck.Name
+		, s.Bezahlt
+		, w.Info
+		, d2.Kurzname
+		, d2.Name
+		, v.Sortierwert
+		, k.Anzeige
+		, w.Startgeld  
+		, w.mehrkampfcode    
+	FROM
+		anmeldung AS a
+		, athlet AS at
+		, disziplin AS d
+		, kategorie AS k
+		, kategorie AS ck
+		, start AS s
+		, verein AS v
+		, wettkampf AS w
+	LEFT JOIN runde AS r 
+		ON (s.xWettkampf = r.xWettkampf) 
+	LEFT JOIN team AS t
+		ON a.xTeam = t.xTeam
+	LEFT JOIN region as re 
+		ON at.xRegion = re.xRegion
+	LEFT JOIN disziplin AS d2 
+		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
+	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
+	AND a.xAthlet = $item
+	AND at.xVerein = v.xVerein
+	AND a.xKategorie = k.xKategorie
+	AND s.xAnmeldung = a.xAnmeldung
+	AND w.xWettkampf = s.xWettkampf
+	AND ck.xKategorie = w.xKategorie
+	AND d.xDisziplin = w.xDisziplin
+	ORDER BY
+		d.Anzeige
+	
+	");  
+	$tempdisz = "";
+          
+		if(mysql_errno() > 0)		// DB error
+		{
+			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+		}
+		 
+		else if(mysql_num_rows($result2) > 0)  // data found
+		{
+			?>
+
+				<table class='dialog'>
+				<tr>
+				<th class='dialog' colspan='4'><?php echo $strStartsPerDisc; ?></th>
+				</tr>
+				<?php
+			while($row2 = mysql_fetch_row($result2))
+			{
+				
+				
+				if($tempdisz != $row2[10]) 	// new discipline
+				{
+					?>
+				<tr>
+				<td class='dialog'><?php echo $row2[10]; ?></td>
+					<?php
+				
+				
+				if(($row2[11] == $cfgDisciplineType[$strDiscTypeNone])
+					|| ($row2[11]== $cfgDisciplineType[$strDiscTypeTrack])
+					|| ($row2[11]== $cfgDisciplineType[$strDiscTypeTrackNoWind])
+					|| ($row2[11]== $cfgDisciplineType[$strDiscTypeDistance])
+					|| ($row2[11]== $cfgDisciplineType[$strDiscTypeRelay]))
+				{
+					$perf = AA_formatResultTime($row2[12]);
+				}
+				// technical disciplines
+				else 
+				{
+					$perf = AA_formatResultMeter($row2[12]);
+				}
+				?>
+				<td class='dialog_right'><?php echo $perf; ?></td>
+				<?php
+				}
+				$tempdisz = $row2[10];
+				
+			}
+		}
+	
+	?>
+	</table><br>			<?php
+	
 		$i = 0;
 		$disc = '';
 		while($row = mysql_fetch_row($result))
@@ -273,38 +442,12 @@ if ($item > 0)
 			{
 				if($i == 0)
 				{
-					$xAthlet = $row[13];
+					// $xAthlet = $row[13];
 					?>
+	
 <table class='dialog'>
 	<tr>
-		<th class='dialog'><?php echo $strName; ?></th>
-		<th class='dialog'><?php echo "$row[3] $row[4]"; ?></th>
-	</tr>
-	<tr>
-		<th class='dialog'><?php echo $strStartnumberLong; ?></th>
-		<td class='dialog'><?php echo $row[0]; ?></td>
-	</tr>
-	<tr>
-		<th class='dialog'><?php echo $strCategory; ?></th>
-		<td class='dialog'><?php echo $row[6]; ?></td>
-	</tr>
-	<tr>
-		<th class='dialog'><?php echo $strYear; ?></th>
-		<td class='dialog'><?php echo AA_formatYearOfBirth($row[5]); ?></td>
-	</tr>
-	<tr>
-		<th class='dialog'><?php echo $strClub; ?></th>
-		<td class='dialog'><?php echo $row[7]; ?></td>
-	</tr>
-	<tr>
-		<th class='dialog'><?php echo $strTeam; ?></th>
-		<td class='dialog'><?php echo $row[8]; ?></td>
-	</tr>
-</table>
-<p/>
-<table class='dialog'>
-	<tr>
-		<th class='dialog' colspan='4'><?php echo $strDisciplines; ?></th>
+		<th class='dialog' colspan='4'><?php echo $strResults; ?></th>
 	</tr>
 				<?php
 				}
@@ -468,6 +611,7 @@ if ($item > 0)
 				mysql_free_result($result);
 			}
 		}
+}
 		?>
 </table>
 	<br><br>		
@@ -592,7 +736,7 @@ if ($item > 0)
 		?></table><?php
 		
 		
-	}
+	
 
 }
 
