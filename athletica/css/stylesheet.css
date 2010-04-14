@@ -434,6 +434,17 @@ th.baseupdate {
 	border-style:solid;
 	border-color:#888888;
 }
+th.dialog_zlv {
+    background-color: #FFFF67;
+    border-width:1px;
+    border-style:solid;
+    border-color:#888888;
+} 
+
+.dialog_zlv {
+    background-color: #FFFF67;   
+} 
+
 .baseupdatebutton {
 	background-color: #79EC68;
 }
