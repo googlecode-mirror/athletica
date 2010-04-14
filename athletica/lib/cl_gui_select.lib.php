@@ -138,11 +138,11 @@ class GUI_Select
 	 */
 	function printList($dis = false, $manual_club = '')
 	{   
-		$dis = ($dis) ? ' disabled="disabled"' : '';
+	   $dis = ($dis) ? ' disabled="disabled"' : '';
        if ($this->multiple == 'multiple'){
             ?>      
             <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>[]'  size='<?php echo $this->size; ?>' <?php echo $this->multiple; ?>       
-            onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
+            <?php if ($this->action != '') { ?> onChange='<?php echo $this->action; ?>'<?php }; ?> id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
         
      
      <?php
@@ -151,7 +151,7 @@ class GUI_Select
        else { 
 ?>      
 	 <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>' <?php echo $this->multiple; ?>       
-		onChange='<?php echo $this->action; ?>' id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
+		<?php if ($this->action != '') { ?> onChange='<?php echo $this->action; ?>'<?php }; ?> id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
         
      
 <?php
