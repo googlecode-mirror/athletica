@@ -651,7 +651,10 @@ else {
 						  	}  						  
 					   	}     
 					   
-					   	$list->startList();  
+					   	$list->startList(); 
+                        if ($saison == "I"){
+                            $heatwind = '';
+                        }
 						$list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval);
                         
                           
@@ -781,7 +784,7 @@ else {
 							$wind = $row_res[4];
                            
                             if ($saison == 'I'){  
-                                $wind = '';           // indoor: nerver wind  
+                                $wind = '';           // indoor: never wind  
                             }                                    
                            
 							
@@ -820,7 +823,7 @@ else {
 							$wind = $row_res[6];
                             
                             if ($saison == 'I'){  
-                                $wind = '';           // indoor: nerver wind  
+                                $wind = '';           // indoor: never wind  
                             }                                    
 						}
 					}
@@ -1075,7 +1078,7 @@ else {
 								WHERE xSerienstart = $row_res[0]
 								".$query_sort."
 								"); 
-                         
+                                                        
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}else{
@@ -1099,7 +1102,7 @@ else {
 									$text_att .= " / ";
 								}else{
 									$text_att .= ($row_att['Leistung']=='-') ? '-' : AA_formatResultMeter($row_att['Leistung']);
-                                    if ($saison == "O") {        // outdoor
+                                    if ($saison == "O" ||  ($saison == "I"  && $row[3] != $cfgDisciplineType[$strDiscTypeJump])) {        // outdoor  or (indoor and not jump)
 									    if($row_att['Info'] != "-" && !empty($row_att['Info']) && $row[3] != $cfgDisciplineType[$strDiscTypeThrow]){
                                                 
                                                 if ($row[3] == $cfgDisciplineType[$strDiscTypeHigh]){
