@@ -398,7 +398,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				$d = $row[0];
 				$combEnd = 0;
 				
-				if($k == count($cfgCombinedWO[$tt])){
+				if($k == count($cfgCombinedWO[$tt]) && $tmp != 403){
 					$combEnd = 1;
 				}
                 if ($val == 100 && $tmp == 403) {         // code 100 = 1000m (a single event inside the athletic cup)
