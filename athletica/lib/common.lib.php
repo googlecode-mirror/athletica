@@ -46,12 +46,12 @@ require('./config.inc.php');
 											)
 							, "Français"
 								=> array 	("file" => "./lang/french.inc.php"
-											, "doc" => "doc/de/"
+											, "doc" => "doc/fr/"
 											, "short" => "fr"
 											)
 							, "Italiano"
 								=> array 	("file" => "./lang/italian.inc.php"
-											, "doc" => "doc/de/"
+											, "doc" => "doc/it/"
 											, "short" => "it"
 											)
 					);
@@ -2547,13 +2547,13 @@ function AA_checkGroupEvent($event,$cGroup){
             FROM 
                 runde 
             WHERE 
-                Gruppe= " .$cGroup ." 
+                Gruppe= '" .$cGroup ."' 
                 AND xWettkampf = ". $event;  
              
     $res = mysql_query($qGroup);  
    
       if(mysql_errno() > 0)
-        {
+        {  
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
     }else{
         if (mysql_num_rows($res) > 0) {
