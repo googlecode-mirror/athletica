@@ -64,6 +64,9 @@ function AA_speaker_High($event, $round, $layout)
 				, at.Jahrgang
 				, v.Name
 				, LPAD(s.Bezeichnung,5,'0') as heatid
+				, st.Bestleistung
+				, at.xAthlet
+				, at.Land
 			FROM
 				runde AS r
 				, serie AS s
@@ -95,7 +98,7 @@ function AA_speaker_High($event, $round, $layout)
 			$h = 0;
 			$i = 0;
 
-			$resTable = new GUI_TechResultTable($round, $layout, $status);
+			$resTable = new GUI_HighResultTable($round, $layout, $status);
 
 			while($row = mysql_fetch_row($result))
 			{
@@ -158,7 +161,7 @@ function AA_speaker_High($event, $round, $layout)
 				}
 
 				$resTable->printAthleteLine($row[6], $row[8], "$row[9] $row[10]"
-					, AA_formatYearOfBirth($row[11]), $row[12], $perfs, $rank);
+					, AA_formatYearOfBirth($row[11]), $row[12], AA_formatResultMeter($row[14]), $perfs, $fett, $rank, $row[16], $row[15]);
 			}
 			$resTable->endTable();
 			mysql_free_result($result);

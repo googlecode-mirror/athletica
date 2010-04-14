@@ -97,6 +97,8 @@ function AA_speaker_Track($event, $round, $layout)
 					, v.Name
 					, LPAD(s.Bezeichnung,5,'0') as heatid
 					, at.Land
+					, st.Bestleistung
+					, at.xAthlet
 				FROM
 					runde AS r
 					, serie AS s
@@ -230,7 +232,7 @@ function AA_speaker_Track($event, $round, $layout)
 				{
 					// current track and athlete's position not identical
 					if($p < $row[9]) {
-						$p = $resTable->printEmptyTracks($p, ($row[9]-1), 5+$c);
+						$p = $resTable->printEmptyTracks($p, ($row[9]-1), 6+$c);
 					}
 				}	// ET empty tracks
 
@@ -267,7 +269,7 @@ function AA_speaker_Track($event, $round, $layout)
 				if($relay == FALSE) {
 					$resTable->printAthleteLine($row[9], $row[12]
 							, "$row[13] $row[14]", AA_formatYearOfBirth($row[15])
-							, $row[16], $perf, $row[10], $row[11], $row[18]);
+							, $row[16], AA_formatResultTime($row[19]), $perf, $row[10], $row[11], $row[18], $row[20]);
 				}
 				else {	// relay
 					
@@ -308,7 +310,7 @@ function AA_speaker_Track($event, $round, $layout)
 			{
 				if($p > 0) {	// heats set up
 					$p++;
-					$resTable->printEmptyTracks($p, $tracks, 5+$c);
+					$resTable->printEmptyTracks($p, $tracks, 6+$c);
 				}
 			}	// ET track disciplines
 
