@@ -708,7 +708,7 @@ function check_of(){
         <?php echo $strName; ?> 
     </td>
     <td class='forms'> 
-        <input type="text" size="3" value="0" name="name_of" id="name_of"> 
+        <input type="text" size="3" value="<?php echo $_GET['name_of'];?>" name="name_of" id="name_of"> 
     </td>  
 </tr>   
 
@@ -718,12 +718,12 @@ function check_of(){
          <?php if ($teams) {echo $strTeam;} else {echo $strClub; }?></input> 
      </td>  
      <td class='forms'>
-        <input type="text" size="3" value="0" name="club_of" >  
+        <input type="text" size="3" value="<?php echo $_GET['club_of'];?>" name="club_of" >  
      </td> 
       <td class='dialog' colspan='4'>
         <?php echo $strGapBetween . " " . $strClub; ?>    </td>
     <td class='dialog'>
-        <input class='nbr' type='text' name='clubGap' maxlength='4' value='<?php echo $clubGap; ?>'>    </td>
+        <input class='nbr' type='text' name='clubGap' maxlength='4' value='<?php echo $_GET['clubGap']; ?>'>    </td>
     <td class='dialog'>&nbsp;</td> 
 </tr>    
 
@@ -901,12 +901,12 @@ if(mysql_errno() > 0){
         ?>
 <tr>
 	<td class='dialog'><?php echo $row[1] ?></td>
-	<td class='forms'>
-		
-		<input type="text" size="3" value="0" name="of_<?php echo $row[0] ?>" >	</td>
+   	<td class='forms'>
+		                 
+		<input type="text" size="3" value="<?php echo $_GET['of_'.$row[0]]; ?>"  name="of_<?php echo $row[0] ?>" ></td>
 	<td class='forms_right'>
 		
-		<input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" >	</td>
+		<input type="text" size="3" value="<?php echo $_GET['to_'.$row[0]]; ?>" name="to_<?php echo $row[0] ?>" >	</td>
         
         </td>  
     <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
@@ -915,10 +915,10 @@ if(mysql_errno() > 0){
     
     <td class='forms'>
         
-        <input type="text" size="3" value="0" name="of_track1_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_track1_'.$row[0]]; ?>" name="of_track1_<?php echo $row[0] ?>" >    </td>
     <td class='forms_right'>
        
-        <input type="text" size="3" value="0" name="to_track1_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['to_track1_'.$row[0]]; ?>" name="to_track1_<?php echo $row[0] ?>" >    </td>
     
     
     <td class='forms_right_grey'><?php echo $max_startnr_track1; ?></td>
@@ -926,20 +926,20 @@ if(mysql_errno() > 0){
     
      <td class='forms'>
         
-        <input type="text" size="3" value="0" name="of_track2_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_track2_'.$row[0]]; ?>" name="of_track2_<?php echo $row[0] ?>" >    </td>
     <td class='forms_right'>
         
-        <input type="text" size="3" value="0" name="to_track2_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_track2_'.$row[0]]; ?>" name="to_track2_<?php echo $row[0] ?>" >    </td>
     
     <td class='forms_right_grey'><?php echo $max_startnr_track2; ?></td>
     
     
     <td class='forms'>
        
-        <input type="text" size="3" value="0" name="of_tech_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_tech_'.$row[0]]; ?>" name="of_tech_<?php echo $row[0] ?>" >    </td>
     <td class='forms_right'>
        
-        <input type="text" size="3" value="0" name="to_tech_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['to_tech_'.$row[0]]; ?>" name="to_tech_<?php echo $row[0] ?>" >    </td>
    
     
     <td class='forms_right_grey'><?php echo $max_startnr_tech; ?></td>
@@ -1023,10 +1023,10 @@ if(mysql_errno() > 0){
                         <td class='dialog'><?php echo $row[2] ?></td> 
                         <td class='forms'>
         
-                        <input type="text" size="3" value="0" name="of_<?php echo $row[0] ?>" >    </td>
+                        <input type="text" size="3" value="<?php echo $_GET['of_'.$row[0]]; ?>" name="of_<?php echo $row[0] ?>" >    </td>
                         <td class='forms_right'>
         
-                        <input type="text" size="3" value="0" name="to_<?php echo $row[0] ?>" >    </td>
+                        <input type="text" size="3" value="<?php echo $_GET['to_'.$row[0]]; ?>" name="to_<?php echo $row[0] ?>" >    </td>
         
                         </td>  
                         <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
