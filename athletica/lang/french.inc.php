@@ -764,6 +764,22 @@ $strErrMergeGroup = "Les concours multiples avec groupes ne peuvent pas être reg
 $strErrNoControl3 =  "Le téléchargement des résultats pour ce meeting est désactivé."; 
 $strChangeInfo = "La case Info ne doit être changée qu'après le dernier ajustement du meeting. Voulez-vous vraiement changer la case Info?";
 
+$strAthleteRegistered =  "L'athlète est déjà enregistré. Voulez-vous continuer?";
+$strAthleteNoDisciplin  =   "L'athlète n'a coché aucune disicpline!";  
+$strLicenseTypeNormalNotPayed  =   "Licence normale non valable";  
+$strCtrlHelp  =   "Sélection de plusieurs athlètes avec la touche Ctrl";  
+$strNoTeam  =   "Il n'y a aucune équipe  pour ce concours";   
+$strStartnumberShort  =    "No start";  
+$strStrNrNotExist =    "Ce dossard n'existe pas";  
+
+$strOnlineReg =  "Enregistrer les données d'inscription en ligne de ZLV"; 
+$strOnlineRegInfo = "Choisissez un dossier XML, afin d'enregistrer les inscriptions en ligne des athlètes dans  Athletica.";
+$strXmlFile = "Dossier XML";
+$strXmlRestore = "Enregistrer dossier XML";  
+$strXmlNoCat = "<br>&nbsp;&nbsp;Pour la catégorie %NAME% aucune compétition n'est enregistrée.";
+$strXmlNoLic = "<br>&nbsp;&nbsp;Ce numéro de licence  %NAME% ne figure pas dans les données de base.";
+$strXmlNoClub = "<br>&nbsp;&nbsp;La société %NAME% n'existe pas dans athletica.";
+
                       
 
 ?>

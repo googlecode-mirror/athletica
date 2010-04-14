@@ -719,11 +719,26 @@ $strU16 = "U16";
 $strU14 = "U14, U123, U10";  
 $strActivCHF = "CHF 4.--  per disciplina";
 $strU16CHF = "CHF 2.--  per disciplina";  
-$strU14CHF = "CHF 1.--  per disciplina";
-
+$strU14CHF = "CHF 1.--  per disciplina";  
 $strErrNoControl3 ="Il carimento dei risultati per questo meeting è disattivato.";
 $strErrMergeGroup = "I concorsi multipli con gruppi non possono essere raggruppati.";
 $strChangeInfo = "La casella Info può essere modificata solamente dopo l'ultimo aggiornamento del meeting. Volete procedere ugualmente?";
+
+$strAthleteRegistered =  "L'atleta è già stato registrato. Vuoi proseguire?";
+$strAthleteNoDisciplin  =   "L'atleta non ha crociato alcuna disciplina!";  
+$strLicenseTypeNormalNotPayed  =   "Licenza normale non valida";  
+$strCtrlHelp  =   "Seleziona diversi atleti con tasto Ctrl";  
+$strNoTeam  =   "Nessuna squadra presente per questa gara";   
+$strStartnumberShort  =    "Pettorale";  
+$strStrNrNotExist =    "Questo pettorale non esiste ";  
+
+
+
+
+
+
+
+
 
 
 ?>
