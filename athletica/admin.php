@@ -224,6 +224,42 @@ function removePassword(){
 					</td>
 				</tr>
 			</table><br/>
+            
+           <table class='dialog' width="475">            
+                <tr>
+                    <th class='dialog_zlv'><?=$strOnlineReg?> </th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class='admin'>
+                            <form action='admin_onlineRegZLV.php' method='post' name='onlineReg' enctype='multipart/form-data'>
+                            <tr class='odd'>
+                                <td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?=$strRestore?>" title="<?=$strRestore?>"/></td>
+                                <td><?=$strOnlineRegInfo?></td>
+                            </tr>
+                            <tr class="even">
+                                <td>
+                                    <input type='hidden' name='arg' value='restore'/>
+                                        <?=$strXmlFile?>:&nbsp;
+                                    </input>
+                                    <input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
+                                    <input name='xmlfile' type='file' accept='*.xml' maxlength="619430400">
+                                </td>
+                            </tr>
+                            <tr class="even">
+                                <td>
+                                    <button name='backup' type='submit' class="dialog_zlv"><?=$strXmlRestore?>
+
+                                    </button>
+                                </td>
+                            </tr>
+                        </form>    
+                        </table>
+                    </td>
+                </tr>
+            </table><br/>
+            
+            
 			
 			<table class='dialog' width="475">
 				<tr>
