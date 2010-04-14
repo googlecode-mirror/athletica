@@ -112,8 +112,7 @@ $menu->printMenu();
 		<th class='dialog'><?php echo $strStadium; ?></th>
 		<th class='dialog'><?php echo $strTracks; ?></th>
 		<th class='dialog'><?php echo $strTracks." ".$strStraight; ?></th>
-		<th class='dialog' title='<?php echo $strOver1000m; ?>'>A</th>
-		<th class='dialog' title='<?php echo $strInHall; ?>'>i</th>
+		<th class='dialog' title='<?php echo $strOver1000m; ?>'>A</th>  
 	</tr>
 	<tr>
 		<form action='admin_stadiums.php' method='post'>
@@ -128,9 +127,7 @@ $dd = new GUI_ConfigDropDown('tracks2', 'cfgTrackOrder', 0, '', true);
 		<td class='forms'>
 			<input type="checkbox" value="yes" name="thousend">
 		</td>
-		<td class='forms'>
-			<input type="checkbox" value="yes" name="hall" disabled="disabled">
-		</td>
+		
 		<td class='forms'>
 			<button type='submit'>
 				<?php echo $strSave; ?>
@@ -186,11 +183,7 @@ while ($row = mysql_fetch_row($result))
 		<td class='forms'>
 			<input type="checkbox" name="thousend" value="yes" 
 			onchange="submitForm(document.stad<?php echo $i ?>)" <?php if($row[4] == 'y'){ echo "checked"; } ?>>
-		</td>
-		<td class='forms'>
-			<input type="checkbox" name="hall" value="yes" 
-			onchange="submitForm(document.stad<?php echo $i ?>)" disabled="disabled" <?php if($row[5] == 'y'){ echo "checked"; } ?>>
-		</td>
+		</td> 		
 		<td>
 	<?php
 	$btn->set("admin_stadiums.php?arg=del&item=$row[0]", $strDelete);
