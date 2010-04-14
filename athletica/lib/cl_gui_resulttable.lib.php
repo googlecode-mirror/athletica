@@ -90,6 +90,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
 	 *		- film		film nbr, if any
 	 *		- wind		wind, if any
 	 */
+
 	function printHeatTitle($id, $scroll, $title, $status, $film='', $wind='')
 	{
 		?>
@@ -110,7 +111,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
 		if($this->layout == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
 		{
 			?>
-		<th class='dialog' colspan='2'>
+		<th class='dialog' colspan='4'>
 			<?php echo  $GLOBALS['strWind'] . " " . $wind; ?>
 		</th>
 			<?php
@@ -160,6 +161,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
 		<th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strPerformance']; ?></th>
 		<?php
 		// show rank if all results entered
@@ -219,17 +221,18 @@ class GUI_TrackResultTable extends GUI_ResultTable
 	 *		- rank	rank, if any
 	 *		- qual	qualification info, if any
 	 */
-	function printAthleteLine($pos, $nbr, $name, $year, $club, $perf, $rank=0, $qual=0, $country="")
+	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perf, $rank=0, $qual=0, $country="", $athletID)
 	{
 ?>
-	<tr class='<?php echo $this->rowclass[0]; ?>'>
+	<tr class='<?php echo $this->rowclass[0]; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $athletID; ?>", "_self")' style="cursor: pointer;">
 		<td class='forms_right'><?php echo $pos; ?></td>
 		<td class='forms_right'><?php echo $nbr; ?></td>
 		<td><?php echo $name; ?></td>
 		<td class='forms_ctr'><?php echo $year; ?></td>
 		<td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
 		<td><?php echo $club; ?></td>
-		<td class='forms_right'><?php echo $perf; ?></td>
+		<td><?php echo $topperf; ?></td>
+		<td class='forms_right'><b><?php echo $perf; ?></b></td>
 <?php
 		// show rank if all results entered
 		if($this->status == $GLOBALS['cfgRoundStatus']['results_done'])
@@ -393,7 +396,7 @@ class GUI_TrackResultTable extends GUI_ResultTable
  *
  * CLASS GUI_TechResultTable
  *
- * Prints an HTML table for all technical results (incl. high jump
+ * Prints an HTML table for all technical results (excl.. high jump
  * and pole vault).
  *
  *******************************************/
@@ -407,11 +410,14 @@ class GUI_TechResultTable extends GUI_ResultTable
 	 *		- title		heat name
 	 *		- status		heat status
 	 */
+	
+ 
+
 	function printHeatTitle($id, $scroll, $title, $status)
 	{
 		?>
 	<tr>
-		<th class='dialog' colspan='<?php echo 6 + $this->spanincr; ?>'>
+		<th class='dialog' colspan='<?php echo 7 + $this->spanincr; ?>'>
 			<a name='heat_<?php echo $scroll; ?>' /><?php echo $title; ?></a>
 		</th>
 		<?php
@@ -428,7 +434,190 @@ class GUI_TechResultTable extends GUI_ResultTable
 			?>
 		<form action='controller.php' method='post'
 			name='resstat_<?php echo $scroll; ?>' target='controller'>
+		<th class='dialog' colspan='6'>
+			<?php echo $GLOBALS['strResultsAnnounced']; ?>
+			<input type='hidden' name='act' value='saveHeatStatus' />
+			<input type='hidden' name='round' value='<?php echo $this->round; ?>' />
+			<input type='hidden' name='item' value='<?php echo $id; ?>' />
+			<input type='checkbox' name='status' <?php echo $checked;?>
+				onClick="document.resstat_<?php echo $scroll; ?>.submit()" />
+		</th>
+		</form>
+			<?php
+		}
+		?>
+	</tr>
+		<?php
+	}
+
+
+	function printAthleteHeader()
+	{
+	if(!empty($_GET['round'])){
+	$round = $_GET['round'];
+}
+else if(!empty($_POST['round'])) {
+	$round = $_POST['round'];
+}
+	$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
+setcookie('sort_speakres', $arg, time()+2419200);
+// sort argument
+	$img_nbr="img/sort_inact.gif";
+	$img_pos="img/sort_inact.gif";
+	$img_name="img/sort_inact.gif";
+	$img_club="img/sort_inact.gif";
+	$img_perf="img/sort_inact.gif";
+	$img_rang="img/sort_inact.gif";
+
+	if ($arg=="nbr" && !$relay) {        
+		$argument="a.Startnummer";
+		$img_nbr="img/sort_act.gif";
+	} else if ($arg=="pos") {
+		$argument="ss.Position";
+		$img_pos="img/sort_act.gif";
+	} else if ($arg=="name") {
+		$argument="at.Name, at.Vorname";
+		$img_name="img/sort_act.gif";
+	} else if ($arg=="club") {
+		$argument="v.Name, a.Startnummer";
+		$img_club="img/sort_act.gif";
+	} else if ($arg=="perf") {
+		$argument="st.Bestleistung, ss.Position";
+		$img_perf="img/sort_act.gif";
+	} else if ($arg=="rang") {
+		$argument="t.rang, ss.Position";
+		$img_rang="img/sort_act.gif";
+	} else if($relay == FALSE) {		// single event
+		$argument="ss.Position";
+		$img_pos="img/sort_act.gif";
+	}
+		?>
+	<tr>
+		<th class='dialog'>
+        <a href='speaker_results.php?arg=pos&round=<?php echo $round; ?>'>
+				<?php echo $GLOBALS['strPositionShort']; ?>
+				<img src='<?php echo $img_pos; ?>' />
+			</a>
+        </th>
 		<th class='dialog' colspan='2'>
+        <a href='speaker_results.php?arg=name&round=<?php echo $round; ?>'>
+				<?php echo $GLOBALS['strAthlete']; ?>
+				<img src='<?php echo $img_name; ?>' />
+			</a>
+        </th>
+		<th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
+		<th class='dialog'>
+        <a href='speaker_results.php?arg=club&round=<?php echo $round; ?>'>
+				<?php echo $GLOBALS['strClub']; ?>
+				<img src='<?php echo $img_club; ?>' />
+			</a>
+        </th>
+		<th class='dialog'>
+		<a href='speaker_results.php?arg=perf&round=<?php echo $round; ?>'>
+				<?php echo $GLOBALS['strTopPerformance']; ?>
+				<img src='<?php echo $img_perf; ?>' />
+			</a>
+        </th>
+		<th class='dialog'>
+		<a href='speaker_results.php?arg=rang&round=<?php echo $round; ?>'>
+				<?php echo $GLOBALS['strRank']; ?>
+				<img src='<?php echo $img_rang; ?>' />
+			</a>
+        </th>
+		<th class='dialog' colspan='6'><?php echo $GLOBALS['strPerformance']; ?></th>
+		
+		
+		
+	</tr>
+		<?php
+	}
+
+
+	/*
+	 * Athlete data line
+	 *		- pos		roster position, e.g. track
+	 *		- nbr		start nbr
+	 *		- name	athlete's name (preformatted)
+	 *		- year	year of birth
+	 *		- club	
+	 *		- perfs	array of preformatted results
+	 *		- rank	rank, if any
+	 */
+	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perfs, $fett, $rank, $country="", $athletID)
+	{
+?>
+	<tr class='<?php echo $this->rowclass[0]; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $athletID; ?>", "_self")' style="cursor: pointer;">
+		<td class='forms_right'><?php echo $pos; ?></td>
+		<td class='forms_right'><?php echo $nbr; ?></td>
+		<td nowrap><?php echo $name; ?></td>
+		<td class='forms_ctr'><?php echo $year; ?></td>
+		<td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+		<td nowrap><?php echo $club; ?></td>
+		<td><?php echo $topperf; ?></td>
+		<td class='forms_ctr'><?php echo $rank; ?></td>
+			<?php
+		
+
+		// show all results
+		foreach($perfs as $key => $perf)
+		{
+			
+			?>
+		<td><?php if($fett[$key]==1) echo "<b>";?><?php echo $perf;?> </td>
+			<?php
+		
+		}
+		?>
+			
+	</tr>
+		<?php
+		$this->switchRowClass();
+	}
+
+} // END CLASS Gui_TechResultTable
+
+
+/********************************************
+ *
+ * CLASS GUI_HighResultTable
+ *
+ * Prints an HTML table for high jump
+ * and pole vault).
+ *
+ *******************************************/
+
+class GUI_HighResultTable extends GUI_ResultTable
+{
+	/*
+	 * Heat title line
+	 *		- id			DB primary key
+	 *		- scroll		scroll ID
+	 *		- title		heat name
+	 *		- status		heat status
+	 */
+	function printHeatTitle($id, $scroll, $title, $status)
+	{
+		?>
+	<tr>
+		<th class='dialog' colspan='<?php echo 7 + $this->spanincr; ?>'>
+			<a name='heat_<?php echo $scroll; ?>' /><?php echo $title; ?></a>
+		</th>
+		<?php
+
+		if($this->status >= $GLOBALS['cfgRoundStatus']['results_in_progress'])
+		{
+			if($status == $GLOBALS['cfgHeatStatus']['announced']) {
+				$checked = 'checked';
+			}
+			else {
+				$checked = '';
+			}
+
+			?>
+		<form action='controller.php' method='post'
+			name='resstat_<?php echo $scroll; ?>' target='controller'>
+		<th class='dialog' colspan='6'>
 			<?php echo $GLOBALS['strResultsAnnounced']; ?>
 			<input type='hidden' name='act' value='saveHeatStatus' />
 			<input type='hidden' name='round' value='<?php echo $this->round; ?>' />
@@ -454,16 +643,12 @@ class GUI_TechResultTable extends GUI_ResultTable
 		<th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
-		<?php
-		// show rank if all results entered
-		if($this->status == $GLOBALS['cfgRoundStatus']['results_done'])
-		{
-			?>
+		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>
-			<?php
-		}
-		?>
-		<th class='dialog' colspan='2'><?php echo $GLOBALS['strPerformance']; ?></th>
+		<th class='dialog' colspan='6'><?php echo $GLOBALS['strPerformance']; ?></th>
+		
+		
+		
 	</tr>
 		<?php
 	}
@@ -479,39 +664,39 @@ class GUI_TechResultTable extends GUI_ResultTable
 	 *		- perfs	array of preformatted results
 	 *		- rank	rank, if any
 	 */
-	function printAthleteLine($pos, $nbr, $name, $year, $club, $perfs, $rank=0, $country="")
+	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perfs, $fett, $rank, $country="", $athletID)
 	{
 ?>
-	<tr class='<?php echo $this->rowclass[0]; ?>'>
+	<tr class='<?php echo $this->rowclass[0]; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $athletID; ?>", "_self")' style="cursor: pointer;">
 		<td class='forms_right'><?php echo $pos; ?></td>
 		<td class='forms_right'><?php echo $nbr; ?></td>
 		<td nowrap><?php echo $name; ?></td>
 		<td class='forms_ctr'><?php echo $year; ?></td>
 		<td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
 		<td nowrap><?php echo $club; ?></td>
-<?php
-		// show rank if all results entered
-		if($this->status == $GLOBALS['cfgRoundStatus']['results_done'])
-		{
-			?>
-		<td class='forms_right'><?php echo $rank; ?></td>
+		<td><?php echo $topperf; ?></td>
+		<td class='forms_ctr'><?php echo $rank; ?></td>
 			<?php
-		}
+		
 
 		// show all results
-		foreach($perfs as $perf)
+		foreach($perfs as $key => $perf)
 		{
+			
 			?>
-		<td><?php echo $perf; ?></td>
+		<td><?php if($fett[$key]==1) echo "<b>";?><?php echo $perf;?> </td>
 			<?php
+		
 		}
 		?>
+			
 	</tr>
 		<?php
 		$this->switchRowClass();
 	}
+	
+} // END CLASS Gui_HighResultTable
 
-} // END CLASS Gui_TechResultTable
 
 } // end AA_CL_GUI_RESULTTABLE_LIB_INCLUDED
 
