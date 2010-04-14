@@ -679,7 +679,7 @@ $strMaxFileSize4 = 'Suchen Sie (Bearbeiten > Suchen) folgende Zeilen: (Zeilen 47
 $strMaxFileSize5 = 'Ersetzen Sie die den Wert <b>%SIZE%</b> durch <b>50M</b>.<br/><b>ACHTUNG:</b> nicht die volle Angabe <b>50MB</b>, sondern nur <b>50M</b>.';
 $strMaxFileSize6 = 'Starten Sie den Computer neu.';
 $strMaxFileSize7 = 'Löschen Sie die Datei <b>php.ini</b>.';
-$strMaxFileSize8 = 'Bennen Sie die Datei <b>%NAME%</b> um nach <b>php.ini</b>.';
+$strMaxFileSize8 = 'Benennen Sie die Datei <b>%NAME%</b> um nach <b>php.ini</b>.';
 $strMaxFileSizeOK = '<b>Athletica hat die PHP-Konfigurationsdatei automatisch angepasst.<br/>Bitte starten Sie den Computer neu, damit die Änderungen Wirkung zeigen.</b><br/><br/><b>ACHTUNG:</b> Sollten Probleme beim Starten von Athletica auftreten, können Sie die alte PHP-Konfigurationsdatei wie folgt wiederherstellen:';
 
 $strNewDate = 'Neues Startdatum';
@@ -766,17 +766,25 @@ $strU16 = "U16";
 $strU14 = "U14, U123, U10"; 
 $strActivCHF = "CHF 4.-- pro Start";
 $strU16CHF = "CHF 2.-- pro Start";  
-$strU14CHF = "CHF 1.-- pro Start";  
-
+$strU14CHF = "CHF 1.-- pro Start";   
 $strErrMergeGroup = "Mehrkämpfe mit Gruppen können nicht zusammengefasst werden."; 
 $strErrNoControl3 = "Der Resultate Upload bei diesem Meeting ist deaktiviert.";
 $strChangeInfo = "Das Info Feld darf erst nach dem letzten Meetingabgleich geändert werden. Wollen Sie das Info Feld wirklich ändern?";
+
 $strAthleteRegistered = "Athlet ist bereits erfasst. Wollen Sie weiter fahren?";     
 $strAthleteNoDisciplin = "Athlet hat keine Disziplinen angekreuzt!";
 $strLicenseTypeNormalNotPayed = "Normale Lizenz ungültig";
 $strCtrlHelp = "Auswahl mehrerer Athleten mit Ctrl-Taste.";
 $strNoTeam = "Keine Manschaften vorhanden für diesen Wettkampf";
 $strStartnumberShort = "Start-Nr.";  
-$strStrNrNotExist = "Diese Startnummer ist nicht vorhanden."; 
+$strStrNrNotExist = "Diese Startnummer ist nicht vorhanden.";       
+
+$strOnlineReg = "Online Anmeldedaten ZLV einspielen";
+$strOnlineRegInfo = 'Wählen Sie ein XML-File aus, um die Online Anmeldungen der Athleten in Athletica einzuspielen.'; 
+$strXmlFile = "XML File";
+$strXmlRestore = "XML File einspielen";
+$strXmlNoCat = "<br>&nbsp;&nbsp;Für die Kategorie %NAME% sind keine Wettkämpfe erfasst.";
+$strXmlNoLic = "<br>&nbsp;&nbsp;Diese Lizenznummer %NAME% ist nicht in den Stammdaten."; 
+$strXmlNoClub = "<br>&nbsp;&nbsp;Der Verein %NAME% ist in athletica nicht vorhanden.";
 
 ?>
