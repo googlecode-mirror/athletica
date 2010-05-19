@@ -125,7 +125,7 @@ $dd = new GUI_ConfigDropDown('tracks', 'cfgTrackOrder', 0, '', true);
 $dd = new GUI_ConfigDropDown('tracks2', 'cfgTrackOrder', 0, '', true);
 ?>
 		<td class='forms'>
-			<input type="checkbox" value="yes" name="thousend">
+			<input type="checkbox" value="yes" name="thousend" title='<?php echo $strOnlyOver1000m; ?>'>
 		</td>
 		
 		<td class='forms'>
@@ -181,7 +181,7 @@ while ($row = mysql_fetch_row($result))
 	$dd = new GUI_ConfigDropDown('tracks2', 'cfgTrackOrder', $row[3], "submitForm(document.stad$i)", true);
 	?>
 		<td class='forms'>
-			<input type="checkbox" name="thousend" value="yes" 
+			<input type="checkbox" name="thousend" value="yes" title='<?php echo $strOnlyOver1000m; ?>'
 			onchange="submitForm(document.stad<?php echo $i ?>)" <?php if($row[4] == 'y'){ echo "checked"; } ?>>
 		</td> 		
 		<td>
