@@ -351,13 +351,14 @@ $nbr = 0;
 if(isset($_POST['searchfield'])){
 	if(is_numeric($_POST['searchfield'])) {    // search request for license number
         
-		$licensenr = $_POST['searchfield'];
+		//remove trailing 0 and check-digit (barcode-reader will transmit this chars)
+		$licensenr = ltrim(substr($_POST['searchfield'],0,11),'0');
 		$search_occurred = true;  
-		$searchparam = " WHERE license = " . $_POST['searchfield'];  
+		$searchparam = " WHERE license = " . $licensenr;  
 	
 		$sql = "SELECT * FROM base_athlete " . $searchparam; 
 			//WHERE license = $licensenr";
-		
+	echo $sql;	
 		$result = mysql_query($sql);
 		if(!$result){
 				AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
