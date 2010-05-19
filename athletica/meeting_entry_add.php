@@ -358,7 +358,7 @@ if(isset($_POST['searchfield'])){
 	
 		$sql = "SELECT * FROM base_athlete " . $searchparam; 
 			//WHERE license = $licensenr";
-	echo $sql;	
+
 		$result = mysql_query($sql);
 		if(!$result){
 				AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
