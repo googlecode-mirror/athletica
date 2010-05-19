@@ -15,7 +15,7 @@ function AA_rankinglist_Team($category, $formaction, $break, $cover, &$parser, $
 {   
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
-require('./lib/cl_export_page.lib.php');
+require('./lib/cl_export_page.lib.php');  
 
 require('./lib/common.lib.php');
 require('./lib/results.lib.php');
@@ -890,7 +890,7 @@ function processCombined($xCategory, $category, $type)
 					, MAX(r.Punkte) AS pts
 					, s.Wind
 					, w.Windmessung
-                    , st.xAnmeldung
+                    , st.xAnmeldung  
 				FROM
 					start AS st USE INDEX (Anmeldung)
 					, serienstart AS ss 
@@ -943,10 +943,34 @@ function processCombined($xCategory, $category, $type)
 						|| ($pt_row[1] == $cfgDisciplineType[$strDiscTypeHigh])) {
 						$perf = AA_formatResultMeter($pt_row[2]);
 					}
-					else {
-						$perf = AA_formatResultTime($pt_row[2]);
+					else {  
+						$perf = $pt_row[2];   
+                       
+                        $perf = $perf/1000;
+                        list($sec, $mili) = explode(".", $perf);
+                        list($hour, $rest) = explode(".", ($sec/3600));
+                        list($min, $rest) = explode(".", (($sec-($hour*3600))/60));
+                        list($sec, $rest) = explode(".", ($sec-($hour*3600)-($min*60)));
+                       
+                        // round up to hundredth  (examples: 651 --> 660 and 650 --> 650)
+                        $mili=ceil(sprintf ("%-03s",$mili)/10);              
+                        list($a,$mili)=explode(".",($mili/100));         
+                        $sec+=$a;   
+                        
+                        // display milli (two decimal after point without 0 in front)
+                        $time = '';
+                        if ($hour > 0) {
+                            $time = sprintf("%02d", $hour).":".sprintf("%02d", $min).":".sprintf("%02d", $sec).".".sprintf("%-02s", $mili);  
+                        }
+                        elseif ($min > 0) { 
+                                $time = sprintf("%02d", $min).":".sprintf("%02d", $sec).".".sprintf("%-02s", $mili);  
+                        }
+                        else {
+                             $time =  $sec .".".sprintf("%-02s", $mili); 
+                        }    
+                        $perf = $time;  
 					}
-
+                   
 					// calculate points
 					$points = $points + $pt_row[4];	// accumulate points
                     
@@ -958,10 +982,9 @@ function processCombined($xCategory, $category, $type)
                                     }
                                 } 
                         } 
-					    $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ")";
+					    $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . "/ " .$pt_row[4] .")";
 					    $sep = ", ";
-                    }
-					
+                    }    
 				}	// END WHILE combined events
 				mysql_free_result($res);
 			}
