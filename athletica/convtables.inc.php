@@ -21,6 +21,7 @@ $cvtTable = array("-"=>0
 					//, $strConvtableSVMMenNL=>5                // old formula
 					//, $strConvtableSVMWomenNL=>6              // old formula
 					, $strConvtableRankingPoints=>7
+                    , $strConvtableRankingPoints=>8 
 );
 
 /**
@@ -213,7 +214,10 @@ $cvtFormulas = array(
 , 7=>array	(	"16 -1"=>"16 1"
 			, "16 -2"=>"16 2"
 		)
-
+// SVM Ranking Points (Junior League only)  
+, 8=>array    (    "8 -1"=>"8 1"
+            , "8 -2"=>"8 2"
+        )
 );
 
 ?>
