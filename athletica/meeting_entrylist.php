@@ -21,7 +21,8 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
 
-$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_entrylist'])) ? $_COOKIE['sort_entrylist'] : 'nbr');
+ $arg = (!empty($_GET['arg'])) ? $_GET['arg'] : ((!empty($_COOKIE['sort_entrylist'])) ? $_COOKIE['sort_entrylist'] : 'nbr');   
+
 setcookie('sort_entrylist', $arg, time()+2419200);
 
 //
