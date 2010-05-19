@@ -127,9 +127,10 @@ if($login){
     $query = "SELECT 
                     xRunde                         
               FROM
-                    runde as ru                              
+                    runde as ru 
+                    LEFT JOIN wettkampf as w ON (w.xWettkampf = ru.xWettkampf)                             
               WHERE ru.Status = ".$cfgRoundStatus['results_in_progress']."
-                    AND ru.StatusUpload = 0";  
+                    AND ru.StatusUpload = 0 AND w.xMeeting = " . $_COOKIE['meeting_id'];     
                
               $res_results = mysql_query($query);
               if(mysql_errno() > 0){
