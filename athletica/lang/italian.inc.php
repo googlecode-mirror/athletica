@@ -135,7 +135,7 @@ $strError = "ERRORE";
 $strErrAthleteSeeded = "L’atleta è già assegnato a una batteria";
 $strErrAthleteNotFound = "Atleta non trovato";
 $strErrAthleteNotInHeat = "L’atleta non è assegnato a questa batteria";
-$strErrClubChange = "Cambiamento di società non possibile! L’atleta è ancora annunciato per una riunione.";
+$strErrClubChange = "Cambiamento di società non possibile! L'atleta è ancora inserito in una gara.";
 $strErrDownload = "I dati dell’archivio non sono accessibili!";
 $strErrDuplicateRelay = "Steffetta già esistente!";
 $strErrEmptyFields = "Non tutte le caselle riempite!";
@@ -339,7 +339,7 @@ $strRules = "Regole";
 $strRoundly = "Turno";
 $strRound = "Turni";
 $strRoundtype = "Modo del turno";
-$strRoundtypes = "Modo die turni";
+$strRoundtypes = "Modo dei turni";
 $strSave = "Memorizzare";
 $strSearch = "Cerca";
 $strSearchForLicense = "Iscrizione tramite numero della licenza";
@@ -361,12 +361,12 @@ $strStadiums = "Stadi";
 $strStartnumber = "No.";
 $strStartnumberLong = "Numero di gara";
 $strStartnumbers = "Numeri di gara";
-$strStartNrConfirm_back = "Batterie pronte. Vuole veramente cambiarle?";
-$strStartNrConfirm = "Vuole veramente cambiarle?";
+$strStartNrConfirm_back = "Batterie pronte. Vuoi veramente cambiarle?";
+$strStartNrConfirm = "Vuoi veramente cambiarle?";
 $strStartsPerDisc = "Partenze per disciplina";
 $strStatistics = "Statistiche";
 $strStatus = "Situazione";
-$strStraight = "Diritto";
+$strStraight = "Diritte";
 $strSubTotal = "Totale parziale";
 $strSvmCategory = "Categorie CSI";
 $strSvmFromBase = "Annunciare le squadre presenti";
@@ -377,7 +377,8 @@ $strTeam = "Squadra";
 $strTeamLeaders = "Capo squadra";
 $strTeamList = "Elenco atleti squadra";
 $strTeamRankingTitle = "Campionato svizzero di società";
-$strTeamRankingDeclaration = "I sottoscritti confermano che le indicazioni del CSI così come le preiscrizioni del Regolamento tecnico sono state osservate.";
+$strTeamRankingDeclaration = "I sottoscritti confermano che le indicazioni del CSI così come le prescrizioni del Regolamento tecnico sono state osservate."; 
+                                                                                                                                                             
 $strTeamRankingSubtitle1 = "Risultati di singole discipline e staffetta";
 $strTeamRankingSubtitle2 = "Risultati addizionali per gruppi di disciplina";
 $strTeamRankingSubtitle3 = "Altri risultati";
@@ -408,7 +409,7 @@ $strXmlParseErr = "Errore nell’elaborazione del XML";
 $strYear = "Anno di nascita";
 $strYearShort = "A.n.";
 $strCombinedGroup = "Gruppi gare multiple";
-$strCombinedGroupsAutoAssign = "Suddivisione die gruppi";
+$strCombinedGroupsAutoAssign = "Suddivisione dei gruppi";
 $strCombinedGroupsBySort = "(Dopo il sorteggio delle liste)";
 $strCombinedShort = "GM";
 $strCombinedLastEvent = "Ultima disciplina";
@@ -433,7 +434,7 @@ $strFaqQuestion = "Domande";
 $strHigh = "Salto in alto";
 $strHighInvalid = "nullo";
 $strHighValid = "valido";
-$strMeetingWithUpload = "L’aggiornamento die risultati della manifestazione verrà eseguito più tardi";
+$strMeetingWithUpload = "L’aggiornamento dei risultati della manifestazione verrà eseguito più tardi";
 $strNoResult = "nessuno risultato";
 $strNoResultShort = "n.ris.";
 $strOf = "Da";
@@ -444,11 +445,11 @@ $strPerContestCategory = "Per categoria di competizione";
 $strPole = "Asta";
 $strRemoveGroups = "Disattivare i gruppi";
 $strRegion = "Regione";
-$strReset = "Riininizializzare";
+$strReset = "Riinizializzare";
 $strResetDo = "State modificando la struttura dei dati base. Questo provocherà un aggiornamento completo<br>
 		che richiederà un po’ di tempo e potrebbe provocare qualche problema ai dati base.<br>
 		Volete continuare?";
-$strResetDone = "I dati base sono stati modificate. Desiderate un aggiornamento.";
+$strResetDone = "I dati base sono stati modificati. Desiderate un aggiornamento.";
 $strSeparateU23 = "Categoria U23 separata";
 $strSex = "Sesso";
 $strTo = "Fino a";
@@ -481,11 +482,11 @@ $strTimingAlge = "Cronometraggio modello Alge";
 
 $strBackupSucceeded = "Copa di sicurezza riuscita";
 $strBackupStatus1 = "Copia di sicurezza senza verifica";
-$strBackupStatus2 = "La copia di scicurezza é stata esaminata con successo";
-$strBackupStatus3 = "La copia di sicurezza ö stata esaminata con successo. I dati non sono stati modificati";
+$strBackupStatus2 = "La copia di sicurezza é stata esaminata con successo";
+$strBackupStatus3 = "La copia di sicurezza é stata esaminata con successo. I dati non sono stati modificati";
 $strConvtableRankingPoints = "Classifica a punti";
 $strDownloading = "Scaricamento (download) dei dati";
-$strErrBackupDamaged = "Il vostro sistema sicurezza dati ö danneggiato. La copia di sicurezza non é  riuscita!";
+$strErrBackupDamaged = "Il vostro sistema sicurezza dati é danneggiato. La copia di sicurezza non é  riuscita!";
 $strErrCreateCombined = "Dovete scegliere una categoria per la quale la gara multipla viene effettuata!";
 $strErrNoSuchDisCode = "Questa disciplina non é prevista dal programma Athletica!";
 $strErrMergedRound = "Questo turno di gara é stato elaborato. La competizione può ora passare al turno principale!";
@@ -494,13 +495,13 @@ $strExportAllRanks = "Tutti i classificati";
 $strExportRanks = "Solo i classificati dal";
 $strExportPress = "Copia per la stampa";
 $strExportDiplom = "Copia per gli attestati";
-$strExportNumbers = "Esportazione die numeri di partenza";
+$strExportNumbers = "Esportazione dei numeri di partenza";
 $strExportNbrs = "Solo i numeri da";
 $strExportAllNbrs = "Tutti i numeri";
 $strFile = "Dati";
 $strHandStopped = "Cronometraggio manuale";
 $strMergeRounds = "Conteggio dei giri";
-$strMergeRoundsNoRound = "E\' possibile considerare i turni di questa categoria solo dal momento che esiste un turno della disciplina attuale.";
+$strMergeRoundsNoRound = "E' possibile considerare i turni di questa categoria solo dal momento che esiste un turno della disciplina attuale.";
 $strMergeRoundsNoDisc = "Non sono previsti altri turni per una stessa disciplina che si possono elaborare ora.";
 $strPaymentStatus = "Stato di pagamento";
 $strPleaseWait = "Prego aspettare";
@@ -518,7 +519,7 @@ $strErrLicenseNotEntered = "Dovete dapprima inserire un numero di licenza!";
 $strLicenseTypeNormal = "Licenza normale";
 $strLicenseTypeDayLicense = "Licenza giornaliera";
 $strLicenseTypeNoLicense = "Nessuna licenza";
-$strLicenseType = "Tipo do licenza";
+$strLicenseType = "Tipo di licenza";
 $strLicenseNrChange = "Volete veramente modificare il numero di licenza?";
 $strTimingExport = "Esportazione di batterie (cronometraggio)";
 
@@ -538,9 +539,9 @@ $strTo2 = "fino a";
 $strAlgeNoPath = "Il percorso indicato per il cronometraggio non esiste. I cambiamenti non sono stati salvati."; 
 $strAlgeNoPathBackup = "Il percorso per il cronometraggio ALGE non esiste. La configurazione del cronometraggio è stata annullata."; 
 $strBackupBaseTablesSkipped = "I dati di base non sono stati salvati.<br/> Per favore aggiornare i dati di base."; 
-$strBackupInfo = "Questa funzione permette la protezione dei dati di base. La protezione può essere ripresa da Athletica in ogni momento."; 
-$strBackupRestoreInfo = "Selezionare una protezione Athletica esistente per riprendere i dati e aggiornare Athletica sul livello della protezione."; 
-$strBackupOK = "Inserire protezione"; 
+$strBackupInfo = "Questa funzione permette il salvataggio dei dati. I dati salvati possono essere ripresi da Athletica in ogni momento."; 
+$strBackupRestoreInfo = "Selezionare un file di backup per riprendere i dati."; 
+$strBackupOK = "Salvare i dati"; 
 $strBackupTimingReset = "Uno o più percorsi del cronometraggio non sono stati individuati e sono stati annullati. <br/>Per favore verificare le impostazioni
                          sotto Meeting > Cronometraggio."; 
 $strDeletePassword = "Cancellare password"; 
@@ -562,7 +563,7 @@ $strPrintTimetableComp = "Stampa programma orario (segretariato)";
 $strProtectEnterPw1 = "Introdurre password:"; 
 $strProtectEnterPw2 = "Ripetere password:"; 
 $strProtectMeeting = "Proteggere il meeting con password"; 
-$strProtectMeetingInfo = "Protegge l'elaborazione con una password, <br>ma lascia libero acceso al campo Speaker."; 
+$strProtectMeetingInfo = "Protegge l'elaborazione con una password, <br>lasciando libero acceso al campo Speaker.."; 
 $strProtectPasswordNE = "Le passwords digitate non sono corrette!"; 
 $strProtectPasswordEmpty = "Non è stata digitata alcuna password."; 
 $strRestrictedAccess = "Questo meeting è protetto da una password.<br> Digitare password:"; 
@@ -586,7 +587,7 @@ $strScoreTables = "Tabelle punteggi";
 $strScoreTable = "Tabella punteggi"; 
 $strDeleteScoreTable = "Cancellare tabella punteggi"; 
 $strMeetingSync = "Aggiornamento con l'autorizzazione del meeting on-line"; 
-$strMeetingSyncRemark = "<b>Attenzione: </b>un aggiornamento con l'autorizzazione del meeting può comportare cambiamenti indesiderati. <br>Creare una protezione per la banca dati prima di continuare."; 
+$strMeetingSyncRemark = "<b>Attenzione: </b>un aggiornamento con l'autorizzazione del meeting può comportare cambiamenti indesiderati. <br>Eseguire un salvataggio dei dati prima di continuare.";
 $strBaseUpdatedSync = "Adesso può aggiornare il meeting con l'autorizzazione on-line. Nel caso non avesse registrato il meeting on-line, può evitare questa procedura."; 
 $strNextSync = "Procedere con l'aggiornamento del meeting"; 
 $strVersionCheck = "Verificare la versione"; 
@@ -605,8 +606,7 @@ $strEmptyCacheDo = "È sul punto di cancellare tutti gli atleti e le società, com
                     Questi verrebbero difatto cancellati. <br><br> 
                     Intende continuare?"; 
 $strEmptyCacheDone = "La cache è stata cancellata. Eseguire adesso un aggiornamento dei dati di base"; 
-$strEmptyCacheReference = "Qualche atleta e/o società non sono ancora annunciati (iscrizioni). La cache non può essere cancellata. <br><br>
-                            Verifcare che né atleti né società siano state registrate."; 
+$strEmptyCacheReference = "Qualche atleta e/o società non sono ancora annunciati (iscrizioni). La cache non può essere cancellata. <br><br> Verifcare che né atleti né società siano stati registrati."; 
 $strSelectMeeting = "Selezionare meeting"; 
 $strBaseMeetingAct = "Le informazioni scaricate (iscrizioni, no. evento) vengono <br>importate nel meeting Athletica seguente:"; 
 $strErrDiscCombChange = "Cambiamento di disciplina non è possibile, in quanto ci sono atleti già registrati. "; 
@@ -662,7 +662,7 @@ $strEnrolmErr = "L'iscrizione non è possibile. Completare prima il programma ora
 $strAthleteCat = "Categoria di atleti"; 
 $strService = "Servizio"; 
 $strServiceMenu = "Servizio-Menu"; 
-$strServiceMenuInfo = "Il Servizio-Menu è disponibile unicamente per <b>sviluppo Athletica</b>. Contiene funzioni critiche di valutazione e di correzione che servono per l'analisi degli errori.v Poiché manipolazioni errate del Servizio-Menu potrebbero comportare danni, gli utilizzatori che non sono componenti del Team di sviluppo Athletica non sono autorizzati <b>ad accedere al Servizio-Menu</b>."; 
+$strServiceMenuInfo = "Il Servizio-Menu è disponibile unicamente per <b>sviluppo Athletica</b>. Contiene funzioni critiche di valutazione e di correzione che servono per l'analisi degli errori. Poiché manipolazioni errate del Servizio-Menu potrebbero comportare danni, gli utilizzatori che non sono componenti del Team di sviluppo Athletica non sono autorizzati <b>ad accedere al Servizio-Menu</b>.";
 $strUserName = "Nome utente"; 
 $strLogout = "Logout"; 
 $strSrvRemoveMeetingPasswords = "Annullare le password dei meetings"; 
@@ -732,13 +732,15 @@ $strNoTeam  =   "Nessuna squadra presente per questa gara";
 $strStartnumberShort  =    "Pettorale";  
 $strStrNrNotExist =    "Questo pettorale non esiste ";  
 
+$strOnlineReg = "Registrare i dati d'iscrizione online di ZLV"; 
+$strOnlineRegInfo  = "Scegliere il file XML, per registrare le iscrizioni online degli atleti in Athletica "; 
+$strXmlFile  = "File XML"; 
+$strXmlRestore  = "Registrare il file XML";  
+$strXmlNoCat  = "<br>&nbsp;&nbsp;Per le categorie %NAME% nessuna gara è registrata."; 
+$strXmlNoLic = "<br>&nbsp;&nbsp;Questo numero di licenza %NAME% non figura nella banca dati."; 
+$strXmlNoClub = "<br>&nbsp;&nbsp;La società %NAME% non esiste in Athletica.";   
 
-
-
-
-
-
-
+$strOver1000m = "Solo per oltre 1000 m s/m";  
 
 
 ?>

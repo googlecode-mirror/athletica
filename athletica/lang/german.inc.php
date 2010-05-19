@@ -787,4 +787,6 @@ $strXmlNoCat = "<br>&nbsp;&nbsp;Für die Kategorie %NAME% sind keine Wettkämpfe e
 $strXmlNoLic = "<br>&nbsp;&nbsp;Diese Lizenznummer %NAME% ist nicht in den Stammdaten."; 
 $strXmlNoClub = "<br>&nbsp;&nbsp;Der Verein %NAME% ist in athletica nicht vorhanden.";
 
+$strOnlyOver1000m = "nur für über 1000m Meereshöhe";
+
 ?>
