@@ -100,8 +100,8 @@ if ($athlete_id > 0){
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet) 
                     INNER JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung) 
                     LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)    
-                WHERE Lizenznummer = $row_ba[0] ";
-   
+                WHERE Lizenznummer = $row_ba[0] AND a.xMeeting = " . $_COOKIE['meeting_id'];
+    
     $result_at = mysql_query($sql_at);
     if(!$result_at){
                 AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -129,7 +129,7 @@ if ($athlete_id > 0){
                 FROM 
                     athlet AS at 
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet)  
-                WHERE Lizenznummer = $row_ba[0] ";
+                WHERE Lizenznummer = $row_ba[0] AND a.xMeeting = " . $_COOKIE['meeting_id'];
    
     $result_at = mysql_query($sql_at);
     if(!$result_at){
@@ -470,8 +470,8 @@ if(isset($_POST['searchfield'])){
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet) 
                     INNER JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung) 
                     LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)    
-                WHERE Lizenznummer = $licensenr ";
-   
+                WHERE Lizenznummer = $licensenr AND a.xMeeting=" . $_COOKIE['meeting_id'];
+    
     $result_at = mysql_query($sql_at);
     if(!$result_at){
                 AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -500,7 +500,7 @@ if(isset($_POST['searchfield'])){
                 FROM 
                     athlet AS at 
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet)  
-                WHERE Lizenznummer = $licensenr "; 
+                WHERE Lizenznummer = $licensenr AND a.xMeeting=" . $_COOKIE['meeting_id'];
    
     $result_at = mysql_query($sql_at);
     if(!$result_at){
@@ -624,7 +624,7 @@ if($_POST['arg']=="change_athlete"){
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet) 
                     LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung) 
                     LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)    
-                WHERE Lizenznummer = $licensenr ";
+                WHERE Lizenznummer = $licensenr AND a.xMeeting=" . $_COOKIE['meeting_id'];
     
     $result_at = mysql_query($sql_at);
     if(!$result_at){
@@ -655,7 +655,7 @@ if($_POST['arg']=="change_athlete"){
                     athlet AS at 
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet)                     
                     
-                WHERE Lizenznummer = $licensenr "; 
+                WHERE Lizenznummer = $licensenr AND a.xMeeting=" . $_COOKIE['meeting_id']; 
     
     $result_at = mysql_query($sql_at);
     if(!$result_at){
@@ -712,7 +712,7 @@ if ($_POST['arg']=="add")
                             LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)    
                        WHERE at.Name = '".$_POST['name'] .
                             "' AND  at.Vorname = '".$_POST['first'] .
-                            "' AND  at.Geburtstag = '".$gebDate."'";  
+                            "' AND  at.Geburtstag = '".$gebDate."' AND a.xMeeting = ". $_COOKIE['meeting_id'];    
            
             $result_at = mysql_query($sql_at);
             if(!$result_at){
@@ -750,7 +750,7 @@ if ($_POST['arg']=="add")
                                 INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet)   
                            WHERE at.Name = '".$_POST['name'] .
                                 "' AND  at.Vorname = '".$_POST['first'] .
-                                "' AND  at.Geburtstag = '".$gebDate."'";  
+                                "' AND  at.Geburtstag = '".$gebDate."' AND a.xMeeting = ". $_COOKIE['meeting_id'];  
     
                 $result_at = mysql_query($sql_at);
                 if(!$result_at){
@@ -772,8 +772,8 @@ if ($_POST['arg']=="add")
                          FROM
                                 base_athlete AS ba
                          WHERE
-                                ba.id_athlete = $athlete_id";
-   
+                                ba.id_athlete = $athlete_id ";
+              
               $result_ba = mysql_query($sql_ba);
               if(!$result_ba){
                     AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -793,8 +793,8 @@ if ($_POST['arg']=="add")
                                 INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet) 
                                 INNER JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung) 
                                 LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)    
-                         WHERE Lizenznummer = $row_ba[0] ";   
-    
+                         WHERE Lizenznummer = $row_ba[0] AND a.xMeeting = ". $_COOKIE['meeting_id'];
+              
               $result_at = mysql_query($sql_at);
               if(!$result_at){
                     AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -830,8 +830,8 @@ if ($_POST['arg']=="add")
                          FROM 
                             athlet AS at 
                             INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet)  
-                         WHERE Lizenznummer = $row_ba[0]  ";
-    
+                         WHERE Lizenznummer = $row_ba[0] AND a.xMeeting = ". $_COOKIE['meeting_id'];
+               
               $result_at = mysql_query($sql_at);
               if(!$result_at){
                     AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
