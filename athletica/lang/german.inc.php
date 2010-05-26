@@ -194,7 +194,7 @@ $strErrInvalidOrder = "Reihenfolge muss zwischen 1 und 99 sein!";
 $strErrInvalidTeam = "Athlet nicht im gleichen Team eingeteilt!";
 $strErrLicenseNotValid = "Lizenznummer ungültig!";
 $strErrLicenseNotEntered = "Sie müssen zuerst eine Lizenznummer eingeben!";
-$strErrLogin = "Anmelden am SLV Server fehlgeschlagen!";
+$strErrLogin = "Anmelden am Swiss Athletics Server fehlgeschlagen!";
 $strErrMergedRound = "Diese Runde wurde zusammengefasst. Der Wettkampf kann nur in der Hauptrunde durchgeführt werden!";
 $strErrNoPrinter = "Printer nicht verfügbar";
 $strErrNoResults= "Noch keine Resultate erfasst";
@@ -320,7 +320,7 @@ $strLogin = "Anmelden";
 $strLoginTrue = "Erfolgreich angemeldet";
 $strLoginToMeeting = "Login für Meeting";
 $strLoginFalse = "Loginangaben sind nicht korrekt";
-$strLoginSlv = "Anmelden am SLV System";
+$strLoginSlv = "Anmelden am Swiss Athletics System";
 
 $strManipulationTime = "Stellzeit";
 $strMeetingTitle = "Meeting";
