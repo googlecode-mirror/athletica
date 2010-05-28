@@ -15,7 +15,7 @@ require('./lib/common.lib.php');
 
 require('./lib/cl_xml_data.lib.php');
 require('./lib/cl_http_data.lib.php');         
-       
+	   
 if(AA_connectToDB() == FALSE)	{		// invalid DB connection
 	return;
 }
@@ -25,7 +25,7 @@ if(AA_checkMeetingID() == FALSE){		// no meeting selected
 }
 
 if (!empty($_POST['mode'])){
-    $mode =  $_POST['mode'];
+	$mode =  $_POST['mode'];
 }
 
 //
@@ -46,7 +46,7 @@ $menu->printMenu();
 <?php
 
 $http = new HTTP_data();
-$webserverDomain = "slv.exigo.ch"; // domain of swiss-athletics webserver
+$webserverDomain = $cfgSLVhost; // domain of swiss-athletics webserver
 
 // handle arguments
 $login = false;
@@ -227,30 +227,30 @@ if(!$login){
 ?>
 <form action='admin_registration.php' name='base' method='post' target='_self'>  
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tbody><tr>
-            <td style="vertical-align: top;" width="260">
-                <table class="dialog" width="260">
-                    <tbody><tr>
+		<tbody><tr>
+			<td style="vertical-align: top;" width="260">
+				<table class="dialog" width="260">
+					<tbody><tr>
 
-                        <th><?=$strConfiguration?></th>
-                    </tr>
-                    <tr>
-                        <td>
-                          <p><?=$strEffortsUpdateInfo4?></p>
-                          <p>
-                            <label>
-                              <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
-                              <?=$strOverwrite;?></label>
-                            <br />
-                            <label>
-                              <input type="radio" name="mode" value="skip" id="mode_1" />
-                              <?=$strLeaveBehind ;?></label>
-                            <br />
-                          </p></td>
-                    </tr>
-                </tbody>
-        </table>
-        <br />
+						<th><?=$strConfiguration?></th>
+					</tr>
+					<tr>
+						<td>
+						  <p><?=$strEffortsUpdateInfo4?></p>
+						  <p>
+							<label>
+							  <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
+							  <?=$strOverwrite;?></label>
+							<br />
+							<label>
+							  <input type="radio" name="mode" value="skip" id="mode_1" />
+							  <?=$strLeaveBehind ;?></label>
+							<br />
+						  </p></td>
+					</tr>
+				</tbody>
+		</table>
+		<br />
 <table class='dialog'>
 <tr>
 	<th><?php echo $strLoginSlv; ?></th>

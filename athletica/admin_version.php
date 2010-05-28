@@ -82,8 +82,8 @@ $menu->printMenu();
 			}
 			
 			if($newer){
-				$athletica_de = 'http://www.swiss-athletics.ch/index.php?option=com_content&task=view&id=140&Itemid=358&lang=de';
-				$athletica_fr = 'http://www.swiss-athletics.ch/index.php?option=com_content&task=view&id=140&Itemid=358&lang=fr';
+				$athletica_de = 'http://www.swiss-athletics.ch/de/athletica/athletica.html';
+				$athletica_fr = 'http://www.swiss-athletics.ch/fr/athletica/athletica.html';
 				$link = ($lang=='fr') ? $athletica_fr : $athletica_de;
 				?>			
 				<table class='dialog' width="475" border="0" cellpadding="0" cellspacing="0">
