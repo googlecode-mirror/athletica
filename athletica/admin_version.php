@@ -60,7 +60,7 @@ $menu->printMenu();
 			$newer = false;
 			
 			$http = new HTTP_data();
-			$webserverDomain = "slv.exigo.ch"; // domain of swiss-athletics webserver
+			$webserverDomain = $cfgSLVhost; // domain of swiss-athletics webserver
 			
 			$result = $http->send_post($webserverDomain, '/meetings/athletica/version.php', '', 'ini');
 			$version = $result['version'];
