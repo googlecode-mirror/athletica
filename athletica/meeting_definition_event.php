@@ -474,7 +474,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	<th class='dialog'><?php echo $strConversionFormula; ?></th>
 	<td class='forms'>
 <?php
-		if($row[5]==$cvtTable[$strConvtableRankingPoints]){
+		if($row[5]==$cvtTable[$strConvtableRankingPoints] || $row[5]==$cvtTable[$strConvtableRankingPointsU20]){
 			?>
 			<input type="text" name="formula" value="<?=$row[6]?>" style="width: 45px;" onchange="document.event.submit()"/>
 			<?php
