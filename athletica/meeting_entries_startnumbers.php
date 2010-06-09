@@ -116,7 +116,7 @@ if($_GET['arg'] == 'assign')
 		}         
 		
 		// assign per contest cat      
-			$argument = "k.Anzeige ";    
+			$argument = "k.Anzeige, k.xKategorie ";    
 			
 			//
 			// Read athletes
