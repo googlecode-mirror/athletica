@@ -74,6 +74,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
         }
              
 		global $strConvtableRankingPoints;
+        global $strConvtableRankingPointsU20; 
 		
 		$GLOBALS['AA_ERROR'] = '';
 		
@@ -107,7 +108,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				$row = mysql_fetch_row($result);
 				
 				// if ranking points are set, return
-				if($row[1] == $GLOBALS['cvtTable'][$strConvtableRankingPoints]){
+				if($row[1] == $GLOBALS['cvtTable'][$strConvtableRankingPoints] || $row[1] == $GLOBALS['cvtTable'][$strConvtableRankingPointsU20]){
 					return 0;
 				}
 
@@ -163,6 +164,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				} else {	
 					// split formula into parameters
 					$params = explode(" ", $GLOBALS['cvtFormulas'][$row[1]][$row[2]]);
+                   
 					// formula types
 					$A = $params[1];
 					$B = $params[2];
@@ -213,7 +215,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	 */
 	 
 	function AA_utils_calcRankingPoints($round){    
-		global $strConvtableRankingPoints, $cfgEventType;
+		global $strConvtableRankingPoints, $strConvtableRankingPointsU20, $cfgEventType;
 		global $strEventTypeSVMNL, $strEventTypeSingleCombined, $strEventTypeClubAdvanced
 			, $strEventTypeClubBasic, $strEventTypeClubTeam, $strEventTypeClubMixedTeam;
 		
@@ -250,7 +252,12 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			$row = mysql_fetch_array($res);
 			mysql_free_result($res);
 			
-			$rpt = $GLOBALS['cvtTable'][$strConvtableRankingPoints];  		
+            if ($row[0] == $GLOBALS['cvtTable'][$strConvtableRankingPoints]){
+                $rpt = $GLOBALS['cvtTable'][$strConvtableRankingPoints];          
+            }
+			elseif ($row[0] == $GLOBALS['cvtTable'][$strConvtableRankingPointsU20]){  
+                    $rpt = $GLOBALS['cvtTable'][$strConvtableRankingPointsU20]; 
+            } 		
 			if($row[0] == $rpt){
 			   
 				// if mode is team
