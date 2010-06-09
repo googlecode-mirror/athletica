@@ -1132,9 +1132,9 @@ else if ($_POST['arg']=="change_cgroup")
                     LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)    
                WHERE
                     a.xAnmeldung=" . $_POST['item'] . "
-                    AND a.Gruppe = r.Gruppe                         
+                    AND a.Gruppe = r.Gruppe  
                     AND a.xMeeting=" .$_COOKIE['meeting_id'];   
-    
+                 
     $res_g=mysql_query($sql_g);
      
     if(mysql_errno() > 0)
@@ -1145,187 +1145,200 @@ else if ($_POST['arg']=="change_cgroup")
               $catGroup = "";
              
               $flagHeats = false;
-              while ($row_g = mysql_fetch_array($res_g)) {  
-                    $cGroup = $row_g[0];  
-                    $catGroup = $row_g[1];  
-                    
-                    if ($row_g[2] >=1 && $row_g[2] <=4){ 
-                           $_POST['combinedgroup']  =  $row_g[0];
-                           $flagHeats = true;
-                    }   
-              }
-              if ($flagHeats){
-                   AA_printErrorMsg($strErrAthleteSeeded);
-                   $flagHeats = false; 
-              }
-              else {                 
-                    $sql_g="SELECT 
-                                    DISTINCT a.Gruppe, a.xKategorie, r.Status, w.xDisziplin 
-                            FROM
-                                    anmeldung  AS a                      
+             if (mysql_num_rows($res_g) > 0) {            // round exist
+                  while ($row_g = mysql_fetch_array($res_g)) {  
+                        $cGroup = $row_g[0];  
+                        $catGroup = $row_g[1];  
+                        
+                        if ($row_g[2] >=1 && $row_g[2] <=4){ 
+                               $_POST['combinedgroup']  =  $row_g[0];
+                               $flagHeats = true;
+                        }   
+                  }
+            
+                  if ($flagHeats){
+                       AA_printErrorMsg($strErrAthleteSeeded);
+                       $flagHeats = false; 
+                  }
+                  else {                 
+                        $sql_g="SELECT 
+                                        DISTINCT a.Gruppe, a.xKategorie, r.Status, w.xDisziplin 
+                                FROM
+                                        anmeldung  AS a                      
+                                        LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
+                                        LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)
+                                        LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)    
+                                WHERE                              
+                                        a.Gruppe = '" . $_POST['combinedgroup'] ."'
+                                        AND a.xKategorie= " . $catGroup ."                                       
+                                        AND a.Gruppe = r.Gruppe
+                                        AND a.xMeeting=" .$_COOKIE['meeting_id'];   
+                                       
+                        $res_g=mysql_query($sql_g);
+        
+                        if(mysql_errno() > 0)
+                        {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }else{
+                        
+                            while ($row_g = mysql_fetch_array($res_g)) {     
+                                if ($row_g[2] >=1 && $row_g[2] <=4){                                
+                                    $_POST['combinedgroup']  =  $row_g[0];
+                                    $flagHeats = true;
+                                }   
+                            }
+                  
+                        } 
+                  
+                  }
+                  if ($flagHeats){
+                         AA_printErrorMsg($strErrHeatsAlreadySeeded);                            
+                  } 
+                  else {     
+                                                        // get previous group      
+                    $sql_r="SELECT DISTINCT 
+                                    r.xRunde, 
+                                    r.Datum, 
+                                    r.Startzeit, 
+                                    r.Appellzeit, 
+                                    r.Stellzeit, 
+                                    r.Status,
+                                    r.Speakerstatus, 
+                                    r.StatusZeitmessung, 
+                                    r.StatusUpload, 
+                                    r.QualifikationSieger, 
+                                    r.QualifikationLeistung,
+                                    r.Bahnen,
+                                    r.Versuche,
+                                    r.Gruppe,
+                                    r.xRundentyp,              
+                                    w.xWettkampf,
+                                    w.Mehrkampfcode,
+                                    w.xKategorie                                                                  
+                              FROM
+                                    anmeldung  as a
                                     LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
                                     LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)
-                                    LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)    
-                            WHERE                              
-                                    a.Gruppe = '" . $_POST['combinedgroup'] ."'
-                                    AND a.xKategorie= " . $catGroup ."                                       
-                                    AND a.Gruppe = r.Gruppe                                                 
-                                    AND a.xMeeting=" .$_COOKIE['meeting_id'];   
-                    
-                    $res_g=mysql_query($sql_g);
-    
-                    if(mysql_errno() > 0)
-                    {
-                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                    }else{
-                    
-                        while ($row_g = mysql_fetch_array($res_g)) {     
-                            if ($row_g[2] >=1 && $row_g[2] <=4){                                
-                                $_POST['combinedgroup']  =  $row_g[0];
-                                $flagHeats = true;
-                            }   
-                        }
-              
-                    } 
-              
-              }
-              if ($flagHeats){
-                     AA_printErrorMsg($strErrHeatsAlreadySeeded);                            
-              } 
-              else {     
-                                                    // get previous group      
-                $sql_r="SELECT DISTINCT 
-                                r.xRunde, 
-                                r.Datum, 
-                                r.Startzeit, 
-                                r.Appellzeit, 
-                                r.Stellzeit, 
-                                r.Status,
-                                r.Speakerstatus, 
-                                r.StatusZeitmessung, 
-                                r.StatusUpload, 
-                                r.QualifikationSieger, 
-                                r.QualifikationLeistung,
-                                r.Bahnen,
-                                r.Versuche,
-                                r.Gruppe,
-                                r.xRundentyp,              
-                                r.xWettkampf,
-                                w.Mehrkampfcode,
-                                w.xKategorie                                                                  
-                          FROM
-                                anmeldung  as a
-                                LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
-                                LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)
-                                LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)  
-                          WHERE
-                                a.xAnmeldung=" . $_POST['item'] . "
-                                AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
-                                AND r.Gruppe='" . $cGroup ."'"; 
-             
-              $res_r=mysql_query($sql_r);
-    
-              if(mysql_errno() > 0)
-                        {
-                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-              }else{                      
-                    $categoryGroup='';
-                    $cat_arr=array();
-                    $comb_arr=array(); 
-                    $sqlEvent=array();
-                    $i=0;
-                  
-                    while($row_r=mysql_fetch_row($res_r)) { 
-                        if ($row_r[16] > 0){  // combined event
-                            if ($categoryGroup!=$row_r[17] || $combGroup!=$row_r[16]){  
-                                $cat_arr[$i]= $row_r[17]; 
-                                $comb_arr[$i]= $row_r[16]; 
-                                $categoryGroup= $row_r[17];
-                                $combGroup=$row_r[16]; 
-                                $sqlEvent[$i]="(".$row_r[15].",";
-                                $i++;    
-                                $groupexist=AA_checkGroupEvent($row_r[15], $cGroup ); 
-                            }
-                            else {         
-                                $sqlEvent[$i-1].=$row_r[15].",";  
-                            }                                   
-                            
-                            if (!$groupexist) {  
-                                // insert 
-                                mysql_query("
-                                    INSERT INTO runde
-                                            SET    Datum = '".$row_r[1]."'
-                                            , Startzeit = '".$row_r[2]."' 
-                                            , Appellzeit = '".$row_r[3]."'  
-                                            , Stellzeit = '".$row_r[4]."'  
-                                            , Status = '".$row_r[5]."'  
-                                            , Speakerstatus = '".$row_r[6]."'  
-                                            , StatusZeitmessung = '".$row_r[7]."'  
-                                            , StatusUpload = '".$row_r[8]."'  
-                                            , QualifikationSieger = '".$row_r[9]."'  
-                                            , QualifikationLeistung = '".$row_r[10]."' 
-                                            , Bahnen = '".$row_r[11]."'     
-                                            , Versuche = '".$row_r[12]."'         
-                                            , Gruppe = '".strtoupper($_POST['combinedgroup'])."'  
-                                            , xRundentyp = '".$row_r[14]."'     
-                                            , xWettkampf = '".$row_r[15]."'  
-                                            ");                                       
-                            }
-                        } 
-                    }      // end while
-                     
-                    for ($z=0;$z<count($sqlEvent);$z++){  
-                        $sqlEvent[$z]=substr($sqlEvent[$z],0,-1).")";  
-                        
-                    }  
-                    
-                    mysql_query("UPDATE anmeldung SET
-                                    Gruppe = '".strtoupper($_POST['combinedgroup'])."'
-                                    WHERE xAnmeldung = ".$_POST['item']."");
-                            
-                    if(mysql_errno() > 0){
+                                    LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)  
+                              WHERE
+                                    a.xAnmeldung=" . $_POST['item'] . "
+                                    AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
+                                    AND r.Gruppe='" . $cGroup ."'"; 
+                
+                  $res_r=mysql_query($sql_r);
+        
+                  if(mysql_errno() > 0)
+                            {
                             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                    }
-                   
-                    // check to delete 
-                    if ($row_g[0]!='') {  
-                        for ($k=0;$k<count($cat_arr);$k++){  
-                            $groupexist=AA_checkGroup($row_g[0], $cat_arr[$k],$comb_arr[$k]);   
-                           
-                            if (!$groupexist) {   
+                  }else{                      
+                        $categoryGroup='';
+                        $cat_arr=array();
+                        $comb_arr=array(); 
+                        $sqlEvent=array();
+                        $i=0;
+                      
+                        while($row_r=mysql_fetch_row($res_r)) { 
+                            if ($row_r[16] > 0){  // combined event
+                                if ($categoryGroup!=$row_r[17] || $combGroup!=$row_r[16]){  
+                                    $cat_arr[$i]= $row_r[17]; 
+                                    $comb_arr[$i]= $row_r[16]; 
+                                    $categoryGroup= $row_r[17];
+                                    $combGroup=$row_r[16]; 
+                                    $sqlEvent[$i]="(".$row_r[15].",";
+                                    $i++;    
+                                    $groupexist=AA_checkGroupEvent($row_r[15], $cGroup ); 
+                                }
+                                else {         
+                                    $sqlEvent[$i-1].=$row_r[15].",";  
+                                }                                   
                                 
-                                    $sql_ru="SELECT  
-                                                r.xRunde                        
-                                            FROM
-                                                anmeldung  as a
-                                                LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
-                                                LEFT JOIN runde as r ON (r.xWettkampf=s.xWettkampf)
-                                                LEFT JOIN wettkampf as w ON (w.xWettkampf=s.xWettkampf)  
-                                            WHERE
-                                                r.xWettkampf IN " .  $sqlEvent[$r] . "
-                                                AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
-                                                AND r.Gruppe='" . $row_g[0] ."'"; 
-                                        
-                                    $res_ru=mysql_query($sql_ru);
-    
-                                    if(mysql_errno() > 0)
-                                        {
-                                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                                    }else{ 
-                                            while($row_ru=mysql_fetch_row($res_ru)) {  
-                                                // delete 
-                                                mysql_query("DELETE FROM runde" 
-                                                            . " WHERE xRunde = ".$row_ru[0]);  
-                                            }  
-                                    }    
-                            }
-                            else {
-                                $r++;  
-                            }  
+                                if (!$groupexist) {  
+                                    // insert 
+                                    mysql_query("
+                                        INSERT INTO runde
+                                                SET    Datum = '".$row_r[1]."'
+                                                , Startzeit = '".$row_r[2]."' 
+                                                , Appellzeit = '".$row_r[3]."'  
+                                                , Stellzeit = '".$row_r[4]."'  
+                                                , Status = '".$row_r[5]."'  
+                                                , Speakerstatus = '".$row_r[6]."'  
+                                                , StatusZeitmessung = '".$row_r[7]."'  
+                                                , StatusUpload = '".$row_r[8]."'  
+                                                , QualifikationSieger = '".$row_r[9]."'  
+                                                , QualifikationLeistung = '".$row_r[10]."' 
+                                                , Bahnen = '".$row_r[11]."'     
+                                                , Versuche = '".$row_r[12]."'         
+                                                , Gruppe = '".strtoupper($_POST['combinedgroup'])."'  
+                                                , xRundentyp = '".$row_r[14]."'     
+                                                , xWettkampf = '".$row_r[15]."'  
+                                                ");                                     
+                                }
+                               
+                            } 
+                        }      // end while
+                         
+                        for ($z=0;$z<count($sqlEvent);$z++){  
+                            $sqlEvent[$z]=substr($sqlEvent[$z],0,-1).")";        
+                        }  
+                        
+                        mysql_query("UPDATE anmeldung SET
+                                        Gruppe = '".strtoupper($_POST['combinedgroup'])."'
+                                        WHERE xAnmeldung = ".$_POST['item']."");
+                                
+                        if(mysql_errno() > 0){
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }
+                       
+                        // check to delete 
+                        if ($row_g[0]!='') {  
+                            for ($k=0;$k<count($cat_arr);$k++){  
+                                $groupexist=AA_checkGroup($row_g[0], $cat_arr[$k],$comb_arr[$k]);   
+                               
+                                if (!$groupexist) {   
+                                    
+                                        $sql_ru="SELECT  
+                                                    r.xRunde                        
+                                                FROM
+                                                    anmeldung  as a
+                                                    LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
+                                                    LEFT JOIN runde as r ON (r.xWettkampf=s.xWettkampf)
+                                                    LEFT JOIN wettkampf as w ON (w.xWettkampf=s.xWettkampf)  
+                                                WHERE
+                                                    r.xWettkampf IN " .  $sqlEvent[$r] . "
+                                                    AND a.xMeeting=" .$_COOKIE['meeting_id'] ." 
+                                                    AND r.Gruppe='" . $row_g[0] ."'"; 
+                                            
+                                        $res_ru=mysql_query($sql_ru);
+        
+                                        if(mysql_errno() > 0)
+                                            {
+                                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                        }else{ 
+                                                while($row_ru=mysql_fetch_row($res_ru)) {  
+                                                    // delete 
+                                                    mysql_query("DELETE FROM runde" 
+                                                                . " WHERE xRunde = ".$row_ru[0]);  
+                                                }  
+                                        }    
+                                }
+                                else {
+                                    $r++;  
+                                }  
+                            }      
                         }      
-                    }      
-                 }
-              } 
+                     }
+                  } 
+              }     
+              else {          // no round exist    
+                                    
+                  mysql_query("UPDATE anmeldung SET
+                                                Gruppe = '".strtoupper($_POST['combinedgroup'])."'
+                                          WHERE xAnmeldung = ".$_POST['item']."");
+                                            
+                  if(mysql_errno() > 0){
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }   
+              }
     }       
     mysql_query("UNLOCK TABLES");     
 }
