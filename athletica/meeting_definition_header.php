@@ -201,11 +201,16 @@ else		// no DB error
 	  <?php echo $strYes ?></td>-->
 	  <td colspan="2"><input type="hidden" name="online" value="yes"/></td>
   </tr>
+  <?php
+  if ($row['Nummer'] > 0){
+      $dis = "disabled='disabled'";
+  }
+  ?>
   <tr>
 	<th class='dialog'><?php echo $strMeetingNbr; ?></th>
 	<td class='forms'><input class='text' name='nbr' type='text'
 			maxlength='20' value="<?php echo $row['Nummer']; ?>"
-			onchange='document.change_def.submit()' /></td>
+			onchange='document.change_def.submit()'  <?php echo $dis; ?>/></td>
 	<td></td>
 	<th class='dialog'><?php echo $strProgramMode; ?></th>
 	<td class='forms'><?php
