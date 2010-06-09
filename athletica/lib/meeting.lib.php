@@ -568,7 +568,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 				$setFormula = "";
 				if($_POST['conv_changed'] == 'yes')
 				{   
-					if($_POST['conv'] == $cvtTable[$strConvtableRankingPoints]){ // check ranking points
+					if($_POST['conv'] == $cvtTable[$strConvtableRankingPoints] || $_POST['conv'] == $cvtTable[$strConvtableRankingPointsU20]){ // check ranking points
 						$keysRP = array_keys($cvtFormulas[$_POST['conv']]);
 						if($row[3] == $cfgDisciplineType[$strDiscTypeRelay]){ // if relay type
 							$setFormula = ", Punkteformel='".$keysRP[1]."'";
@@ -629,7 +629,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 				}
 				else if($_POST['conv_changed'] == 'yes')	// conv. table changed
 				{    
-					AA_meeting_resetResults($row[0], $formula);
+					AA_meeting_resetResults($row[0], $formula, $_POST['conv']);
 				}
 			}	// end while every event for this category
 
@@ -955,9 +955,10 @@ function AA_meeting_printDate($name, $date, $submit=FALSE)
 //
 // Reset result points
 //
-function AA_meeting_resetResults($event, $formula)
+function AA_meeting_resetResults($event, $formula, $conv = '')
 {
 	global $strConvtableRankingPoints;
+    global $strConvtableRankingPointsU20; 
 	
 	require('./lib/common.lib.php');
 	require('./lib/utils.lib.php');
@@ -1007,7 +1008,19 @@ function AA_meeting_resetResults($event, $formula)
 		else	// new formula set
 		{
 			// if ranking points are set -> calc special
-			$rp = $GLOBALS['cvtFormulas'][$GLOBALS['cvtTable'][$strConvtableRankingPoints]]; // formulas for ranking points
+            
+            if (empty($conv)){
+                $rp = $GLOBALS['cvtFormulas'][$GLOBALS['cvtTable'][$strConvtableRankingPoints]]; // formulas for ranking points  
+            }
+            else {
+                    if ($conv == $cvtTable[$strConvtableRankingPointsU20]) {
+                         $rp = $GLOBALS['cvtFormulas'][$GLOBALS['cvtTable'][$strConvtableRankingPointsU20]]; // formulas for ranking points 
+                    }
+                    else {
+                        $rp = $GLOBALS['cvtFormulas'][$GLOBALS['cvtTable'][$strConvtableRankingPoints]]; // formulas for ranking points 
+                    }
+            }
+			
 			if(array_key_exists($formula, $rp)){
 				
 				mysql_free_result($result);
@@ -1160,7 +1173,7 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
     include('./convtables.inc.php');
     require('./lib/common.lib.php');      
       
-    if(!empty($_POST['svmcategory'])){
+    if(!empty($_POST['svmcategory'])){  
         $svm = $_POST['svmcategory'];
         
         // get short name
@@ -1172,7 +1185,7 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
          if(mysql_errno() > 0) {
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                   
             }   
-      
+                 
         if(isset($cfgSVM[$svmCode])){
             $arrSVM = $cfgSVM[$svmCode];  
             $k = 0;
@@ -1188,9 +1201,15 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
                    continue;
                 }
                 
-                $wTyp=$_POST['wTyp'];       
+                $wTyp=$_POST['wTyp'];    
                 
-                $sql="INSERT INTO wettkampf SET
+                $sql="SELECT xWettkampf FROM wettkampf WHERE  xDisziplin = " . $d ." AND xKategorie_svm = " .$svm . " AND xMeeting = " .$_COOKIE['meeting_id'];
+                $res = mysql_query($sql);
+                $num = mysql_num_rows($res);
+               
+                if (mysql_num_rows($res) == 0) {    
+                    
+                     $sql="INSERT INTO wettkampf SET
                         Typ = ".$wTyp."
                         , Haftgeld = '$penalty'
                         , Startgeld = '$disfee' 
@@ -1198,21 +1217,31 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
                         , xKategorie = ".$_POST['cat']."
                         , xDisziplin = $d
                         , xMeeting = ".$_COOKIE['meeting_id']." 
-                        , xKategorie_svm = $svm";
-               
-                mysql_query($sql);
+                        , xKategorie_svm = $svm";                   
                 
-                if(mysql_errno() > 0) {
-                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                    break;
-                }    
-                 
-                $event=mysql_insert_id(); 
-                $_POST['item'] = $event; 
-                 if (isset($cfgSVM[$svmCode."_T"][$k-1])) {           // fix timetable
-                    $st = $cfgSVM[$svmCode."_T"][$k-1]; 
-                    AA_meeting_addTime($st, $wTyp,$event, $dTyp);
-                 }  
+                  
+                    mysql_query($sql);
+                    
+                    if(mysql_errno() > 0) {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        break;
+                    }    
+                   
+                    $event=mysql_insert_id(); 
+                    $_POST['item'] = $event; 
+                     if (isset($cfgSVM[$svmCode."_T"][$k-1])) {           // fix timetable
+                        $st = $cfgSVM[$svmCode."_T"][$k-1]; 
+                        AA_meeting_addTime($st, $wTyp,$event, $dTyp);
+                     } 
+                     else {
+                           if ($d >= 88 && $d <=99){                       // relays
+                                  // dummy round for relays
+                                  $st = '00:00:00';
+                                  AA_meeting_addTime($st, $wTyp,$event, $dTyp);
+                           }
+                         
+                     }
+                }  
             }  
                                
             // set conversion table                                           
