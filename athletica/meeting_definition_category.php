@@ -811,7 +811,7 @@ else			// no DB error
 				<input name="nocat" type="hidden" value="1"/>
 			
 			<?php
-			if($row[3]==$cvtTable[$strConvtableRankingPoints]){
+			if($row[3]==$cvtTable[$strConvtableRankingPoints] || $row[3]==$cvtTable[$strConvtableRankingPointsU20]){
 				?>
 				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $row[0]; ?>.arg.value='change_formula'; 
 					document.event_<?php echo $row[0]; ?>.submit()"/>     			  
@@ -1059,37 +1059,67 @@ else			// no DB error
 				}
 			   
 				if(isset($cfgCombinedDef[$my_tmp])){
-					$tt = $cfgCombinedDef[$my_tmp];   
-					
+					 $tt = $cfgCombinedDef[$my_tmp];   
+					 $fix_disc = false;   
+                     if (isset($cfgCombinedWO[$tt])){
+                         $fix_disc = true;
+                     }
+                     elseif ($tt == 'ACup'){
+                         $tt_AC = $tt ."_" .$row[5]; 
+                          if (isset($cfgCombinedWO[$tt_AC])){ 
+                                $fix_disc = true;   
+                          }
+                     }
+                     
 					?>
-					<td class='forms'>            
+					<td class='dialog'>            
 					<input name='cmbtype' type='hidden' value='<?php echo $t; ?>' />
 					<?php
-					$dropdown = new GUI_Select('discipline_cmb', 1, "document.event_disc_$row[0].submit()");                                       
-						 
-					$res_d = mysql_query("SELECT 
-												xDisziplin
-												, Name
-												, Code 
-										  FROM 
-												disziplin");  
-					$val=$cfgCombinedWO[$tt][$c];
-					
-					while ($row_d = mysql_fetch_array($res_d)){  
-						if(!empty($_POST['combinedtype'])){  
-							 if($row_d[2] == $row[16]) {                                         
-								$dropdown->selectOption($row[16]);
-							}
-						}                            
-						else {
-							 $dropdown->selectOption($row[16]);                                       
-						}                           
-									
-					$dropdown->addOption( $row_d[1],$row_d[2]);   
-					}                 
-				$dropdown->printList();  
-					   
-				$c++;                                       // count of combined disciplines  
+
+					//$dropdown = new GUI_Select('discipline_cmb', 1, "document.event_disc_$row[0].submit()");  
+                    if ($fix_disc){
+                         $res_d = mysql_query("SELECT 
+                                                    xDisziplin
+                                                    , Name
+                                                    , Code 
+                                              FROM 
+                                                    disziplin
+                                              WHERE Code = ". $row[16]); 
+                            
+                         $row_d = mysql_fetch_array($res_d);
+                        
+                        echo " " . $row_d[1];
+                         ?>
+                         <!--<input name="discipline_cmb_<?php echo $c;?>" type="text" disabled="disabled" value="<?php echo $row_d[1];?>  "/>  -->
+                         <?php
+                    } 
+                    else {                                    
+					    $dropdown = new GUI_Select('discipline_cmb', 1, "");	 
+					    $res_d = mysql_query("SELECT 
+												    xDisziplin
+												    , Name
+												    , Code 
+										      FROM 
+												    disziplin");  
+					    $val=$cfgCombinedWO[$tt][$c];
+					    
+					    while ($row_d = mysql_fetch_array($res_d)){  
+						    if(!empty($_POST['combinedtype'])){  
+							     if($row_d[2] == $row[16]) {                                         
+								    $dropdown->selectOption($row[16]);
+							    }
+						    }                            
+						    else {
+							     $dropdown->selectOption($row[16]);                                       
+						    }                           
+									    
+					    $dropdown->addOption( $row_d[1],$row_d[2]);   
+					    }                 
+				    $dropdown->printList(); 
+                   
+                    } 
+                    $c++;    
+				// count of combined disciplines  
 				}
 				 else {                    
 					 ?>
@@ -1120,21 +1150,27 @@ else			// no DB error
 				?>
 				-
 				<?php
-			} elseif($row[3]==$cvtTable[$strConvtableRankingPoints]){
+			} elseif($row[3]==$cvtTable[$strConvtableRankingPoints] || $row[3]==$cvtTable[$strConvtableRankingPointsU20]){
 				?>
 				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $row[0] ?>.arg.value='change_formula'; 
 					document.event_<?php echo $row[0] ?>.submit()"/>
 				<?php
 			} else {
-				$dropdown = new GUI_Select('formula', 1, "document.event_$row[0].submit()");
-				foreach($cvtFormulas[$row[3]] as $key=>$value)
-				{
-					$dropdown->addOption($key, $key);
-					if($row[4] == $key) {
-						$dropdown->selectOption($key);
-					}
-				}
-				$dropdown->printList();
+                 if ($fix_disc){
+                         echo  $row[4];
+                 }
+                 else {     
+                 
+				    $dropdown = new GUI_Select('formula', 1, "document.event_$row[0].submit()");
+				    foreach($cvtFormulas[$row[3]] as $key=>$value)
+				    {
+					    $dropdown->addOption($key, $key);
+					    if($row[4] == $key) {
+						    $dropdown->selectOption($key);
+					    }
+				    }
+				    $dropdown->printList(); 
+                }  
 			}
 			?>
 			</td>
@@ -1501,7 +1537,7 @@ else			// no DB error
 			<input name='cat' type='hidden' value='<?php echo $cCategory; ?>' />
 			<input name='punktetabelle' type='hidden' value='<?=$punktetabelle?>' />
 			<input name='combtype' type='hidden' value='<?php echo $comb; ?>' />
-			<?php $dd = new GUI_DisciplineDropDown(0, true, false, $keys, "document.newdiscipline_$comb.submit()"); ?>
+			<?php if (!$fix_disc) { $dd = new GUI_DisciplineDropDown(0, true, false, $keys, "document.newdiscipline_$comb.submit()");} ?>
 			<td class='dialog' colspan='6'></td>
 			</form>
 		</tr>
