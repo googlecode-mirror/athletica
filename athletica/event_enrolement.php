@@ -1003,7 +1003,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
                        
 						 w.xMeeting = ".$_COOKIE['meeting_id']."
 					ORDER BY
-						".$argument.";";
+						".$argument.", a.xAnmeldung;";
 			
 			$query = $sql; 
            
