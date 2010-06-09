@@ -101,12 +101,39 @@ $max = 0;
 //
 // save entered group numbers
 if($_POST['arg'] == "save"){
-	
+	$flagHeats = false; 
 	foreach($_POST['groups'] as $entry => $group){
 		
-		mysql_query("UPDATE anmeldung SET Gruppe = '$group' WHERE xAnmeldung = ".$entry);		
+        $sql="SELECT r.Status       
+               FROM
+                    anmeldung  AS a                      
+                    LEFT JOIN start as s ON (a.xAnmeldung = s.xAnmeldung) 
+                    LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)
+                    LEFT JOIN wettkampf as w On (w.xWettkampf=s.xWettkampf)    
+               WHERE
+                    a.xAnmeldung=" . $entry . "    
+                    AND a.Gruppe = r.Gruppe                        
+                    AND a.xMeeting=" .$_COOKIE['meeting_id']; 
+        
+        $res=mysql_query($sql);  
+        if(mysql_errno() > 0)
+        {
+              AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        else { 
+              mysql_query("UPDATE anmeldung SET Gruppe = '$group' WHERE xAnmeldung = ".$entry);     
+             
+              if (mysql_num_rows($res) > 0){
+                  $row= mysql_fetch_row($res);
+                  if ($row[0] >= 1 && $row[0] <= 4 ) {
+                        $flagHeats = true;    
+                  }   
+               }  
+        }   
 	}
-	
+    if ($flagHeats){                 
+        AA_printErrorMsg($strErrAthletesSeeded);   
+	}
 }
 //
 // assign groups by sort argument and max people per group
@@ -121,7 +148,7 @@ elseif($_POST['arg'] == "assign"){
 //
 if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 	
-	mysql_query("LOCK TABLES runde as r WRITE, wettkampf as w WRITE");
+	mysql_query("LOCK TABLES runde as r WRITE, runde WRITE, wettkampf as w WRITE, anmeldung as a READ, start as s READ");
 	
 	// if there are already rounds with no group, set all of them to the lowest group given
 	// (do not update rounds in last combined contest)
@@ -134,6 +161,7 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 			AND	w.Mehrkampfcode = $comb
 			AND	w.xKategorie = $category
 			AND	w.xMeeting = ".$_COOKIE['meeting_id']);
+   
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
 	}else{
@@ -153,19 +181,7 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 				
 				$g = 1;
 				
-			}
-			
-			mysql_query("	UPDATE runde as r, wettkampf as w SET 
-						r.Gruppe = '$g'
-					WHERE
-						r.xWettkampf = w.xWettkampf
-					AND	w.Mehrkampfcode = $comb
-                    AND w.Mehrkampfende = 0
-					AND	w.xKategorie = $category
-					AND	w.xMeeting = ".$_COOKIE['meeting_id']);
-			if(mysql_errno() > 0){
-				AA_printErrorMsg(mysql_errno().": ".mysql_error());
-			}
+			}     
 		}
 	}
 	
@@ -481,6 +497,7 @@ if($category > 0 && $comb > 0){
 				mysql_query("UPDATE anmeldung SET Gruppe = '' WHERE xAnmeldung = ".$curr[0]);
 			}
 			?>
+           <input type="hidden" name="hidden_groups[<?php echo $curr[0] ?>]" value="<?php echo $curr[3] ?>" > 
 			<tr>
 				<td class='dialog'><?php echo $curr[4] ?></td>
 				<td class='dialog'><?php echo $curr[1]." ".$curr[2] ?></td>
