@@ -40,7 +40,7 @@ require('./lib/cl_action_saveSpeakerStatus.lib.php');
 require('./lib/cl_action_saveWind.lib.php');
 require('./lib/cl_action_saveHandStopped.lib.php');
 
-require('./lib/cl_gui_faq.lib.php');
+require('./lib/cl_gui_faq.lib.php');  
 
 $AA_ERROR = '';
 
@@ -106,8 +106,7 @@ $action->process();			// process requested action
 if(!empty($GLOBALS['AA_ERROR'])) {
 	errorExit($action);
 }
-
-
+ 
 //
 // HTML Header
 //
@@ -135,12 +134,21 @@ if(!empty($GLOBALS['AA_ERROR'])) {
 			printf("<input type='hidden' name='$key' value='$value' />");
 		}
 	}
+    
+    $prog_mode = AA_results_getProgramMode();  
 	?>
 </form>
 
+
+
 <script type="text/javascript">
 <!--
-	document.next.submit();
+    var prog_mode = "<?php echo $prog_mode; ?>";
+	document.next.submit();   
+    if (prog_mode == 2) {
+        parent.frames[1].document.location.href = "http://localhost/athletica/event_results.php?arg=event&round=<?php echo $_POST['round']; ?>"; 
+    }
+  
 //-->
 </script>
 

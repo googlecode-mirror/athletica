@@ -79,12 +79,42 @@ $cfgResultsHighStayDecentral = array(        // stay on same height
                                 , "XX" 
                                 , "XXX"                                 
                             );
+$cfgResultsHighStayDecentralNotPassed = array(        // stay on same height                                     
+                                 "X" 
+                                , "XX" 
+                               
+                            );
+$cfgResultsHighStayDecentralEnd = array(        // to skip and finished                                   
+                                 "-" 
+                                , "O" 
+                                , "XO"  
+                                , "XXO"  
+                                , "XXX"                                                                                                                              
+                            );
+                            
+$cfgResultsHighStayDecentralEnd2 = array(        // to skip
+                                 "-" 
+                                , "O" 
+                                , "XO"  
+                                , "XXO"  
+                                
+                            );
+                            
+$cfgCountHeight = 15;
+$cfgHeightDiffJump = 0.05;
+$cfgHeightStartJump = 1.50;
+$cfgHeightDiffPole = 0.20;
+$cfgHeightStartPole = 3.50;
 
 $cfgResultsHighOut = "XXX";		// last high result
 // separator transformation mask	(valid separators in user entries)
 $cfgResultsSepTrans = array("."=>"$cfgResultsSeparator"
 								,	":"=>"$cfgResultsSeparator"
 								, ";"=>"$cfgResultsSeparator");
+                                
+$cfgMaxAthlete = 8;        // decentral ranking 8 athletes
+$cfgAfterAttempts1 = 3;    // after 3 attempts --> new position for 8 athletes
+$cfgAfterAttempts2 = 5;    // after 5 attempts --> new position for 8 athletes
 
 /**
  * Ranking lists

@@ -255,7 +255,7 @@ else		// delete all meeting data
 	//
 	//	delete 'serie'
 	// --------------
-	mysql_query("LOCK TABLES serie WRITE, rundenlog WRITE
+	mysql_query("LOCK TABLES serie WRITE, rundenlog WRITE, hoehe WRITE
 					, runde READ, wettkampf READ");
 	
 	$items = 0;
@@ -289,7 +289,16 @@ else		// delete all meeting data
 				$cma = ",";
 			}
 			mysql_free_result($result);
-
+            
+            mysql_query("
+                        DELETE FROM
+                            hoehe
+                        WHERE xRunde IN ($keys) 
+                        "); 
+            if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }  
+                    
 			mysql_query("
 				DELETE FROM
 					serie
