@@ -997,9 +997,82 @@ else if ($_POST['arg'] == 'restore')
                                 (31, '36.09 Mixed Team U12 M und U12 W', '36_09')");                                          
                                   
             }
-           
+            if($shortVersion < 4.0){  
+                    mysql_query("UPDATE `disziplin` SET Typ = 5 WHERE Code = 331"); 
+                    
+                    mysql_query("TRUNCATE TABLE kategorie_svm;");  
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (1, '29.01 Nationalliga A Männer', '29_01')"); 
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (2, '29.02 Nationalliga A Frauen', '29_02')");   
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (3, '30.01 Nationalliga B Männer', '30_01')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (4, '30.02 Nationalliga B Frauen', '30_02')");   
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (5, '31.01 Nationalliga C Männer', '31_01')");   
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (6, '31.02 Nationalliga C Frauen', '31_02')");  
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (7, '32.01 Regionalliga Ost Männer', '32_01')");  
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (8, '32.02 Regionalliga West Männer', '32_02')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (9, '32.03 Regionalliga Ost Frauen', '32_03')");   
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (10, '32.04 Regionalliga West Frauen', '32_04')");   
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (11, '32.05 Regionalliga Mitte Männer', '32_05')");   
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (12, '32.06 Regionalliga Mitte Frauen', '32_06')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (13, '33.01 Junior Liga A Männer', '33_01')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (14, '33.02 Junior Liga B Männer', '33_02')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (15, '33.03 Junior Liga A Frauen', '33_03')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (16, '33.04 Junior Liga B Frauen', '33_04')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (17, '33.05 Junior Liga C Männer', '33_05')"); 
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                                (18, '33.06 Junior Liga C Frauen', '33_06')"); 
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (19, '35.01 M30 und älter Männer', '35_01')");       
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (20, '35.02 U18 M', '35_02')");             
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (21, '35.03 U18 M Mehrkampf', '35_03')");       
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (22, '35.04 U16 M', '35_04')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (23, '35.05 U16 M Mehrkampf', '35_05')");      
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (24, '35.06 U14 M', '35_06')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (25, '35.07 U14 M Mannschaftswettkampf', '35_07')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (26, '35.08 U12 M Mannschaftswettkampf', '35_08')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (27, '36.01 W30 und älter Frauen', '36_01')");       
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (28, '36.02 U18 W', '36_02')");    
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (29, '36.03 U18 W Mehrkampf', '36_03')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (30, '36.04 U16 W', '36_04')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (31, '36.05 U16 W Mehrkampf', '36_05')");
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (32, '36.06 U14 W', '36_06')");     
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (33, '36.07 U14 W Mannschaftswettkampf', '36_07')");       
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (34, '36.08 U12 W Mannschaftswettkampf', '36_08')");      
+                    mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                               (35, '36.09 Mixed Team U12 M und U12 W', '36_09')");
              
-			
+			}
 			// security updates
 			mysql_query("UPDATE kategorie 
 							SET Code = 'U10M' 
