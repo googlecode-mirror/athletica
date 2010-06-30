@@ -2761,7 +2761,73 @@ function AA_checkCombinedLast($event)
     }
     return $comb_last;    
 }
+
+/**    
+     * set new position to athletes (after 3 attempts (pass = 2) and at final (pass = 3))
+     * ----------------------------------------------------------------------------------
+     */   
+function AA_newPosition($round, $pass)
+{ 
+    global $cfgMaxAthlete;
+    $field = '';
     
+    if ($pass == 2){
+       $field = ", ss.Position"; 
+    }
+    elseif ($pass == 3){
+       $field = ", ss.Position2"; 
+    }
+    $sql = "SELECT 
+                  ss.xSerienstart "
+                  . $field ."
+                  , ss.Rang
+                  , LPAD(s.Bezeichnung,5,'0') as heatid
+            FROM runde AS r
+                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                LEFT JOIN serienstart AS ss  ON (ss.xSerie = s.xSerie)
+                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                                                      
+                LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+                LEFT JOIN rundentyp AS rt
+                ON rt.xRundentyp = r.xRundentyp
+                LEFT JOIN anlage AS an
+                ON an.xAnlage = s.xAnlage
+            WHERE r.xRunde = " . $round ."                 
+            ORDER BY heatid, ss.Rang";             
+       
+        $res = mysql_query($sql);    
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        while ($row = mysql_fetch_row($res)) {
+            $heatStarts[] = $row[0];
+        }
+        $i = $cfgMaxAthlete;
+        foreach ($heatStarts AS $key => $val){
+             if ($i <= 0){
+                 $i = $cfgMaxAthlete + 1;
+             }
+             if ($pass == 2) {
+                 $sql = "UPDATE serienstart SET Position2 = " . $i ." WHERE xSerienstart = " . $val;     
+             }
+             elseif ($pass == 3) {  
+                  $sql = "UPDATE serienstart SET Position3 = " . $i ." WHERE xSerienstart = " . $val;  
+             }
+             mysql_query($sql);    
+             if(mysql_errno() > 0) {        // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+             } 
+             if ($i <= $cfgMaxAthlete){
+                   $i--;  
+             }
+             else {
+                 $i++;
+             }
+        }
+}    
+
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

@@ -1793,7 +1793,7 @@ function AA_heats_delete($round)
 {
 	require('./lib/common.lib.php');
       
-	mysql_query("LOCK TABLES runde READ ,rundenset READ, serie WRITE, serienstart WRITE");
+	mysql_query("LOCK TABLES runde READ ,rundenset READ, serie WRITE, serienstart WRITE, hoehe WRITE");
 
 	// delete only possible if no results entered yet
 	if(AA_getRoundStatus($round) > $GLOBALS['cfgRoundStatus']['heats_done'])
@@ -1823,6 +1823,15 @@ function AA_heats_delete($round)
 				{
 					$err = mysql_errno() . ": " . mysql_error();
 				}
+                $sql = "DELETE FROM hoehe 
+                               WHERE xRunde = " . $round ."    
+                                     AND xSerie = " . $row[0];
+                mysql_query($sql);
+                if(mysql_errno() > 0)
+                {
+                    $err = mysql_errno() . ": " . mysql_error();
+                }
+                                     
 			}
 			if($err != '')
 			{
@@ -1932,6 +1941,7 @@ function AA_heats_printNewStart($event, $round, $action)
 	}
    
 	$result = mysql_query($query);
+    
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}

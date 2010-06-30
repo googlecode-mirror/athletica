@@ -31,7 +31,8 @@ if (!defined('AA_CL_ACTION_SAVERESULT_LIB_INCLUDED'))
 
 
 require('./lib/cl_action_default.lib.php');
-require('./lib/cl_result.lib.php');
+require('./lib/cl_result.lib.php'); 
+require('./lib/results.lib.php'); 
 
 class Action_saveResult extends Action_default
 {
@@ -59,6 +60,10 @@ class Action_saveResult extends Action_default
 	{   
 		require('./lib/common.lib.php');
 		require('./lib/utils.lib.php');
+        // get program mode
+        $prog_mode = AA_results_getProgramMode();
+        
+        global $cfgMaxAthlete, $cfgAfterAttempts1, $cfgAfterAttempts2;
 
 		// track disciplines, with or without wind
 		if(($this->type == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeNone']])
@@ -97,7 +102,51 @@ class Action_saveResult extends Action_default
 		else if($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeJump']])
 		{
 			$result = new TechResult($_POST['round'], $_POST['start'], $_POST['item']);
-			$this->reply = $result->save($_POST['perf'], $_POST['wind'],'',$_POST['remark'], $_POST['xAthlete']);
+			$this->reply = $result->save($_POST['perf'], $_POST['wind'],'',$_POST['remark'], $_POST['xAthlete'], $_POST['row_col'], $_POST['rows']);    
+            
+             if ($prog_mode == 2){
+                $arrfield_nr = explode('_',$this->reply->getRowCol());
+                $current_col = $arrfield_nr[1];
+                $current_field_nr = $arrfield_nr[0];
+                $row = $this->reply->getRows();  
+                if ($current_col > $cfgAfterAttempts1) {
+                    if ($row > $cfgMaxAthlete){
+                        $row = $cfgMaxAthlete;
+                    } 
+                }
+                
+                $field_nr_pass2 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts1;
+                $field_nr_pass3 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts2; 
+               
+                switch ($current_col) {
+                     case 1:
+                     case 2: 
+                     case 3:  if ($current_field_nr == $field_nr_pass2){  
+                                  $this->reply->setPass(2);
+                              } 
+                              else {
+                                  $this->reply->setPass(0); 
+                              }
+                               
+                              break;
+                     case 4: 
+                     case 5:  if ($current_field_nr == $field_nr_pass3){  
+                                  $this->reply->setPass(3);
+                              } 
+                              else {
+                                  $this->reply->setPass(2); 
+                              }
+                              break;
+                     case 6: 
+                     default: $this->reply->setPass(3);
+                              break;
+              
+                }
+                if ($current_field_nr == $field_nr_pass2 || $current_field_nr == $field_nr_pass3) {
+                    AA_newPosition($_POST['round'],$this->reply->getPass() ); 
+                }
+                
+            }
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
@@ -112,16 +161,60 @@ class Action_saveResult extends Action_default
 		{
 			$result = new TechResult($_POST['round'], $_POST['start'], $_POST['item']);
            
-			$this->reply = $result->save($_POST['perf'],'','',$_POST['remark'], $_POST['xAthlete']);
+			$this->reply = $result->save($_POST['perf'],'','',$_POST['remark'], $_POST['xAthlete'], $_POST['row_col'], $_POST['rows']);
+            
+            if ($prog_mode == 2){
+                $arrfield_nr = explode('_',$this->reply->getRowCol());
+                $current_col = $arrfield_nr[1];
+                $current_field_nr = $arrfield_nr[0];
+                $row = $this->reply->getRows();  
+                if ($current_col > $cfgAfterAttempts1) {
+                    if ($row > $cfgMaxAthlete){
+                        $row = $cfgMaxAthlete;
+                    } 
+                }
+                
+                $field_nr_pass2 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts1;
+                $field_nr_pass3 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts2; 
+               
+                switch ($current_col) {
+                     case 1:
+                     case 2: 
+                     case 3:  if ($current_field_nr == $field_nr_pass2){  
+                                  $this->reply->setPass(2);
+                              } 
+                              else {
+                                  $this->reply->setPass(0); 
+                              }
+                               
+                              break;
+                     case 4: 
+                     case 5:  if ($current_field_nr == $field_nr_pass3){  
+                                  $this->reply->setPass(3);
+                              } 
+                              else {
+                                  $this->reply->setPass(2); 
+                              }
+                              break;
+                     case 6: 
+                     default: $this->reply->setPass(3);
+                              break;
+              
+                }
+                if ($current_field_nr == $field_nr_pass2 || $current_field_nr == $field_nr_pass3) {
+                    AA_newPosition($_POST['round'],$this->reply->getPass() ); 
+                }                      
+            }               
+            
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
-           if ($this->reply->getPerformance() == ''){                 
+            if ($this->reply->getPerformance() == ''){                 
                 $txt = '';
             }                            
             else {
 			    $txt = AA_formatResultMeter($this->reply->getPerformance());
-            }
+            } 
 		}
 
 		// high jump, pole vault
@@ -153,7 +246,7 @@ class Action_saveResult extends Action_default
 				$msg = ""; 
 		}
 
-		$this->ok_out['msg'] = $msg;
+		$this->ok_out['msg'] = $msg;           
 	}
 	
 

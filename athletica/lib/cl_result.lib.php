@@ -33,7 +33,9 @@ class Result
 	var $info;
 	var $points;
     var $remark;      
-    var $xAthlete;
+    var $xAthlete;  
+    var $row_col; 
+    var $rows; 
 
 	function Result($round=0, $startID=0, $resultID=0)
 	{
@@ -42,13 +44,17 @@ class Result
 		$this->resultID = $resultID;
 		$this->performance = '';
 		$this->info = ''; 
-        $this->xAthlete = '';               
+        $this->xAthlete = '';  
+        $this->row_col = 0;    
+        $this->rows = 0;                      
 	}
 	
-	function save($performance, $info = '', $secFlag = false, $remark='', $xAthlete)
+	function save($performance, $info = '', $secFlag = false, $remark='', $xAthlete, $row_col, $rows)
 	{   $this->remark = $remark; 
         $this->performance = $performance; 
-        $this->xAthlete = $xAthlete;    
+        $this->xAthlete = $xAthlete; 
+        $this->row_col = $row_col; 
+        $this->rows = $rows;     
      
 		require('./lib/utils.lib.php');
 		$GLOBALS['AA_ERROR'] = '';
@@ -181,6 +187,8 @@ class Result
 					$reply->setAction(RES_ACT_UPDATE);
 					$reply->setPerformance($this->performance);
 					$reply->setInfo($this->info);
+                    $reply->setRowCol($this->row_col); 
+                    $reply->setRows($this->rows);    
 				}
 			}
 		}
@@ -201,6 +209,8 @@ class Result
 				$reply->setAction(RES_ACT_INSERT);
 				$reply->setPerformance($this->performance);
 				$reply->setInfo($this->info);
+                $reply->setRowCol($this->row_col); 
+                $reply->setRows($this->rows);    
 			}
 		}	// ET add or change
 		mysql_query("UNLOCK TABLES");
@@ -476,6 +486,8 @@ class ResultReturn
 	var $action;	// action performed
 	var $performance;		// new performance
 	var $info;		// new info 
+    var $pass;
+    
 
 	function ResultReturn($key=0, $action=RES_ACT_UNK, $perf='', $info='')
 	{
@@ -483,6 +495,7 @@ class ResultReturn
 		$this->setAction($action);
 		$this->setPerformance($perf);
 		$this->setInfo($info);
+        $this->pass = 0;
 	}
 
 	function setKey($key)
@@ -527,6 +540,41 @@ class ResultReturn
 	{
 		return $this->info;
 	}
+    
+    function setRowCol($row_col)
+    {
+        $this->row_col = $row_col;
+    }
+    
+     function getRowCol()
+    {
+        //return substr($this->$row_col,5,strlen($this->$row_col));
+        return $this->row_col;
+    }
+    
+     
+    function setRows($rows)
+    {
+        $this->rows = $rows;
+    }
+    
+     function getRows()
+    {
+        //return substr($this->$row_col,5,strlen($this->$row_col));
+        return $this->rows;
+    }
+    
+     function setPass($pass)
+    {
+        $this->pass = $pass;
+    }
+    
+     function getPass()
+    {
+        //return substr($this->$row_col,5,strlen($this->$row_col));
+        return $this->pass;
+    }
+
 
 } // end class ResultReturn
     

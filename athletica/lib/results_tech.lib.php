@@ -10,7 +10,7 @@ if (!defined('AA_RESULTS_TECH_LIB_INCLUDED'))
 {
     define('AA_RESULTS_TECH_LIB_INCLUDED', 1);
 
-function AA_results_Tech($round, $layout)
+function AA_results_Tech($round, $layout )
 {                          
 require('./lib/cl_gui_button.lib.php');
 
@@ -27,10 +27,14 @@ $nextRound = AA_getNextRound($presets['event'], $round);
 
 $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
 
+$prog_mode = AA_results_getProgramMode();  
+
 //
 // terminate result processing
 //
-if($_GET['arg'] == 'results_done')
+
+
+if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change_results' && $_GET['arg'] != 'del_results'))
 {
     $eval = AA_results_getEvaluationType($round);
     $combined = AA_checkCombined(0, $round);
@@ -55,26 +59,185 @@ if($_GET['arg'] == 'results_done')
         $roundSQL2 = "AND s.xRunde = $round";
     }
     
-    // evaluate max. nbr of results entered
-    $r = 0;
-    $result = mysql_query("SELECT COUNT(*)"
-                                . " FROM resultat AS r"
-                                . ", serienstart AS ss"
-                                . ", serie AS s"
-                                . " WHERE r.xSerienstart = ss.xSerienstart"
-                                . " AND ss.xSerie = s.xSerie"
-                                //. " AND s.xRunde = " . $round
-                                . " $roundSQL2 "
-                                . " GROUP BY r.xSerienstart"
-                                . " ORDER BY 1 DESC");
-
+    // number of athletes
+    $sql = "SELECT 
+                    ss.xSerienstart  
+             FROM 
+                    runde AS r
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                    LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+             WHERE r.xRunde = " . $round;
+    $res = mysql_query($sql);
+   
     if(mysql_errno() > 0) {        // DB error
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
     }
     else {
-        $row = mysql_fetch_row($result);        // get first row
-        $r = $row[0];                                // max. nbr of results
-        mysql_free_result($result);
+        $count_athlete = mysql_num_rows($res);     
+    }
+    
+    // evaluate max. nbr of results entered
+    $r = 0;
+    if ($prog_mode == 2){
+         $sql="SELECT 
+                COUNT(*),                  
+                ru.Versuche, 
+                LPAD(s.Bezeichnung,5,'0') as heatid,  
+                if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder 
+                , ss.Position
+                , ss.Position2
+                , ss.Position3    
+          FROM 
+                resultat AS r
+                , serienstart AS ss
+                , serie AS s
+                , runde AS ru  
+          WHERE 
+                r.xSerienstart = ss.xSerienstart
+                AND ss.xSerie = s.xSerie
+                AND s.xRunde = ru.xRunde " .  
+                $roundSQL2 ."
+          GROUP BY r.xSerienstart
+          ORDER BY posOrder ";
+          $result = mysql_query($sql);                                            
+    }
+    else {
+        $result = mysql_query("SELECT COUNT(*), ru.Versuche"
+                                . " FROM resultat AS r"
+                                . ", serienstart AS ss"
+                                . ", serie AS s"
+                                 . ", runde AS ru" 
+                                . " WHERE r.xSerienstart = ss.xSerienstart"
+                                . " AND ss.xSerie = s.xSerie"
+                                . " AND s.xRunde = ru.xRunde"
+                                . " $roundSQL2 "
+                                . " GROUP BY r.xSerienstart"
+                                . " ORDER BY 1 DESC");  
+    }
+    
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }
+    else {
+          if ($prog_mode == 2){                       // decentral with ranking
+                 $z=0;
+                 $pass = 0;
+                 $arr_attAthlete = array();
+                 $maxAthlete = $cfgMaxAthlete;
+                 if ($count_athlete < $cfgMaxAthlete){
+                     $maxAthlete = $count_athlete;
+                 }
+                 else {
+                        $maxAthlete = $cfgMaxAthlete;
+                 }
+                 while( $row = mysql_fetch_row($result)){
+                     
+                     if ($z == 0){                                // first row                      
+                        $maxatt = $row[1];                         
+                     }
+                    $arr_attAthlete[] = $row[0]; 
+                    $z++; 
+                 }
+               
+                $maxAthleteAtt = max($arr_attAthlete);
+                $minAthleteAtt = min($arr_attAthlete); 
+                $onlyMaxAthlete = false; 
+                if ($count_athlete > $cfgMaxAthlete){
+                    if ($maxAthleteAtt == $minAthleteAtt && $minAthleteAtt == $cfgAfterAttempts1){
+                       $onlyMaxAthlete = true; 
+                    }
+                    elseif ($maxAthleteAtt > $cfgAfterAttempts1) {
+                             $onlyMaxAthlete = true;
+                    }
+                }
+                if ($onlyMaxAthlete && $count_athlete > $cfgMaxAthlete){
+                    $c = 0;
+                    $arr_attAthlete_new = array();
+                    foreach ($arr_attAthlete as $key => $val){
+                        $c++;
+                        $arr_attAthlete_new[] = $val;
+                        if ($c >= $maxAthlete ) {
+                            break;
+                        }
+                    }
+                    $arr_attAthlete = $arr_attAthlete_new;  
+                    $maxAthleteAtt = max($arr_attAthlete);
+                    $minAthleteAtt = min($arr_attAthlete);  
+                }
+               
+                
+                $r = $maxAthleteAtt;     
+                $first_row = false; 
+                
+                if ($maxAthleteAtt == $cfgAfterAttempts1 && $maxAthleteAtt == $minAthleteAtt) { 
+                          $pass = 2;  
+                } 
+                elseif ($maxAthleteAtt == $cfgAfterAttempts2 && $maxAthleteAtt == $minAthleteAtt) {
+                        $pass = 3; 
+                } 
+                elseif ($maxAthleteAtt > $cfgAfterAttempts1 && $maxAthleteAtt < ($cfgAfterAttempts2 + 1)) {
+                              $pass = 2;  
+                }            
+                elseif ($maxAthleteAtt == ($cfgAfterAttempts2 + 1)) {
+                        $pass = 3; 
+                } 
+                elseif ($maxAthleteAtt == $minAthleteAtt && $z == $count_athlete){
+                            $first_row = true;
+                            $maxAthleteAtt++;
+                }
+                               
+                $z=0;
+                $att_athlet = 0;
+                $fieldFocus = 0;
+                $first = true;
+                $result = mysql_query($sql); 
+               
+                while( $row = mysql_fetch_row($result)){
+                     $z++;               
+                     $att_athlet =  $row[0];   
+                     if ($row[0] < $maxAthleteAtt && !$first_row){
+                            break;
+                     }
+                     elseif ($row[0] < $maxAthleteAtt){
+                             $fieldFocus =  $att_athlet+1; 
+                              break;
+                     }
+                     else {
+                            $fieldFocus = ($z * ($maxatt + 1) ) + $att_athlet; 
+                     }
+                     if ($onlyMaxAthlete && $z >= $cfgMaxAthlete) {
+                         break;
+                     }
+                }  
+                if ($fieldFocus == 0){
+                     $fieldFocus = 1;              
+                }
+                else {
+                    if ($onlyMaxAthlete){
+                        if ($z == $cfgMaxAthlete && $att_athlet == $maxAthleteAtt){
+                            $z = 1;
+                            $att_athlet++;
+                            $fieldFocus = $att_athlet;   
+                        }
+                    }
+                    else{     
+                    
+                        if ($z == $count_athlete && $att_athlet == $maxAthleteAtt){
+                            $z = 1;
+                            $att_athlet++;
+                            $fieldFocus = $att_athlet;   
+                        }
+                    }
+                }    
+          }
+          else {
+              $row = mysql_fetch_row($result);
+              $r = $row[0];
+          }
+         mysql_free_result($result);
     }
 
     if($r > 0)        // any results found
@@ -108,14 +271,14 @@ if($_GET['arg'] == 'results_done')
                 $qry = $qry . ", Wind" . $i . " char(5) default '0'";
             }
             $qry = $qry . ") TYPE=HEAP";
-
+          
             mysql_query($qry);    // create temporary table
 
             if(mysql_errno() > 0) {        // DB error
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
             }
             else
-            {
+            {  
                 $result = mysql_query("
                     SELECT
                         resultat.Leistung
@@ -139,7 +302,7 @@ if($_GET['arg'] == 'results_done')
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
                 else
-                {
+                {     
                     // initialize variables
                     $ss = 0;
                     $i = 0;
@@ -153,9 +316,11 @@ if($_GET['arg'] == 'results_done')
                                 for(;$i < $r; $i++) { // fill remaining result cols.
                                     $qry = $qry . ",0,''";
                                 }
+                                
                                 mysql_query($qry . ")");
+                                 
                                 if(mysql_errno() > 0) {        // DB error
-                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());     
                                 }
                             }
                             // (re)set SQL statement
@@ -167,7 +332,7 @@ if($_GET['arg'] == 'results_done')
                         $i++;                                // count nbr of results
                     }
                     mysql_free_result($result);
-
+                   
                     // insert last pending data in temp table
                     if($ss != 0) {
                         for(;$i < $r; $i++) {    // fill remaining result cols.
@@ -274,12 +439,13 @@ if($_GET['arg'] == 'results_done')
     }
     AA_results_resetQualification($round);
 }
-
+ 
 //
 // calculate ranking points if needed
 //
 if(($_GET['arg'] == 'results_done')
-|| ($_POST['arg'] == 'save_rank')){
+|| ($_POST['arg'] == 'save_rank')
+|| ($prog_mode == 2  && $_GET['arg'] != 'change_results' && $_GET['arg'] != 'del_results')){
     
     AA_utils_calcRankingPoints($round);
     
@@ -290,7 +456,8 @@ if(($_GET['arg'] == 'results_done')
 //
 if(($_GET['arg'] == 'results_done')
  || ($_POST['arg'] == 'save_rank')
- || ($_POST['arg'] == 'set_qual'))
+ || ($_POST['arg'] == 'set_qual')
+ || ($prog_mode == 2 && $_GET['arg'] != 'change_results' && $_GET['arg'] != 'del_results'))
 {
     // read qualification criteria
     $qual_top = 0;
@@ -535,9 +702,11 @@ if($round > 0)
         $prog_mode = AA_results_getProgramMode();
         
         AA_heats_printNewStart($presets['event'], $round, "event_results.php");
-
-        // display all athletes
-        $result = mysql_query("SELECT rt.Name"
+                   
+        
+       
+        // display all athletes        
+        $sql = "SELECT rt.Name"
                                 . ", rt.Typ"
                                 . ", s.xSerie"
                                 . ", s.Bezeichnung"
@@ -558,6 +727,7 @@ if($round > 0)
                                 . ", r.nurBestesResultat"
                                 . ", ss.Bemerkung"
                                 . ", at.xAthlet"
+                                . ", if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder"    
                                 . " FROM runde AS r"
                                 . ", serie AS s"
                                 . ", serienstart AS ss"
@@ -577,15 +747,16 @@ if($round > 0)
                                 . " AND a.xAnmeldung = st.xAnmeldung"
                                 . " AND at.xAthlet = a.xAthlet"
                                 . " AND v.xVerein = at.xVerein"
-                                . " ORDER BY heatid, ss.Position");
-               
+                                . " ORDER BY heatid, posOrder";
+        $result = mysql_query($sql);     
+                                            
         if(mysql_errno() > 0) {        // DB error
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
         }
         else
-        {
-            AA_results_printMenu($round, $status);
-
+        {   $sum_athlet = mysql_num_rows($result);
+            AA_results_printMenu($round, $status, $prog_mode);
+          
             // initialize variables
             $h = 0;
             $i = 0;
@@ -683,7 +854,7 @@ if($round > 0)
                     }
 
                     $c = 0;
-                    if($status == $cfgRoundStatus['results_done']) {
+                    if($status == $cfgRoundStatus['results_done'] || $prog_mode == 2) {
                         $c++;        // increment colspan to include ranking
                     }
 ?>
@@ -712,7 +883,7 @@ if($round > 0)
         <th class='dialog'><?php echo $strCountry; ?></th>
         <th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
 <?php
-                    if($status == $cfgRoundStatus['results_done']) {
+                    if($status == $cfgRoundStatus['results_done'] || $prog_mode == 2) {
 ?>
         <th class='dialog'><?php echo $strRank; ?></th>
 <?php
@@ -779,7 +950,7 @@ if($round > 0)
                 else
                 {
                     // Show rank
-                    if($status == $cfgRoundStatus['results_done'])
+                    if($status == $cfgRoundStatus['results_done'] || $prog_mode == 2)
                     {
 ?>
         <form action='event_results.php' method='post'
@@ -793,7 +964,7 @@ if($round > 0)
                 value='<?php echo $row[8]; ?>' onChange='document.rank_<?php echo $r; ?>.submit()' />
         </td>
         <?php
-        if($status == $cfgRoundStatus['results_done'])
+        if($status == $cfgRoundStatus['results_done'] || $prog_mode == 2)
                     {
                         if($nextRound>0){
                             ?>
@@ -837,10 +1008,12 @@ if($round > 0)
         </form>
 <?php
                     }
-                    
+                   
+                     $disField = ($maxatt + 1) * $maxAthlete;            // attempts * 8 (first 8 athletes)
+                     
                      for($c=1; $c<=$cfgProgramMode[$prog_mode]['tech_res']; $c++)
                     {        
-                        
+                       
                        // Result focus:
                         // - Backoffice mode: same athlete, next result
                         // - Field mode: next athlete, same result
@@ -899,7 +1072,14 @@ if($round > 0)
                             $info = $resrow[2];
                         }
 
-                        if($status != $cfgRoundStatus['results_done']) {  
+                        if($status != $cfgRoundStatus['results_done'] || $prog_mode == 2) {  
+                            
+                            if ($pass >= 2 && $r > $disField){
+                                $dis = 'disabled=" disabled"';
+                            }
+                            else {
+                                  $dis = '';
+                            }
 ?>
         <form action='controller.php' method='post'
             name='perf_<?php echo $r; ?>' target='controller'>
@@ -910,12 +1090,15 @@ if($round > 0)
             <input type='hidden' name='round' value='<?php echo $round; ?>' />
             <input type='hidden' name='start' value='<?php echo $row[6]; ?>' />
             <input type='hidden' name='item' value='<?php echo $item; ?>' />
+            <input type='hidden' name='rows' value='<?php echo $sum_athlet; ?>' /> 
+            <input type='hidden' name='row_col' value='<?php echo $r ."_" . $c; ?>' />  
+            
 <?php
                             // technical disciplines with wind
                             if($layout == $cfgDisciplineType[$strDiscTypeJump])
                             {
 ?>
-            <input class='perfmeter' type='text' name='perf' maxlength='6'
+            <input class='perfmeter' type='text' id='perf_<?php echo $r; ?>' name='perf' maxlength='6'  <?php echo $dis; ?> 
                 value='<?php echo $perf; ?>'
                 onChange='checkSubmit(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
             <input class='nbr' type='text' name='wind' maxlength='5'
@@ -926,8 +1109,9 @@ if($round > 0)
                             // technical disciplines without wind
                             else
                             {
+                               
 ?>
-            <input class='perfmeter' type='text' name='perf' maxlength='6'
+            <input class='perfmeter' type='text' id='perf_<?php echo $r; ?>'  name='perf' maxlength='6'  <?php echo $dis; ?>
                 value='<?php echo $perf; ?>'
                 onChange='submitResult(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
             
@@ -956,7 +1140,8 @@ if($round > 0)
             <input type='hidden' name='round' value='<?php echo $round; ?>' />
             <input type='hidden' name='start' value='<?php echo $row[6]; ?>' />
             <input type='hidden' name='item' value='<?php echo $item; ?>' />
-            <input type='hidden' name='xAthlete' value='<?php echo $row[20]; ?>' />  
+            <input type='hidden' name='xAthlete' value='<?php echo $row[20]; ?>' /> 
+             
         <input class='textshort' type='text' name='remark' maxlength='5'
                 value='<?php echo $row[19]; ?>'
                 onChange='submitResult(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
@@ -1024,6 +1209,16 @@ if(!empty($presets['focus'])) {
         document.<?php echo $presets['focus']; ?>.rank.select();
         window.scrollBy(0,200);
     }
+//-->
+</script>
+<?php
+}
+else {
+    ?>
+    <script type="text/javascript">
+<!--
+      
+      document.perf_<?php echo $fieldFocus; ?>.elements['perf_<?php echo $fieldFocus; ?>'].focus();
 //-->
 </script>
 <?php
