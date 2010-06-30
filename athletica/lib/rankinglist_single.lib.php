@@ -144,52 +144,90 @@ $results = mysql_query("
 		, r.Datum
 		, r.Startzeit
 ");   
-
+   
   }
  else {      
+     // heats separate
 	   $results = mysql_query("
-	SELECT 
-		r.xRunde
-		, k.Name
-		, d.Name
-		, d.Typ
-		, w.xWettkampf
-		, r.QualifikationSieger
-		, r.QualifikationLeistung
-		, w.Punkteformel
-		, w.Windmessung
-		, r.Speakerstatus
-		, d.Staffellaeufer
-		, CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))
-		, w.xDisziplin
-		, rus.xRunde
-		, rus.Hauptrunde   
-	FROM
-		wettkampf AS w
-		LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
-   		LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin) 
-   		LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
-		LEFT JOIN rundenset as rs ON (r.xRunde=rs.xRunde) 
-		LEFT JOIN rundenset as rus ON (rus.xRundenset=rs.xRundenset AND rus.xMeeting = " . $_COOKIE['meeting_id'] .")   
-	WHERE " . $selection . "
-	w.xMeeting = " . $_COOKIE['meeting_id'] . " 	 
-	AND r.Status = " . $cfgRoundStatus['results_done'] . " 
-	AND r.Datum LIKE '".$date."'
-	ORDER BY
-		k.Anzeige
-		, d.Anzeige
-		, r.Datum
-		, r.Startzeit        
-		, rus.Hauptrunde DESC     
+	(SELECT 
+        r.xRunde
+        , k.Name 
+        , d.Name
+        , d.Typ
+        , w.xWettkampf
+        , r.QualifikationSieger
+        , r.QualifikationLeistung
+        , w.Punkteformel
+        , w.Windmessung
+        , r.Speakerstatus
+        , d.Staffellaeufer
+        , CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))
+        , w.xDisziplin
+        , rus.xRunde
+        , rus.Hauptrunde as rusHauptrundeSort
+        , k.Anzeige as kAnzeigeSort  
+        , d.Anzeige as dAnzeigeSort 
+        , r.Datum as rDatumSort  
+        , r.Startzeit as rStartzeitSort  
+    FROM
+        wettkampf AS w
+        LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+           LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin) 
+           LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
+        LEFT JOIN rundenset as rs ON (r.xRunde=rs.xRunde) 
+        LEFT JOIN rundenset as rus ON (rus.xRundenset=rs.xRundenset AND rus.xMeeting = " . $_COOKIE['meeting_id'] .")   
+    WHERE " . $selection . "
+    w.xMeeting = " . $_COOKIE['meeting_id'] . "  
+    AND r.Status = " . $cfgRoundStatus['results_done'] . " 
+    And (rus.xRunde is NULL OR  rus.xRunde = 0)
+    AND r.Datum LIKE '".$date."'
+   ) 
+        UNION           
+        (SELECT 
+        r.xRunde
+        , k.Name 
+        , d.Name
+        , d.Typ
+        , w.xWettkampf
+        , r.QualifikationSieger
+        , r.QualifikationLeistung
+        , w.Punkteformel
+        , w.Windmessung
+        , r.Speakerstatus
+        , d.Staffellaeufer
+        , CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))
+        , w.xDisziplin
+        , rus.xRunde
+        , rus.Hauptrunde as rusHauptrundeSort
+        , k.Anzeige as kAnzeigeSort 
+        , d.Anzeige as dAnzeigeSort 
+        , r.Datum as rDatumSort  
+        , r.Startzeit as rStartzeitSort  
+    FROM
+        wettkampf AS w
+        LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+           LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin) 
+           LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
+        LEFT JOIN rundenset as rs ON (r.xRunde=rus.xRunde) 
+        LEFT JOIN rundenset as rus ON (rus.xRundenset=rs.xRundenset AND rus.xMeeting = " . $_COOKIE['meeting_id'] .")   
+    WHERE " . $selection . "
+    w.xMeeting = " . $_COOKIE['meeting_id'] . "      
+    AND r.Status = " . $cfgRoundStatus['results_done'] . " 
+     And ( rs.Hauptrunde = 1)
+    AND r.Datum LIKE '".$date."'
+    ) 
+    ORDER BY kAnzeigeSort, dAnzeigeSort , rDatumSort , rStartzeitSort , rusHauptrundeSort DESC
 ");  
-  
+ 
 }        
 
 if(mysql_errno() > 0) {		// DB error
+      
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+   
 }
 else {
-	
+	  
 	$limitRankSQL = "";
 	$limitRank = false;
 	if($_GET['limitRank'] == "yes"){ // check if ranks are limited, but limitRankSQL will set only if export is pressed
@@ -240,7 +278,8 @@ else {
 			$cRounds--;                    
 			continue;
 		}
-		$roundSQL = "s.xRunde = $row[0]";
+		//$roundSQL = "s.xRunde = $row[0]";
+        $roundSQL = "s.xRunde = $row[0]";  
 		$cRounds = 0;
 		
 		// check page  break
@@ -413,8 +452,20 @@ else {
 	   
 		$sqlSeparate='';    
 		if (($catMerged || $eventMerged) & $heatSeparate) {   
-			 if ($row[13] > 0) {                 
-				$sqlSeparate=" AND ss.RundeZusammen = " . $row[13];   
+			 if ($row[13] > 0) {  
+                $roundSQL = '';  
+                if (empty($limitRankSQL) && empty($valid_result)){
+                        $sqlSeparate=" ss.RundeZusammen = " . $row[13];   
+                } 
+                else {
+                     if (empty($limitRankSQL) ){
+                           $valid_result = substr($valid_result,4, strlen($valid_result));
+                     }
+                     elseif (empty($valid_result) ){
+                             $limitRankSQL = substr($limitRankSQL,4, strlen($limitRankSQL));   
+                     }
+                    $sqlSeparate=" AND ss.RundeZusammen = " . $row[13];   
+                }  
 			 }  
 		} 
 	    
@@ -453,7 +504,8 @@ else {
 							 k1.Name , 							
 							 k1.Anzeige ,
                              ss.Bemerkung,
-                             w.Punkteformel  
+                             w.Punkteformel,
+                             w.info  
 						FROM serie AS s USE INDEX(Runde)
 				   LEFT JOIN serienstart AS ss USING(xSerie) 
 				   LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -524,6 +576,7 @@ else {
 		
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
+            echo "<br><br>query=$query"; 
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else {
@@ -550,16 +603,16 @@ else {
 					$nr = 0;    
 					if ($heatSeparate) {
 						if ($relay)
-							$list->printSubTitle($row_res[16], $row[2], $roundName); 
+							$list->printSubTitle($row_res[16], $row[2], $roundName, $row_res[24]); 
 						else {
 							 if (!$athleteCat){  
-						 	 	$list->printSubTitle($row_res[19], $row[2], $roundName); 
+						 	 	$list->printSubTitle($row_res[19], $row[2], $roundName, $row_res[24]); 
 							 } 
 						}  
 					}
 					else {
 						if (!$athleteCat){  
-							$list->printSubTitle($row[1], $row[2], $roundName); 					    
+							$list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]); 					    
 						}   
 					}  					 
 					$flagSubtitle=false; 
@@ -637,7 +690,7 @@ else {
 					    if ($athleteCat && !$relay){ 					    
 					      if($formaction == 'print') {   
 						    	if ($row_res[20]!=$atCatName){			            
-					   		   		$list->printSubTitle($row_res[20], $row[2], $roundName);  					   		   
+					   		   		$list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);  					   		   
 							   		$atCatName_keep=$atCatName; 
 							   		if ($flagInfoLine1){   
 										$list->printInfoLine($info_save1);
@@ -661,7 +714,7 @@ else {
                          if ($athleteCat && !$relay){ 					    
 					    	if($formaction == 'view') {
                          		if ($row_res[20]!=$atCatName){			            
-					   		   			$list->printSubTitle($row_res[20], $row[2], $roundName);  					   		   
+					   		   			$list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);  					   		   
 							   			
 							   			$atCatName_keep=$atCatName;
 							   			if ($flagInfoLine1){   
@@ -982,11 +1035,11 @@ else {
 							}		
 						}		
 					}
-					if ($heatSeparate) 
-						{$rank=$count_rank;    
+					if ($heatSeparate && $row_res[17] > 0) {    
+                         $rank=$count_rank;    
 						 if ($row_res[3]==$perf_save || $row_res[3] < 0)        // same rank or invalid result
 							 $rank='';  
-						}    
+					}    
 				    
 					if ($athleteCat && !$relay){
 						$nr++;         						
