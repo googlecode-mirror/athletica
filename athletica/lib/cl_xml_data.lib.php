@@ -20,8 +20,11 @@ if (!defined('AA_CL_XML_DATA_LIB_INCLUDED'))
 
 //require("common.lib.php");
 require('cl_performance.lib.php');
+require('cl_timetable.lib.php');
 require('meeting.lib.php');
-
+ include('./config.inc.php');
+ 
+ 
 if(AA_connectToDB() == FALSE){ // invalid db connection
 	return;
 }
@@ -347,7 +350,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					, w.Mehrkampfcode
 					, w.Mehrkampfreihenfolge
 			");	// the order "k.Code, w.xKategorie" makes sense if there are multiple self made categories (without any code)
-		
+		 
+       
 		if(mysql_errno() > 0){
 			echo(mysql_errno().": ".mysql_error());
 		}else{
@@ -375,7 +379,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					// self made category
 					$row[4] = "";
 				}
-				
+              			
 				//
 				// generate results for combined events
 				//
@@ -496,6 +500,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 						}
 						
 						$this->close_open_tags("disciplines");
+                       
 					}
 					$combined = array();
 					$fetched_events = array();
@@ -504,6 +509,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					$current_cat = $row[4];
 					$current_xcat = $row[8];
 				}
+                
+               
 				
 				// keep events rows of combined events to check on missing results after
 				if($row[0] == $cfgEventType[$strEventTypeSingleCombined]){
@@ -614,6 +621,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							, ru.xRunde
 							, r.Leistung "
 							. $order_perf;
+                        
 				}
 				else {						// relay event
 					$query = "
@@ -670,7 +678,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 				if(mysql_errno() > 0){
 					echo mysql_Error();
 				}else{
-					if(mysql_num_rows($res_results) > 0){
+					if(mysql_num_rows($res_results) > 0 ){
+                       
 						$this->write_xml_open("discipline", array('sportDiscipline'=>$row[3], 'licenseCategory'=>$row[4]));
 						
 						if($relay){
@@ -679,7 +688,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							$this->write_xml_open("athletes");
 						}
 					}
-					
+				
 					$id = 0;	// athletes id
 					$ru = 0;	// round id
 					while($row_results = mysql_fetch_assoc($res_results)){
@@ -803,12 +812,14 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							//$this->write_xml_finished("timeResult"," ");
 							//$this->write_xml_finished("distanceResult"," ");
 							//$this->write_xml_finished("scoreResult"," ");
+                            
+                           
 							$this->write_xml_finished("wind",$wind);
 							$this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);	// round type
 							$this->write_xml_finished("lap",$row_results['Bezeichnung']);		// heat name (A_, B_, 01, 02 ..)
 							$this->write_xml_finished("place",$row_results['Rang']);
 							$this->write_xml_finished("placeAddon",$rankadd);
-							$this->write_xml_finished("relevant",$relevant);
+							$this->write_xml_finished("relevant",$relevant);   
 							
 							// get athletes for effort details
 							$cRelayAt = 4;
@@ -922,8 +933,10 @@ document.getElementById("progress").width="<?php echo $width ?>";
 									}
 								}
 								//$this->close_open_tags("athletes");
+                                
+                               
 								$this->write_xml_open("athlete", array('license'=>$row_results['Lizenznummer'], 'licensePaid'=>$licensePaid
-										, 'licenseCat'=>'', 'inMasterData'=>$inMasterData));
+										, 'licenseCat'=>'', 'inMasterData'=>$inMasterData));   
 								
 								// write athletes data if athletica generated
 								//
@@ -1028,7 +1041,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							$this->write_xml_finished("accountinfo", " ".$row_results['Vereinsinfo']);
 							$this->write_xml_finished("homologate", "1"); 	// not yet implemented -> TODO
 							
-							$this->write_xml_close("effort");
+							$this->write_xml_close("effort");   
 							
 							if($wind > "2" && $row[2] == $cfgDisciplineType[$strDiscTypeJump]){
 								// since we get only the best result per xSerienstart,
@@ -1075,9 +1088,11 @@ document.getElementById("progress").width="<?php echo $width ?>";
 						} // end if relay or athlete
 						
 					} // end while res_results
+                   
 				}
 				
 				$this->close_open_tags("disciplines");
+                
 				
 			}
 			
@@ -2074,12 +2089,12 @@ function XML_result_data($parser, $data){
 /* handling registration data ****************************************************************************************************/
 function XML_reg_start($parser, $name, $attr){
 	global $discode, $catcode, $xDis, $distype, $bCombined;
-	global $strBaseAthleteNotFound, $strLicenseNr;
+	global $strBaseAthleteNotFound, $strBaseTeamNotFound , $strBaseRelayNotFound, $strLicenseNr;
 	global $cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
 		$strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
 		$strDiscTypeRelay, $strDiscTypeDistance, $strErrNoSuchDisCode, $strNoSuchCategory;
-	global $cfgCombinedDef, $cfgCombinedWO;   
-                                              	
+	global $cfgCombinedDef, $cfgCombinedWO, $appnbr;   
+    global $cfgSVM, $relay_id, $relay_pos, $relay_round, $relay_xStart, $category, $team_type;
 	//
 	// get approval number
 	//
@@ -2087,6 +2102,8 @@ function XML_reg_start($parser, $name, $attr){
 		$appnbr = $attr['APPROVAL'];
 		
 		mysql_query("UPDATE meeting SET Nummer = '$appnbr' WHERE xMeeting = ".$_COOKIE['meeting_id']);
+        
+        $team_type = '';
 	}
 
 
@@ -2116,164 +2133,164 @@ function XML_reg_start($parser, $name, $attr){
 	//
 	// start of discipline
 	//
-	if($name == "DISCIPLINE"){
-		$discode = $attr['DISCODE'];
-		$catcode = $attr['CATCODE'];
-		$disname = trim($attr['DISNAME']); // special name of discipline, ordinary disname + info (cold be user defined)
-		$disinfo = trim($attr['DISINFO']); // special name of discipline, without ordinary disc-name (cold be user defined)
-		$disspecial = $attr['DISSPECIAL'];
-		$disfee = 0;
-		$disfee = $attr['DISFEE']/100;
-		$disid = $attr['DISID'];
-		
-		// check discode and return if it doesn't exists
-		$res = mysql_query("SELECT xDisziplin FROM disziplin WHERE Code = '$discode'");
-		if(mysql_errno() == 0){
-			if(mysql_num_rows($res) == 0){
-				echo "<p>$strErrNoSuchDisCode $disname ($discode)</p>";
-				return;
-			}
-			mysql_free_result($res);
-		}
-		
-		// if this is a self specified discipline, check onlineid to differentiate
-		$SQLdisSpecial = "";
-		if($disspecial == "y"){
-			$SQLdisSpecial = " AND w.OnlineId = '$disid' ";
-		}else{
-			$disname = ""; // do not fill the info-field with disname if there is no need
-		}
-		
+	if($name == "DISCIPLINE"){           
+       
+        $discode = $attr['DISCODE'];
+        $catcode = $attr['CATCODE'];
+        $disname = trim($attr['DISNAME']); // special name of discipline, ordinary disname + info (cold be user defined)
+        $disinfo = trim($attr['DISINFO']); // special name of discipline, without ordinary disc-name (cold be user defined)
+        $disspecial = $attr['DISSPECIAL'];
+        $disfee = 0;
+        $disfee = $attr['DISFEE']/100;
+        $disid = $attr['DISID'];
+                                    
+        $relay_id = 0;
+        $relay_pos = 0;
+        $relay_round = 0;      
+		    
+		    // check discode and return if it doesn't exists
+		    $res = mysql_query("SELECT xDisziplin FROM disziplin WHERE Code = '$discode'");
+		    if(mysql_errno() == 0){
+			    if(mysql_num_rows($res) == 0){
+				    echo "<p>$strErrNoSuchDisCode $disname ($discode)</p>";
+				    return;
+			    }
+			    mysql_free_result($res);
+		    }
+		    
+		    // if this is a self specified discipline, check onlineid to differentiate
+		    $SQLdisSpecial = "";
+		    if($disspecial == "y"){
+			    $SQLdisSpecial = " AND w.OnlineId = '$disid' ";
+		    }else{
+			    $disname = ""; // do not fill the info-field with disname if there is no need
+		    }
+		    
 
-		// if this is a discipline with info, check additonal the info to differentiate
-		$SQLdisInfo = "";
-		if(strlen($disinfo) != 0){
-			//$SQLdisInfo = " AND w.OnlineId = '$disid' ";
-            $SQLdisInfo = " AND w.Info = '$disinfo' "; 
-			$disname = $disinfo;
-		}else{
-			$disname = ""; // do not fill the info-field with disname if there is no need
-		}
+		    // if this is a discipline with info, check additonal the info to differentiate
+		    $SQLdisInfo = "";
+		    if(strlen($disinfo) != 0){
+			    //$SQLdisInfo = " AND w.OnlineId = '$disid' ";
+                $SQLdisInfo = " AND w.Info = '$disinfo' "; 
+			    $disname = $disinfo;
+		    }else{
+			    $disname = ""; // do not fill the info-field with disname if there is no need
+		    }
 
-		
-		// combined event
-		if(isset($cfgCombinedDef[$discode])){
-			$bCombined = true;
-			// check if this combined event exists
-			$res = mysql_query("	
-						SELECT * FROM
-							wettkampf as w
-							, kategorie as k
-							, disziplin as d
-						WHERE	w.xKategorie = k.xKategorie
-						AND	w.xDisziplin = d.xDisziplin
-						AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-						AND	k.Code = '$catcode'
-						AND	w.Mehrkampfcode = $discode");   
-		}else{
-			$bCombined = false;
-			// check if this discipline exists
-			//	important: Mehrkampfcode has to be 0, else the query will also select 
-			//		the already defined combined events (if the same discipline)
-			$res = mysql_query("	
-						SELECT * FROM
-							wettkampf as w
-							, kategorie as k
-							, disziplin as d
-						WHERE	w.xKategorie = k.xKategorie
-						AND	w.xDisziplin = d.xDisziplin
-						AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-						AND	k.Code = '$catcode'
-						AND	d.Code = $discode
-						AND	w.Mehrkampfcode = 0
-						$SQLdisSpecial 
-						$SQLdisInfo ");   
-        }
-		if(mysql_errno() > 0){
-			XML_db_error("1-".mysql_errno().": ".mysql_error());
-		}else{
-			if($bCombined){ // create combined disciplines
-				if(mysql_num_rows($res) == 0){
-					
-					$_POST['combinedtype'] = $discode; // needed by addCombinedEvent
-					$res_catcode = mysql_query("SELECT xKategorie FROM kategorie WHERE Code = '$catcode'");
-					if(mysql_errno() > 0){
-						XML_db_error("2-".mysql_errno().": ".mysql_error());
-					}else{
-						$row_catcode = mysql_fetch_array($res_catcode);
-						$_POST['cat'] = $row_catcode[0]; // needed by addCombinedEvent
-						
-						AA_meeting_addCombinedEvent($disfee, $_SESSION['meeting_infos']['Haftgeld']/100);
-						//$xDis = $cfgCombinedWO[$cfgCombinedDef[$discode]];
-					}
-					
-					// select again to get all generated xWettkampf ids
-					$res = mysql_query("	
-								SELECT w.xWettkampf FROM
-									wettkampf as w
-									, kategorie as k
-									, disziplin as d
-								WHERE	w.xKategorie = k.xKategorie
-								AND	w.xDisziplin = d.xDisziplin
-								AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-								AND	k.Code = '$catcode'
-								AND	w.Mehrkampfcode = $discode");
-					while($row_dis = mysql_fetch_assoc($res)){
-						$xDis[] = $row_dis['xWettkampf'];
-					}
-				}else{
-					// combined event already exists, get existing disciplines
-					while($row_dis = mysql_fetch_assoc($res)){
-						$xDis[] = $row_dis['xWettkampf'];
-					}
-				}
-				
-			}else{ // create single disciplines
-				if(mysql_num_rows($res) == 0){ //discipline does not exist
-					// insert
-					//	($disname will be empty if this is not a "special" discipline)
-					$sql="INSERT INTO 
-								wettkampf (xKategorie, xDisziplin, xMeeting
-									, Info, Haftgeld, Startgeld, OnlineId)
-							SELECT 
-								k.xKategorie
-								, d.xDisziplin
-								, ".$_COOKIE['meeting_id']."
-								, '$disname'
-								, " .($_SESSION['meeting_infos']['Haftgeld']/100)."
-								, '$disfee'
-								, '$disid'
-							FROM
-								disziplin as d
-								, kategorie as k
-							WHERE	d.Code = $discode
-							AND	k.Code = '$catcode'";
-							mysql_query($sql);
-					if(mysql_errno() > 0){
-						XML_db_error("3-".mysql_errno().": ".mysql_error());
-					}else{
-						$xDis[] = mysql_insert_id();
-					}
-				}else{
-					$row_dis = mysql_fetch_assoc($res);
-					$xDis[] = $row_dis['xWettkampf'];
-				}
-			}
-		}
-		//
-		// select discipline type
-		//	disctype is only needed for switching between distance and time
-		//
-		/*$res_distype = mysql_query("SELECT d.Typ FROM disziplin as d, wettkampf as w WHERE w.xWettkampf = $xDis[0] AND w.xDisziplin = d.xDisziplin");
-		if(mysql_errno() > 0){
-			XML_db_error(mysql_errno().": ".mysql_error());
-		}else{
-			$row_distype = mysql_fetch_Array($res_distype);
-			$distype = $row_distype[0];
-		}*/
-	}
-	       
-    
+		    
+		    // combined event
+		    if(isset($cfgCombinedDef[$discode])){
+			    $bCombined = true;
+			    // check if this combined event exists
+			    $res = mysql_query("	
+						    SELECT * FROM
+							    wettkampf as w
+							    , kategorie as k
+							    , disziplin as d
+						    WHERE	w.xKategorie = k.xKategorie
+						    AND	w.xDisziplin = d.xDisziplin
+						    AND	w.xMeeting = ".$_COOKIE['meeting_id']."
+						    AND	k.Code = '$catcode'
+						    AND	w.Mehrkampfcode = $discode");   
+		    }else{
+			    $bCombined = false;
+			    // check if this discipline exists
+			    //	important: Mehrkampfcode has to be 0, else the query will also select 
+			    //		the already defined combined events (if the same discipline)
+			    $res = mysql_query("	
+						    SELECT * FROM
+							    wettkampf as w
+							    , kategorie as k
+							    , disziplin as d
+						    WHERE	w.xKategorie = k.xKategorie
+						    AND	w.xDisziplin = d.xDisziplin
+						    AND	w.xMeeting = ".$_COOKIE['meeting_id']."
+						    AND	k.Code = '$catcode'
+						    AND	d.Code = $discode
+						    AND	w.Mehrkampfcode = 0
+						    $SQLdisSpecial 
+						    $SQLdisInfo ");   
+            }
+		    if(mysql_errno() > 0){
+			    XML_db_error("1-".mysql_errno().": ".mysql_error());
+		    }else{    
+                
+                 $res_catcode = mysql_query("SELECT xKategorie FROM kategorie WHERE Code = '$catcode'");
+                 if(mysql_errno() > 0){
+                            XML_db_error("2-".mysql_errno().": ".mysql_error());
+                 }else{
+                           
+                            $row_catcode = mysql_fetch_array($res_catcode);
+                            $category = $row_catcode[0];
+                            if($bCombined){ // create combined disciplines
+                                if(mysql_num_rows($res) == 0){
+                                     $_POST['combinedtype'] = $discode; // needed by addCombinedEvent  
+                                     $_POST['cat'] = $row_catcode[0]; // needed by addCombinedEvent
+                            
+                                     AA_meeting_addCombinedEvent($disfee, $_SESSION['meeting_infos']['Haftgeld']/100);
+                                       //$xDis = $cfgCombinedWO[$cfgCombinedDef[$discode]];
+                                }
+                            }
+                 }
+                
+			    if($bCombined){ // create combined disciplines
+				    if(mysql_num_rows($res) == 0){            					
+					    
+					    // select again to get all generated xWettkampf ids
+					    $res = mysql_query("	
+								    SELECT w.xWettkampf FROM
+									    wettkampf as w
+									    , kategorie as k
+									    , disziplin as d
+								    WHERE	w.xKategorie = k.xKategorie
+								    AND	w.xDisziplin = d.xDisziplin
+								    AND	w.xMeeting = ".$_COOKIE['meeting_id']."
+								    AND	k.Code = '$catcode'
+								    AND	w.Mehrkampfcode = $discode");
+					    while($row_dis = mysql_fetch_assoc($res)){
+						    $xDis[] = $row_dis['xWettkampf'];
+					    }
+				    }else{
+					    // combined event already exists, get existing disciplines
+					    while($row_dis = mysql_fetch_assoc($res)){
+						    $xDis[] = $row_dis['xWettkampf'];
+					    }
+				    }
+				    
+			    }else{ // create single disciplines
+				    if(mysql_num_rows($res) == 0){ //discipline does not exist
+					    // insert
+					    //	($disname will be empty if this is not a "special" discipline)
+					    $sql="INSERT INTO 
+								    wettkampf (xKategorie, xDisziplin, xMeeting
+									    , Info, Haftgeld, Startgeld, OnlineId)
+							    SELECT 
+								    k.xKategorie
+								    , d.xDisziplin
+								    , ".$_COOKIE['meeting_id']."
+								    , '$disname'
+								    , " .($_SESSION['meeting_infos']['Haftgeld']/100)."
+								    , '$disfee'
+								    , '$disid'
+							    FROM
+								    disziplin as d
+								    , kategorie as k
+							    WHERE	d.Code = $discode
+							    AND	k.Code = '$catcode'";
+							    mysql_query($sql);
+					    if(mysql_errno() > 0){
+						    XML_db_error("3-".mysql_errno().": ".mysql_error());
+					    }else{
+						    $xDis[] = mysql_insert_id();
+					    }
+				    }else{
+					    $row_dis = mysql_fetch_assoc($res);
+					    $xDis[] = $row_dis['xWettkampf'];
+				    }
+			    }  
+		    }
+		    
+    }
 	//
 	// start of an athlete
 	//
@@ -2281,6 +2298,21 @@ function XML_reg_start($parser, $name, $attr){
 		$license = $attr['LICENSE'];
 		$paid = $attr['PAID'];
 		$effort = $attr['NOTIFICATIONEFFORT'];
+        
+        if ($relay_id > 0){
+             $relay_pos++;
+        }
+        $team_id = 0;
+        if (isset($attr['TEAMID'])){
+             $team_id =  $attr['TEAMID'];  
+             
+             $sql= "SELECT * FROM team WHERE xTeam = " .$team_id;
+             $res = mysql_query($sql);
+             if (mysql_num_rows($res) == 0) {
+                 return;
+             }
+        }
+        
 		$athlete_id = 0;
 		
 		$sql2 = "SELECT TRIM(lastname) AS lastname, 
@@ -2532,10 +2564,12 @@ function XML_reg_start($parser, $name, $attr){
 											, Bezahlt = '$paid'
 											, xAthlet = $xAthlete
 											, xMeeting = ".$_COOKIE['meeting_id']."
-											, xKategorie = $xCat");
+											, xKategorie = $xCat
+                                            , xTeam = " .$team_id );
+                                            
 								if(mysql_errno() > 0){
-									//echo "$license, $xCat";
-									echo "	SELECT k.xKategorie FROM
+									//echo "$license, $xCat";                                                  
+									echo "<br>	SELECT k.xKategorie FROM
 											kategorie as k
 											, base_athlete as b
 										WHERE b.license = $license
@@ -2561,13 +2595,11 @@ function XML_reg_start($parser, $name, $attr){
 					
 					if($bCombined){
 						// effort are points, saved on registration
-						$sql = "
-								SELECT notification_effort 
+						$sql = "SELECT notification_effort 
 								FROM base_performance
 								WHERE id_athlete = $athlete_id
 								AND	discipline = $discode";
-						//		AND	category = '$catcode'";
-						//echo $sql;
+						
 						$res_effort = mysql_query($sql);
 						if(mysql_errno() > 0){
 							XML_db_error("12-".mysql_errno().": ".mysql_error());
@@ -2636,7 +2668,7 @@ function XML_reg_start($parser, $name, $attr){
 												AND wettkampf.xWettkampf =$xDis1
 												AND wettkampf.xMeeting =".$_COOKIE['meeting_id']."
 												AND base_performance.season ='I')";
-										//echo $sql;
+										
 										$res_effort = mysql_query($sql);	
 									}	
 									
@@ -2661,7 +2693,7 @@ function XML_reg_start($parser, $name, $attr){
 											
 										}
 										else {
-											//echo $bigger;
+											
 											$pa = new PerformanceAttempt($effort);
 											$perf = $pa->getPerformance();
 											//$perf = (ltrim($effort,"0"))*100;
@@ -2669,16 +2701,34 @@ function XML_reg_start($parser, $name, $attr){
 										if($perf == NULL) {	// invalid performance
 											$perf = 0;
 										}
-										
-										mysql_query("	INSERT INTO start SET
-													xWettkampf = $xDis1
-													, Bezahlt = '$paid'
-													, xAnmeldung = $xReg
-													, Bestleistung = '".$perf."' 
-													, BaseEffort = 'y'");
+										$sql = "INSERT INTO start SET
+                                                    xWettkampf = $xDis1
+                                                    , Bezahlt = '$paid'
+                                                    , xAnmeldung = $xReg
+                                                    , Bestleistung = '".$perf."' 
+                                                    , BaseEffort = 'y'";
+                                                    
+										$res = mysql_query($sql);
 										if(mysql_errno() > 0){
 											XML_db_error("16-".mysql_errno().": ".mysql_error());
 										}
+                                        
+                                        if ($relay_id > 0) {
+                                            $xStart = mysql_insert_id();
+                                           
+                                            $sql = "INSERT INTO staffelathlet SET
+                                                        xStaffelstart=" . $relay_xStart . " 
+                                                        , xAthletenstart = " . $xStart ."
+                                                        , xRunde = " . $relay_round ."
+                                                        , Position = " . $relay_pos;
+                                                       
+                                                        
+                                            $res = mysql_query($sql);
+                                            if(mysql_errno() > 0){
+                                                XML_db_error("16-".mysql_errno().": ".mysql_error());
+                                            }
+                                        }
+                                        
 									}  
 								}
 							}
@@ -2686,15 +2736,18 @@ function XML_reg_start($parser, $name, $attr){
 					} // end xReg > 0
 				}
 			} // end xAthlete > 0
-		}
+		}  
 	}
+    
 	
 	//
 	// start of a relay
 	//
 	if($name == "RELAY" && count($xDis) != 0){
-		$id = $attr['ID'];
+        
+		$id = $attr['RELAYID'];
 		$paid = $attr['PAID'];
+        $notificationEffort = $attr['NOTIFICATIONEFFORT'];  
 		$relay_id = 0;
 		$xDis1 = $xDis[0];
 		
@@ -2705,15 +2758,17 @@ function XML_reg_start($parser, $name, $attr){
 		}else{
 			
 			if(mysql_num_rows($res) == 0){
+                
+               
 				//
 				// no, insert relay (get category first)
 				//
 				
-				$result = mysql_query("	SELECT k.xKategorie FROM
-								kategorie as k
-								, base_relay as b
-							WHERE b.id_relay = '$id'
-							AND k.Code = b.category");
+				$result = mysql_query("	SELECT k.xKategorie, b.is_athletica_gen, b.relay_name, b.account_code FROM
+								            kategorie as k
+								            LEFT JOIN base_relay as b ON (k.Code = b.category)
+				                        WHERE 
+                                                b.id_relay = '$id'");
 							
 				if(mysql_errno() > 0){
 					XML_db_error(mysql_errno().": ".mysql_error());
@@ -2728,7 +2783,7 @@ function XML_reg_start($parser, $name, $attr){
 							, xMeeting, xKategorie, Athleticagen)
 						SELECT
 							id_relay, relay_name, account_code
-							, ".$_COOKIE['meeting_id'].", '$cat', 'n'
+							, ".$_COOKIE['meeting_id'].", '$cat',is_athletica_gen 
 						FROM
 							base_relay
 						WHERE
@@ -2736,7 +2791,7 @@ function XML_reg_start($parser, $name, $attr){
 					
 					if(mysql_errno() > 0){
 						XML_db_error(mysql_errno().": ".mysql_error());
-					}else{
+					}else{                 
 						
 						$relay_id = $id; // do not use mysql_insert_id() - it will return 0
 						// like this i will notice if the insert succeeded or not
@@ -2760,19 +2815,33 @@ function XML_reg_start($parser, $name, $attr){
 			//
 			if($relay_id > 0){
 				
-				$result = mysql_query("SELECT xStart FROM start WHERE xWettkampf = $xDis1 AND xStaffel = $relay_id");
+				$sql = "SELECT 
+                                xStart, xRunde 
+                        FROM 
+                                start AS s
+                                LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf) 
+                        WHERE 
+                                s.xWettkampf = " . $xDis1 ." AND s.xStaffel = " .$relay_id;
+                $result = mysql_query($sql);
+               
 				if(mysql_errno() > 0){
 					XML_db_error(mysql_errno().": ".mysql_error());
 				}else{
 					
+                     //
+                     // convert effort relay
+                     //    
+                     $pt = new PerformanceTime($notificationEffort);
+                     $bestperf = $pt->getPerformance();  
+                                                                                  
 					if(mysql_num_rows($result) == 0){
 						
-						// insert into table start
-						
-						// !!!!!!!!!!!!! insert of performance from base not implemented yet !!!!!!!!!!!!!!!!
+						// insert into table start     
 						
 						mysql_query("
 							INSERT INTO start SET
+                                Bestleistung = $bestperf,
+                                Bezahlt = '" .$paid ."',
 								xWettkampf = $xDis1
 								, xStaffel = $relay_id");
 								
@@ -2781,14 +2850,239 @@ function XML_reg_start($parser, $name, $attr){
 							XML_db_error(mysql_errno().": ".mysql_error());
 						}
 						
+                        $relay_xStart = mysql_insert_id();
+                        
+                        if ($team_type == "SVM"){
+                                
+                                 $sql = "SELECT 
+                                            xRunde 
+                                         FROM 
+                                            start AS s
+                                            LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf) 
+                                         WHERE 
+                                            s.xWettkampf = " . $xDis1 ." AND s.xStaffel = " .$relay_id;
+                                 $res= mysql_query($sql);
+                                 if(mysql_errno() > 0){
+                                    XML_db_error(mysql_errno().": ".mysql_error());  
+                                 }
+                                 else {
+                                     $row = mysql_fetch_row($res);
+                                     $relay_round = $row[0]; 
+                                 }
+                        }
+                        else {
+                              $sql="SELECT 
+                                r.xRunde, w.xWettkampf , d.Code , d.Typ, m.DatumVon
+                             FROM
+                                wettkampf as w
+                                LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
+                                LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin)
+                                LEFT JOIN meeting as m ON (m.xMeeting = w.xMeeting)
+                             WHERE
+                                w.xKategorie = ". $category ."        
+                                AND w.xMeeting = ".$_COOKIE['meeting_id']." 
+                             ORDER BY d.Anzeige";
+                  
+                   $res= mysql_query($sql);
+                    if(mysql_errno() > 0){
+                            XML_db_error(mysql_errno().": ".mysql_error());
+                        }
+                    else {
+                            $row=mysql_fetch_row($res);
+                            // add dummy round for relay
+                            $sql = "INSERT into runde SET
+                                    Datum = '" . $row[4]. "'    
+                                    , xRundentyp = 6 
+                                    , xWettkampf = " . $row[1];
+                                    
+                            $res = mysql_query($sql);
+                               
+                            if(mysql_errno() > 0){
+                                XML_db_error(mysql_errno().": ".mysql_error());
+                            }
+                            $relay_round = mysql_insert_id();
+                    
+                    }
+                        
+                      }   
+                        
+                        
 					}else{
 						// already entered
-					}
-					
+                        $row = mysql_fetch_array($result);
+                        $relay_xStart = $row[0];
+                        $relay_round = $row[1];   
+                        
+                        $sql="UPDATE start SET Bestleistung = " .$bestperf .",
+                                Bezahlt = '" .$paid ."'
+                                WHERE xStart = " .$relay_xStart;
+                        
+                        mysql_query($sql);
+                        
+                        if(mysql_errno() > 0){
+                                XML_db_error(mysql_errno().": ".mysql_error());
+                            }     
+					}  
 				}
 			}
 		}
 	}
+    
+  
+    if($name == "TEAM"){    
+        $id = $attr['TEAMID'];
+        $team_type = $attr['TYPE'];
+        $team_name = $attr['NAME'];  
+        $team_id = 0;
+      
+        
+        if ($team_type == "SVM") {
+            
+            $teamInBase = true;
+            // check if team with same id is already in table team
+            $sql = "SELECT xTeam FROM team WHERE xTeam = " . $id ." AND xMeeting = " .$_COOKIE['meeting_id'];   
+            $res = mysql_query($sql);
+           
+            if(mysql_errno() > 0){
+                XML_db_error(mysql_errno().": ".mysql_error());
+            }else{
+                
+                if (mysql_num_rows($res) == 0){     
+                   
+                    //
+                    // no, insert relay (get category first)
+                    //                                          
+                  
+                    $sql="SELECT k.Code, b.is_athletica_gen, b.svm_name, b.account_code FROM
+                                                kategorie_svm as k
+                                                LEFT JOIN base_svm as b ON (k.Code = b.svm_category)
+                                            WHERE 
+                                                    b.id_svm = '$id'";
+                                                    
+                    $result = mysql_query($sql);        
+                    if(mysql_errno() > 0){
+                        XML_db_error(mysql_errno().": ".mysql_error());
+                    }else{
+                       if (mysql_num_rows($result) > 0) {
+                            $row = mysql_fetch_array($result); 
+                           
+                            $svmCode = $row[0];                              
+                            $cat = 0;
+                            if (isset($cfgSVM[$svmCode."_C"])){   
+                                $cat = $cfgSVM[$svmCode."_C"]; 
+                            }
+                            
+                            $sql = "SELECT xTeam FROM team WHERE xKategorie = " . $cat ." AND Name = '" . $team_name ."' AND xMeeting = " .$_COOKIE['meeting_id'];
+                            $res = mysql_query($sql);
+                          
+                            if(mysql_errno() > 0){
+                                XML_db_error(mysql_errno().": ".mysql_error());
+                            }
+                                                      
+                           
+                              if (mysql_num_rows($res) > 0) {    
+                                      $row_team = mysql_fetch_row($res);
+                                           
+                                      $sql="UPDATE team
+                                                    SET 
+                                                    xTeam =  " .$row[4] .",
+                                                    Athleticagen = '" .$row[1] ."'
+                                              WHERE
+                                                    xTeam = ".$row_team[0];                                          
+                                 }
+                                 else {   
+                                                
+                                        $sql="INSERT IGNORE INTO team
+                                                (xTeam, Name, Athleticagen, xMeeting,
+                                                  xVerein , xKategorie )
+                                            SELECT
+                                                id_svm, svm_name, is_athletica_gen , ".$_COOKIE['meeting_id'].",
+                                                account_code ,  '$cat'
+                                               
+                                            FROM
+                                                base_svm
+                                            WHERE
+                                                id_svm = '$id'";
+                                 }
+                           
+                            mysql_query($sql);    
+                            if(mysql_errno() > 0){
+                                XML_db_error(mysql_errno().": ".mysql_error());
+                            }else{                 
+                                
+                                $team_id = $id; // do not use mysql_insert_id() - it will return 0
+                                // like this i will notice if the insert succeeded or not
+                                if(mysql_affected_rows() == 0){
+                                    echo "Fehler: Team ID $id";
+                                }
+                            } 
+                       }
+                       else {          // team not in base data
+                       
+                            $strBaseTeamNotFound = str_replace('%name%', $team_name, $strBaseTeamNotFound);
+                            $strBaseTeamNotFound = str_replace('%id%', $id, $strBaseTeamNotFound);   
+                            echo "<p>$strBaseTeamNotFound: </p>\n";    
+                            $teamInBase = false; 
+                       }
+                    }
+                }else{
+                    //
+                    // yes, team found
+                    //                         
+                    $row = mysql_fetch_array($res);
+                    $team_id = $row[0];  
+                    
+                }
+                
+                //
+                // add start for discipline
+                //
+                if($team_id > 0 && $teamInBase){  
+            
+                    //  create SVM disciplines
+                    $result = mysql_query("SELECT k.Code, b.is_athletica_gen, b.svm_name, b.account_code, k.xKategorie_svm FROM
+                                                kategorie_svm as k
+                                                LEFT JOIN base_svm as b ON (k.Code = b.svm_category)
+                                            WHERE 
+                                                    b.id_svm = '$id'");
+                                
+                    if(mysql_errno() > 0){
+                        XML_db_error(mysql_errno().": ".mysql_error());
+                    }else{
+                        
+                        $row = mysql_fetch_array($result);        
+                                               
+                        $cat = 0;
+                        if (isset($cfgSVM[$svmCode."_C"])){   
+                            $cat = $cfgSVM[$svmCode."_C"]; 
+                        }
+                         $_POST['cat'] =  $cat;
+                         $_POST['svmcategory'] = $row[4];
+                         
+                         
+                         $sql="SELECT 
+                             m.DatumVon
+                         FROM      
+                             meeting AS m
+                         WHERE      
+                             m.xMeeting = ".$_COOKIE['meeting_id'];                              
+                       
+                         $res= mysql_query($sql);
+                         $row= mysql_fetch_row($res); 
+                        
+                         $_POST['date'] =  $row[0]; 
+                         
+                         $_POST['wTyp'] = $cfgSVM[$svmCode."_ET"];     
+                         
+                         AA_meeting_addSVMEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);    
+                    }     
+                }
+            }   
+                   
+        }
+    }    
+    
+    
 }
 
 function XML_reg_end($parser, $name){
@@ -2840,23 +3134,29 @@ function XML_regZLV_start($parser, $name, $attr){
         $sex = $attr['GESCHLECHT'];   
         $nationality = $attr['NATIONALITAET'];  
         $cat = $attr['KATEGORIE'];    
-        $group = $attr['GRUPPENR'];    
+        $group = $attr['GRUPPENR'];  
+        $starttime = $attr['STARTZEIT'];  
         $license_paid =  $attr['BEZ']; 
         if  ($license_paid == ''){
             $license_paid = 'n';
         }
-        $registerNr = $attr['ANMELDENR'];                          
+        $registerNr = $attr['ANMELDENR'];   
+        
+        $meetingDate = ''; 
+        $discode = 0;                      
        
         if ($license >  0){  
           
             // check if event exist for this cateory and select event to get all generated events ids
             $sql = "SELECT 
                             w.xWettkampf,
-                            w.Mehrkampfcode 
+                            w.Mehrkampfcode,
+                            m.DatumVon 
                     FROM
                             wettkampf as w
                             LEFT JOIN kategorie as k on (w.xKategorie = k.xKategorie)
                             LEFT JOIN disziplin as d on (w.xDisziplin = d.xDisziplin)
+                            LEFT JOIN meeting AS m ON (m.xMeeting = w.xMeeting)
                     WHERE 
                             w.xMeeting = ".$_COOKIE['meeting_id']."
                             AND k.Code = '" .$cat ."'";
@@ -2868,9 +3168,12 @@ function XML_regZLV_start($parser, $name, $attr){
             if (mysql_num_rows($res) > 0) {
                 while($row_dis = mysql_fetch_assoc($res)){
                     $xDis[] = $row_dis['xWettkampf'];
-                    $discode =  $row_dis['Mehrkampfcode'];     // same for all combined disciplines
+                    if  ($row_dis['Mehrkampfcode'] > 0) {
+                        $discode =  $row_dis['Mehrkampfcode'];     // same for all combined disciplines  
+                    }                       
+                    $meetingDate =  $row_dis['DatumVon'];    
                 }    
-                        
+                
                 $athlete_id = 0;
         
                 $sql2 = "SELECT TRIM(lastname) AS lastname, 
@@ -2925,7 +3228,7 @@ function XML_regZLV_start($parser, $name, $attr){
                         }
                         if(mysql_num_rows($query4) > 0){
                                     $row4 = mysql_fetch_assoc($query4);      
-            
+                                   
                                     $sql3 = "UPDATE athlet 
                                                     SET Name = '".trim($row2['lastname'])."', 
                                                     Vorname = '".trim($row2['firstname'])."', 
@@ -2943,12 +3246,12 @@ function XML_regZLV_start($parser, $name, $attr){
                                                     AND Vorname = '".trim($row2['firstname'])."' 
                                                     AND Jahrgang = '".trim($row2['jahrgang'])."' 
                                                     AND xVerein = '".trim($club)."'));"; 
-                
-                                    $query3 = mysql_query($sql3);  
-                                    $xAthlete = $row4[0];              
+                                   
+                                    $query3 = mysql_query($sql3);                                        
+                                    $xAthlete = $row4['xAthlet'];              
                                 }   
                             else {   
-                        
+                                            
                                             // if club is valid
                                             // insert athlete from base data
                                             if(is_numeric($club)){
@@ -2965,7 +3268,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                         WHERE
                                                             license = $license";
                                                 mysql_query($sql);
-                            
+                                               
                                                 if(mysql_errno() > 0){ 
                                                     AA_printErrorMsg("xml-6-".mysql_errno().": ".mysql_error());
                                                 }else{
@@ -3001,6 +3304,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                         mysql_query("INSERT INTO anmeldung SET
                                                                 Startnummer = 0
                                                                 , Bezahlt = '" .$row2['license_paid']."'
+                                                                , Gruppe = '" .$group ."'  
                                                                 , xAthlet = $xAthlete
                                                                 , xMeeting = ".$_COOKIE['meeting_id']."
                                                                 , xKategorie = $xCat
@@ -3014,16 +3318,18 @@ function XML_regZLV_start($parser, $name, $attr){
                                                     }
                                                     else {   
                                                           // update 
-                                                           $row = mysql_fetch_array($res); 
+                                                           $row = mysql_fetch_array($result);  
                                                              
                                                            mysql_query("Update anmeldung SET
                                                                 Startnummer = 0
-                                                                , Bezahlt = '" .$row2['license_paid']."'   
+                                                                , Bezahlt = '" .$row2['license_paid']."'  
+                                                                 , Gruppe = '" .$group ."'   
                                                                 , xAthlet = $xAthlete
                                                                 , xMeeting = ".$_COOKIE['meeting_id']."
                                                                 , xKategorie = $xCat
                                                                 , Anmeldenr_ZLV = $registerNr
                                                                 WHERE xAnmeldung = $row[0]");
+                                                         
                                                         if(mysql_errno() > 0){ 
                                                             AA_printErrorMsg("xml-10-".mysql_errno().": ".mysql_error());
                                                         }else{
@@ -3047,7 +3353,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                         FROM base_performance
                                                         WHERE id_athlete = $athlete_id
                                                         AND    discipline = $discode";
-                       
+                                          
                                             $res_effort = mysql_query($sql);
                                             if(mysql_errno() > 0){   
                                                     AA_printErrorMsg("xml-11-".mysql_errno().": ".mysql_error());
@@ -3076,7 +3382,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                     // it is nessesary to determinate distype and discode for each discipline
                                                     // (catcode won't change)
                                                     $res_distype = mysql_query("
-                                                    SELECT d.Typ, d.Code FROM 
+                                                    SELECT d.Typ, d.Code, d.Appellzeit, d.Stellzeit FROM 
                                                             disziplin as d
                                                             , wettkampf as w 
                                                     WHERE w.xWettkampf = $xDis1 
@@ -3086,10 +3392,12 @@ function XML_regZLV_start($parser, $name, $attr){
                                                 }else{
                                                     $row_distype = mysql_fetch_Array($res_distype);
                                                     $distype = $row_distype[0];
-                                                    $temp_discode = $row_distype[1];  
+                                                    $temp_discode = $row_distype[1]; 
+                                                    
                                                 }
                             
                                                 $result = mysql_query("SELECT xStart FROM start WHERE xAnmeldung = $xReg and xWettkampf = $xDis1");
+                                               
                                                 if(mysql_errno() > 0){ 
                                                     AA_printErrorMsg("xml-14-".mysql_errno().": ".mysql_error());
                                                 }else{
@@ -3156,7 +3464,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                         } 
                                                     }
                                                 }
-                            
+                                                                           
                                                 // update group in round for every event  
                                                 $sql_r = "SELECT Gruppe FROM runde WHERE xWettkampf = ". $xDis1;   
                                                 $res_r = mysql_query($sql_r); 
@@ -3170,26 +3478,71 @@ function XML_regZLV_start($parser, $name, $attr){
                                                         }
                                                         if ($arr_row[0] == "") {
                                                             //update group in round for every event
-                                                            $sql_r = "UPDATE IGNORE runde SET Gruppe = " .$group ." WHERE xWettkampf = ". $xDis1;  
+                                                            $sql_r = "UPDATE IGNORE runde SET Gruppe = '" .$group ."' WHERE xWettkampf = ". $xDis1;  
                                                             mysql_query($sql_r);
                                                             if(mysql_errno() > 0){  
                                                                 AA_printErrorMsg("xml-17-".mysql_errno() . ": " . mysql_error());   
                                                             } 
                                                         }
                                                         elseif (!in_array($group, $arr_row)) {
-                                                                //insert group in round for every event
-                                                                $sql_r = "INSERT IGNORE INTO runde 
-                                                                                (Datum, Startzeit, Appellzeit, Stellzeit, Status, Speakerstatus, StatusZeitmessung, StatusUpload, 
-                                                                                QualifikationSieger, QualifikationLeistung, Bahnen, Versuche, Gruppe, xRundentyp, xWettkampf) 
-                                                                                SELECT Datum, Startzeit, Appellzeit, Stellzeit, Status, Speakerstatus, StatusZeitmessung, StatusUpload, 
-                                                                                    QualifikationSieger, QualifikationLeistung, Bahnen, Versuche, '$group',  xRundentyp , xWettkampf
-                                                                          FROM runde WHERE xWettkampf = ". $xDis1;  
-                                            
-                                                                mysql_query($sql_r);
-                                                                if(mysql_errno() > 0){ 
-                                                                    AA_printErrorMsg("xml-18-".mysql_errno() . ": " . mysql_error());   
-                                                                } 
+                                                            
+                                                                   $stdEtime = strtotime($row_distype[2]); // hold standard delay for enrolement time
+                                                                   $stdMtime = strtotime($row_distype[3]); // and manipulation time
+                                                                 
+                                                                   list($hr, $min) = AA_formatEnteredTime($starttime);     
+                                                             
+                                                                   $tmp = strtotime($hr.":".$min.":00");
+                                                                   $tmp = $tmp - $stdEtime;
+                                                                   $appellTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);   
+                                                             
+                                                                   $tmp = strtotime($hr.":".$min.":00");
+                                                                   $tmp = $tmp - $stdMtime;
+                                                                   $putTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);     
+                                                                 
+                                                                   //insert group in round for every event
+                                                                   $sql_r = "INSERT INTO runde SET
+                                                                                Datum = '". $meetingDate. "', 
+                                                                                Startzeit =  '".$starttime. "', 
+                                                                                Appellzeit=  '".$appellTime. "', 
+                                                                                Stellzeit=  '". $putTime. "',                                                                                 
+                                                                                Gruppe = '" .$group ."', 
+                                                                                xRundentyp = 8, 
+                                                                                xWettkampf = " .$xDis1;     
+                                                                
+                                                                   mysql_query($sql_r);
+                                                                   if(mysql_errno() > 0){ 
+                                                                        AA_printErrorMsg("xml-18-".mysql_errno() . ": " . mysql_error());   
+                                                                   } 
                                                         }
+                                                    }
+                                                    else {                                                                                                                                
+                                                             $stdEtime = strtotime($row_distype[2]); // hold standard delay for enrolement time
+                                                             $stdMtime = strtotime($row_distype[3]); // and manipulation time
+                                                                 
+                                                             list($hr, $min) = AA_formatEnteredTime($starttime);     
+                                                             
+                                                             $tmp = strtotime($hr.":".$min.":00");
+                                                             $tmp = $tmp - $stdEtime;
+                                                             $appellTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);    
+                                                                 
+                                                             $tmp = strtotime($hr.":".$min.":00");
+                                                             $tmp = $tmp - $stdMtime;
+                                                             $putTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);    
+                                                                 
+                                                             //insert group in round for every event
+                                                              $sql_r = "INSERT INTO runde SET
+                                                                                Datum = '". $meetingDate. "', 
+                                                                                Startzeit =  '".$starttime. "', 
+                                                                                Appellzeit=  '".$appellTime. "', 
+                                                                                Stellzeit=  '". $putTime. "',                                                                                 
+                                                                                Gruppe = '" .$group ."', 
+                                                                                xRundentyp = 8, 
+                                                                                xWettkampf = " .$xDis1;     
+                                                              
+                                                              mysql_query($sql_r);
+                                                              if(mysql_errno() > 0){ 
+                                                                    AA_printErrorMsg("xml-18I-".mysql_errno() . ": " . mysql_error());   
+                                                                } 
                                                     }
                                                 }   
                                                 } // enf foreach
@@ -3214,17 +3567,20 @@ function XML_regZLV_start($parser, $name, $attr){
             }
                
         }   
-        else {  
-             // license = 0   
+        else {     
+            // license = 0   
             // select event to get all generated events ids
+            
             $sql = "SELECT 
                         w.xWettkampf,
                         w.Mehrkampfcode,
-                        k.xKategorie 
+                        k.xKategorie,
+                        m.DatumVon   
                     FROM
                         wettkampf as w
                         LEFT JOIN kategorie as k on (w.xKategorie = k.xKategorie )
                         LEFT JOIN disziplin as d on (w.xDisziplin = d.xDisziplin)
+                        LEFT JOIN meeting AS m ON (m.xMeeting = w.xMeeting)  
                     WHERE 
                         w.xMeeting = ".$_COOKIE['meeting_id']."
                         AND k.Kurzname = '" .$cat ."'";
@@ -3233,8 +3589,11 @@ function XML_regZLV_start($parser, $name, $attr){
             if (mysql_num_rows($res) >= 1) {
                 while($row_dis = mysql_fetch_assoc($res)){
                         $xDis[] = $row_dis['xWettkampf'];
-                        $discode =  $row_dis['Mehrkampfcode'];     // same for all combined disciplines
+                        if  ($row_dis['Mehrkampfcode'] > 0) {
+                            $discode =  $row_dis['Mehrkampfcode'];     // same for all combined disciplines  
+                        }                       
                         $catnr =   $row_dis['xKategorie']; 
+                        $meetingDate =  $row_dis['DatumVon'];    
                 }  
                         
                 $result2 = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club."'");
@@ -3254,12 +3613,13 @@ function XML_regZLV_start($parser, $name, $attr){
                     // if athlet exist
                     $sql = "SELECT * FROM athlet WHERE Name= '" .  $name ."' AND Vorname = '" .  $firstname ."' AND Geburtstag = '" . $birthdate ."'";
                     $res = mysql_query($sql);  
-                                       
+                   
                     if(mysql_errno() > 0){  
                         AA_printErrorMsg("xml-20-".mysql_errno().": ".mysql_error());
-                    }else{                                      
+                    }else{     
+                         $row = mysql_fetch_array($res);                             
                         if (mysql_num_rows($res) == 0) {
-                            $row = mysql_fetch_array($res);
+                           
                             $sql = "INSERT IGNORE INTO athlet SET
                                                                 Name = '" .  $name ."',
                                                                 Vorname = '" .  $firstname ."',  
@@ -3274,7 +3634,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                                 Lizenztyp = 3";  
                                                            
                             mysql_query($sql);
-                            
+                           
                             if(mysql_errno() > 0){    
                                 AA_printErrorMsg("xml-21-".mysql_errno().": ".mysql_error());
                             }else{
@@ -3282,13 +3642,14 @@ function XML_regZLV_start($parser, $name, $attr){
                             }
                         }
                         else {
-                                $sql = "UPDATE athlet SET                                                                 
+                               $sql = "UPDATE athlet SET                                                                 
                                                     Jahrgang = '" .  $birthyear ."', 
                                                     Geschlecht = '" .  $sex ."', 
                                                     Land = '" .  $nationality ."',  
                                                     xVerein = '" .  $clubnr ."',  
-                                                    Bezahlt = '" .  $license_paid ."'";    
-                                                           
+                                                    Bezahlt = '" .  $license_paid ."'
+                                                    WHERE Name= '" .  $name ."' AND Vorname = '" .  $firstname ."' AND Geburtstag = '" . $birthdate ."'";    
+                              
                                 mysql_query($sql);
                                 if(mysql_errno() > 0){  
                                     AA_printErrorMsg("xml-22-".mysql_errno().": ".mysql_error());
@@ -3306,7 +3667,7 @@ function XML_regZLV_start($parser, $name, $attr){
                 } 
                                                                       
             } // end athlete found  
-            
+           
             if($xAthlete > 0){
                 // check if already registered
                 $result = mysql_query("SELECT xAnmeldung FROM anmeldung WHERE xAthlet = $xAthlete AND xMeeting = ".$_COOKIE['meeting_id']."");
@@ -3354,7 +3715,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                     // it is nessesary to determinate distype and discode for each discipline
                                     // (catcode won't change)  
                                     $res_distype = mysql_query("
-                                                    SELECT d.Typ, d.Code FROM 
+                                                    SELECT d.Typ, d.Code, d.Appellzeit, d.Stellzeit FROM 
                                                             disziplin as d
                                                             , wettkampf as w 
                                                     WHERE w.xWettkampf = $xDis1 
@@ -3386,8 +3747,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                                                 AA_printErrorMsg("xml-28-".mysql_errno().": ".mysql_error());
                                                 }
                                             } 
-                                    }
-                            }     // end foreach
+                                    }                             
                             
                             // update group in round for every event  
                             $sql_r = "SELECT Gruppe FROM runde WHERE xWettkampf = ". $xDis1;   
@@ -3409,20 +3769,65 @@ function XML_regZLV_start($parser, $name, $attr){
                                         } 
                                     }
                                     elseif (!in_array($group, $arr_row)) {
-                                        //insert group in round for every event
-                                        $sql_r = "INSERT IGNORE INTO runde 
-                                                            (Datum, Startzeit, Appellzeit, Stellzeit, Status, Speakerstatus, StatusZeitmessung, StatusUpload, 
-                                                            QualifikationSieger, QualifikationLeistung, Bahnen, Versuche, Gruppe, xRundentyp, xWettkampf) 
-                                                            SELECT Datum, Startzeit, Appellzeit, Stellzeit, Status, Speakerstatus, StatusZeitmessung, StatusUpload, 
-                                                            QualifikationSieger, QualifikationLeistung, Bahnen, Versuche, '$group',  xRundentyp , xWettkampf
-                                                  FROM runde WHERE xWettkampf = ". $xDis1;  
-                                            
-                                        mysql_query($sql_r);
+                                           $stdEtime = strtotime($row_distype[2]); // hold standard delay for enrolement time
+                                                                   $stdMtime = strtotime($row_distype[3]); // and manipulation time
+                                                                 
+                                                                   list($hr, $min) = AA_formatEnteredTime($starttime);     
+                                                             
+                                                                   $tmp = strtotime($hr.":".$min.":00");
+                                                                   $tmp = $tmp - $stdEtime;
+                                                                   $appellTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);   
+                                                             
+                                                                   $tmp = strtotime($hr.":".$min.":00");
+                                                                   $tmp = $tmp - $stdMtime;
+                                                                   $putTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);     
+                                                                 
+                                                                   //insert group in round for every event
+                                                                    $sql_r = "INSERT INTO runde SET
+                                                                                Datum = '". $meetingDate. "', 
+                                                                                Startzeit =  '".$starttime. "', 
+                                                                                Appellzeit=  '".$appellTime. "', 
+                                                                                Stellzeit=  '". $putTime. "',                                                                                 
+                                                                                Gruppe = '" .$group ."', 
+                                                                                xRundentyp = 8, 
+                                                                                xWettkampf = " .$xDis1;     
+                                                                
+                                                                   mysql_query($sql_r);
                                         if(mysql_errno() > 0){
                                                 AA_printErrorMsg("xml-30-".mysql_errno() . ": " . mysql_error());   
                                         } 
                                     }
                                 }
+                                 else {                                                                                                                                
+                                                             $stdEtime = strtotime($row_distype[2]); // hold standard delay for enrolement time
+                                                             $stdMtime = strtotime($row_distype[3]); // and manipulation time
+                                                                 
+                                                             list($hr, $min) = AA_formatEnteredTime($starttime);     
+                                                             
+                                                             $tmp = strtotime($hr.":".$min.":00");
+                                                             $tmp = $tmp - $stdEtime;
+                                                             $appellTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);    
+                                                                 
+                                                             $tmp = strtotime($hr.":".$min.":00");
+                                                             $tmp = $tmp - $stdMtime;
+                                                             $putTime = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);    
+                                                                 
+                                                             //insert group in round for every event
+                                                             $sql_r = "INSERT INTO runde SET
+                                                                                Datum = '". $meetingDate. "', 
+                                                                                Startzeit =  '".$starttime. "', 
+                                                                                Appellzeit=  '".$appellTime. "', 
+                                                                                Stellzeit=  '". $putTime. "',                                                                                 
+                                                                                Gruppe = '" .$group ."', 
+                                                                                xRundentyp = 8, 
+                                                                                xWettkampf = " .$xDis1;     
+                                                              
+                                                              mysql_query($sql_r);
+                                                              if(mysql_errno() > 0){ 
+                                                                    AA_printErrorMsg("xml-18I-".mysql_errno() . ": " . mysql_error());   
+                                                                } 
+                                 }
+                                }     // end foreach      
                             }   
                         } // end xReg > 0   
                 }   
@@ -3562,7 +3967,7 @@ function XML_regZLV_start($parser, $name, $attr){
                                     } 
                                                                          
                                     $sql = "UPDATE anmeldung SET xTeam = '".$xTeam."', Gruppe = '".$group ."' WHERE xAnmeldung = " .$row_a[0] ." AND xMeeting = " .$_COOKIE['meeting_id'];
-                                       
+                                  
                                     $res = mysql_query($sql);
                                     if(mysql_errno() > 0) { 
                                             AA_printErrorMsg("xml-37-".mysql_errno() . ": " . mysql_error());   
