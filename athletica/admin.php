@@ -215,7 +215,7 @@ function removePassword(){
 							</tr>
 							<tr class="even">
 								<td>
-									<button name='backup' type='submit'><?=$strRestore?>
+									<button name='backup' onclick="return warn()" type='button'><?=$strRestore?>
 									</button>
 								</td>
 							</tr>
@@ -392,3 +392,17 @@ function removePassword(){
 <?php
 $page->endPage();
 ?>
+
+ <script type="text/javascript">
+<!--
+  function warn() {  
+     check = confirm("<?php echo $strWarnRestore; ?>");
+     if (check == false){
+         return false;
+     }
+     else {
+         document.db2.submit();        
+         return true;  
+     }
+  }
+</script>
