@@ -496,7 +496,7 @@ class PRINT_RankingList extends PRINT_Page
 	var $heatwind;		// wind per heat
 
 
-	function printSubTitle($category='', $discipline='', $round='')
+	function printSubTitle($category='', $discipline='', $round='', $info)
 	{  
 		if(!empty($category)) {
 			$this->cat = $category;
@@ -514,6 +514,10 @@ class PRINT_RankingList extends PRINT_Page
 		if(empty($category)) { 
 			$this->round = $this->round . " " . $GLOBALS['strCont'];         
 		}
+        
+         if(!empty($info)) {  
+            $info = "($info)";
+        }
 
 		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{   
@@ -526,7 +530,7 @@ class PRINT_RankingList extends PRINT_Page
 ?>
 		<table><tr>   
                 <th class='rank_cat'><?php echo $this->cat; ?></th>  
-                <th class='rank_disc'><?php echo $this->disc; ?></th>  
+                <th class='rank_disc'><?php echo $this->disc ." " . $info; ?></th>  
 			    <th class='rank_round'><?php echo $this->round; ?></th>
 		</tr></table>
 <?php 

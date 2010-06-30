@@ -365,6 +365,7 @@ else
                 , CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
                 , w.Mehrkampfreihenfolge 
                 , ss.Bemerkung
+                , w.info
             FROM
                 start AS st USE INDEX (Anmeldung)
                 , serienstart AS ss 
@@ -479,7 +480,11 @@ else
                  
 				 // show only points for number of choosed disciplines if the diszipline is done	  
                 $count_disc++;    
-                   if ($count_disc<=$disc_nr)  { 
+                   if ($count_disc<=$disc_nr)  {
+                       
+                        if (!empty($pt_row[11])) {
+                             $pt_row[11] = " ($pt_row[11])";
+                        } 
                        if($pt_row[4] > 0) {       // any points for this event 
                      
                            $points = $points + $pt_row[4];      // calculate points 
@@ -502,12 +507,12 @@ else
                                 $points_disc[$pt_row[9]]=$pt_row[4];
                                
                            }
-                           
-					       $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+                          
+					       $info = $info . $sep . $pt_row[0] . $pt_row[11]. "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
 					       $sep = ", ";     
                        }
                         elseif ($pt_row[4] == 0 && $pt_row[2] >= 0){          //  athlete with 0 points                                   
-                                $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+                                $info = $info . $sep . $pt_row[0] . $pt_row[11] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
                                 $sep = ", ";       
                         }  
                        else{ 
@@ -519,7 +524,8 @@ else
                                     $pointTxt = $value['short'];
                                  }
                          }  
-                         $info = $info . $sep . $pt_row[0] . "&nbsp;(" . $perf . $wind . ", $pointTxt)";                      
+                         
+                         $info = $info . $sep . $pt_row[0] . $pt_row[11] . "&nbsp;(" . $perf . $wind . ", $pointTxt)";                      
                          $sep = ", ";     
                        } 
                    }           

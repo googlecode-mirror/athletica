@@ -310,13 +310,16 @@ class GUI_RankingList extends GUI_ListPage
 	var $wind;
 
 
-	function printSubTitle($category='', $discipline='', $round='')
+	function printSubTitle($category='', $discipline='', $round='', $info)
 	{
 		if(!empty($round)) {
 			$round = ", $round";
 		}
+        if(!empty($info)) {  
+            $info = "($info)";
+        }
 ?>
-<h2><?php echo "$category $discipline$round"; ?></h2>
+<h2><?php echo "$category $discipline $info $round"; ?></h2>
 <?php
 	}
 
