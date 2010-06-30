@@ -101,6 +101,7 @@ $result = mysql_query("SELECT DISTINCT d.Name"
 					. ", TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')"
 					. ", w.Mehrkampfcode"
 					. ", dm.Name"
+                    . ", w.Info"   
 					. " FROM disziplin AS d"
 					. ", kategorie AS k"
 					. ", wettkampf AS w"
@@ -163,13 +164,17 @@ else
           
 		  $xComb = $row[10];
 		  
+          if (!empty($row[12])) {
+             $row[12] = " ($row[12])"; 
+          }
+          
 		  if($combined){
-			  $doc->event = $row[11];
+			  $doc->event = $row[11] . $row[12];
 			   if ($_GET['event'] > 0){             // only one disciplin of combined event
 			  		$doc->comb_disc = $row[0];  
 			  }
 		  }else{
-			  $doc->event = $row[0];
+			  $doc->event = $row[0] .$row[12];
 		  }
 		  $doc->cat = $row[1];
 		  $et = "";
