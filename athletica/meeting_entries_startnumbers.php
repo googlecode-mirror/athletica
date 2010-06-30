@@ -53,24 +53,24 @@ $allNr = false;
 //
 $heats_done = "false";
 $res = mysql_query("
-		SELECT xRunde FROM
-			runde 
-			LEFT JOIN wettkampf USING (xWettkampf)
-		WHERE
-			(Status = ".$cfgRoundStatus['heats_done']."
-			OR Status = ".$cfgRoundStatus['results_in_progress']."
-			OR Status = ".$cfgRoundStatus['results_done'].")
-			AND xMeeting = ".$_COOKIE['meeting_id']
-);
-
+		SELECT r.xRunde,w.xWettkampf FROM
+			runde as r 
+			LEFT JOIN wettkampf as w On (r.xWettkampf = w.xWettkampf)  		
+        WHERE
+            (Status = ".$cfgRoundStatus['heats_done']."
+            OR Status = ".$cfgRoundStatus['results_in_progress']."
+            OR Status = ".$cfgRoundStatus['results_done'].")
+            AND xMeeting = ".$_COOKIE['meeting_id']
+     );
+ 
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
 	if(mysql_num_rows($res) > 0){
+        $row = mysql_fetch_row($res);
 		$heats_done = "true";
 	}
-}
-      
+}        
 
 if($_GET['arg'] == 'assign')
 {
@@ -101,7 +101,7 @@ if($_GET['arg'] == 'assign')
                         $noCat = false;   
                     }  
                 } 
-            }
+            }                    
     }
     
 	if ($_GET['sort']!="del" && !$teams || ($_GET['sort']!="del" && $_GET['teams'] && $noCat))		// assign startnumbers     
@@ -145,7 +145,9 @@ if($_GET['arg'] == 'assign')
                                     || d.Typ = ".$cfgDisciplineType[$strDiscTypeTrackNoWind]."   
                                      ),2, IF( (d.Typ = ".$cfgDisciplineType[$strDiscTypeDistance]."
                                      || d.Typ = ".$cfgDisciplineType[$strDiscTypeRelay]."                                       
-                                     ),3, 1 ) ) as discSort
+                                     ),3, 1 ) ) as discSort,
+                   tat.xTeamsm,
+                   tsm.Name                        
                 FROM 
                     anmeldung AS a
                     LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet        
@@ -155,11 +157,13 @@ if($_GET['arg'] == 'assign')
                     LEFT JOIN disziplin AS d On (w.xdisziplin = d.xDisziplin)
                     LEFT JOIN kategorie AS k ON k.xKategorie = w.xKategorie
                     LEFT JOIN team AS t ON t.xTeam = a.xTeam 
+                    LEFT JOIN teamsmathlet AS tat ON ( tat.xAnmeldung = a.xAnmeldung )
+                    LEFT JOIN teamsm AS tsm ON tsm.xTeamsm = tat.xTeamsm
                 WHERE 
                     a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                     ORDER BY      
-                         $argument, discSort, $argument2";    
-           
+                         $argument, discSort, tat.xTeamsm, $argument2";    
+            
             $result = mysql_query($sql); 
           
 			if(mysql_errno() > 0)		// DB error
@@ -210,6 +214,7 @@ if($_GET['arg'] == 'assign')
                             a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                          ORDER BY      
                             $argument2 , discSort";    
+                             
               }
               
               $result = mysql_query($sql); 
@@ -258,11 +263,8 @@ if($_GET['arg'] == 'assign')
                     }
             
                     if ($noCat) {                  // set per name or per club 
-                        if ($first){                         
-                            if (!empty($_GET["name_of"]) && $_GET["sort"] == 'name'){
-                                $nbr = $_GET["name_of"];                                 // set nbr of per name
-                            }
-                            elseif (!empty($_GET["club_of"]) && $_GET["sort"] == 'club'){    
+                        if ($first){    
+                            if (!empty($_GET["club_of"]) && $_GET["sort"] == 'club'){    
                                  $nbr = $_GET["club_of"];                             // set nbr of per club
                             }
                             else {
@@ -532,6 +534,7 @@ if($_GET['arg'] == 'assign')
                                     t.Name   
                               FROM 
                                     anmeldung AS a 
+                                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                                     LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung) 
                                     LEFT JOIN wettkampf AS w USING (xWettkampf) 
                                     LEFT JOIN team AS t ON (t.xTeam = a.xTeam) 
@@ -539,8 +542,8 @@ if($_GET['arg'] == 'assign')
                               WHERE 
                                     a.xMeeting = ".$_COOKIE['meeting_id'] ."
                                     AND t.xTeam = " .$row[0] ."     
-                                    ORDER BY v.Sortierwert";  
-        
+                                    ORDER BY v.Sortierwert, $argument2";  
+                       
                         $res_team=mysql_query($sql);   
                         if(mysql_errno() > 0){
                             AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -662,9 +665,7 @@ function check_of(){
    if (document.getElementById("name").checked){       
        document.getElementById("club_of").value = '';
    }
-   else {           
-        document.getElementById("name_of").value = '';  
-   } 
+  
 }   	
 
   
@@ -707,8 +708,7 @@ function check_of(){
 		<input type='radio' name='sort' id='name' onChange='check_of()' value='name' checked='checked'>
         <?php echo $strName; ?> 
     </td>
-    <td class='forms'> 
-        <input type="text" size="3" value="<?php echo $_GET['name_of'];?>" name="name_of" id="name_of"> 
+    <td class='forms'>&nbsp;          
     </td>  
 </tr>   
 
