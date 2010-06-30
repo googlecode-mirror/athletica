@@ -100,7 +100,7 @@ $strConvtableSLV2010Men = "SLV 2010, Männer";
 $strConvtableSLV2010Women = "SLV 2010, Frauen";
 $strConvtableSVMMenNL = "SVM NLA-C, Männer";
 $strConvtableSVMWomenNL = "SVM NLA-B, Frauen";
-$strConvtableRankingPoints = "Rangpunkte";
+$strConvtableRankingPoints = "Rangpunkte";     
 $strCopy = "Kopieren";
 $strCopyMade = "Kopie erstellt";
 $strCopyMeeting = "Meeting kopieren";
@@ -788,5 +788,13 @@ $strXmlNoLic = "<br>&nbsp;&nbsp;Diese Lizenznummer %NAME% ist nicht in den Stamm
 $strXmlNoClub = "<br>&nbsp;&nbsp;Der Verein %NAME% ist in athletica nicht vorhanden.";
 
 $strOnlyOver1000m = "nur für über 1000m Meereshöhe";
+
+$strConvtableRankingPointsU20 = "Rangpunkte U20";   
+$strErrAthletesSeeded = "Athleten sind bereits in Serien eingeteilt";
+$strBaseTeamNotFound = "Mannschaft %name% (%id%) wurde in Stammdaten nicht gefunden"; 
+$strBaseRelayNotFound = "Staffel %name% wurde in Stammdaten nicht gefunden"; 
+
+$strProgramModeFieldRank = "dezentral mit Rangierung";  
+$strWarnRestore = "Achtung: Bestehende Sicherung wird überspielt.";
 
 ?>
