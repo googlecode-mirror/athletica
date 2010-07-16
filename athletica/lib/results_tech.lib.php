@@ -356,7 +356,8 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
 
                     for($i=1; $i <= $r; $i++) {
                         $qry = $qry . ", Res" . $i . " DESC";
-                    }                                                                                                            
+                    }   
+                                                                                                                            
                 }
                 else {    // default: rank results from all heats together
                     $qry = "
@@ -373,7 +374,7 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                     }
 
                 }
-
+               
                 $result = mysql_query($qry);
 
                 if(mysql_errno() > 0) {        // DB error
@@ -433,7 +434,9 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
     
     AA_results_setNotStarted($round);    // update athletes with no result
 
-    AA_utils_changeRoundStatus($round, $cfgRoundStatus['results_done']);
+    if ($_GET['arg'] ==  'results_done'){
+        AA_utils_changeRoundStatus($round, $cfgRoundStatus['results_done']);
+    }
     if(!empty($GLOBALS['AA_ERROR'])) {
         AA_printErrorMsg($GLOBALS['AA_ERROR']);
     }
