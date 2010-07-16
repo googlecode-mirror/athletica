@@ -235,7 +235,7 @@ setcookie('sort_speakres', $arg, time()+2419200);
 			AND at.xAthlet = a.xAthlet
 			AND v.xVerein = at.xVerein
 			AND t.athlet = ss.xSerienstart
-			ORDER BY 
+			ORDER BY s.xSerie, 
 				" . $argument . "
 		");
 
