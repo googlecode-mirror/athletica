@@ -874,10 +874,12 @@ function AA_results_printHeader($category, $event, $round)
 //
 // print menu buttons
 //
-function AA_results_printMenu($round, $status, $prog_mode)
+function AA_results_printMenu($round, $status, $prog_mode = 0)
 {
 	require('./lib/cl_gui_menulist.lib.php');
 	require('./lib/common.lib.php');
+    
+    global $strUserInfo;
 
 	$menu = new GUI_Menulist();
 
@@ -899,7 +901,9 @@ function AA_results_printMenu($round, $status, $prog_mode)
 			echo "<td>".$value['code']."&nbsp; = &nbsp;".$value['long']." &nbsp;&nbsp;</td>";
 		}
 		?>
-		</tr></table>
+		</tr>
+        
+        </table>
 		<?php
 	}
 	else
@@ -930,7 +934,21 @@ function AA_results_printMenu($round, $status, $prog_mode)
 			echo "<td>".$value['long']." = &nbsp;&nbsp;".$value['code']."</td>";
 		}
 		?>
-		</tr></table>
+		</tr>
+        <?php
+        if ($prog_mode == 2) {
+            ?>
+            <tr><td>&nbsp;
+            </td></tr>
+            <tr>
+                <td colspan="6"><?php echo $strUserInfo; ?>
+                </td>
+            </tr>
+            <?php
+        }
+        ?>
+        
+        </table>
 		<?php
 	}
 }
@@ -1239,14 +1257,14 @@ function AA_setHeight($height, $round, $heat, $previous_height)
                     h.xRunde = " . $round . " 
                     AND h.xSerie = " .$heat .$sql_height ."
                     AND w.xMeeting = " . $_COOKIE['meeting_id']; 
-                    
+     
       $res = mysql_query($sql);          
       if (mysql_errno() > 0) {
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
       }
       else {
             if (empty($previous_height) && !empty($height)){ 
-                    
+                  
                     $sql = "INSERT INTO hoehe SET 
                                 hoehe = " . $height .",
                                 xRunde = " . $round .",   
@@ -1277,7 +1295,7 @@ function AA_setHeight($height, $round, $heat, $previous_height)
                     
                     
                 }
-                else {
+                else {           
                      $sql = "INSERT INTO hoehe SET 
                                 hoehe = " . $height .",
                                 xRunde = " . $round .",   
