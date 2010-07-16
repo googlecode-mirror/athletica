@@ -193,7 +193,7 @@ th {
 }
 
 td {
-	vertical-align:middle;
+	vertical-align:middle;  
 	text-align:left;
 	padding-left:6px;
 	padding-right:6px;
@@ -220,12 +220,20 @@ table.dialog {
 	border-style:solid;
 	border-color:#888888;
 }
+.dialog_title {
+    background-color:#56E18E;
+    border-width:1px;
+    border-style:solid;
+    border-color:#888888;
+}
+
 th.dialog {
 	border-width:1px;
 	border-style:solid;
 	border-color:#888888;
 	height: 18px;
 }
+
 td.dialog {
 	height: 18px;
 }
@@ -281,6 +289,7 @@ td.forms_right {
 	padding-right:5px;
 	padding-top:0px;
 	padding-bottom:0px;
+   
 }
 
 td.forms_right_bold {
@@ -344,9 +353,9 @@ table.timetable {
 	border-collapse:collapse;
 	border-width:1px;
 	border-style:solid;
-	border-color:#888888;
+	border-color:#888888;  
 }
-
+          
 th.timetable {
 	text-align:center;
 }
@@ -356,12 +365,12 @@ th.timetable_sub {
 	font-weight:normal;
 	text-align:center;
 	border-width:1px;
-   border-style:solid;
+    border-style:solid;
 }
 
 td.timetable {
 	text-align:center;
-	white-space:nowrap; 
+	white-space:nowrap;   
 }
 
 td.warning {
@@ -394,6 +403,10 @@ th.statistic_total {
 }
 .highlight_orange {
 	background-color:#FFCC00;
+}
+.highlight_yellow {
+    background-color:#FFFF60;
+    font-weight: bold;
 }
 
 div.faq {
