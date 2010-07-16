@@ -101,7 +101,8 @@ $result = mysql_query("SELECT DISTINCT d.Name"
 					. ", TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')"
 					. ", w.Mehrkampfcode"
 					. ", dm.Name"
-                    . ", w.Info"   
+                    . ", w.Info" 
+                    . ", d.Typ"     
 					. " FROM disziplin AS d"
 					. ", kategorie AS k"
 					. ", wettkampf AS w"
@@ -246,8 +247,22 @@ else
                     $sqlEvents.=" AND r.Datum = '" . $mDate . "' ";
                 else
                     $sqlEvents.=" r.Datum = '" . $mDate . "' ";    
-         }   
-                            
+         }  
+               
+         $order = "";
+         if ($_GET['sort'] == 'bestperf'){    
+         
+             if(($row[13] == $cfgDisciplineType[$strDiscTypeTrack])
+                || ($row[13] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+                || ($row[13] == $cfgDisciplineType[$strDiscTypeRelay])
+                || ($row[13] == $cfgDisciplineType[$strDiscTypeDistance])) {
+                    $order = "ASC";
+                }
+             else {
+                   $order = "DESC"; 
+             }
+         }  
+         
 		  // read event entries
 		  if($relay == FALSE) {		// single event
           
@@ -259,7 +274,7 @@ else
                     $sort = "v.Sortierwert, at.Name, at.Vorname"; 
                 }  
                 elseif ($_GET['sort'] == 'bestperf') {  
-                    $sort = "s.Bestleistung, at.Name, at.Vorname"; 
+                    $sort = "s.Bestleistung $order, at.Name, at.Vorname"; 
                 }  
                 else {  
                     $sort = "at.Name, at.Vorname"; 
@@ -272,7 +287,7 @@ else
 			  	  		$sqlEvt = " AND w.xWettkampf = ". $event; 
 				  }
                   if ($_GET['sort'] == 'bestperf') {  
-                        $sort = "a.BestleistungMK, at.Name, at.Vorname"; 
+                        $sort = "a.BestleistungMK DESC, at.Name, at.Vorname"; 
                   }
 				  $query = "SELECT a.Startnummer"
 						  . ", at.Name"
