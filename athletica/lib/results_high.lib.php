@@ -11,7 +11,7 @@ if (!defined('AA_RESULTS_HIGH_LIB_INCLUDED'))
     define('AA_RESULTS_HIGH_LIB_INCLUDED', 1);
 
 function AA_results_High($round, $layout, $singleRound)
-{                    
+{     
        $zaehler = 0;  
        $max = 0;  
        foreach ($_POST as $key => $val){   
@@ -136,9 +136,7 @@ if($_POST['arg'] == 'save_res')
         }else{
             $Xcount = 0;
         }
-        
-        $prog_mode = AA_results_getProgramMode();                
-        
+                
         if($info == $cfgResultsHighOut || $Xcount >= 3) {        // last attempt
             if($cfgProgramMode[$prog_mode]['name'] == $strProgramModeBackoffice) {
                $_POST['athlete'] = $_POST['athlete'] + 1;    // next athlete    
@@ -438,9 +436,8 @@ if($_POST['arg'] == 'save_res')
             mysql_query("UNLOCK TABLES");
         }    // ET DB error (drop temp table)
 
-        AA_results_setNotStarted($round);    // update athletes with no result
-
-        AA_utils_changeRoundStatus($round, $cfgRoundStatus['results_done']);
+        AA_results_setNotStarted($round);    // update athletes with no result   
+      
         if(!empty($GLOBALS['AA_ERROR'])) {
             AA_printErrorMsg($GLOBALS['AA_ERROR']);
         }  
@@ -453,14 +450,13 @@ if($_POST['arg'] == 'save_res')
 elseif ($_POST['arg'] == 'save_height'){
     
          $max = $_POST['max'];
-        
-         for ($g=0;$g<=$max;$g++) {
+                 
+         for ($g=0;$g<=$max;$g++) {                 
             $name = "hight_" . $g;
             $hiddenName = "hiddenHeight_" . $g;  
             if ($g == 0){
                 if (isset($_POST[$name])){
-                    if ($_POST[$name] != $_POST[$hiddenName]) { 
-                        
+                    if ($_POST[$name] != $_POST[$hiddenName]) {                              
                            $previous_height = $_POST[$hiddenName];
                            $new_height = $_POST[$name];  
                            $height  = $_POST[$name];  
@@ -472,11 +468,21 @@ elseif ($_POST['arg'] == 'save_height'){
                                    
                            AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);   
                           
-                           for ($g1=1;$g1<=$max;$g1++){
+                           for ($g1=1;$g1<$max;$g1++){                                       
                                $name = "hight_" . $g1;
                                $hiddenName = "hiddenHeight_" . $g1; 
                                $previous_height = $_POST[$hiddenName]; 
-                               $height += $cfgHeightDiffJump;
+                               
+                               if ($_POST['disCode'] == '310'){                      // jump
+                                    $height += $cfgHeightDiffJump;; 
+                               }  
+                               elseif ($_POST['disCode'] == '320'){
+                                     $height += $cfgHeightDiffPole;     // pole 
+                               }
+                               else {                 
+                                    $height += $cfgHeightDiffJump;
+                               }      
+                              
                                $new_height = $height;
                                $previous_height = new PerformanceAttempt($previous_height);
                                $previous_height = $previous_height->getPerformance();  
@@ -490,7 +496,11 @@ elseif ($_POST['arg'] == 'save_height'){
             }
             else {
                  if (isset($_POST[$name])){ 
-                     if ($_POST[$name] != $_POST[$hiddenName] || empty($_POST[$hiddenName]) || empty($_POST[$name])) {   
+                     if ($_POST[$name] != $_POST[$hiddenName] || empty($_POST[$hiddenName]) || empty($_POST[$name])) { 
+                             $arr_h = explode('_',$name);
+                             $gh = $arr_h[1] - 1; 
+                             $namePrev = $arr_h[0] ."_" . $gh;
+                             $diff = $_POST[$name] - $_POST[$namePrev];            
                              $previous_height = $_POST[$hiddenName];
                              $new_height = $_POST[$name];
                              if (!empty($previous_height)){   
@@ -506,6 +516,24 @@ elseif ($_POST['arg'] == 'save_height'){
                              else {
                                    AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);      
                              }
+                             
+                             for ($g1=$arr_h[1]+1;$g1<$max;$g1++){   
+                                   $name = "hight_" . $g1;
+                                   $hiddenName = "hiddenHeight_" . $g1; 
+                                   $previous_height = $_POST[$hiddenName];     
+                                   $new_height = AA_formatResultMeter($new_height);                                      
+                                
+                                   $new_height += $diff;                          // user defined difference                                  
+                                  
+                                   $previous_height = new PerformanceAttempt($previous_height);
+                                   $previous_height = $previous_height->getPerformance();  
+                                   $new_height = new PerformanceAttempt($new_height);
+                                   $new_height = $new_height->getPerformance();  
+                                   AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);  
+                           }
+                           break;
+                             
+                             
                              
                         }
                  }    
@@ -714,7 +742,7 @@ if($_GET['arg'] == 'results_done')
                     ,TopX ASC
                     ,TotalX ASC
             ");
-
+                                               
             if(mysql_errno() > 0) {        // DB error
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
             }
@@ -831,9 +859,9 @@ if($_GET['arg'] == 'results_done')
         mysql_query("UNLOCK TABLES");
     }    // ET DB error (drop temp table)
 
-    AA_results_setNotStarted($round);    // update athletes with no result
-
-    AA_utils_changeRoundStatus($round, $cfgRoundStatus['results_done']);
+    AA_results_setNotStarted($round);    // update athletes with no result      
+   
+    AA_utils_changeRoundStatus($round, $cfgRoundStatus['results_done']);  
     if(!empty($GLOBALS['AA_ERROR'])) {
         AA_printErrorMsg($GLOBALS['AA_ERROR']);
     }
@@ -1726,7 +1754,7 @@ else if($round > 0 && $prog_mode == 2){
         }
         else
         {
-            AA_results_printMenu($round, $status);
+            AA_results_printMenu($round, $status, $prog_mode);
 
             // initialize variables
             $a = 0;
@@ -1947,15 +1975,8 @@ else if($round > 0 && $prog_mode == 2){
         <th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
         <th class='dialog'><?php echo $strYearShort; ?></th>
         <th class='dialog'><?php echo $strCountry; ?></th>
-        <th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
-<?php
-                   if($status == $cfgRoundStatus['results_done'])
-                    {
-?>
-        <th class='dialog'><?php echo $strRank; ?></th>
-<?php
-                    }
-?>
+        <th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>  
+        <th class='dialog'><?php echo $strRank; ?></th>   
         <th class='dialog' ><?php echo $strResultRemark; ?></th>    
          
         <?php                  
@@ -1993,7 +2014,7 @@ else if($round > 0 && $prog_mode == 2){
                          AND w.xMeeting = " . $_COOKIE['meeting_id'] ."
                          ORDER BY hoehe";
             $res = mysql_query($sql);
-     
+          
             if (mysql_errno() > 0) {
                             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
             }
@@ -2045,9 +2066,9 @@ else if($round > 0 && $prog_mode == 2){
                                   
                         ?>     
                                    
-                        <input class='perfheight' type='hidden' name='hiddenHeight_<?php echo $g; ?>' maxlength='5' value='<?php echo $height;?>'/>
+                        <input class='perfheight' type='hidden' name='hiddenHeight_<?php echo $g; ?>' maxlength='5' value='<?php echo sprintf("%.2f", $height_start);?>'/>
                             <th class='dialog' colspan='2'><input class='perfheight' type='text' name='hight_<?php echo $g; ?>' maxlength='5'
-                                value='<?php echo $height_start; ?>' onchange='document.hight_id.submit()' /></th>
+                                value='<?php echo sprintf("%.2f", $height_start); ?>' onchange='document.hight_id.submit()' /></th>
                           
                         <?php   
                         if ($disCode == '310'){                      // jump
@@ -2069,7 +2090,7 @@ else if($round > 0 && $prog_mode == 2){
                     <th class='dialog' colspan='2'><input class='perfheight' type='text' name='hight_<?php echo $max; ?>' maxlength='5'
                         value='' onchange='document.hight_id.submit()' /></th>   
                 <input type='hidden' name='max' value='<?php echo $max; ?>' />  
-                
+                <input type='hidden' name='disCode' value='<?php echo $disCode; ?>' />  
                  </form>   
                  
     </tr>
@@ -2276,9 +2297,7 @@ else if($round > 0 && $prog_mode == 2){
                                
                         <?php
    
-                        if($status == $cfgRoundStatus['results_done'])
-                        {
-                           // if($_POST['athlete'] == $i)    // only current athlet
+                    
                             if($a_activ == $i)    
                             {
                             ?>
@@ -2315,31 +2334,12 @@ else if($round > 0 && $prog_mode == 2){
                                     $zaehler++;
                                   }       
 
-                            }
+                           }
                             else {
                                 echo "<td>" . $row[6] . "</td>";
                                  echo "<td>" . $row[17] . "</td>";   
-                            }
-                          
-                        }        // ET results done
-                        else {
-                             ?>    
-
-                            <form action='event_results.php' method='post'
-                                        name='remark_<?php echo $i; ?>'>
-                                    <td>
-                                        <input type='hidden' name='arg' value='save_remark' />
-                                        <input type='hidden' name='round' value='<?php echo $round; ?>' />
-                                         <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
-                                        <input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
-                                        <input type='hidden' name='item' value='<?php echo $row[4]; ?>' />                                             
-                                        <input type='hidden' name='xAthlete' value='<?php echo $row[18]; ?>' />    
-                                        <input class='textshort' type='text' name='remark' maxlength='5'
-                                            value='<?php echo $row[17]; ?>' onchange='document.remark_<?php echo $i; ?>.submit()' />
-                                    </td>
-                                    </form>         
-                            <?php   
-                        }                               
+                            }                                  
+                    
                     }        // ET new athlete                        
 
                    $new_perf = '';       
