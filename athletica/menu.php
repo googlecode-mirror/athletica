@@ -41,6 +41,7 @@ if($arg == "login"){
 	$meeting_class = 'main_inactive';
 	$event_class = 'main_inactive';
 	$speaker_class = 'main_inactive';
+    $regie_class = 'main_inactive'; 
 	$admin_class = 'main_inactive';
 
 	switch($arg) {
@@ -183,6 +184,39 @@ if($arg == "login"){
 			}
 			break;
 
+        //
+        // Main menu 'REGIE'
+        //    - reuses event rankinglists
+        case 'regie':
+        case 'speaker_entries':
+        case 'speaker_results':
+        case 'speaker_rankinglists':
+            $regie_class = 'main';
+            // submenus
+            $subitems= array(0 => 'speaker_entries'
+                                , 1 => 'speaker_results'
+                                , 2 => 'speaker_rankinglists');
+            // submenu titles
+            $subtitles= array(0 => $strEntries
+                                , 1 => "$strHeats & $strResults"
+                                , 2 => $strRankingLists);
+            // submenu style
+            $subitem_class= array(0 => 'subitem_inactive'
+                                , 1 => 'subitem_inactive'
+                                , 2 => 'subitem_inactive');
+            // highlight current submenu
+            switch($arg) {
+                case 'speaker_entries':
+                    $subitem_class[0]='subitem';
+                    break;
+                case 'speaker_results':
+                    $subitem_class[1]='subitem';
+                    break;
+                case 'speaker_rankinglists':
+                    $subitem_class[2]='subitem';
+                    break;
+            }
+            break;
 		//
 		// Main menu 'ADMIN'
 		//
@@ -275,19 +309,23 @@ if($arg == "login"){
 ?>
 <table width="100%">
   <tr> 
-	<td class="<?php echo $meeting_class; ?>" height="20" width="25%">
+	<td class="<?php echo $meeting_class; ?>" height="20" width="20%">
 		<a href="index.php" target="_parent">
 			<?php echo $strMeetingTitle; ?></a>
 	</td>
-	<td class="<?php echo $event_class; ?>" height="20" width="25%">
+	<td class="<?php echo $event_class; ?>" height="20" width="20%">
 		<a href="index.php?arg=event" target="_parent">
 			<?php echo $strEvent; ?></a>
 	</td>
-	<td class="<?php echo $speaker_class; ?>" height="20" width="25%">
+	<td class="<?php echo $speaker_class; ?>" height="20" width="20%">
 		<a href="index.php?arg=speaker" target="_parent">
 			<?php echo $strSpeaker; ?></a>
 	</td>
-	<td class="<?php echo $admin_class; ?>" height="20" width="25%">
+    <td class="<?php echo $regie_class; ?>" height="20" width="20%">
+        <a href="index.php?arg=regie" target="_parent">
+            <?php echo $strRegie; ?></a>
+    </td>
+	<td class="<?php echo $admin_class; ?>" height="20" width="20%">
 		<a href="index.php?arg=admin" target="_parent">
 			<?php echo $strAdministration; ?></a>
 	</td>
