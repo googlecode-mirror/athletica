@@ -14,6 +14,7 @@ function AA_speaker_Track($event, $round, $layout)
 {
 	require('./lib/cl_gui_menulist.lib.php');
 	require('./lib/cl_gui_resulttable.lib.php');
+    require('./lib/cl_performance.lib.php');  
 	require('./config.inc.php');
 	require('./lib/common.lib.php');
 
@@ -260,7 +261,8 @@ function AA_speaker_Track($event, $round, $layout)
 				{
 					$resrow = mysql_fetch_row($res);
 					if($resrow != NULL) {		// result found
-						$perf = AA_formatResultTime($resrow[1]);
+						$perf = AA_formatResultTime($resrow[1]);                         
+                        $perfRounded = AA_formatResultTime($resrow[1], true); 
 					}
 					mysql_free_result($res);
 				}	// ET DB error
@@ -269,7 +271,7 @@ function AA_speaker_Track($event, $round, $layout)
 				if($relay == FALSE) {
 					$resTable->printAthleteLine($row[9], $row[12]
 							, "$row[13] $row[14]", AA_formatYearOfBirth($row[15])
-							, $row[16], AA_formatResultTime($row[19]), $perf, $row[10], $row[11], $row[18], $row[20]);
+							, $row[16], AA_formatResultTime($row[19], true), $perfRounded, $row[10], $row[11], $row[18], $row[20]);
 				}
 				else {	// relay
 					
@@ -297,7 +299,7 @@ function AA_speaker_Track($event, $round, $layout)
 					$arrAthletes = (count($arrAthletes)>0) ? $arrAthletes : 0;
 					
 					$resTable->printRelayLine($row[9], $row[12], $row[13] 
-							, $perf, $row[10], $row[11], $arrAthletes);
+							, $perfRounded, $row[10], $row[11], $arrAthletes);
 
 				}
 			}
