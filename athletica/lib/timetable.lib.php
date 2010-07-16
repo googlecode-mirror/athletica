@@ -26,7 +26,7 @@ function AA_timetable_display($arg = 'monitor')
 {
 	require('./config.inc.php');
 	require('./lib/common.lib.php');
-    
+   
    
      
 	$result = mysql_query("
@@ -648,6 +648,237 @@ function AA_timetable_display($arg = 'monitor')
 </table>
 		<?php
 	}		// ET DB timetable item error
+}
+
+// timetable regie (display only starttime < timestamp + status=heats in progress) 
+function AA_timetable_display_regie($timestamp)
+{
+    require('./config.inc.php');
+    require('./lib/common.lib.php');
+    require('./lib/regie_results_track.lib.php');   
+    require('./lib/regie_results_tech.lib.php');   
+    require('./lib/regie_results_high.lib.php');    
+        
+    mysql_query("DROP TABLE IF EXISTS `tempTrack`");    // temporary table     
+    mysql_query("DROP TABLE IF EXISTS `tempHigh`");    // temporary table   
+ 
+ 
+   
+            $temp = mysql_query("
+            CREATE TEMPORARY TABLE IF NOT EXISTS `tempTrack` (
+                          `leistung` int(11) NOT NULL default '0',  
+                          `xSerienstart` int(10) NOT NULL default '0',
+                          `xSerie` int(10) NOT NULL default '0',  
+                          `rang` int(10) NOT NULL default '0',
+                          PRIMARY KEY  (`xSerienstart`)
+                        )  TYPE=HEAP 
+                        ");
+            if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+            else {                                                     
+                 // Set up a temporary table to hold all results for ranking.
+                        mysql_query("
+                            CREATE TEMPORARY TABLE IF NOT EXISTS tempHigh (
+                                xSerienstart int(11)
+                                , xSerie int(11)
+                                , Leistung int(9)
+                                , TopX int(1)
+                                , TotalX int(2)
+                                , `rang` int(10) NOT NULL default '0' 
+                                )
+                                TYPE=HEAP 
+                        "); 
+                  if(mysql_errno() > 0) {        // DB error
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                  }
+                  else {     
+     
+                       $timestamp = time();    
+                         
+                        $result = mysql_query("
+                            SELECT DISTINCT
+                                k.Name
+                            FROM
+                                wettkampf AS w
+                                , kategorie AS k
+                            WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
+                            AND w.xKategorie = k.xKategorie
+                            ORDER BY
+                                k.Anzeige,
+                                k.Kurzname
+                        ");
+                       
+                        if(mysql_errno() > 0)    // DB error
+                        {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }
+                        else            // no DB error
+                        {
+                            $headerline = "";
+                            // assemble headerline and category array
+                            $cats = array();
+                            while ($row = mysql_fetch_row($result))
+                            {
+                                $headerline = $headerline . "<th class='timetable'>$row[0]</th>";
+                                $cats[] = $row[0];        // category array
+                            }
+                            mysql_free_result($result);
+                           
+                            // all rounds ordered by date/time
+                            // - count nbr of present athletes or relays (don't include
+                            //   athletes starting in relays)
+                            // - group by r.xRunde to show event-rounds entered more than once
+                            // - group by s.xWettkampf to count athletes per event
+                            // (the different date and time fields are required to properly set
+                            // up the table)             
+                          
+                            $sql="SELECT
+                                    r.xRunde
+                                    , r.Status
+                                    , rt.Typ
+                                    , k.Name
+                                    , d.Kurzname
+                                     , IF(s.xWettkampf IS NULL,0,COUNT(*))   
+                                    , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+                                    , TIME_FORMAT(r.Startzeit, '%H')
+                                    , DATE_FORMAT(r.Datum, '$cfgDBdateFormat')
+                                    , r.Datum
+                                    , r.xWettkampf
+                                    , k.xKategorie
+                                    , r.Speakerstatus
+                                    , w.Info
+                                    , r.StatusZeitmessung
+                                    , r.Gruppe
+                                    , w.Typ
+                                    , w.Mehrkampfende
+                                    , w.Mehrkampfcode
+                                    , rs.xRundenset
+                                    , rs.Hauptrunde
+                                    , d.xDisziplin
+                                    , r.Startzeit                   
+                                FROM
+                                    runde AS r
+                                    LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+                                    LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+                                    LEFT JOIN disziplin AS d ON (w.xDisziplin = d.xDisziplin)
+                                LEFT JOIN rundentyp AS rt
+                                    ON r.xRundentyp = rt.xRundentyp
+                                LEFT JOIN start AS s
+                                    ON w.xWettkampf = s.xWettkampf
+                                    AND s.Anwesend = 0
+                                    AND ((d.Staffellaeufer = 0
+                                        AND s.xAnmeldung > 0)
+                                        OR (d.Staffellaeufer > 0
+                                        AND s.xStaffel > 0))
+                                LEFT JOIN rundenset AS rs ON (rs.xRunde = r.xRunde AND rs.xMeeting = " . $_COOKIE['meeting_id'] .") 
+                                WHERE w.xMeeting=" . $_COOKIE['meeting_id'] ."             
+                                AND r.status = " . $cfgRoundStatus['results_in_progress'] . "
+                                 GROUP BY
+                                    r.xRunde
+                                    , s.xWettkampf             
+                                 ORDER BY
+                                    r.Datum
+                                    , r.Startzeit
+                                    , k.Anzeige
+                                    , k.Kurzname
+                                    , d.Anzeige";
+                            $res = mysql_query($sql);
+                          
+                            if(mysql_errno() > 0)    // DB error
+                            {
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }
+                            else            // no DB error
+                            {
+                                $date = 0;
+                                $hour = '';
+                                $time = 0;
+                                $i=0;
+                                $k='';
+                                $events = array();    // array to hold last processed round per event
+                                ?>     
+                                
+                    <table> 
+                                <?php   
+                                
+                                while ($row = mysql_fetch_row($res))
+                                { 
+                                     if (strtotime($row[22]) >= $timestamp){           
+                                         continue;
+                                     }
+                                   
+                                    if ($row[20] == 0 && $row[20] != NULL)  {               // don't' show merged  rounds
+                                          continue;  
+                                    }
+                                                          
+                                    if ( ($i % 2) == 0){                         
+                                        ?>
+                                        <tr>
+                                        <td class="dialog-top">
+                                       <?php
+                                    }
+                                    else {    
+                                         ?>                    
+                                         <td class="dialog-top">   
+                                       <?php
+                                    }
+                                    $layout = AA_getDisciplineType($row[0]);    // type determines layout  
+                                    
+                                    // track disciplines, with or without wind
+                                    if(($layout == $cfgDisciplineType[$strDiscTypeNone])
+                                        || ($layout == $cfgDisciplineType[$strDiscTypeTrack])
+                                        || ($layout == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+                                        || ($layout == $cfgDisciplineType[$strDiscTypeDistance])
+                                        || ($layout == $cfgDisciplineType[$strDiscTypeRelay]))
+                                    {
+                                        AA_regie_Track($row[10], $row[0], $layout, $row[3], $row[4]);
+                                    }
+                                    // technical disciplines, with or withour wind
+                                    else if(($layout == $cfgDisciplineType[$strDiscTypeThrow])
+                                        || ($layout == $cfgDisciplineType[$strDiscTypeJump])
+                                        || ($layout == $cfgDisciplineType[$strDiscTypeJumpNoWind]))
+                                    {
+                                        AA_regie_Tech($row[10], $row[0], $layout, $row[3], $row[4]); 
+                                    }
+                                    // high jump, pole vault
+                                    else if($layout == $cfgDisciplineType[$strDiscTypeHigh])
+                                    {
+                                        AA_regie_High($row[10], $row[0], $layout, $row[3], $row[4]); 
+                                    } 
+                                    
+                                    $i++;  
+                                    if ( ($i % 2) == 0){                           
+                                        ?>
+                                        </td> 
+                                        </tr> 
+                                       <?php
+                                    }
+                                    else {      
+                                         ?>                    
+                                        </td>
+                                       <?php
+                                    }    
+                                  
+                                }    // END while every event round 
+                                
+                                mysql_free_result($res);
+                               
+                                ?>
+                    </tr>
+                                <?php
+                            }        // ET DB error event rounds
+                            ?>
+                    </table>
+                            <?php
+          }
+        }  
+                     
+    }        // ET DB timetable item error
+    
+       $temp = mysql_query("DROP TABLE IF EXISTS `tempTrack`");  
+     
+       $temp = mysql_query("DROP TABLE IF EXISTS `tempHigh` ");
 }
 
 }		// AA_TIMETABLE_LIB_INCLUDED
