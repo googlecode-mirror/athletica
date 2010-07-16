@@ -86,6 +86,8 @@ $cfgResultsHighStayDecentralNotPassed = array(        // stay on same height
                             );
 $cfgResultsHighStayDecentralEnd = array(        // to skip and finished                                   
                                  "-" 
+                                 ,"X-"
+                                 ,"XX-" 
                                 , "O" 
                                 , "XO"  
                                 , "XXO"  
@@ -93,14 +95,14 @@ $cfgResultsHighStayDecentralEnd = array(        // to skip and finished
                             );
                             
 $cfgResultsHighStayDecentralEnd2 = array(        // to skip
-                                 "-" 
+                                 "-"                                      
                                 , "O" 
                                 , "XO"  
                                 , "XXO"  
                                 
                             );
                             
-$cfgCountHeight = 15;
+$cfgCountHeight = 5;
 $cfgHeightDiffJump = 0.05;
 $cfgHeightStartJump = 1.50;
 $cfgHeightDiffPole = 0.20;
