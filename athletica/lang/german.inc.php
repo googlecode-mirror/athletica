@@ -797,4 +797,9 @@ $strBaseRelayNotFound = "Staffel %name% wurde in Stammdaten nicht gefunden";
 $strProgramModeFieldRank = "dezentral mit Rangierung";  
 $strWarnRestore = "Achtung: Bestehende Sicherung wird überspielt.";
 
+$strRegie = "Regie";    
+$strRegieMonitor = "Regiemonitor";
+
+$strUserInfo = "<b>Benutzerinfo:</b> Versuche abschliessen mit <span class='highlight_yellow'>ENTER-Taste </span> oder mit Klick auf Schaltfläche <span class='highlight_yellow'>OK </span>";                                                                                       
+
 ?>

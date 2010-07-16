@@ -780,6 +780,15 @@ $strXmlNoCat = "<br>&nbsp;&nbsp;Pour la catégorie %NAME% aucune compétition n'es
 $strXmlNoLic = "<br>&nbsp;&nbsp;Ce numéro de licence  %NAME% ne figure pas dans les données de base.";
 $strXmlNoClub = "<br>&nbsp;&nbsp;La société %NAME% n'existe pas dans athletica.";
 
-$strOnlyOver1000m = "seulement pour >1000 m au-dessus du niveau de la mer";                      
+$strOnlyOver1000m = "seulement pour >1000 m au-dessus du niveau de la mer"; 
+         
+$strConvtableRankingPointsU20 = "Points par rang U20";   
+$strErrAthletesSeeded = "Les athlètes sont déjà répartis dans les séries";
+$strBaseTeamNotFound = "L'équipe %name% (%id%) n'a pas été trouvée dans les données de base"; 
+$strBaseRelayNotFound = "Le relais %name% n'a pas été trouvé dans les données de base"; 
+
+$strProgramModeFieldRank = "Décentralisé avec classement";    
+$strWarnRestore  = "Attention: La protection existante est remplacée.";   
+                     
 
 ?>
