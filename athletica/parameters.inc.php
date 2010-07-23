@@ -102,7 +102,7 @@ $cfgResultsHighStayDecentralEnd2 = array(        // to skip
                                 
                             );
                             
-$cfgCountHeight = 5;
+$cfgCountHeight = 15;
 $cfgHeightDiffJump = 0.05;
 $cfgHeightStartJump = 1.50;
 $cfgHeightDiffPole = 0.20;
@@ -117,6 +117,7 @@ $cfgResultsSepTrans = array("."=>"$cfgResultsSeparator"
 $cfgMaxAthlete = 8;        // decentral ranking 8 athletes
 $cfgAfterAttempts1 = 3;    // after 3 attempts --> new position for 8 athletes
 $cfgAfterAttempts2 = 5;    // after 5 attempts --> new position for 8 athletes
+$cfgEightRank = 8;
 
 /**
  * Ranking lists
