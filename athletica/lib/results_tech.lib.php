@@ -69,7 +69,9 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                     LEFT JOIN start AS st ON (st.xStart = ss.xStart)
                     LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
-             WHERE r.xRunde = " . $round;
+             WHERE r.xRunde = " . $round ."
+                   ";
+                                                  
     $res = mysql_query($sql);
    
     if(mysql_errno() > 0) {        // DB error
@@ -89,7 +91,11 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                 if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder 
                 , ss.Position
                 , ss.Position2
-                , ss.Position3    
+                , ss.Position3 
+                , ss.xSerienstart
+                , ss.Rang
+                , s.MaxAthlet
+                , s.xSerie                    
           FROM 
                 resultat AS r
                 , serienstart AS ss
@@ -99,10 +105,11 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                 r.xSerienstart = ss.xSerienstart
                 AND ss.xSerie = s.xSerie
                 AND s.xRunde = ru.xRunde " .  
-                $roundSQL2 ."
+                $roundSQL2 ."                       
           GROUP BY r.xSerienstart
           ORDER BY posOrder ";
-          $result = mysql_query($sql);                                            
+          $result = mysql_query($sql); 
+         
     }
     else {
         $result = mysql_query("SELECT COUNT(*), ru.Versuche"
@@ -126,24 +133,29 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                  $z=0;
                  $pass = 0;
                  $arr_attAthlete = array();
-                 $maxAthlete = $cfgMaxAthlete;
-                 if ($count_athlete < $cfgMaxAthlete){
-                     $maxAthlete = $count_athlete;
-                 }
-                 else {
-                        $maxAthlete = $cfgMaxAthlete;
-                 }
+                 $maxAthlete = 0;                    
+               
                  while( $row = mysql_fetch_row($result)){
                      
                      if ($z == 0){                                // first row                      
-                        $maxatt = $row[1];                         
+                        $maxatt = $row[1];  
+                        $maxAthlete = $row[9]; 
+                        $xSerie = $row[10];                        
                      }
+                    
                     $arr_attAthlete[] = $row[0]; 
+                    $keep_rank = $row[8];               
                     $z++; 
                  }
+                 if ($count_athlete < $maxAthlete){
+                     $maxAthlete = $count_athlete;
+                     // update max athlete in serie
+                     AA_setMaxAthlete($xSerie, $maxAthlete);   
+                 }  
                
                 $maxAthleteAtt = max($arr_attAthlete);
                 $minAthleteAtt = min($arr_attAthlete); 
+               
                 $onlyMaxAthlete = false; 
                 if ($count_athlete > $cfgMaxAthlete){
                     if ($maxAthleteAtt == $minAthleteAtt && $minAthleteAtt == $cfgAfterAttempts1){
@@ -193,8 +205,46 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                 $att_athlet = 0;
                 $fieldFocus = 0;
                 $first = true;
-                $result = mysql_query($sql); 
+                
+                if ($pass == 2){
+                    $posSQL = " AND ss.Position2 > 0 ";
+                }
+                elseif ($pass == 3){
+                    $posSQL = " AND ss.Position3 > 0 ";
+                }
+                else {
+                      $posSQL = "";
+                }
+                
+                 $sql="SELECT 
+                        COUNT(*),                  
+                        ru.Versuche, 
+                        LPAD(s.Bezeichnung,5,'0') as heatid,  
+                        if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder 
+                        , ss.Position
+                        , ss.Position2
+                        , ss.Position3                      
+                  FROM 
+                        resultat AS r
+                        , serienstart AS ss
+                        , serie AS s
+                        , runde AS ru  
+                  WHERE 
+                        r.xSerienstart = ss.xSerienstart
+                        AND ss.xSerie = s.xSerie
+                        AND s.xRunde = ru.xRunde " .  
+                         $posSQL .                      
+                        $roundSQL2 ."                       
+                  GROUP BY r.xSerienstart
+                  ORDER BY posOrder ";
+                  $result = mysql_query($sql); 
+                 
                
+              
+                  if (mysql_num_rows($result) < $maxAthlete) {
+                      $maxAthlete = mysql_num_rows($result);
+                  }
+                  
                 while( $row = mysql_fetch_row($result)){
                      $z++;               
                      $att_athlet =  $row[0];   
@@ -706,7 +756,20 @@ if($round > 0)
         
         AA_heats_printNewStart($presets['event'], $round, "event_results.php");
                    
-        
+       
+        if ($pass == 2){
+               $fieldPos = "ss.Position2";   
+                $order = "posOrder";   
+        }
+        elseif ($pass == 3){
+               $fieldPos = "ss.Position3";   
+                $order = "ss.Rang DESC";    
+        }
+        else {
+             $fieldPos = "ss.Position";  
+             $order = "posOrder";   
+        }
+      
        
         // display all athletes        
         $sql = "SELECT rt.Name"
@@ -730,7 +793,7 @@ if($round > 0)
                                 . ", r.nurBestesResultat"
                                 . ", ss.Bemerkung"
                                 . ", at.xAthlet"
-                                . ", if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder"    
+                                . ",  if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder  "   
                                 . " FROM runde AS r"
                                 . ", serie AS s"
                                 . ", serienstart AS ss"
@@ -751,14 +814,14 @@ if($round > 0)
                                 . " AND at.xAthlet = a.xAthlet"
                                 . " AND v.xVerein = at.xVerein"
                                 . " ORDER BY heatid, posOrder";
-        $result = mysql_query($sql);     
-                                            
+        $result = mysql_query($sql);            
+      
         if(mysql_errno() > 0) {        // DB error
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
         }
         else
         {   $sum_athlet = mysql_num_rows($result);
-            AA_results_printMenu($round, $status, $prog_mode);
+            AA_results_printMenu($round, $status, $prog_mode, 'tech');
           
             // initialize variables
             $h = 0;
@@ -954,7 +1017,18 @@ if($round > 0)
                 {
                     // Show rank
                     if($status == $cfgRoundStatus['results_done'] || $prog_mode == 2)
-                    {
+                    {  
+                        
+                       $disField = ($maxatt + 1) * $maxAthlete;            // attempts * 8 (first 8 athletes)     
+                       
+                       if ($pass >= 2 && ($r+1) > $disField){
+                                    $dis = 'disabled=" disabled"';
+                            }
+                            else {
+                                  $dis = '';
+                            }  
+                        
+                        
 ?>
         <form action='event_results.php' method='post'
             name='rank_<?php echo $r; ?>'>
@@ -963,7 +1037,7 @@ if($round > 0)
             <input type='hidden' name='round' value='<?php echo $round; ?>' />
             <input type='hidden' name='item' value='<?php echo $row[6]; ?>' />
             <input type='hidden' name='focus' value='rank_<?php echo $r; ?>' />
-            <input class='nbr' type='text' name='rank' maxlength='3'
+            <input class='nbr' type='text' name='rank' maxlength='3'   <?php echo $dis; ?>   
                 value='<?php echo $row[8]; ?>' onChange='document.rank_<?php echo $r; ?>.submit()' />
         </td>
         <?php
@@ -1076,13 +1150,7 @@ if($round > 0)
                         }
 
                         if($status != $cfgRoundStatus['results_done'] || $prog_mode == 2) {  
-                            
-                            if ($pass >= 2 && $r > $disField){
-                                $dis = 'disabled=" disabled"';
-                            }
-                            else {
-                                  $dis = '';
-                            }
+                          
 ?>
         <form action='controller.php' method='post'
             name='perf_<?php echo $r; ?>' target='controller'>
@@ -1092,9 +1160,10 @@ if($round > 0)
             <input type='hidden' name='type' value='<?php echo $layout; ?>' />
             <input type='hidden' name='round' value='<?php echo $round; ?>' />
             <input type='hidden' name='start' value='<?php echo $row[6]; ?>' />
-            <input type='hidden' name='item' value='<?php echo $item; ?>' />
-            <input type='hidden' name='rows' value='<?php echo $sum_athlet; ?>' /> 
+            <input type='hidden' name='item' value='<?php echo $item; ?>' />  
             <input type='hidden' name='row_col' value='<?php echo $r ."_" . $c; ?>' />  
+            <input type='hidden' name='maxatt' value='<?php echo $maxatt; ?>' />   
+             <input type='hidden' name='heat' value='<?php echo $row[2] ?>' />         
             
 <?php
                             // technical disciplines with wind
@@ -1145,7 +1214,7 @@ if($round > 0)
             <input type='hidden' name='item' value='<?php echo $item; ?>' />
             <input type='hidden' name='xAthlete' value='<?php echo $row[20]; ?>' /> 
              
-        <input class='textshort' type='text' name='remark' maxlength='5'
+        <input class='textshort' type='text' name='remark' maxlength='5'   <?php echo $dis; ?>   
                 value='<?php echo $row[19]; ?>'
                 onChange='submitResult(document.perf_<?php echo $r; ?>, <?php echo $focus; ?>)' />
                 </td>

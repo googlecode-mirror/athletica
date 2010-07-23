@@ -34,8 +34,8 @@ class Result
 	var $points;
     var $remark;      
     var $xAthlete;  
-    var $row_col; 
-    var $rows; 
+    var $row_col;    
+    var $maxatt;  
 
 	function Result($round=0, $startID=0, $resultID=0)
 	{
@@ -45,16 +45,16 @@ class Result
 		$this->performance = '';
 		$this->info = ''; 
         $this->xAthlete = '';  
-        $this->row_col = 0;    
-        $this->rows = 0;                      
+        $this->row_col = 0; 
+        $this->maxatt = 0;                                           
 	}
 	
-	function save($performance, $info = '', $secFlag = false, $remark='', $xAthlete, $row_col, $rows)
+	function save($performance, $info = '', $secFlag = false, $remark='', $xAthlete, $row_col, $maxatt)
 	{   $this->remark = $remark; 
         $this->performance = $performance; 
         $this->xAthlete = $xAthlete; 
-        $this->row_col = $row_col; 
-        $this->rows = $rows;     
+        $this->row_col = $row_col;            
+        $this->maxatt = $maxatt;                
      
 		require('./lib/utils.lib.php');
 		$GLOBALS['AA_ERROR'] = '';
@@ -82,6 +82,8 @@ class Result
         
         if (is_null($this->remark) && $performance == ''){  
             $reply = $this->delete();  
+            $reply->setRowCol($this->row_col);             
+            $reply->setMaxatt($this->maxatt);               
         }   
         else
             {            
@@ -187,8 +189,8 @@ class Result
 					$reply->setAction(RES_ACT_UPDATE);
 					$reply->setPerformance($this->performance);
 					$reply->setInfo($this->info);
-                    $reply->setRowCol($this->row_col); 
-                    $reply->setRows($this->rows);    
+                    $reply->setRowCol($this->row_col);                     
+                    $reply->setMaxatt($this->maxatt);               
 				}
 			}
 		}
@@ -209,8 +211,8 @@ class Result
 				$reply->setAction(RES_ACT_INSERT);
 				$reply->setPerformance($this->performance);
 				$reply->setInfo($this->info);
-                $reply->setRowCol($this->row_col); 
-                $reply->setRows($this->rows);    
+                $reply->setRowCol($this->row_col);                  
+                $reply->setMaxatt($this->maxatt);               
 			}
 		}	// ET add or change
 		mysql_query("UNLOCK TABLES");
@@ -573,7 +575,19 @@ class ResultReturn
     {
         //return substr($this->$row_col,5,strlen($this->$row_col));
         return $this->pass;
+    }                 
+    
+     function setMaxatt($maxatt)
+    {
+        $this->maxatt = $maxatt;
     }
+    
+     function getMaxatt()
+    {
+        //return substr($this->$row_col,5,strlen($this->$row_col));
+        return $this->maxatt;
+    }
+
 
 
 } // end class ResultReturn

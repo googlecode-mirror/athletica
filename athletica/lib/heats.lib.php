@@ -499,6 +499,7 @@ function AA_heats_seedEntries($event)
 											. ", xAnlage = 0"
 											. ", Bezeichnung = " . $i
 											. ", Film = ".$filmnr
+                                            . ", MaxAthlet = ".$cfgMaxAthlete 
                                             . ", TVName = '".$tvname. " ". $i. "'");   
                                 }  
                                 else {
@@ -507,6 +508,7 @@ function AA_heats_seedEntries($event)
                                             . ", xAnlage = 0"
                                             . ", Bezeichnung = " . $i
                                             . ", Film = ".$filmnr
+                                            . ", MaxAthlet = ".$cfgMaxAthlete
                                             . ", TVName = '".$tvname."'");   
                                 } 
                                 
@@ -1048,6 +1050,7 @@ function AA_heats_seedQualifiedAthletes($event)
 											. ", xAnlage = 0"
 											. ", Bezeichnung = '" . $b ."'"
 											. ", Film = ".$filmnr
+                                            . ", MaxAthlet = ".$cfgMaxAthlete
                                             . ", TVName = '".$tvname. " ". $b. "'");   
                                 }  
                                 else {
@@ -1056,6 +1059,7 @@ function AA_heats_seedQualifiedAthletes($event)
                                             . ", xAnlage = 0"
                                             . ", Bezeichnung = '" . $b ."'"
                                             . ", Film = ".$filmnr
+                                            . ", MaxAthlet = ".$cfgMaxAthlete
                                             . ", TVName = '".$tvname. "'");   
                                 } 
                                 
@@ -1336,7 +1340,8 @@ function AA_heats_addStart($round)
 							Bezeichnung = '$newhn'
 							, xRunde = $round
 							, xAnlage = 0
-					");
+                            , MaxAthlet = ".$cfgMaxAthlete); 
+					
 
 					if(mysql_errno() > 0) {
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1652,7 +1657,8 @@ function AA_heats_changePosition($round)
 							. " Bezeichnung = '".$_POST['heatname']."'"
 							. ", xRunde = $round"
 							. ", xAnlage = 0
-							   , Film = $filmnr");
+							   , Film = $filmnr"
+                            . ", MaxAthlet = ".$cfgMaxAthlete);
 
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

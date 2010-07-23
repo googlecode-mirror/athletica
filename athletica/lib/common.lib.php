@@ -2768,7 +2768,7 @@ function AA_checkCombinedLast($event)
      */   
 function AA_newPosition($round, $pass)
 { 
-    global $cfgMaxAthlete;
+    global $cfgEightRank, $cfgMaxAthlete;
     $field = '';
     
     if ($pass == 2){
@@ -2780,8 +2780,10 @@ function AA_newPosition($round, $pass)
     $sql = "SELECT 
                   ss.xSerienstart "
                   . $field ."
-                  , ss.Rang
+                  , if (ss.Rang = 0, 9999999, ss.Rang) as orderRang
                   , LPAD(s.Bezeichnung,5,'0') as heatid
+                  , s.MaxAthlet
+                  , s.xSerie
             FROM runde AS r
                 LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
                 LEFT JOIN serienstart AS ss  ON (ss.xSerie = s.xSerie)
@@ -2795,19 +2797,52 @@ function AA_newPosition($round, $pass)
                 LEFT JOIN anlage AS an
                 ON an.xAnlage = s.xAnlage
             WHERE r.xRunde = " . $round ."                 
-            ORDER BY heatid, ss.Rang";             
+            ORDER BY heatid, orderRang";             
        
         $res = mysql_query($sql);    
         if(mysql_errno() > 0) {        // DB error
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
         }
+        $sameRank = false;
+        $z = 0;
         while ($row = mysql_fetch_row($res)) {
+            if ($z == 0){
+                $maxAthlete = $row[4];
+                $xSerie = $row[5];   
+            }
             $heatStarts[] = $row[0];
+            if ($row[2] < 9999999){
+                $heatStartsRank[] = $row[2];  
+            } 
+            if ($row[2] == $keep_rank){
+                if ($row[2] == $cfgEightRank){
+                   $sameRank = true;
+                }     
+            } 
+            $z++;
+            $keep_rank = $row[2];
         }
-        $i = $cfgMaxAthlete;
+      
+        if (count($heatStartsRank) < $maxAthlete){
+              $i = count($heatStartsRank);    
+        }
+        else {
+              $i = $maxAthlete;   
+        }
+        if ($sameRank){
+            $maxAthlete = $cfgMaxAthlete + 1;
+            // update max athlete
+            AA_setMaxAthlete($xSerie, $maxAthlete);
+            $i = $maxAthlete;   
+        }
+        else {
+             $maxAthlete = $i;   
+        }
+        $i =  $maxAthlete;
+        
         foreach ($heatStarts AS $key => $val){
              if ($i <= 0){
-                 $i = $cfgMaxAthlete + 1;
+                 $i = $maxAthlete + 1;
              }
              if ($pass == 2) {
                  $sql = "UPDATE serienstart SET Position2 = " . $i ." WHERE xSerienstart = " . $val;     
@@ -2819,14 +2854,511 @@ function AA_newPosition($round, $pass)
              if(mysql_errno() > 0) {        // DB error
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
              } 
-             if ($i <= $cfgMaxAthlete){
+             if ($i <= $maxAthlete){
                    $i--;  
              }
              else {
                  $i++;
              }
         }
-}    
+}  
+
+/**    
+     * ranking for decentral before new position
+     * ------------------------------------------
+     */   
+function AA_rankingForNewPosition($round, $pass)
+{ 
+    $eval = AA_results_getEvaluationType($round);
+    $combined = AA_checkCombined(0, $round);
+    
+    mysql_query("LOCK TABLES r READ, s READ, ss READ, runde READ");
+    
+    // if this is a combined event, rank all rounds togheter
+    $roundSQL = "";
+    $roundSQL2 = "";
+    if($combined){
+        $roundSQL = "AND serie.xRunde IN (";
+        $roundSQL2 = "AND s.xRunde IN (";
+        $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
+        while($row_c = mysql_fetch_array($res_c)){
+            $roundSQL .= $row_c[0].",";
+            $roundSQL2 .= $row_c[0].",";
+        }
+        $roundSQL = substr($roundSQL,0,-1).")";
+        $roundSQL2 = substr($roundSQL2,0,-1).")";
+    }else{
+        $roundSQL = "AND serie.xRunde = $round";
+        $roundSQL2 = "AND s.xRunde = $round";
+    }
+    
+    // number of athletes
+    $sql = "SELECT 
+                    ss.xSerienstart  
+             FROM 
+                    runde AS r
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                    LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+             WHERE r.xRunde = " . $round ."
+                   AND ss.Rang > 0";
+    $res = mysql_query($sql);
+   
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }
+    else {
+        $count_athlete = mysql_num_rows($res);     
+    }
+    
+    // evaluate max. nbr of results entered
+    $r = 0;
+   
+    $sql="SELECT 
+                COUNT(*),                  
+                ru.Versuche, 
+                LPAD(s.Bezeichnung,5,'0') as heatid,  
+                if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder 
+                , ss.Position
+                , ss.Position2
+                , ss.Position3 
+                , ss.xSerienstart
+                , ss.Rang
+                , s.MaxAthlet
+                , s.xSerie                     
+          FROM 
+                resultat AS r
+                , serienstart AS ss
+                , serie AS s
+                , runde AS ru  
+          WHERE 
+                r.xSerienstart = ss.xSerienstart
+                AND ss.xSerie = s.xSerie
+                AND s.xRunde = ru.xRunde " .  
+                $roundSQL2 ."                       
+          GROUP BY r.xSerienstart
+          ORDER BY posOrder ";
+          
+    $result = mysql_query($sql);   
+    
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    }
+    else {
+        
+                 $z=0;    
+                 $arr_attAthlete = array();
+                
+                 while( $row = mysql_fetch_row($result)){  
+                     if ($z == 0){                                // first row                      
+                        $maxatt = $row[1]; 
+                         $maxAthlete = $row[9];  
+                         $xSerie = $row[10];                                                                                                
+                     }
+                    $arr_attAthlete[] = $row[0];                     
+                    $z++; 
+                 }
+               
+                $maxAthleteAtt = max($arr_attAthlete);
+                $minAthleteAtt = min($arr_attAthlete);   
+               
+                $onlyMaxAthlete = false; 
+                if ($count_athlete > $maxAthlete){
+                    if ($maxAthleteAtt == $minAthleteAtt && $minAthleteAtt == $cfgAfterAttempts1){
+                       $onlyMaxAthlete = true; 
+                    }
+                    elseif ($maxAthleteAtt > $cfgAfterAttempts1) {
+                             $onlyMaxAthlete = true;
+                    }
+                }
+                if ($onlyMaxAthlete && $count_athlete > $maxAthlete){
+                    $c = 0;
+                    $arr_attAthlete_new = array();
+                    foreach ($arr_attAthlete as $key => $val){
+                        $c++;
+                        $arr_attAthlete_new[] = $val;
+                        if ($c >= $maxAthlete ) {
+                            break;
+                        }
+                    }
+                    $arr_attAthlete = $arr_attAthlete_new;  
+                    $maxAthleteAtt = max($arr_attAthlete);
+                    $minAthleteAtt = min($arr_attAthlete);  
+                }
+                
+                if ($count_athlete < $maxAthlete){
+                     $maxAthlete = $count_athlete;
+                     // update max athlete 
+                     AA_setMaxAthlete($xSerie,$maxAthlete);
+                 }
+                
+                if ($pass == 2){
+                    $r = 3;
+                }
+                elseif ($pass == 3){ 
+                         $r = 5;   
+                }   
+                $first_row = false; 
+              
+                if ($maxAthleteAtt == $minAthleteAtt && $z == $count_athlete){
+                            $first_row = true;
+                            $maxAthleteAtt++;
+                }
+                               
+                $z=0;
+                $att_athlet = 0;
+                $fieldFocus = 0;
+                $first = true;
+                
+                if ($pass == 2){
+                    $posSQL = " AND ss.Position2 > 0 ";
+                }
+                elseif ($pass == 3){
+                    $posSQL = " AND ss.Position3 > 0 ";
+                }
+                else {
+                      $posSQL = "";
+                }
+                
+                 $sql="SELECT 
+                        COUNT(*),                  
+                        ru.Versuche, 
+                        LPAD(s.Bezeichnung,5,'0') as heatid,  
+                        if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder 
+                        , ss.Position
+                        , ss.Position2
+                        , ss.Position3                      
+                  FROM 
+                        resultat AS r
+                        , serienstart AS ss
+                        , serie AS s
+                        , runde AS ru  
+                  WHERE 
+                        r.xSerienstart = ss.xSerienstart
+                        AND ss.xSerie = s.xSerie
+                        AND s.xRunde = ru.xRunde " .  
+                         $posSQL .                      
+                        $roundSQL2 ."                       
+                  GROUP BY r.xSerienstart
+                  ORDER BY posOrder ";
+                  
+                  $result = mysql_query($sql);   
+              
+                  if (mysql_num_rows($result) < $maxAthlete) {
+                      $maxAthlete = mysql_num_rows($result);
+                  }
+                  
+                while( $row = mysql_fetch_row($result)){
+                     $z++;               
+                     $att_athlet =  $row[0];   
+                     if ($row[0] < $maxAthleteAtt && !$first_row){
+                            break;
+                     }
+                     elseif ($row[0] < $maxAthleteAtt){
+                             $fieldFocus =  $att_athlet+1; 
+                              break;
+                     }
+                     else {
+                            $fieldFocus = ($z * ($maxatt + 1) ) + $att_athlet; 
+                     }
+                     if ($onlyMaxAthlete && $z >= $maxAthlete) {
+                         break;
+                     }
+                }  
+                if ($fieldFocus == 0){
+                     $fieldFocus = 1;              
+                }
+                else {
+                    if ($onlyMaxAthlete){
+                        if ($z == $maxAthlete && $att_athlet == $maxAthleteAtt){
+                            $z = 1;
+                            $att_athlet++;
+                            $fieldFocus = $att_athlet;   
+                        }
+                    }
+                    else{     
+                    
+                        if ($z == $count_athlete && $att_athlet == $maxAthleteAtt){
+                            $z = 1;
+                            $att_athlet++;
+                            $fieldFocus = $att_athlet;   
+                        }
+                    }
+                }    
+          
+         mysql_free_result($result);
+    }
+
+    if($r > 0)        // any results found
+    {
+        mysql_query("DROP TABLE IF EXISTS tempresult1");    // temporary table
+         mysql_query("DROP TABLE IF EXISTS tempresult2");    // temporary table    
+
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        else
+        {
+            mysql_query("
+                LOCK TABLES
+                    resultat READ
+                    , serie READ
+                    , wettkampf READ
+                    , serienstart WRITE
+                    , tempresult1 WRITE
+                    , tempresult2 WRITE 
+            ");
+
+            // Set up a temporary table to hold all results for ranking.
+            // The number of result columns varies according to the maximum
+            // number of results per athlete.
+            $qry = "
+                CREATE TABLE tempresult1 (
+                    xSerienstart int(11)
+                    , xSerie int(11)";
+
+            for($i=1; $i <= $r; $i++) {
+                $qry = $qry . ", Res" . $i . " int(9) default '0'";
+                $qry = $qry . ", Wind" . $i . " char(5) default '0'";
+            }
+            $qry = $qry . ") TYPE=HEAP";
+          
+            mysql_query($qry);    // create temporary table
+
+            if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+            else
+            {  
+                $result = mysql_query("
+                    SELECT
+                        resultat.Leistung
+                        , resultat.Info
+                        , serienstart.xSerienstart
+                        , serienstart.xSerie
+                    FROM
+                        resultat
+                        , serienstart
+                        , serie
+                    WHERE resultat.xSerienstart = serienstart.xSerienstart
+                    AND serienstart.xSerie = serie.xSerie
+                    $roundSQL
+                    AND resultat.Leistung >= 0
+                    ORDER BY
+                        serienstart.xSerienstart
+                        , resultat.xResultat
+                       
+                ");
+                
+                $sql_temp = "CREATE TABLE tempresult2 (
+                                    Leistung int(9)
+                                    , Info char(5)
+                                     , xSerienstart int(11)  
+                                      , xSerie int(11)  )";
+                 mysql_query($sql_temp);
+                 if(mysql_errno() > 0) {        // DB error
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                 }
+                 $i = 0;  
+                 while($row = mysql_fetch_row($result)) { 
+                     
+                        if($ss != $row[2] ){     // next athlete
+                             $i = 0;
+                        }
+                        if ($i < $r){
+                             $ins = "INSERT INTO tempresult2 VALUES($row[0],'$row[1]', $row[2],$row[3])"; 
+                             mysql_query($ins);               
+                             if(mysql_errno() > 0) {        // DB error                                 
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());   
+                             }  
+                        }                             
+                        $ss = $row[2];                // keep athlete's ID
+                        $i++;                                // count nbr of results
+                    
+                 }
+                 
+                 $sql = "SELECT * FROM tempresult2 
+                        ORDER BY
+                                xSerienstart
+                                , Leistung DESC";
+                                 
+                $result = mysql_query($sql);      
+                 
+                if(mysql_errno() > 0) {        // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }
+                else
+                {     
+                    // initialize variables
+                    $ss = 0;
+                    $i = 0;
+                    // process every result
+                    while($row = mysql_fetch_row($result))      
+                    {                                
+                        if($ss != $row[2] )     // next athlete
+                        {
+                            // add one row per athlete to temp table
+                            if($ss != 0) {
+                                for(;$i < $r; $i++) { // fill remaining result cols.
+                                    $qry = $qry . ",0,''";
+                                }
+                                
+                                mysql_query($qry . ")");
+                                 
+                                if(mysql_errno() > 0) {        // DB error
+                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());     
+                                }
+                            }
+                            // (re)set SQL statement
+                            $qry = "INSERT INTO tempresult1 VALUES($row[2],$row[3]";
+                            $i = 0;
+                        }
+                      
+                        $qry = $qry . ",$row[0],'$row[1]'";    // add current result to query                            
+                        $ss = $row[2];                // keep athlete's ID
+                        $i++;                                // count nbr of results
+                    }
+                    mysql_free_result($result);
+                   
+                    // insert last pending data in temp table
+                    if($ss != 0) {
+                        for(;$i < $r; $i++) {    // fill remaining result cols.
+                            $qry = $qry . ",0,''";
+                        }
+                        mysql_query($qry . ")");
+                        if(mysql_errno() > 0) {        // DB error
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }
+                    }
+                }
+
+                if($eval == $cfgEvalType[$strEvalTypeHeat]) {    // eval per heat
+                    $qry = "
+                        SELECT
+                            *
+                        FROM
+                            tempresult1
+                        ORDER BY
+                            xSerie";
+
+                    for($i=1; $i <= $r; $i++) {
+                        $qry = $qry . ", Res" . $i . " DESC";
+                    }   
+                                                                                                                            
+                }
+                else {    // default: rank results from all heats together
+                    $qry = "
+                        SELECT
+                            *
+                        FROM
+                            tempresult1
+                        ORDER BY ";
+                    $comma = "";
+                    // order by available result columns
+                    for($i=1; $i <= $r; $i++) {
+                        $qry = $qry . $comma . "Res" . $i . " DESC";
+                        $comma = ", ";
+                    }
+
+                }
+               
+                $result = mysql_query($qry);
+
+                if(mysql_errno() > 0) {        // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }
+                else {
+                    // initialize variables
+                    $heat = 0;
+                    $perf_old[] = '';
+                    $j = 0;
+                    $rank = 0;
+                    // set rank for every athlete
+                    while($row = mysql_fetch_row($result))
+                    {
+                        for($i=0; $i <= $r; $i++) {
+                            $perf[$i] = $row[(2*$i)+2];
+                            $wind[$i] = $row[(2*$i)+3];
+                        }
+
+                        if(($eval == $cfgEvalType[$strEvalTypeHeat])    // new heat
+                            &&($heat != $row[1]))
+                        {
+                            $j = 0;        // restart ranking
+                            $perf_old[] = '';
+                        }
+
+                        $j++;                                // increment ranking
+                        if($perf_old != $perf) {    // compare performances
+                            $rank = $j;    // next rank (only if not same performance)
+                        }
+
+                        mysql_query("
+                            UPDATE serienstart SET
+                                Rang = $rank
+                            WHERE xSerienstart = $row[0]
+                        ");
+
+                        if(mysql_errno() > 0) {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }
+                        $heat = $row[1];        // keep current heat ID
+                        $perf_old = $perf;
+                    }
+                    mysql_free_result($result);
+                }
+
+                mysql_query("DROP TABLE IF EXISTS tempresult1");
+                mysql_query("DROP TABLE IF EXISTS tempresult2"); 
+
+                if(mysql_errno() > 0) {        // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }
+            }    // ET DB error (create temp table)
+
+            mysql_query("UNLOCK TABLES");
+        }    // ET DB error (drop temp table)
+    }    // ET any results found
+    
+    AA_results_setNotStarted($round);    // update athletes with no result  
+   
+} 
+
+/**    
+     * set new max athlete (tech. disciplines for decentral with ranking)
+     * ------------------------------------------------------------------
+     */      
+
+function AA_setMaxAthlete($xSerie, $maxAthlete){
+    
+    $sql = "Update serie Set MaxAthlet = " .$maxAthlete . " WHERE xSerie = " . $xSerie;
+    mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    
+} 
+
+/**    
+     * reset position 2 or position 3 (tech. disciplines for decentral with ranking)
+     * -----------------------------------------------------------------------------
+     */      
+
+function AA_resetPos($heat, $posNr){   
+ 
+    $posName = "Position" . $posNr;      
+    
+    $sql = "UPDATE serienstart SET " . $posName ." = 0 WHERE xSerie = " . $heat;  
+    $res = mysql_query($sql);  
+    
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }           
+} 
+
+
 
 	
 } // end AA_COMMON_LIB_INCLUDED
