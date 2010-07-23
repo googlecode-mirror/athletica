@@ -54,12 +54,12 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                                 . " $roundSQL2 "
                                 . " GROUP BY r.xSerienstart"
                                 . " ORDER BY 1 DESC");
-      
+    
     $row = mysql_fetch_row($result);
       
     $r = $row[0];                     // max. attempts
     
-             mysql_query("
+         mysql_query("
                 LOCK TABLES
                     resultat READ
                     , serie READ
@@ -75,9 +75,9 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                     , verein as v READ 
                     , rundentyp as rt READ   
                     , tempTech WRITE
-            ");
+            ");  
                                                                   
-            mysql_query("DROP TABLE IF EXISTS `tempTech`");    // temporary table 
+           mysql_query("DROP TABLE IF EXISTS `tempTech`");    // temporary table          
             
             // Set up a temporary table to hold all results for ranking.
             // The number of result columns varies according to the maximum
@@ -86,7 +86,8 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                 CREATE TEMPORARY TABLE IF NOT EXISTS tempTech (
                     xSerienstart int(11)
                     , xSerie int(11)
-                    , rang int(11)";
+                    , rang int(11)
+                     , position int(11)";
 
             for($i=1; $i <= $r; $i++) {
                 $qry = $qry . ", Res" . $i . " int(9) default '0'";
@@ -107,6 +108,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                         , resultat.Info
                         , serienstart.xSerienstart
                         , serienstart.xSerie
+                        , serienstart.Position
                     FROM
                         resultat
                         , serienstart
@@ -146,7 +148,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                                 }
                             }
                             // (re)set SQL statement
-                            $qry = "INSERT INTO tempTech VALUES($row[2],$row[3], 0";
+                            $qry = "INSERT INTO tempTech VALUES($row[2],$row[3], 0, $row[4]";
                             $i = 0;
                         }
                         $qry = $qry . ",$row[0],'$row[1]'";    // add current result to query
@@ -154,7 +156,17 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                         $i++;                                // count nbr of results
                     }
                     mysql_free_result($result);
-                   
+                                                      
+                    if ($prog_mode == 2){
+                            $sql_temp = "SELECT count(*), xSerienstart, Position FROM tempTech ORDER BY Position DESC";  
+                    }
+                    else {
+                          $sql_temp = "SELECT xSerienstart, Position FROM tempTech ORDER BY Position DESC"; 
+                          $res_temp = mysql_query($sql_temp); 
+                          $row_temp = mysql_fetch_row($res_temp);
+                          $ss  = $row_temp[0]; 
+                    }                        
+                  
                     // insert last pending data in temp table
                     if($ss != 0) {
                         for(;$i < $r; $i++) {    // fill remaining result cols.
@@ -263,7 +275,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 		$argument="st.Bestleistung, ss.Position";
 		$img_perf="img/sort_act.gif";
 	} else if ($arg=="rang") {
-		$argument="t.rang, ss.Position";
+		$argument="orderRang, ss.Position";
 		$img_rang="img/sort_act.gif";
 	} else if($relay == FALSE) {		// single event
 		$argument="ss.Position";
@@ -292,6 +304,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 				, at.xAthlet
 				, at.Land
 				, t.rang
+                , if (t.rang > 0,  t.rang, 999999) as orderRang
 			FROM
             runde AS r
                 LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
@@ -329,7 +342,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
  *  Heat headerline
  */
 				if($h != $row[2])		// new heat
-				{
+				{    $current_athlete = false; 
 					$h = $row[2];				// keep heat ID
 
 					if(is_null($row[0])) {		// only one round
@@ -358,6 +371,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 				$sql = "SELECT
 						    r.Leistung
 						    , r.Info
+                            , r.xSerienstart
 				        FROM
 						    resultat AS r
 					    WHERE 
@@ -399,6 +413,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 					    else {
 							        $perfs[] = "$perf";
 					    }
+                        
 				    
 				}	// end loop every tech result acc. programm mode
 
@@ -410,10 +425,19 @@ setcookie('sort_speakres', $arg1, time()+2419200);
                 if ($row[19] == 0){
                     $row[19] = '';
                 }
-				 if (empty($perfs) && !$current_athlete){
-                    $current_athlete = true;
-                    $curr_class = "active";
+                if ($prog_mode == 2){
+                      if (empty($perfs) && !$current_athlete){
+                            $current_athlete = true;
+                            $curr_class = "active";
+                    }
                 }
+                else {
+                    if ($ss == $row[6]){
+                        $current_athlete = true;
+                        $curr_class = "active";
+                    }                          
+                }
+				 
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
 					, '','', AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], '', $row[17], $curr_class, 'regie');
                     
@@ -425,7 +449,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 	
        mysql_query("UNLOCK TABLES"); 
        
-       $temp = mysql_query("DROP TABLE IF EXISTS `tempTech` ");  
+      $temp = mysql_query("DROP TABLE IF EXISTS `tempTech` ");  
 	
 
 }	// End Function AA_regie_Tech
