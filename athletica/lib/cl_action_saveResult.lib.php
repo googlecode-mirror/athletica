@@ -62,6 +62,30 @@ class Action_saveResult extends Action_default
 		require('./lib/utils.lib.php');
         // get program mode
         $prog_mode = AA_results_getProgramMode();
+        if ($prog_mode == 2){
+            
+              $sql = "SELECT 
+                            ss.xSerienstart,
+                            ss.Position,
+                            MAX(ss.Position2), 
+                            MAX(ss.Position3),
+                            s.MaxAthlet,
+                            count(*)
+                      FROM 
+                            runde AS r
+                            LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                            LEFT JOIN serienstart AS ss  ON (ss.xSerie = s.xSerie)
+                      WHERE 
+                            r.xRunde = " . $_POST['round'] ."
+                      GROUP BY s.xSerie";  
+       
+                      $res = mysql_query($sql);    
+                      $row = mysql_fetch_row($res);
+                      $maxPos2 = $row[2];
+                      $maxPos3 = $row[3];
+                      $maxAthlete = $row[4];
+                      $countAthlete = $row[5]; 
+        }
         
         global $cfgMaxAthlete, $cfgAfterAttempts1, $cfgAfterAttempts2;
 
@@ -102,21 +126,16 @@ class Action_saveResult extends Action_default
 		else if($this->type== $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeJump']])
 		{
 			$result = new TechResult($_POST['round'], $_POST['start'], $_POST['item']);
-			$this->reply = $result->save($_POST['perf'], $_POST['wind'],'',$_POST['remark'], $_POST['xAthlete'], $_POST['row_col'], $_POST['rows']);    
+			$this->reply = $result->save($_POST['perf'], $_POST['wind'],'',$_POST['remark'], $_POST['xAthlete'], $_POST['row_col'], $_POST['maxatt']);
             
              if ($prog_mode == 2){
-                $arrfield_nr = explode('_',$this->reply->getRowCol());
+               $arrfield_nr = explode('_',$this->reply->getRowCol());
                 $current_col = $arrfield_nr[1];
-                $current_field_nr = $arrfield_nr[0];
-                $row = $this->reply->getRows();  
-                if ($current_col > $cfgAfterAttempts1) {
-                    if ($row > $cfgMaxAthlete){
-                        $row = $cfgMaxAthlete;
-                    } 
-                }
+                $current_field_nr = $arrfield_nr[0];                  
+                $maxatt = $this->reply->getMaxatt();   
                 
-                $field_nr_pass2 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts1;
-                $field_nr_pass3 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts2; 
+                $field_nr_pass2 = ($maxatt + 1) * ($countAthlete - 1) + $cfgAfterAttempts1;
+                $field_nr_pass3 = ($maxatt + 1) * ($maxAthlete - 1) + $cfgAfterAttempts2; 
                
                 switch ($current_col) {
                      case 1:
@@ -142,11 +161,53 @@ class Action_saveResult extends Action_default
                               break;
               
                 }
-                if ($current_field_nr == $field_nr_pass2 || $current_field_nr == $field_nr_pass3) {
-                    AA_newPosition($_POST['round'],$this->reply->getPass() ); 
-                }
+               
                 
-            }
+                if  ($maxPos2 > 0 && $maxPos3 == 0 && $current_col <= 3) {
+                          if  ($_POST['perf'] == ''){
+                               // reset position 2
+                               AA_resetPos($_POST['heat'], 2);    
+                               $this->reply->setPass(0);
+                               AA_rankingForNewPosition($_POST['round'],$this->reply->getPass());                                                                         
+                          }
+                          else {
+                              $this->reply->setPass(2);
+                              AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                              AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                          }
+                    
+                }
+                 elseif  ($maxPos3 > 0 && $current_col >= 4 &&  $current_col < 6) { 
+                          if  ($_POST['perf'] == ''){
+                               // reset position 3
+                               AA_resetPos($_POST['heat'], 3);  
+                                $this->reply->setPass(2);
+                               AA_rankingForNewPosition($_POST['round'],$this->reply->getPass());                                      
+                          }
+                          else {
+                               $this->reply->setPass(3);
+                               AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                               AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                          }
+                     
+                 }
+                 elseif  ($maxPos3 > 0 && $current_col <= 3) { 
+                          $this->reply->setPass(2);
+                          AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                          AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                          $this->reply->setPass(3);
+                          AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                          AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                     
+                 }
+                 elseif ($current_field_nr == $field_nr_pass2 || $current_field_nr == $field_nr_pass3)    {
+                        AA_rankingForNewPosition($_POST['round'],$this->reply->getPass());                       
+                        AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                }  
+                
+                                 
+                                  
+            }               
 			if(!empty($GLOBALS['AA_ERROR'])) {
 				return;
 			}
@@ -161,21 +222,16 @@ class Action_saveResult extends Action_default
 		{
 			$result = new TechResult($_POST['round'], $_POST['start'], $_POST['item']);
            
-			$this->reply = $result->save($_POST['perf'],'','',$_POST['remark'], $_POST['xAthlete'], $_POST['row_col'], $_POST['rows']);
+			$this->reply = $result->save($_POST['perf'],'','',$_POST['remark'], $_POST['xAthlete'], $_POST['row_col'], $_POST['maxatt']);
             
             if ($prog_mode == 2){
                 $arrfield_nr = explode('_',$this->reply->getRowCol());
                 $current_col = $arrfield_nr[1];
-                $current_field_nr = $arrfield_nr[0];
-                $row = $this->reply->getRows();  
-                if ($current_col > $cfgAfterAttempts1) {
-                    if ($row > $cfgMaxAthlete){
-                        $row = $cfgMaxAthlete;
-                    } 
-                }
+                $current_field_nr = $arrfield_nr[0];                  
+                $maxatt = $this->reply->getMaxatt();   
                 
-                $field_nr_pass2 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts1;
-                $field_nr_pass3 = ($row - 1) * ($cfgMaxAthlete - 1) + $cfgAfterAttempts2; 
+                $field_nr_pass2 = ($maxatt + 1) * ($countAthlete - 1) + $cfgAfterAttempts1;
+                $field_nr_pass3 = ($maxatt + 1) * ($maxAthlete - 1) + $cfgAfterAttempts2; 
                
                 switch ($current_col) {
                      case 1:
@@ -201,9 +257,52 @@ class Action_saveResult extends Action_default
                               break;
               
                 }
-                if ($current_field_nr == $field_nr_pass2 || $current_field_nr == $field_nr_pass3) {
-                    AA_newPosition($_POST['round'],$this->reply->getPass() ); 
-                }                      
+               
+                
+                if  ($maxPos2 > 0 && $maxPos3 == 0 && $current_col <= 3) {
+                          if  ($_POST['perf'] == ''){
+                               // reset position 2
+                               AA_resetPos($_POST['heat'], 2);    
+                               $this->reply->setPass(0);
+                               AA_rankingForNewPosition($_POST['round'],$this->reply->getPass());                                                                         
+                          }
+                          else {
+                              $this->reply->setPass(2);
+                              AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                              AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                          }
+                    
+                }
+                 elseif  ($maxPos3 > 0 && $current_col >= 4 &&  $current_col < 6) { 
+                          if  ($_POST['perf'] == ''){
+                               // reset position 3
+                               AA_resetPos($_POST['heat'], 3);  
+                                $this->reply->setPass(2);
+                               AA_rankingForNewPosition($_POST['round'],$this->reply->getPass());                                      
+                          }
+                          else {
+                               $this->reply->setPass(3);
+                               AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                               AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                          }
+                     
+                 }
+                 elseif  ($maxPos3 > 0 && $current_col <= 3) { 
+                          $this->reply->setPass(2);
+                          AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                          AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                          $this->reply->setPass(3);
+                          AA_rankingForNewPosition($_POST['round'],$this->reply->getPass()); 
+                          AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                     
+                 }
+                 elseif ($current_field_nr == $field_nr_pass2 || $current_field_nr == $field_nr_pass3)    {
+                        AA_rankingForNewPosition($_POST['round'],$this->reply->getPass());                       
+                        AA_newPosition($_POST['round'],$this->reply->getPass()); 
+                }  
+                
+                                 
+                                  
             }               
             
 			if(!empty($GLOBALS['AA_ERROR'])) {
