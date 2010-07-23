@@ -259,11 +259,11 @@ function printHeatTitleRegie($cat, $disc)
 	 *		- rank	rank, if any
 	 *		- qual	qualification info, if any
 	 */
-	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perf, $rank=0, $qual=0, $country="", $athletID, $arg='', $curr_class='', $rank_regie=0)
+	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perf, $rank=0, $qual=0, $country="", $athletID, $arg='',  $rank_regie=0)
 	{
 ?>
-	<tr class='<?php if (empty($curr_class)) {echo $this->rowclass[0];} else {echo $curr_class; } ?>' onClick='window.open("speaker_entry.php?item=<?php echo $athletID; ?>", "_self")' style="cursor: pointer;">
-		<td class='forms_right'><?php echo $pos; ?></td>
+	<tr class='<?php echo $this->rowclass[0]; ?>' onClick='window.open("speaker_entry.php?item=<?php echo $athletID; ?>", "_self")' style="cursor: pointer;">  	
+        <td class='forms_right'><?php echo $pos; ?></td>
 		<td class='forms_right'><?php echo $nbr; ?></td>
 		<td><?php echo $name; ?></td>
         <?php 
@@ -342,7 +342,7 @@ function printHeatTitleRegie($cat, $disc)
 	 *		- qual	qualification info, if any
 	 *		- athl  array with athletes
 	 */
-	function printRelayLine($pos, $name, $club, $perf, $rank=0, $qual=0, $athl=0, $arg = '', $curr_class='', $rank_regie=0)
+	function printRelayLine($pos, $name, $club, $perf, $rank=0, $qual=0, $athl=0, $arg = '', $rank_regie=0)
 	{
     $tds = 3;
     if ($arg == 'regie'){
@@ -351,7 +351,7 @@ function printHeatTitleRegie($cat, $disc)
 	
    
 ?>
-	<tr class='<?php if (empty($curr_class)) {echo $this->rowclass[0];} else {echo $curr_class; } ?>'>    
+	<tr class='<?php echo $this->rowclass[0]; ?>'>    
 		<td class='forms_right'><?php echo $pos; ?></td>
 		<td><?php echo $name; ?></td>
 		<td><?php echo $club; ?></td>
@@ -716,10 +716,10 @@ setcookie('sort_speakres', $arg, time()+2419200);
 			 if ($arg == 'regie'){  
                  
                 if($fett[$key]==1) {
-                    echo "<b> $perf</b>"; 
+                    echo "<b>&nbsp; $perf &nbsp;</b>"; 
                 }
                 else {
-                     echo $perf;    
+                     echo "&nbsp; $perf &nbsp;";    
                 }  
                
              }
@@ -894,7 +894,7 @@ class GUI_HighResultTable extends GUI_ResultTable
 			if ($arg == 'regie'){  
                     
             ?>
-        <?php if($fett[$key]==1) echo "<b>";?><?php echo $perf;?> 
+        <?php if($fett[$key]==1) echo "<b>";?><?php echo "&nbsp;&nbsp;&nbsp;$perf"; ?> 
             <?php
             
             
