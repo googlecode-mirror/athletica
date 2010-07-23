@@ -122,6 +122,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
             $result = mysql_query($sql);         
             $heat = 0;
             $perf = 0;
+            $perfRounded = 0;
             $i = 0;
             $rank = 0;
           
@@ -143,6 +144,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
                             {
                             $i = 0;        // restart ranking   (not SVM with single heat)
                             $perf = 0;
+                            $perfRounded = 0;  
                          }                 
                     }      
                           
@@ -200,6 +202,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					, st.Bestleistung
 					, at.xAthlet
                     , t.rang  
+                    , if (ss.Rang = 0, 999999, ss.Rang) as orderRang    
 				FROM
 					runde AS r
 					LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
@@ -215,7 +218,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
                     r.xRunde = $round    				
 				ORDER BY
 					heatid
-					, ss.Position
+					, orderRang
 			");
            
 		}
@@ -239,7 +242,8 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					, LPAD(s.Bezeichnung,5,'0') as heatid
 					, r.xRunde
 					, st.xStart
-                    , t.rang   
+                    , t.rang 
+                    , if (ss.Rang = 0, 999999, ss.Rang) as orderRang    
 				FROM
 					runde AS r
 					LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
@@ -254,10 +258,9 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
                     r.xRunde = $round  				
 				ORDER BY
 					heatid
-					, ss.Position
+					, orderRang
 			");
-		}
-       
+		}           
        
 		$result = mysql_query($query);
 
@@ -269,9 +272,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 			$h = 0;		// heat counter
 			$p = 0;		// position counter (to evaluate empty heats
 			$tracks = 0;
-            $current_athlete = false;
-            $curr_class = '';
-            
+                       
 			$resTable = new GUI_TrackResultTable($round, $layout, $status, $nextRound);
             $resTable->printHeatTitleRegie($cat, $disc);  
             
@@ -337,6 +338,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
  */
 				// get performance
 				$perf = '';
+                $perfRounded = '';
 				$res = mysql_query("
 					SELECT
 						rs.xResultat
@@ -348,7 +350,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					ORDER BY
 						rs.Leistung ASC
 				");
-
+              
 				if(mysql_errno() > 0) {		// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
@@ -357,21 +359,17 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					$resrow = mysql_fetch_row($res);
 					if($resrow != NULL) {		// result found
 						$perf = AA_formatResultTime($resrow[1]);
-                         $perfRounded = AA_formatResultTime($resrow[1], true);  
+                        $perfRounded = AA_formatResultTime($resrow[1], true);  
 					}
 					mysql_free_result($res);
 				}	// ET DB error
 
 				// print lines
-                if (empty($perf) && !$current_athlete){
-                    $current_athlete = true;
-                    $curr_class = "active";
-                }
+                
 				if($relay == FALSE) {
 					  $resTable->printAthleteLine($row[9], $row[12]
                             , "$row[13] $row[14]", '',
-                             '', AA_formatResultTime($row[19], true), $perfRounded, $row[10], $row[11], '', $row[20], 'regie',$curr_class, $row[21]); 
-                     $curr_class = ""; 
+                             '', AA_formatResultTime($row[19], true), $perfRounded, $row[10], $row[11], '', $row[20], 'regie', $row[21]);                       
 				}
 				else {	// relay
 					
@@ -399,8 +397,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					$arrAthletes = (count($arrAthletes)>0) ? $arrAthletes : 0;
 					
 					$resTable->printRelayLine($row[9], $row[12], $row[13] 
-							, $perfRounded, $row[10], $row[11], $arrAthletes, 'regie', $curr_class, $row[17]);
-                     $curr_class = "";
+							, $perfRounded, $row[10], $row[11], $arrAthletes, 'regie', $row[17]);                      
 
 				}
 			}
