@@ -173,6 +173,7 @@ $results = mysql_query("
                 LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
                 LEFT JOIN rundenset as rs ON (r.xRunde=rs.xRunde )           
             WHERE 
+                " . $selection . "  
                 w.xMeeting  = " . $_COOKIE['meeting_id'] . " 
                 AND r.Status = 4  
                 AND r.Datum LIKE '%' 
@@ -183,7 +184,7 @@ $results = mysql_query("
                 , r.Startzeit
 ");               
 }        
-
+ 
 if(mysql_errno() > 0) {        // DB error
       
     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
