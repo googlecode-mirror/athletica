@@ -966,7 +966,7 @@ if($round > 0 && $prog_mode != 2)
         }
         else
         {
-             AA_results_printMenu($round, $status); 
+             AA_results_printMenu($round, $status, $prog_mode, 'high'); 
 
             // initialize variables
             $a = 0;
@@ -1754,7 +1754,7 @@ else if($round > 0 && $prog_mode == 2){
         }
         else
         {
-            AA_results_printMenu($round, $status, $prog_mode);
+            AA_results_printMenu($round, $status, $prog_mode, 'high');
 
             // initialize variables
             $a = 0;
