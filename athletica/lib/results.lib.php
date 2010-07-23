@@ -874,7 +874,7 @@ function AA_results_printHeader($category, $event, $round)
 //
 // print menu buttons
 //
-function AA_results_printMenu($round, $status, $prog_mode = 0)
+function AA_results_printMenu($round, $status, $prog_mode, $arg)
 {
 	require('./lib/cl_gui_menulist.lib.php');
 	require('./lib/common.lib.php');
@@ -936,7 +936,7 @@ function AA_results_printMenu($round, $status, $prog_mode = 0)
 		?>
 		</tr>
         <?php
-        if ($prog_mode == 2) {
+        if ($prog_mode == 2 && $arg == 'high') {
             ?>
             <tr><td>&nbsp;
             </td></tr>
@@ -1040,12 +1040,14 @@ function AA_results_deleteResults($round){
 	require('./lib/common.lib.php');
 	require('./lib/utils.lib.php');
     
+    global $cfgMaxAthlete;
+    
     $prog_mode = AA_results_getProgramMode();
 	
 	// get each heat start and delete results for it
 	mysql_query("LOCK TABLES serie as s READ, serienstart as sst READ, serienstart  AS WRITE ,resultat WRITE");
 	
-	$res = mysql_query("	SELECT sst.xSerienstart FROM
+	$res = mysql_query("	SELECT sst.xSerienstart, s.xSerie FROM
 					serienstart as sst
 					, serie as s
 				WHERE
@@ -1054,21 +1056,29 @@ function AA_results_deleteResults($round){
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}else{
-		
+		$z = 0;
 		while($row = mysql_fetch_array($res)){
 			
 			mysql_query("DELETE FROM resultat WHERE xSerienstart = ".$row[0]);
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
-            if ($prog_mode == 2){   
+            if ($prog_mode == 2){ 
+                if ($z == 0){
+                     mysql_query("UPDATE serie SET MaxAthlet = " .$cfgMaxAthlete . " WHERE xSerie = ".$row[1]);
+                     $sql="UPDATE serie SET MaxAthlet = " .$cfgMaxAthlete . " WHERE xSerie = ".$row[1];
+                    
+                     if(mysql_errno() > 0) {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                     }
+                }  
                 
-                mysql_query("UPDATE serienstart SET Position2 = '', Position3 = '' WHERE xSerienstart = ".$row[0]);
+                mysql_query("UPDATE serienstart SET Position2 = 0, Position3 = 0 , Rang = 0 WHERE xSerienstart = ".$row[0]);
                 if(mysql_errno() > 0) {
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
             }
-			
+			$z++;
 		}
 		
 	}
