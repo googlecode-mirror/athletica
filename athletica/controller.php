@@ -135,7 +135,8 @@ if(!empty($GLOBALS['AA_ERROR'])) {
 		}
 	}
     
-    $prog_mode = AA_results_getProgramMode();  
+    $prog_mode = AA_results_getProgramMode();           
+  
 	?>
 </form>
 
@@ -144,9 +145,13 @@ if(!empty($GLOBALS['AA_ERROR'])) {
 <script type="text/javascript">
 <!--
     var prog_mode = "<?php echo $prog_mode; ?>";
+    var type = "<?php echo $_POST['type']; ?>";  
+     
 	document.next.submit();   
-    if (prog_mode == 2) {
-        parent.frames[1].document.location.href = "http://localhost/athletica/event_results.php?arg=event&round=<?php echo $_POST['round']; ?>"; 
+    if (prog_mode == 2){
+        if (type == 4 || type ==5 || type > 7) { 
+            parent.frames[1].document.location.href = "http://<?php echo $_SERVER['HTTP_HOST']; ?>/athletica/event_results.php?arg=event&round=<?php echo $_POST['round']; ?>";  
+        }
     }
   
 //-->
