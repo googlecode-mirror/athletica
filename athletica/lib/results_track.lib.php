@@ -719,7 +719,7 @@ if($round > 0)
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else {
-			AA_results_printMenu($round, $status);
+			AA_results_printMenu($round, $status, $prog_mode, 'track');
 
 			// initialize variables
 			$h = 0;		// heat counter
