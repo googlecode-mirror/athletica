@@ -3358,7 +3358,52 @@ function AA_resetPos($heat, $posNr){
     }           
 } 
 
+/**    
+     * set current athlete --> needed by regie (high disciplines for decentral with ranking)
+     * -----------------------------------------------------------------------------------
+     */      
 
+function AA_setCurrAthlete($xSerie, $xSerienstart){
+    
+    // reset activ athlete if there is one
+    $sql = "Update serienstart Set AktivAthlet = 'n' WHERE  xSerie = " . $xSerie . " AND AktivAthlet = 'y'";
+    
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    else {  
+            // set activ athlete 
+            $sql = "Update serienstart Set AktivAthlet = 'y' WHERE  xSerienstart = " . $xSerienstart;    
+            mysql_query($sql);
+            if(mysql_errno() > 0) {        // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+            }   
+    }    
+}
+
+/**    
+     * get current athlete --> needed by regie (high disciplines for decentral with ranking)
+     * -----------------------------------------------------------------------------------
+     */      
+
+function AA_getCurrAthlete($xSerie){
+    
+    $heatStart = 0;
+    $sql = "SELECT xSerienstart FROM serienstart WHERE  xSerie = " . $xSerie . " AND AktivAthlet = 'y'";
+    
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    else {  
+         if (mysql_num_rows($res) >  0){
+             $row = mysql_fetch_row($res);
+             $heatStart =  $row[0];  
+         }
+    } 
+    return $heatStart;                          // no activ athlete
+}
 
 	
 } // end AA_COMMON_LIB_INCLUDED

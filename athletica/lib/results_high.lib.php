@@ -80,7 +80,7 @@ if($_POST['arg'] == 'save_res')
                 disziplin READ
                 , runde READ
                 , runde AS r READ 
-                , serienstart READ
+                , serienstart WRITE
                 , wettkampf READ
                 , wettkampf AS w READ 
                 , resultat WRITE
@@ -1224,6 +1224,7 @@ if($round > 0 && $prog_mode != 2)
              <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
             <input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
             <input type='hidden' name='start' value='<?php echo $row[4]; ?>' />
+             <input type='hidden' name='xSerie' value='<?php echo $row[2]; ?>' />  
             <input type='hidden' name='item' value='<?php echo $item; ?>' />
             <input class='perfheight' type='text' name='perf' maxlength='5'
                 value='<?php echo $new_perf; ?>'
@@ -2265,7 +2266,10 @@ else if($round > 0 && $prog_mode == 2){
             
                    
                       if($a_activ == $i) {    // active item 
-                        $rowclass='active';
+                        $rowclass='active';                           
+                        if (isset($_POST['start'])) {                              
+                            AA_setCurrAthlete($row[2], $row[4]);
+                        }   
                       }
                       else 
                         if($row[5] % 2 == 0) {        // even row numer
@@ -2426,7 +2430,8 @@ else if($round > 0 && $prog_mode == 2){
                                         <input type='hidden' name='round' value='<?php echo $round; ?>' />
                                          <input type='hidden' name='singleRound' value='<?php  echo $singleRound; ?>' />    
                                         <input type='hidden' name='athlete' value='<?php echo $i+$focus; ?>' />
-                                        <input type='hidden' name='start' value='<?php echo $row[4]; ?>' />                                          
+                                        <input type='hidden' name='start' value='<?php echo $row[4]; ?>' />  
+                                        <input type='hidden' name='xSerie' value='<?php echo $row[2]; ?>' />                                        
                                         <input type='hidden' name='item' value='<?php echo $item; ?>' />
                                         <input class='perfheight' type='hidden' name='perf' maxlength='5'
                                             value='<?php echo $new_perf; ?>'

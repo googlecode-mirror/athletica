@@ -98,7 +98,7 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
 
                             if($leistung != 0)
                             {
-                                // add one row per athlete to temp table
+                                // add one row per athlete to temp High table
                                 mysql_query("
                                     INSERT INTO tempHigh
                                     VALUES(
@@ -140,7 +140,7 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
                     }
                     mysql_free_result($result);
 
-                    // insert last pending data in temp table
+                    // insert last pending data in tempHigh table
                     if(($ss != 0) && ($leistung != 0)) {
                         mysql_query("
                             INSERT INTO tempHigh
@@ -229,13 +229,7 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
                         $totalX = $row[4];
                     }
                     mysql_free_result($result);
-                }
-
-               // mysql_query("DROP TABLE IF EXISTS temp");
-
-                if(mysql_errno() > 0) {        // DB error
-                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                }
+                }         
            
 
 		// display all athletes
@@ -352,9 +346,17 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
 
 					mysql_free_result($res);
 				}
-                if (empty($perfs) && !$current_athlete){
-                    $current_athlete = true;
-                    $curr_class = "active";
+                $heatStart = AA_getCurrAthlete($row[2]);
+                if ($heatStart > 0) {
+                    if ($row[5] == $heatStart){
+                         $curr_class = "active"; 
+                    }
+                }
+                else {
+                    if (empty($perfs) && !$current_athlete){
+                        $current_athlete = true;
+                        $curr_class = "active";
+                    }
                 }
 				$resTable->printAthleteLine($row[6], $row[8], "$row[9] $row[10]"
 					, '', '', AA_formatResultMeter($row[14]), $perfs, $fett, $rank, '', $row[15], $curr_class, 'regie' );

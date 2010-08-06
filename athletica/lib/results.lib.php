@@ -1073,7 +1073,7 @@ function AA_results_deleteResults($round){
                      }
                 }  
                 
-                mysql_query("UPDATE serienstart SET Position2 = 0, Position3 = 0 , Rang = 0 WHERE xSerienstart = ".$row[0]);
+                mysql_query("UPDATE serienstart SET Position2 = 0, Position3 = 0 , Rang = 0 , AktivAthlet = 'n' WHERE xSerienstart = ".$row[0]);
                 if(mysql_errno() > 0) {
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
