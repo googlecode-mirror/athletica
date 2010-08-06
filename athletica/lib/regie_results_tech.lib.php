@@ -23,12 +23,13 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     $eval = AA_results_getEvaluationType($round);
     $combined = AA_checkCombined(0, $round);    
     
+   $prog_mode = AA_results_getProgramMode();   
     
      // if this is a combined event, rank all rounds togheter
-    $roundSQL = "";
-    $roundSQL2 = "";
+    $roundSQL = "";   
+    $roundSQL2 = "";  
     if($combined){
-        $roundSQL = "AND serie.xRunde IN (";
+        $roundSQL = "AND s.xRunde IN ("; 
         $roundSQL2 = "AND s.xRunde IN (";
         $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
         while($row_c = mysql_fetch_array($res_c)){
@@ -38,7 +39,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
         $roundSQL = substr($roundSQL,0,-1).")";
         $roundSQL2 = substr($roundSQL2,0,-1).")";
     }else{
-        $roundSQL = "AND serie.xRunde = $round";
+        $roundSQL = "AND s.xRunde = $round";
         $roundSQL2 = "AND s.xRunde = $round";
     }
     
@@ -58,7 +59,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     $row = mysql_fetch_row($result);
       
     $r = $row[0];                     // max. attempts
-    
+     
          mysql_query("
                 LOCK TABLES
                     resultat READ
@@ -75,13 +76,15 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                     , verein as v READ 
                     , rundentyp as rt READ   
                     , tempTech WRITE
+                    , tempTech as t READ  
             ");  
                                                                   
-           mysql_query("DROP TABLE IF EXISTS `tempTech`");    // temporary table          
+          mysql_query("DROP TABLE IF EXISTS `tempTech`");    // temporary table          
             
             // Set up a temporary table to hold all results for ranking.
             // The number of result columns varies according to the maximum
-            // number of results per athlete.
+            // number of results per athlete.  
+            
             $qry = "
                 CREATE TEMPORARY TABLE IF NOT EXISTS tempTech (
                     xSerienstart int(11)
@@ -104,24 +107,23 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
             {  
                 $result = mysql_query("
                     SELECT
-                        resultat.Leistung
-                        , resultat.Info
-                        , serienstart.xSerienstart
-                        , serienstart.xSerie
-                        , serienstart.Position
+                        r.Leistung
+                        , r.Info
+                        , ss.xSerienstart
+                        , ss.xSerie
+                        , ss.Position
                     FROM
-                        resultat
-                        , serienstart
-                        , serie
-                    WHERE resultat.xSerienstart = serienstart.xSerienstart
-                    AND serienstart.xSerie = serie.xSerie
-                    $roundSQL
-                    AND resultat.Leistung >= 0
+                        resultat AS r
+                        LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                        LEFT JOIN serie AS s On (ss.xSerie = s.xSerie)
+                    WHERE    
+                        r.Leistung >= 0
+                        $roundSQL 
                     ORDER BY                             
-                        serienstart.xSerienstart
-                        ,resultat.Leistung DESC
+                        ss.xSerienstart
+                        ,r.Leistung DESC
                 ");
-               
+                
                 if(mysql_errno() > 0) {        // DB error
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
@@ -155,18 +157,8 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                         $ss = $row[2];                // keep athlete's ID
                         $i++;                                // count nbr of results
                     }
-                    mysql_free_result($result);
-                                                      
-                    if ($prog_mode == 2){
-                            $sql_temp = "SELECT count(*), xSerienstart, Position FROM tempTech ORDER BY Position DESC";  
-                    }
-                    else {
-                          $sql_temp = "SELECT xSerienstart, Position FROM tempTech ORDER BY Position DESC"; 
-                          $res_temp = mysql_query($sql_temp); 
-                          $row_temp = mysql_fetch_row($res_temp);
-                          $ss  = $row_temp[0]; 
-                    }                        
-                  
+                    mysql_free_result($result);                                                              
+              
                     // insert last pending data in temp table
                     if($ss != 0) {
                         for(;$i < $r; $i++) {    // fill remaining result cols.
@@ -253,9 +245,63 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                 }
 
             }
+            
+        // find current athlete (show yellow) when more than one attempt
+        $roundSQL_C = substr($roundSQL,4);
+        $sql_curr="SELECT 
+                    count( * ) , 
+                    ss.xSerienstart,
+                    if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder,
+                    s.MaxAthlet,
+                    ss.Position2,
+                    ss.Position3
+              FROM 
+                    resultat as r 
+                    LEFT JOIN serienstart AS ss ON ( r.xSerienstart = ss.xSerienstart)
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie )
+              WHERE                     
+                    $roundSQL_C  
+              GROUP BY ss.xSerienstart
+              ORDER BY posOrder ";
+        
+        $res_curr = mysql_query($sql_curr);  
+        if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        
+        }
+        else {
+            $ss = 0;
+            $keep_ss = 0;                // current athlete to show yellow
+            $keep_ss_first = 0;          // first athlete is current when all have same count of attempts
+            $c = 0;
+            $z = 0;
+            $maxAthlete = 0;
+           
+            while ($row_curr = mysql_fetch_row($res_curr)) {
+                if ($z > 0 && $z == $maxAthlete){
+                    break;
+                }
+                if  ($c > 0){
+                    if ($row_curr[0] < $c){
+                         $keep_ss = $row_curr[1];
+                         break;
+                    }
+                }
+                $c = $row_curr[0];
+                $ss = $row_curr[1]; 
+                if ($z == 0){
+                    $keep_ss_first =  $row_curr[1];
+                    if ($row_curr[4] > 0 || $row_curr[5] > 0) {
+                          $maxAthlete = $row_curr[3]; 
+                    }
+                    
+                }
+                $z++; 
+            }
+        }  
        
 	
-		$prog_mode = AA_results_getProgramMode();
+		
 		$arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
 setcookie('sort_speakres', $arg1, time()+2419200);
 		// display all athletes
@@ -320,7 +366,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 			ORDER BY s.xSerie, 
 				" . $argument . "
 		");
-       
+        
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -336,13 +382,25 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 			$resTable = new GUI_TechResultTable($round, $layout, $status);
             $resTable->printHeatTitleRegie($cat, $disc);  
 
+            if ($maxAthlete > 0){
+                 $c_athl = $maxAthlete;                          // maximum of athletes for next attempts
+            }
+            else {
+                 $c_athl = mysql_num_rows($result);                   // number of all athletes 
+            }
+            
+            if ($z == $c_athl && $keep_ss == 0){                 // all athletes same count of attempts then show first as current athlete
+                $keep_ss = $keep_ss_first; 
+           }
+        
+            
 			while($row = mysql_fetch_row($result))
 			{
 /*
  *  Heat headerline
  */
 				if($h != $row[2])		// new heat
-				{    $current_athlete = false; 
+				{   $current_athlete = false; 
 					$h = $row[2];				// keep heat ID
 
 					if(is_null($row[0])) {		// only one round
@@ -426,17 +484,19 @@ setcookie('sort_speakres', $arg1, time()+2419200);
                     $row[19] = '';
                 }
                 if ($prog_mode == 2){
-                      if (empty($perfs) && !$current_athlete){
-                            $current_athlete = true;
-                            $curr_class = "active";
-                    }
+                     if ($keep_ss > 0){
+                         if ($keep_ss == $row[6]){
+                             $curr_class = "active";
+                         }  
+                     }
+                     else {
+                          if (empty($perfs) && !$current_athlete){
+                                $current_athlete = true;
+                                $curr_class = "active";
+                          }
+                     }
                 }
-                else {
-                    if ($ss == $row[6]){
-                        $current_athlete = true;
-                        $curr_class = "active";
-                    }                          
-                }
+               
 				 
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
 					, '','', AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], '', $row[17], $curr_class, 'regie');
@@ -449,7 +509,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 	
        mysql_query("UNLOCK TABLES"); 
        
-      $temp = mysql_query("DROP TABLE IF EXISTS `tempTech` ");  
+       $temp = mysql_query("DROP TABLE IF EXISTS `tempTech` ");  
 	
 
 }	// End Function AA_regie_Tech
