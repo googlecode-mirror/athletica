@@ -3,7 +3,7 @@
 # http://www.phpmyadmin.net
 #
 # Host: localhost
-# Erstellungszeit: 30. Juni 2010 um 15:29
+# Erstellungszeit: 19. August 2010 um 13:45
 # Server Version: 4.0.16
 # PHP-Version: 4.3.4
 # 
@@ -15,8 +15,8 @@
 #
 # Tabellenstruktur für Tabelle `anlage`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `anlage`;
@@ -39,9 +39,8 @@ CREATE TABLE `anlage` (
 #
 # Tabellenstruktur für Tabelle `anmeldung`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `anmeldung`;
@@ -79,9 +78,8 @@ CREATE TABLE `anmeldung` (
 #
 # Tabellenstruktur für Tabelle `athlet`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:37
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `athlet`;
@@ -118,8 +116,8 @@ CREATE TABLE `athlet` (
 #
 # Tabellenstruktur für Tabelle `base_account`
 #
-# Erzeugt am: 30. Juni 2010 um 13:03
-# Aktualisiert am: 30. Juni 2010 um 13:03
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `base_account`;
@@ -142,8 +140,8 @@ CREATE TABLE `base_account` (
 #
 # Tabellenstruktur für Tabelle `base_athlete`
 #
-# Erzeugt am: 30. Juni 2010 um 13:03
-# Aktualisiert am: 30. Juni 2010 um 13:03
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `base_athlete`;
@@ -178,8 +176,8 @@ CREATE TABLE `base_athlete` (
 #
 # Tabellenstruktur für Tabelle `base_log`
 #
-# Erzeugt am: 30. Juni 2010 um 13:03
-# Aktualisiert am: 30. Juni 2010 um 13:03
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `base_log`;
@@ -201,8 +199,8 @@ CREATE TABLE `base_log` (
 #
 # Tabellenstruktur für Tabelle `base_performance`
 #
-# Erzeugt am: 30. Juni 2010 um 13:03
-# Aktualisiert am: 30. Juni 2010 um 13:03
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `base_performance`;
@@ -238,8 +236,8 @@ CREATE TABLE `base_performance` (
 #
 # Tabellenstruktur für Tabelle `base_relay`
 #
-# Erzeugt am: 30. Juni 2010 um 13:03
-# Aktualisiert am: 30. Juni 2010 um 13:03
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `base_relay`;
@@ -265,8 +263,8 @@ CREATE TABLE `base_relay` (
 #
 # Tabellenstruktur für Tabelle `base_svm`
 #
-# Erzeugt am: 30. Juni 2010 um 13:03
-# Aktualisiert am: 30. Juni 2010 um 13:03
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `base_svm`;
@@ -290,9 +288,8 @@ CREATE TABLE `base_svm` (
 #
 # Tabellenstruktur für Tabelle `disziplin`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 15:00
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `disziplin`;
@@ -469,8 +466,8 @@ INSERT INTO `disziplin` VALUES (186, 'WEIT Z', 'Weit (Zone)', 331, 6, 0, 5, '01:
 #
 # Tabellenstruktur für Tabelle `faq`
 #
-# Erzeugt am: 30. Juni 2010 um 12:22
-# Aktualisiert am: 30. Juni 2010 um 12:22
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:42
 #
 
 DROP TABLE IF EXISTS `faq`;
@@ -488,20 +485,22 @@ CREATE TABLE `faq` (
   `FarbeTitel` varchar(6) NOT NULL default 'FFAA00',
   `FarbeHG` varchar(6) NOT NULL default 'FFCC00',
   PRIMARY KEY  (`xFaq`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) TYPE=MyISAM AUTO_INCREMENT=3 ;
 
 #
 # Daten für Tabelle `faq`
 #
 
+INSERT INTO `faq` VALUES (1, 'Regie', '<b>Ansicht für den Speaker:</b><br/>Es werden nur Wettkämpfe in Bearbeitung angezeigt, deren Startzeit kleiner als die aktuelle Zeit ist. ', 'y', 10, 900, 0, 250, 'regie', 'de', 'FFAA00', 'FFCC00');
+INSERT INTO `faq` VALUES (2, 'Regie', '<b>Affichage pour le speaker:</b><br/>seuls les épreuves en traitement et dont l\'heure de début est antérieure l\'heure actuelle, sont affichés. ', 'y', 10, 900, 0, 250, 'regie', 'fr', 'FFAA00', 'FFCC00');
 
 # --------------------------------------------------------
 
 #
 # Tabellenstruktur für Tabelle `hoehe`
 #
-# Erzeugt am: 30. Juni 2010 um 09:43
-# Aktualisiert am: 30. Juni 2010 um 10:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `hoehe`;
@@ -525,8 +524,8 @@ CREATE TABLE `hoehe` (
 #
 # Tabellenstruktur für Tabelle `kategorie`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 15:00
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `kategorie`;
@@ -572,8 +571,8 @@ INSERT INTO `kategorie` VALUES (19, 'MASW', 'MASTERS W', 11, 99, 'MASW', 'w', 'y
 #
 # Tabellenstruktur für Tabelle `kategorie_svm`
 #
-# Erzeugt am: 30. Juni 2010 um 14:47
-# Aktualisiert am: 30. Juni 2010 um 14:47
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `kategorie_svm`;
@@ -630,8 +629,8 @@ INSERT INTO `kategorie_svm` VALUES (35, '36.09 Mixed Team U12 M und U12 W', '36_
 #
 # Tabellenstruktur für Tabelle `land`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `land`;
@@ -862,8 +861,8 @@ INSERT INTO `land` VALUES ('ZIM', 'Zimbabwe', 211);
 #
 # Tabellenstruktur für Tabelle `layout`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `layout`;
@@ -901,8 +900,8 @@ CREATE TABLE `layout` (
 #
 # Tabellenstruktur für Tabelle `meeting`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `meeting`;
@@ -940,8 +939,8 @@ CREATE TABLE `meeting` (
 #
 # Tabellenstruktur für Tabelle `omega_typ`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `omega_typ`;
@@ -968,8 +967,8 @@ INSERT INTO `omega_typ` VALUES (6, 'Steeple', 'Stpl');
 #
 # Tabellenstruktur für Tabelle `region`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `region`;
@@ -1017,9 +1016,8 @@ INSERT INTO `region` VALUES (26, 'Z&uuml;rich', 'ZH', 125);
 #
 # Tabellenstruktur für Tabelle `resultat`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `resultat`;
@@ -1044,9 +1042,8 @@ CREATE TABLE `resultat` (
 #
 # Tabellenstruktur für Tabelle `runde`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `runde`;
@@ -1084,9 +1081,8 @@ CREATE TABLE `runde` (
 #
 # Tabellenstruktur für Tabelle `rundenlog`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `rundenlog`;
@@ -1110,8 +1106,8 @@ CREATE TABLE `rundenlog` (
 #
 # Tabellenstruktur für Tabelle `rundenset`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `rundenset`;
@@ -1133,8 +1129,8 @@ CREATE TABLE `rundenset` (
 #
 # Tabellenstruktur für Tabelle `rundentyp`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `rundentyp`;
@@ -1167,9 +1163,8 @@ INSERT INTO `rundentyp` VALUES (9, '0', '(ohne)', 2, '0');
 #
 # Tabellenstruktur für Tabelle `serie`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `serie`;
@@ -1183,6 +1178,7 @@ CREATE TABLE `serie` (
   `xRunde` int(11) NOT NULL default '0',
   `xAnlage` int(11) default NULL,
   `TVName` varchar(70) default NULL,
+  `MaxAthlet` int(3) NOT NULL default '0',
   PRIMARY KEY  (`xSerie`),
   UNIQUE KEY `Bezeichnung` (`xRunde`,`Bezeichnung`),
   KEY `Runde` (`xRunde`),
@@ -1199,9 +1195,8 @@ CREATE TABLE `serie` (
 #
 # Tabellenstruktur für Tabelle `serienstart`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `serienstart`;
@@ -1235,8 +1230,8 @@ CREATE TABLE `serienstart` (
 #
 # Tabellenstruktur für Tabelle `stadion`
 #
-# Erzeugt am: 30. Juni 2010 um 15:11
-# Aktualisiert am: 30. Juni 2010 um 15:11
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `stadion`;
@@ -1260,8 +1255,8 @@ CREATE TABLE `stadion` (
 #
 # Tabellenstruktur für Tabelle `staffel`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `staffel`;
@@ -1292,8 +1287,8 @@ CREATE TABLE `staffel` (
 #
 # Tabellenstruktur für Tabelle `staffelathlet`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `staffelathlet`;
@@ -1317,9 +1312,8 @@ CREATE TABLE `staffelathlet` (
 #
 # Tabellenstruktur für Tabelle `start`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
-# Letzter Check am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `start`;
@@ -1352,8 +1346,8 @@ CREATE TABLE `start` (
 #
 # Tabellenstruktur für Tabelle `sys_backuptabellen`
 #
-# Erzeugt am: 17. Juni 2010 um 11:58
-# Aktualisiert am: 17. Juni 2010 um 11:58
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `sys_backuptabellen`;
@@ -1408,8 +1402,8 @@ INSERT INTO `sys_backuptabellen` VALUES (38, 'zeitmessung', 'SELECT * FROM zeitm
 #
 # Tabellenstruktur für Tabelle `team`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `team`;
@@ -1440,8 +1434,8 @@ CREATE TABLE `team` (
 #
 # Tabellenstruktur für Tabelle `teamsm`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `teamsm`;
@@ -1466,8 +1460,8 @@ CREATE TABLE `teamsm` (
 #
 # Tabellenstruktur für Tabelle `teamsmathlet`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `teamsmathlet`;
@@ -1487,8 +1481,8 @@ CREATE TABLE `teamsmathlet` (
 #
 # Tabellenstruktur für Tabelle `verein`
 #
-# Erzeugt am: 30. Juni 2010 um 15:11
-# Aktualisiert am: 30. Juni 2010 um 15:11
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `verein`;
@@ -1514,8 +1508,8 @@ CREATE TABLE `verein` (
 #
 # Tabellenstruktur für Tabelle `videowand`
 #
-# Erzeugt am: 30. Juni 2010 um 09:43
-# Aktualisiert am: 30. Juni 2010 um 09:43
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `videowand`;
@@ -1545,8 +1539,8 @@ CREATE TABLE `videowand` (
 #
 # Tabellenstruktur für Tabelle `wertungstabelle`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `wertungstabelle`;
@@ -1566,8 +1560,8 @@ CREATE TABLE `wertungstabelle` (
 #
 # Tabellenstruktur für Tabelle `wertungstabelle_punkte`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 10:25
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `wertungstabelle_punkte`;
@@ -1591,8 +1585,8 @@ CREATE TABLE `wertungstabelle_punkte` (
 #
 # Tabellenstruktur für Tabelle `wettkampf`
 #
-# Erzeugt am: 30. Juni 2010 um 10:25
-# Aktualisiert am: 30. Juni 2010 um 12:38
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `wettkampf`;
@@ -1633,8 +1627,8 @@ CREATE TABLE `wettkampf` (
 #
 # Tabellenstruktur für Tabelle `zeitmessung`
 #
-# Erzeugt am: 30. Juni 2010 um 15:11
-# Aktualisiert am: 30. Juni 2010 um 15:11
+# Erzeugt am: 19. August 2010 um 13:41
+# Aktualisiert am: 19. August 2010 um 13:41
 #
 
 DROP TABLE IF EXISTS `zeitmessung`;
