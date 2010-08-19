@@ -739,6 +739,7 @@ $cfgOpenPages = array(	"speaker"
 			, "speaker_entry"
 			, "speaker_rankinglists"
 			, "speaker_results"
+            , "regie"
 			, "meeting"
 			, $_COOKIE['meeting']
 			, "login"
