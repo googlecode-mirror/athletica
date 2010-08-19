@@ -31,7 +31,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     if($combined){
         $roundSQL = "AND s.xRunde IN ("; 
         $roundSQL2 = "AND s.xRunde IN (";
-        $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
+        $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$event);
         while($row_c = mysql_fetch_array($res_c)){
             $roundSQL .= $row_c[0].",";
             $roundSQL2 .= $row_c[0].",";
@@ -366,7 +366,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 			ORDER BY s.xSerie, 
 				" . $argument . "
 		");
-        
+       
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
