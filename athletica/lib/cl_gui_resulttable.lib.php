@@ -586,23 +586,22 @@ setcookie('sort_speakres', $arg, time()+2419200);
         if ($argT == 'regie'){
             ?>
              <a href='regie.php?arg=regie&arg1=pos&round=<?php echo $round; ?>'>
-             <?php
+             <?php  
         }
-        else {
-             ?>
-             <a href='speaker_results.php?arg=pos&round=<?php echo $round; ?>'>
-             <?php
-        }
-       ?>
-				<?php echo $GLOBALS['strPositionShort']; ?>
-				<img src='<?php echo $img_pos; ?>' />
-			</a>
+        else {   
+              ?>
+             <a href='speaker_results.php?arg=regie&arg1=pos&round=<?php echo $round; ?>'>
+             <?php   
+        }              
+        echo $GLOBALS['strPositionShort']; ?>  
+                <img src='<?php echo $img_pos; ?>' />
+            </a>   
         </th>
 		<th class='dialog' colspan='2'>
         <?php
          if ($argT == 'regie'){
             ?>
-             <a href='regie.php?arg=regie&arg1=name&round=<?php echo $round; ?>'>
+             <a href='regie.php?arg=regie&arg1=name&round=<?php echo $round; ?>'> 
              <?php
         }
         else {
@@ -610,9 +609,7 @@ setcookie('sort_speakres', $arg, time()+2419200);
              <a href='speaker_results.php?arg=name&round=<?php echo $round; ?>'>    
              <?php
         }
-        ?>
-        
-				<?php echo $GLOBALS['strAthlete']; ?>
+        echo $GLOBALS['strAthlete']; ?>
 				<img src='<?php echo $img_name; ?>' />
 			</a>
         </th>
@@ -642,9 +639,7 @@ setcookie('sort_speakres', $arg, time()+2419200);
             <a href='speaker_results.php?arg=perf&round=<?php echo $round; ?>'>  
              <?php
         }
-        ?>
-		
-				<?php echo $GLOBALS['strTopPerformance']; ?>
+        echo $GLOBALS['strTopPerformance']; ?>
 				<img src='<?php echo $img_perf; ?>' />
 			</a>
         </th>
@@ -652,7 +647,7 @@ setcookie('sort_speakres', $arg, time()+2419200);
         <?php
          if ($argT == 'regie'){
             ?>
-             <a href='regie.php?arg=regie&arg1=rang&round=<?php echo $round; ?>'>
+             <a href='regie.php?arg=regie&arg1=rang&round=<?php echo $round; ?>'> 
              <?php
         }
         else {
@@ -660,15 +655,12 @@ setcookie('sort_speakres', $arg, time()+2419200);
             <a href='speaker_results.php?arg=rang&round=<?php echo $round; ?>'>    
              <?php
         }
-        ?>    
-		
-				<?php echo $GLOBALS['strRank']; ?>
+        
+        echo $GLOBALS['strRank']; ?>
 				<img src='<?php echo $img_rang; ?>' />
 			</a>
         </th>
-		<th class='dialog' colspan='6'><?php echo $GLOBALS['strPerformance']; ?></th>
-		
-		
+		<th class='dialog' colspan='6'><?php echo $GLOBALS['strPerformance']; ?></th>     
 		
 	</tr>
 		<?php
@@ -825,14 +817,55 @@ class GUI_HighResultTable extends GUI_ResultTable
 	}
 
 
-	function printAthleteHeader($arg='')
-	{
+	function printAthleteHeader($argT='')
+	{        
+        
+     if ($argT == 'regie'){
+           $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
+setcookie('sort_speakres', $arg1, time()+2419200);
+    }
+    else {
+         $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
+setcookie('sort_speakres', $arg, time()+2419200);
+    }
+    
+// sort argument
+   
+    $img_pos="img/sort_inact.gif";      
+    $img_rang="img/sort_inact.gif";
+
+    if ($arg=="pos") {
+        $argument="ss.Position";
+        $img_pos="img/sort_act.gif";      
+    } else if ($arg=="rang") {
+        $argument="t.rang, ss.Position";
+        $img_rang="img/sort_act.gif";
+    } else if($relay == FALSE) {        // single event
+        $argument="ss.Position";
+        $img_pos="img/sort_act.gif";
+    }    
+        
 		?>
 	<tr>
-		<th class='dialog'><?php echo $GLOBALS['strPositionShort']; ?></th>
+		<th class='dialog'>
+          <?php
+         if ($argT == 'regie'){
+            ?>
+             <a href='regie.php?arg=regie&arg1=pos&round=<?php echo $round; ?>'>
+              <?php echo $GLOBALS['strPositionShort']; ?>
+                <img src='<?php echo $img_pos; ?>' />
+            </a>
+             <?php
+        }
+        else {
+            echo $GLOBALS['strPositionShort'];
+        }
+        ?>    
+        
+        </th>
 		<th class='dialog' colspan='2'><?php echo $GLOBALS['strAthlete']; ?></th>
         <?php 
-        if ($arg != 'regie'){
+        if ($argT != 'regie'){
             ?>
               <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
               <th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
@@ -841,7 +874,24 @@ class GUI_HighResultTable extends GUI_ResultTable
         }
 		?>
 		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>
+		<th class='dialog'>
+        
+         <?php
+         if ($argT == 'regie'){
+            ?>
+             <a href='regie.php?arg=regie&arg1=rang&round=<?php echo $round; ?>'>
+              <?php echo $GLOBALS['strRank']; ?>
+                <img src='<?php echo $img_rang; ?>' />
+            </a>
+        
+             <?php
+        }
+        else {
+            echo $GLOBALS['strRank'];
+        }
+        ?>   
+        
+        </th>
 		<th class='dialog' colspan='6'><?php echo $GLOBALS['strPerformance']; ?></th>    
 		
 	</tr>
