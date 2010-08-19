@@ -1247,82 +1247,42 @@ function AA_results_setNotStarted($round)
 }
 
 //
+// delete all heights for round and heat (only need by prog_mode = 2 (decentral with ranking))
+//
+
+function AA_delHeight($round, $heat)
+{                         
+     $sql = "DELETE FROM 
+                        hoehe 
+             WHERE 
+                        xRunde = " . $round ."    
+                        AND xSerie = " . $heat;   
+                                
+     $res = mysql_query($sql);  
+           
+      if (mysql_errno() > 0) { 
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                       
+      }      
+}
+
+//
 // Set height for round and heat (only need by prog_mode = 2 (decentral with ranking))
 //
 
-function AA_setHeight($height, $round, $heat, $previous_height)
+function AA_setHeight($arr_new, $round, $heat)
 {
-      $sql_height = '';
-      if (!empty($previous_height)){
-          $sql_height = " AND h.hoehe = " .  $previous_height;  
-      }
-      
-      $sql = "SELECT 
-                    h.hoehe 
-              FROM 
-                    hoehe AS h
-                    LEFT JOIN runde AS r ON (r.xRunde = h.xRunde)
-                    LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf) 
-              WHERE 
-                    h.xRunde = " . $round . " 
-                    AND h.xSerie = " .$heat .$sql_height ."
-                    AND w.xMeeting = " . $_COOKIE['meeting_id']; 
-     
-      $res = mysql_query($sql);          
-      if (mysql_errno() > 0) {
-                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-      }
-      else {
-            if (empty($previous_height) && !empty($height)){ 
-                  
-                    $sql = "INSERT INTO hoehe SET 
-                                hoehe = " . $height .",
+     foreach ($arr_new as $key => $val){
+         
+              $sql = "INSERT INTO hoehe SET 
+                                hoehe = " . $val .",
                                 xRunde = " . $round .",   
                                 xSerie = " . $heat;  
                                                                  
-                    $res = mysql_query($sql);      
-            }
-            else {                     
-                if  (mysql_num_rows($res) > 0) {
-                    
-                       if (empty($height)){
-                             $sql = "DELETE FROM hoehe 
-                               WHERE xRunde = " . $round ."    
-                                     AND xSerie = " . $heat. "
-                                     AND hoehe = " . $previous_height; 
-                             
-                       }
-                       else {
-                             $sql = "UPDATE hoehe SET
-                                    hoehe = " . $height ."
-                               WHERE xRunde = " . $round ."    
-                                     AND xSerie = " . $heat. "
-                                     AND hoehe = " . $previous_height;  
-                       }
-                      
-                                
-                    $res = mysql_query($sql); 
-                    
-                    
-                }
-                else {           
-                     $sql = "INSERT INTO hoehe SET 
-                                hoehe = " . $height .",
-                                xRunde = " . $round .",   
-                                xSerie = " . $heat;  
-                                
-                    $res = mysql_query($sql); 
-                    
-                }
-            } 
-             
-             
-           
-              if (mysql_errno() > 0) { 
-                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                       
-              }  
-      }
-
+              $res = mysql_query($sql);      
+              if (mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+              }   
+     }  
 }
 //
 // check height for round and heat (only need by prog_mode = 2 (decentral with ranking))     

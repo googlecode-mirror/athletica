@@ -450,95 +450,89 @@ if($_POST['arg'] == 'save_res')
 elseif ($_POST['arg'] == 'save_height'){
     
          $max = $_POST['max'];
-                 
-         for ($g=0;$g<=$max;$g++) {                 
-            $name = "hight_" . $g;
-            $hiddenName = "hiddenHeight_" . $g;  
-            if ($g == 0){
-                if (isset($_POST[$name])){
-                    if ($_POST[$name] != $_POST[$hiddenName]) {                              
-                           $previous_height = $_POST[$hiddenName];
-                           $new_height = $_POST[$name];  
-                           $height  = $_POST[$name];  
-                           
-                           $previous_height = new PerformanceAttempt($previous_height);
-                           $previous_height = $previous_height->getPerformance();  
-                           $new_height = new PerformanceAttempt($new_height);
-                           $new_height = $new_height->getPerformance();   
-                                   
-                           AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);   
-                          
-                           for ($g1=1;$g1<$max;$g1++){                                       
-                               $name = "hight_" . $g1;
-                               $hiddenName = "hiddenHeight_" . $g1; 
-                               $previous_height = $_POST[$hiddenName]; 
-                               
-                               if ($_POST['disCode'] == '310'){                      // jump
-                                    $height += $cfgHeightDiffJump;; 
-                               }  
-                               elseif ($_POST['disCode'] == '320'){
-                                     $height += $cfgHeightDiffPole;     // pole 
-                               }
-                               else {                 
-                                    $height += $cfgHeightDiffJump;
-                               }      
-                              
-                               $new_height = $height;
-                               $previous_height = new PerformanceAttempt($previous_height);
-                               $previous_height = $previous_height->getPerformance();  
-                               $new_height = new PerformanceAttempt($new_height);
-                               $new_height = $new_height->getPerformance();  
-                               AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);  
-                           }
-                           break;
-                    }
-                }
-            }
-            else {
-                 if (isset($_POST[$name])){ 
-                     if ($_POST[$name] != $_POST[$hiddenName] || empty($_POST[$hiddenName]) || empty($_POST[$name])) { 
-                             $arr_h = explode('_',$name);
-                             $gh = $arr_h[1] - 1; 
-                             $namePrev = $arr_h[0] ."_" . $gh;
-                             $diff = $_POST[$name] - $_POST[$namePrev];            
-                             $previous_height = $_POST[$hiddenName];
-                             $new_height = $_POST[$name];
-                             if (!empty($previous_height)){   
-                                  $previous_height = new PerformanceAttempt($previous_height);
-                                  $previous_height = $previous_height->getPerformance(); 
-                             }
-                             if (!empty($new_height)){
-                                  $new_height = new PerformanceAttempt($new_height);
-                                  $new_height = $new_height->getPerformance();           
-                             } 
-                             if (empty($new_height) &&  empty($previous_height)) {
-                             }
-                             else {
-                                   AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);      
-                             }
-                             
-                             for ($g1=$arr_h[1]+1;$g1<$max;$g1++){   
-                                   $name = "hight_" . $g1;
-                                   $hiddenName = "hiddenHeight_" . $g1; 
-                                   $previous_height = $_POST[$hiddenName];     
-                                   $new_height = AA_formatResultMeter($new_height);                                      
-                                
-                                   $new_height += $diff;                          // user defined difference                                  
-                                  
-                                   $previous_height = new PerformanceAttempt($previous_height);
-                                   $previous_height = $previous_height->getPerformance();  
-                                   $new_height = new PerformanceAttempt($new_height);
-                                   $new_height = $new_height->getPerformance();  
-                                   AA_setHeight($new_height, $_POST['round'], $_POST['heat'], $previous_height);  
-                           }
-                           break;
-                             
-                             
-                             
-                        }
-                 }    
-            }
-        }  
+         
+         $arr_prev = array();
+         $arr_new = array();
+         
+         for ($g=0;$g<$max;$g++) { 
+              $name = "hight_" . $g;
+              $hiddenName = "hiddenHeight_" . $g;    
+              $previous_height = $_POST[$hiddenName];
+              $previous_height = new PerformanceAttempt($previous_height);
+              $previous_height = $previous_height->getPerformance(); 
+              if (isset($_POST[$name])){ 
+                  $new_height = $_POST[$name];  
+                  $new_height = new PerformanceAttempt($new_height);
+                  $new_height = $new_height->getPerformance();  
+              } 
+              else {
+                    $new_height = $previous_height;
+              }
+              $arr_prev[$g] = $previous_height;
+              $arr_new[$g] = $new_height;    
+         }
+         
+         $diff = 0;
+         $first_change = false;
+         foreach ($arr_prev as $key => $val){
+             if ($first_change){
+                  $arr_new[$key] = $arr_new[$key-1]  + $diff;
+             }
+             else {
+                 if ($val == $arr_new[$key]) {
+                     if ($diff > 0){ 
+                        $arr_new[$key] = $arr_new[$key-1]  + $diff;    
+                     }
+                 }
+                 else {
+                      if ($diff == 0){
+                          if ($key == 0) {
+                             $first_change = true;
+                             if ($_POST['disCode'] == '310'){                      // jump
+                                        $diff = $cfgHeightDiffJump * 100;
+                                   }  
+                                   elseif ($_POST['disCode'] == '320'){
+                                          $diff = $cfgHeightDiffPole * 100;      // pole 
+                                   }
+                                   else {                 
+                                         $diff = $cfgHeightDiffJump * 100; 
+                                   }      
+                          }
+                          else {
+                                $diff = $arr_new[$key] - $keep_val;
+                          }
+                      }
+                      else {
+                           $arr_new[$key] = $arr_prev[$key]  + $diff;
+                      }
+                      
+                 }
+             }
+             $keep_val = $val;
+         }
+         
+         AA_delHeight($_POST['round'], $_POST['heat']);  
+         
+         AA_setHeight($arr_new,  $_POST['round'], $_POST['heat']); 
+         
+         $name = "hight_" . $max;    
+         if (isset($_POST[$name]) && !empty($_POST[$name]) ){    
+         
+             $new_height = $_POST[$name];  
+             $new_height = new PerformanceAttempt($new_height);
+             $new_height = $new_height->getPerformance();   
+             
+             // insert new hight
+             $sql = "INSERT INTO hoehe SET 
+                                    hoehe = " . $new_height .",
+                                    xRunde = " . $_POST['round'] .",   
+                                    xSerie = " . $_POST['heat'];  
+                                                                   
+             $res = mysql_query($sql);      
+             if (mysql_errno() > 0) {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+             }
+         }    
 } 
 //
 // delete technical result
