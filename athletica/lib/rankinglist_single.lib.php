@@ -10,7 +10,7 @@ if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 {
     define('AA_RANKINGLIST_SINGLE_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none',$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo, $athleteCat)
+function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none',$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo, $athleteCat, $withStartnr)
 {           
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
@@ -71,10 +71,10 @@ else if ($event == 0) {    // show all disciplines for a specific category
                 $selection = "w.xKategorie =" . $category . " AND ";    
 }                            
 else if($round == 0) {    // show all rounds for a specific event    
-    $eventMerged=false;  
-    $mainRoundEvent=AA_getMainRoundEvent($event,false);
-    if  ($mainRoundEvent!=''){   
-         $selection = "w.xWettkampf =" . $mainRoundEvent . " AND ";   
+    $eventMerged=false;          
+    $sqlEvents = AA_getMergedEventsFromEvent($event);
+    if  ($sqlEvents!=''){              
+         $selection = "w.xWettkampf IN " . $sqlEvents . " AND "; 
          $eventMerged=true; 
     }
     else
@@ -144,7 +144,7 @@ $results = mysql_query("
         , r.Datum
         , r.Startzeit
 ");   
-   
+ 
   }
  else {      
      // heats separate
@@ -182,7 +182,8 @@ $results = mysql_query("
                 , d.Anzeige
                 , r.Datum
                 , r.Startzeit
-");               
+");  
+
 }        
  
 if(mysql_errno() > 0) {        // DB error
@@ -463,7 +464,8 @@ else {
                              k1.Anzeige ,
                              ss.Bemerkung,
                              w.Punkteformel,
-                             w.info  
+                             w.info,
+                             a.Startnummer  
                         FROM serie AS s USE INDEX(Runde)
                    LEFT JOIN serienstart AS ss USING(xSerie) 
                    LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -531,7 +533,7 @@ else {
                              ".$order_perf.", 
                              sf.Name;";                              
         }    
-         
+       
         $res = mysql_query($query);
         if(mysql_errno() > 0) {        // DB error                  
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -665,7 +667,7 @@ else {
                         if ($saison == "I"){
                             $heatwind = '';
                         }
-                        $list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval);
+                        $list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval, $withStartnr);
                         
                           
                          if ($athleteCat && !$relay){                         
@@ -1025,7 +1027,7 @@ else {
                          $wind = '';       
                     }
                         
-                    $list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat,$remark);
+                    $list->printLine($rank, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat,$remark, '', $withStartnr, $row_res[25]);
                  
                     if($secondResult){
                         $list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode,"","", $secondResult);

@@ -552,7 +552,7 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time="", $svm = false, $eval)
+		, $wind=FALSE, $heatwind='', $time="", $svm = false, $base_perf = false, $qual_mode = false , $eval, $withStartnr)
 	{   
 		$this->relay = $relay;
 		$this->points = $points;
@@ -635,6 +635,13 @@ class PRINT_RankingList extends PRINT_Page
 ?>
 	<tr>
 		<th class='rank_rank'><?php echo $GLOBALS['strRank']; ?></th>
+         <?php
+        if ($withStartnr && $this->relay == FALSE){
+            ?>
+           <th class='rank_stnr'><?php echo $GLOBALS['strStNr']; ?></th> 
+            <?php
+        }
+        ?>
 		<th class='rank_name'><?php echo $GLOBALS['strName']; ?></th>
 		<th class='rank_year'><?php echo $year; ?></th>
 		<?php
@@ -666,7 +673,7 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark, $secondResult=false)
+		, $wind, $points, $qual, $ioc, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark, $secondResult=false, $withStartnr, $startnr)
 	{    
         if (!$secondResult){
         if(($this->lpp - $this->linecnt) < 5)		// page break check
@@ -675,7 +682,7 @@ class PRINT_RankingList extends PRINT_Page
 			$this->insertPageBreak(); 
 			$this->printSubTitle();  			 	
 			printf("<table class='rank'>");  
-			$this->printHeaderLine($this->relay, $this->pointinfo, $this->windinfo);   
+			$this->printHeaderLine('', $this->relay, $this->pointinfo, $this->windinfo, '', '', false, false, false, '', $withStartnr);          
 		}   
        
         // count more lines if string is to long (club string) 
@@ -693,6 +700,13 @@ class PRINT_RankingList extends PRINT_Page
 ?>
 	<tr>
 		<td class='rank_rank'><?php echo $rank; ?></td>
+         <?php
+        if ($withStartnr && $this->relay == FALSE){
+            ?>
+           <td class='rank_stnr'><?php echo $startnr; ?></td>  
+            <?php
+        }
+        ?>
 		<td class='rank_name'><?php echo $name; ?></td>
 		<td class='rank_year'><?php echo $year; ?></td>
 		<td class='rank_club'><?php echo $club; ?></td>

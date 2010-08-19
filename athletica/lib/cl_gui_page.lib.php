@@ -350,7 +350,7 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false, $qual_mode = false)
+		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false, $qual_mode = false, $eval='', $withStartnr)
 	{
 		$this->relay = $relay;
 		$this->wind = $wind;
@@ -402,7 +402,14 @@ class GUI_RankingList extends GUI_ListPage
 		// print column headers
 		?>
 	<tr>
-		<th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>   
+        <?php
+        if ($withStartnr && $this->relay == FALSE){
+            ?>
+           <th class='dialog'><?php echo $GLOBALS['strStNr']; ?></th> 
+            <?php
+        }
+        ?>
 		<th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
 		<?php
 		if($relay == FALSE)
@@ -478,11 +485,18 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printLine($rank, $name, $year, $club, $perf
-		, $wind, $points, $qual, $country, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark='')
+		, $wind, $points, $qual, $country, $sb="", $pb="", $qual_mode=false, $athleteCat='', $remark='', $secondResult = false, $withStartnr, $startnr )
 	{              
 ?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $rank; ?></td>
+        <?php
+        if ($withStartnr && $this->relay == FALSE){
+            ?>
+            <td class='forms_right'><?php echo $startnr; ?></td>  
+            <?php
+        }
+        ?>
 		<td><?php echo $name; ?></td>
 		<?php
 		if($this->relay == FALSE)
