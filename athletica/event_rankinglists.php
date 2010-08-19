@@ -318,6 +318,13 @@ if (isset($eventTypeCat['combined'])){?>
             <?php echo $strHeatsSeparate ?></input>
     </td>
 </tr>
+<tr> 
+    <td class='dialog'>
+        &nbsp;&nbsp;  
+        <input type='checkbox' name='withStartnr' value='yes'>
+            <?php echo $strStartnumbers ?></input>
+    </td>
+</tr>
                           
 
 <?php 
@@ -400,6 +407,13 @@ if (!isset($eventTypeCat['combined'])){?>
         &nbsp;&nbsp;  
         <input type='checkbox' name='heatSeparate' value='yes'>
             <?php echo $strHeatsSeparate ?></input>
+    </td>
+</tr>
+<tr> 
+    <td class='dialog'>
+        &nbsp;&nbsp;  
+        <input type='checkbox' name='withStartnr' value='yes'>
+            <?php echo $strStartnumbers ?></input>
     </td>
 </tr>
 
