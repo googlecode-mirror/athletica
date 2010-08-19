@@ -801,5 +801,5 @@ $strRegie = "Regie";
 $strRegieMonitor = "Regiemonitor";
 
 $strUserInfo = "<b>Benutzerinfo:</b> Versuche abschliessen mit <span class='highlight_yellow'>ENTER-Taste </span> oder mit Klick auf Schaltfläche <span class='highlight_yellow'>OK </span>";                                                                                       
-
+$strStNr = "Sn";
 ?>
