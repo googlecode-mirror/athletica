@@ -321,15 +321,15 @@ function AA_meeting_addEvent()
 		{
 			list($hr, $min) = AA_formatEnteredTime($_POST['time_3']);
 			
-			if(empty($_POST['etime_2'])){ // if enrolement time is empty, calculate with discipline standard (1h bevor)
+			if(empty($_POST['etime_3'])){ // if enrolement time is empty, calculate with discipline standard (1h bevor)
 				$tmp = strtotime($hr.":".$min.":00");
 				$tmp = $tmp - $stdEtime;
-				$_POST['etime_2'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+				$_POST['etime_3'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
 			}
-			if(empty($_POST['mtime_2'])){ // if manipulation time is empty, calculate with discipline standard (15min bevor)
+			if(empty($_POST['mtime_3'])){ // if manipulation time is empty, calculate with discipline standard (15min bevor)
 				$tmp = strtotime($hr.":".$min.":00");
 				$tmp = $tmp - $stdMtime;
-				$_POST['mtime_1'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+				$_POST['mtime_3'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
 			}
 			
 			$tt = new TimetableNew($_POST['date_3'], $event, 0,
