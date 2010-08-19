@@ -2768,16 +2768,56 @@ function AA_checkCombinedLast($event)
      */   
 function AA_newPosition($round, $pass)
 { 
-    global $cfgEightRank, $cfgMaxAthlete;
+    global $cfgEightRank, $cfgMaxAthlete, $cfgInvalidResult;
     $field = '';
     
     if ($pass == 2){
        $field = ", ss.Position"; 
     }
     elseif ($pass == 3){
-       $field = ", ss.Position2"; 
+       $field = ", ss.Position2";    
     }
-    $sql = "SELECT 
+    
+    // find all athletes with result -2 or -3
+     $sql_d = "SELECT 
+                  ss.xSerienstart "
+                  . $field ."                      
+                  , LPAD(s.Bezeichnung,5,'0') as heatid                     
+                  , s.xSerie
+                  , re.Leistung                  
+            FROM runde AS r
+                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                LEFT JOIN serienstart AS ss  ON (ss.xSerie = s.xSerie)
+                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                                                      
+                LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+                LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp 
+                LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                LEFT JOIN resultat as re ON (re.xSerienstart = ss.xSerienstart)
+            WHERE r.xRunde = " . $round ." AND ss.Rang > 0                 
+            ORDER BY heatid, ss.Rang";             
+    
+       $res_d = mysql_query($sql_d);    
+        if(mysql_errno() > 0) {        // DB error
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        else {
+              $arr_heat = array();                            // athletes array with result -2 or -3 
+              
+              while ($row_d = mysql_fetch_row($res_d)) {  
+                         if ($row_d[4] == $cfgInvalidResult['DNF']['code'] || $row_d[4] == $cfgInvalidResult['DSQ']['code'] ) {
+                             if (!in_array($row_d[0],$arr_heat)){ 
+                                $arr_heat[] = $row_d[0] ;
+                             }
+                         }
+                    
+              }  
+        }    
+    
+    
+        $sql = "SELECT 
                   ss.xSerienstart "
                   . $field ."
                   , if (ss.Rang = 0, 9999999, ss.Rang) as orderRang
@@ -2806,6 +2846,9 @@ function AA_newPosition($round, $pass)
         $sameRank = false;
         $z = 0;
         while ($row = mysql_fetch_row($res)) {
+            if (in_array($row[0],$arr_heat)){
+                continue;
+            }
             if ($z == 0){
                 $maxAthlete = $row[4];
                 $xSerie = $row[5];   
@@ -2822,7 +2865,8 @@ function AA_newPosition($round, $pass)
             $z++;
             $keep_rank = $row[2];
         }
-      
+        $heatStarts = array_merge($heatStarts, $arr_heat);
+        
         if (count($heatStartsRank) < $maxAthlete){
               $i = count($heatStartsRank);    
         }
@@ -2868,7 +2912,9 @@ function AA_newPosition($round, $pass)
      * ------------------------------------------
      */   
 function AA_rankingForNewPosition($round, $pass)
-{ 
+{       
+    $presets = AA_results_getPresets($round);    // read GET/POST variables
+    
     $eval = AA_results_getEvaluationType($round);
     $combined = AA_checkCombined(0, $round);
     
@@ -2888,7 +2934,7 @@ function AA_rankingForNewPosition($round, $pass)
         $roundSQL = substr($roundSQL,0,-1).")";
         $roundSQL2 = substr($roundSQL2,0,-1).")";
     }else{
-        $roundSQL = "AND serie.xRunde = $round";
+        $roundSQL = "AND s.xRunde = $round";
         $roundSQL2 = "AND s.xRunde = $round";
     }
     
@@ -2927,7 +2973,8 @@ function AA_rankingForNewPosition($round, $pass)
                 , ss.xSerienstart
                 , ss.Rang
                 , s.MaxAthlet
-                , s.xSerie                     
+                , s.xSerie 
+                , r.Leistung                    
           FROM 
                 resultat AS r
                 , serienstart AS ss
@@ -2957,7 +3004,10 @@ function AA_rankingForNewPosition($round, $pass)
                          $maxAthlete = $row[9];  
                          $xSerie = $row[10];                                                                                                
                      }
-                    $arr_attAthlete[] = $row[0];                     
+                    if ($row[11] != $cfgInvalidResult['DNS']['code']){
+                          $arr_attAthlete[] = $row[0]; 
+                    }
+                   
                     $z++; 
                  }
                
