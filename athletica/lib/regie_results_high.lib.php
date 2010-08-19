@@ -231,8 +231,19 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
                     mysql_free_result($result);
                 }         
            
-
-		// display all athletes
+        $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
+setcookie('sort_speakres', $arg1, time()+2419200);
+		// display all athletes  
+        if ($arg=="pos") {
+            $argument="ss.Position";
+            $img_pos="img/sort_act.gif";
+        } else if ($arg=="rang") {
+            $argument="orderRang, ss.Position";
+            $img_rang="img/sort_act.gif";
+        } else if($relay == FALSE) {        // single event
+            $argument="ss.Position";
+            $img_pos="img/sort_act.gif";
+        }
 		$result = mysql_query("
 			SELECT
 				rt.Name
@@ -251,8 +262,8 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 				, st.Bestleistung
 				, at.xAthlet
-				, at.Land
-                , t.rang   
+				, at.Land                  
+                , if (t.rang > 0,  t.rang, 999999) as orderRang 
 			FROM
 				runde AS r
 				LEFT JOIN serie AS s ON (s.xRunde = r.xRunde )
@@ -265,9 +276,9 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
 			    LEFT JOIN rundentyp AS rt ON (rt.xRundentyp = r.xRundentyp)
 			WHERE r.xRunde = $round   			
 			ORDER BY                     
-				heatid
-				, ss.Position
-		");          
+				heatid ,
+				" . $argument); 
+		         
                 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -357,6 +368,9 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
                         $current_athlete = true;
                         $curr_class = "active";
                     }
+                }
+                if ($rank == 999999){
+                    $rank = '';
                 }
 				$resTable->printAthleteLine($row[6], $row[8], "$row[9] $row[10]"
 					, '', '', AA_formatResultMeter($row[14]), $perfs, $fett, $rank, '', $row[15], $curr_class, 'regie' );
