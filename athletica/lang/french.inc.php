@@ -796,4 +796,6 @@ $strRegieMonitor = "Écran de régie";
 $strUserInfo = "<b>Info pour utilisateur:</b> terminer les essais avec la <span class='highlight_yellow'>touche ENTER </span> ou par un click sur  le bouton <span class='highlight_yellow'>OK </span>";                                                                                                                                                               
 $strStNr = "Do";                        
 
+$strNumberEfforts='Nombre résultats';
+
 ?>

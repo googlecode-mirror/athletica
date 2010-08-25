@@ -163,6 +163,9 @@ document.getElementById("progress").width="<?php echo $width ?>";
 	}
 	
 	function gen_result_xml($file){  
+		//function returns containing number of results in xml-file
+		$nbr_effort=0;
+
 		//global	$opentags;
 		global	$cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
 			$strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
@@ -482,8 +485,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$this->write_xml_finished("secondaccountCode", " ");
 							}
 							
+							$nbr_effort++;
 							$this->write_xml_open("efforts");
-							
 							$this->write_xml_open("effort");
 							$this->write_xml_finished("DateOfEffort",$tmp['DateOfEffort']);
 							$this->write_xml_finished("scoreResult",AA_alabusScore($disc['points']));
@@ -770,6 +773,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$this->write_xml_open("efforts");
 							}
 							
+							$nbr_effort++;
 							$this->write_xml_open("effort");
 							
 							// add effort parameters
@@ -963,6 +967,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							$wind = "";
 							$perfRounded = 0; // result for combined detail text
 							
+							$nbr_effort++;
 							$this->write_xml_open("effort");
 							
 							// add effort parameters
@@ -1064,6 +1069,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
                                              if ($perf == -98){                             // -98 = Fehlversuch
                                                break; 
                                             }
+                                            $nbr_effort++;
                                             $this->write_xml_open("effort");
                                             $this->write_xml_finished("DateOfEffort",$row_results['Datum']);
                                             
@@ -1198,6 +1204,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					
 					$this->write_xml_open("efforts");
 					
+					$nbr_effort;
 					$this->write_xml_open("effort");
 					$this->write_xml_finished("DateOfEffort",$tmp['DateOfEffort']);
 					$this->write_xml_finished("scoreResult",AA_alabusScore($disc['points']));
@@ -1274,6 +1281,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		}
 		
 		$this->gzip_close();
+		
+		return $nbr_effort;
 	}
 	
 	function gzip_open($file){

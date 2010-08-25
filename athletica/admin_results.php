@@ -85,12 +85,16 @@ if($login){
 	$local = dirname($_SERVER['SCRIPT_FILENAME'])."/tmp/results.xml.gz";
 	$remote = date("Ymd")."_".$eventnr.".gz";
 	
-	$xml->gen_result_xml($local);
+	$nbr_effort = $xml->gen_result_xml($local);
 	
 	// upload result file
-	$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
-	$success = $ftp->put_file($local, $remote);
-	$ftp->close_connection();
+	if($nbr_effort>0){ //upload only if file contains at least one results
+		$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
+		$success = $ftp->put_file($local, $remote);
+		$ftp->close_connection();
+	} else {
+		$success=true;
+	} 
      
       
 	if($success){
@@ -102,8 +106,14 @@ if($login){
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}
 		}
+		if($nbr_effort>0){
+			echo "<p><b>$strResultsUploaded</b></p>";
+			echo $strNumberEfforts .": " .$nbr_effort;
+		} else {
+			echo "<p><b>$strResultsUploadedNoResults</b></p>";
+		}
 		
-		echo "<p>$strResultsUploaded</p>";
+		
 		
 	}else{
 		

@@ -802,4 +802,7 @@ $strRegieMonitor = "Regiemonitor";
 
 $strUserInfo = "<b>Benutzerinfo:</b> Versuche abschliessen mit <span class='highlight_yellow'>ENTER-Taste </span> oder mit Klick auf Schaltfläche <span class='highlight_yellow'>OK </span>";                                                                                       
 $strStNr = "Sn";
+
+$strNumberEfforts="Anzahl Resultate";
+$strResultsUploadedNoResults="Es sind keine (neuen) Resultate zum Upload vorhanden. Resultate können nur einmal hochgeladen werden.";
 ?>
