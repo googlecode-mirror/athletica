@@ -1,0 +1,104 @@
+[Wed Jul 11 15:46:30 2007] [notice] Apache/2.0.59 (Win32) configured -- resuming normal operations
+[Wed Jul 11 15:46:30 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 15:46:30 2007] [notice] Parent: Created child process 1944
+[Wed Jul 11 15:46:30 2007] [notice] Child 1944: Child process is running
+[Wed Jul 11 15:46:30 2007] [notice] Child 1944: Acquired the start mutex.
+[Wed Jul 11 15:46:30 2007] [notice] Child 1944: Starting 250 worker threads.
+[Wed Jul 11 15:46:38 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/Apache2/htdocs/favicon.ico
+[Wed Jul 11 15:46:38 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/Apache2/htdocs/favicon.ico
+[Wed Jul 11 15:46:45 2007] [notice] Parent: Received shutdown signal -- Shutting down the server.
+[Wed Jul 11 15:46:45 2007] [notice] Child 1944: Exit event signaled. Child process is ending.
+[Wed Jul 11 15:46:46 2007] [notice] Child 1944: Released the start mutex
+[Wed Jul 11 15:46:47 2007] [notice] Child 1944: Waiting for 250 worker threads to exit.
+[Wed Jul 11 15:46:56 2007] [notice] Child 1944: All worker threads have exited.
+[Wed Jul 11 15:46:56 2007] [notice] Child 1944: Child process is exiting
+[Wed Jul 11 15:46:56 2007] [notice] Parent: Child process exited successfully.
+[Wed Jul 11 15:55:34 2007] [notice] Apache/2.0.59 (Win32) configured -- resuming normal operations
+[Wed Jul 11 15:55:34 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 15:55:34 2007] [notice] Parent: Created child process 5932
+[Wed Jul 11 15:55:34 2007] [notice] Child 5932: Child process is running
+[Wed Jul 11 15:55:34 2007] [notice] Child 5932: Acquired the start mutex.
+[Wed Jul 11 15:55:34 2007] [notice] Child 5932: Starting 250 worker threads.
+[Wed Jul 11 16:05:09 2007] [notice] Parent: Received shutdown signal -- Shutting down the server.
+[Wed Jul 11 16:05:09 2007] [notice] Child 5932: Exit event signaled. Child process is ending.
+[Wed Jul 11 16:05:10 2007] [notice] Child 5932: Released the start mutex
+[Wed Jul 11 16:05:11 2007] [notice] Child 5932: Waiting for 250 worker threads to exit.
+[Wed Jul 11 16:05:11 2007] [notice] Child 5932: All worker threads have exited.
+[Wed Jul 11 16:05:11 2007] [notice] Child 5932: Child process is exiting
+[Wed Jul 11 16:05:11 2007] [notice] Parent: Child process exited successfully.
+[Wed Jul 11 16:05:12 2007] [notice] Apache/2.0.59 (Win32) PHP/4.3.4 configured -- resuming normal operations
+[Wed Jul 11 16:05:12 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 16:05:12 2007] [notice] Parent: Created child process 4708
+[Wed Jul 11 16:05:12 2007] [notice] Child 4708: Child process is running
+[Wed Jul 11 16:05:12 2007] [notice] Child 4708: Acquired the start mutex.
+[Wed Jul 11 16:05:12 2007] [notice] Child 4708: Starting 250 worker threads.
+[Wed Jul 11 16:05:27 2007] [notice] Parent: Received shutdown signal -- Shutting down the server.
+[Wed Jul 11 16:05:27 2007] [notice] Child 4708: Exit event signaled. Child process is ending.
+[Wed Jul 11 16:05:28 2007] [notice] Child 4708: Released the start mutex
+[Wed Jul 11 16:05:29 2007] [notice] Child 4708: Waiting for 250 worker threads to exit.
+[Wed Jul 11 16:05:29 2007] [notice] Child 4708: All worker threads have exited.
+[Wed Jul 11 16:05:29 2007] [notice] Child 4708: Child process is exiting
+[Wed Jul 11 16:05:29 2007] [notice] Parent: Child process exited successfully.
+[Wed Jul 11 16:14:37 2007] [notice] Apache/2.0.59 (Win32) PHP/4.3.4 configured -- resuming normal operations
+[Wed Jul 11 16:14:37 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 16:14:37 2007] [notice] Parent: Created child process 3948
+[Wed Jul 11 16:14:37 2007] [notice] Child 3948: Child process is running
+[Wed Jul 11 16:14:37 2007] [notice] Child 3948: Acquired the start mutex.
+[Wed Jul 11 16:14:37 2007] [notice] Child 3948: Starting 250 worker threads.
+[Wed Jul 11 16:16:05 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/css, referer: http://localhost/
+[Wed Jul 11 16:16:07 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/css, referer: http://localhost/
+[Wed Jul 11 16:16:07 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/css, referer: http://localhost/
+[Wed Jul 11 16:16:08 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/css, referer: http://localhost/
+[Wed Jul 11 16:19:12 2007] [notice] Parent: Received shutdown signal -- Shutting down the server.
+[Wed Jul 11 16:19:12 2007] [notice] Child 3948: Exit event signaled. Child process is ending.
+[Wed Jul 11 16:19:13 2007] [notice] Child 3948: Released the start mutex
+[Wed Jul 11 16:19:14 2007] [notice] Child 3948: Waiting for 250 worker threads to exit.
+[Wed Jul 11 16:19:14 2007] [notice] Child 3948: All worker threads have exited.
+[Wed Jul 11 16:19:14 2007] [notice] Child 3948: Child process is exiting
+[Wed Jul 11 16:19:14 2007] [notice] Parent: Child process exited successfully.
+[Wed Jul 11 16:19:16 2007] [notice] Apache/2.0.59 (Win32) PHP/4.3.4 configured -- resuming normal operations
+[Wed Jul 11 16:19:16 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 16:19:16 2007] [notice] Parent: Created child process 5268
+[Wed Jul 11 16:19:16 2007] [notice] Child 5268: Child process is running
+[Wed Jul 11 16:19:16 2007] [notice] Child 5268: Acquired the start mutex.
+[Wed Jul 11 16:19:16 2007] [notice] Child 5268: Starting 250 worker threads.
+[Wed Jul 11 16:20:57 2007] [notice] Parent: Received shutdown signal -- Shutting down the server.
+[Wed Jul 11 16:20:57 2007] [notice] Child 5268: Exit event signaled. Child process is ending.
+[Wed Jul 11 16:20:59 2007] [notice] Child 5268: Released the start mutex
+[Wed Jul 11 16:21:00 2007] [notice] Child 5268: Waiting for 250 worker threads to exit.
+[Wed Jul 11 16:21:00 2007] [notice] Child 5268: All worker threads have exited.
+[Wed Jul 11 16:21:00 2007] [notice] Child 5268: Child process is exiting
+[Wed Jul 11 16:21:00 2007] [notice] Parent: Child process exited successfully.
+[Wed Jul 11 16:21:01 2007] [notice] Apache/2.0.59 (Win32) PHP/4.3.4 configured -- resuming normal operations
+[Wed Jul 11 16:21:01 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 16:21:01 2007] [notice] Parent: Created child process 3212
+[Wed Jul 11 16:21:01 2007] [notice] Child 3212: Child process is running
+[Wed Jul 11 16:21:01 2007] [notice] Child 3212: Acquired the start mutex.
+[Wed Jul 11 16:21:01 2007] [notice] Child 3212: Starting 250 worker threads.
+[Wed Jul 11 16:29:44 2007] [notice] Parent: Received shutdown signal -- Shutting down the server.
+[Wed Jul 11 16:29:44 2007] [notice] Child 3212: Exit event signaled. Child process is ending.
+[Wed Jul 11 16:29:45 2007] [notice] Child 3212: Released the start mutex
+[Wed Jul 11 16:29:46 2007] [notice] Child 3212: Waiting for 250 worker threads to exit.
+[Wed Jul 11 16:29:46 2007] [notice] Child 3212: All worker threads have exited.
+[Wed Jul 11 16:29:46 2007] [notice] Child 3212: Child process is exiting
+[Wed Jul 11 16:29:46 2007] [notice] Parent: Child process exited successfully.
+[Wed Jul 11 16:29:47 2007] [notice] Apache/2.0.59 (Win32) PHP/4.3.4 configured -- resuming normal operations
+[Wed Jul 11 16:29:47 2007] [notice] Server built: Jul 27 2006 15:55:03
+[Wed Jul 11 16:29:47 2007] [notice] Parent: Created child process 3224
+[Wed Jul 11 16:29:47 2007] [notice] Child 3224: Child process is running
+[Wed Jul 11 16:29:47 2007] [notice] Child 3224: Acquired the start mutex.
+[Wed Jul 11 16:29:47 2007] [notice] Child 3224: Starting 250 worker threads.
+[client 127.0.0.1] PHP Warning:  mysql_pconnect(): Can't connect to MySQL server on 'localhost' (10061) in C:\\Temp\\www\\athletica\\lib\\utils.lib.php on line 354
+[client 127.0.0.1] PHP Warning:  mysql_query(): Can't connect to MySQL server on 'localhost' (10061) in C:\\Temp\\www\\athletica\\lib\\cl_protect.lib.php on line 36
+[client 127.0.0.1] PHP Warning:  mysql_query(): A link to the server could not be established in C:\\Temp\\www\\athletica\\lib\\cl_protect.lib.php on line 36
+[Wed Jul 11 16:32:03 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/
+[Wed Jul 11 16:32:09 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=meeting_definition
+[Wed Jul 11 16:32:13 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=meeting_entries
+[Wed Jul 11 16:32:15 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=event
+[Wed Jul 11 16:32:20 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php
+[Wed Jul 11 16:32:21 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php
+[Wed Jul 11 16:32:22 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=meeting_definition
+[client 127.0.0.1] PHP Warning:  mysql_free_result(): supplied argument is not a valid MySQL result resource in C:\\Temp\\www\\athletica\\lib\\meeting.lib.php on line 601, referer: http://localhost/athletica/meeting_definition_category.php
+[Wed Jul 11 16:32:40 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=meeting_entries
+[Wed Jul 11 16:32:42 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=meeting_teams
+[Wed Jul 11 16:32:43 2007] [error] [client 127.0.0.1] File does not exist: C:/Temp/www/athletica/UntitledFrame-2, referer: http://localhost/athletica/index.php?arg=speaker

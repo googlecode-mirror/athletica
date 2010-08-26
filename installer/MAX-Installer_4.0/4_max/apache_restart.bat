@@ -1,0 +1,2 @@
+NET STOP Apache
+NET START Apache
