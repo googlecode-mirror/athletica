@@ -7,7 +7,6 @@
 ; have NSIS installed on your system, you may rebuild the package
 ; by compiling this script from this installation directory.
 ;
-; Get NSIS from http://code.google.com/p/athletica/ 
 ;
 
 ;--------------------------------
@@ -167,7 +166,7 @@ LangString un.iText ${LANG_ITALIAN} "Athletica e tutte le sue componenti(MySQL, 
 
 Name "Athletica"
 
-BrandingText "http://athletica.sourceforge.net"
+BrandingText "http://code.google.com/p/athletica"
 
 Caption "$(iCaption)"
 
