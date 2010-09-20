@@ -1364,7 +1364,7 @@ else if ($_POST['arg']=="change_region")
 //
 if ($_GET['arg']=="del")
 {
-    mysql_query("LOCK TABLES serienstart READ, start WRITE, anmeldung WRITE, athlet WRITE");
+    mysql_query("LOCK TABLES serienstart READ, start WRITE, anmeldung WRITE, athlet WRITE, staffelathlet WRITE");
 
     // check if start data still used
     $result = mysql_query("SELECT xStart FROM start"
@@ -1374,6 +1374,23 @@ if ($_GET['arg']=="del")
     while($row = mysql_fetch_row($result))
     {
         $rc = $rc + AA_checkReference("serienstart", "xStart", $row[0]);
+        
+        // check relay athlete
+        $res_relay = mysql_query("SELECT xAthletenstart FROM staffelathlet"
+                                . " WHERE xAthletenstart=" . $row[0]);
+        $row_relay = mysql_fetch_row($res_relay);
+        if(mysql_errno() > 0)
+        {   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+        else {
+              if (mysql_num_rows($res_relay) > 0) {                        
+                    mysql_query("DELETE FROM staffelathlet WHERE xAthletenstart=" . $row_relay[0]);  
+                    if(mysql_errno() > 0)
+                    {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                    }
+              }
+        }
     }
     mysql_free_result($result);
 
