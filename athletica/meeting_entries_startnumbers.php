@@ -77,14 +77,14 @@ if($_GET['arg'] == 'assign')
     if ($teams) {
         
             $sql="SELECT 
-                    t.xTeam, t.Name
+                    t.xTeam, t.Name , v.xVerein,v.Name
             FROM
                 team as t
                 LEFT JOIN anmeldung AS a ON (t.xTeam = a.xTeam)
                 LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
             WHERE
                 t.xMeeting = ".$_COOKIE['meeting_id'] ."
-                ORDER BY v.Sortierwert";
+                ORDER BY t.Name, t.xTeam, v.Sortierwert";
            
             $res=mysql_query($sql);
            
@@ -106,11 +106,15 @@ if($_GET['arg'] == 'assign')
     
 	if ($_GET['sort']!="del" && !$teams || ($_GET['sort']!="del" && $_GET['teams'] && $noCat))		// assign startnumbers     
 	{    
-		// sort argument
+		// sort argument 
+        $argument1='';
 		if ($_GET['sort']=="name") {
 		  $argument2="at.Name, at.Vorname"; 	  	
-		} else if ($_GET['sort']=="club") {
+		} else if ($_GET['sort']=="club" && !$teams) {
 		  $argument2="v.Sortierwert, at.Name, at.Vorname";   
+        } else if ($_GET['sort']=="club" && $teams) {
+          $argument2="at.Name, at.Vorname";   
+          $argument1="t.Name,";
 		} else {
 		  $argument2="at.Name, at.Vorname";
 		}         
@@ -162,10 +166,10 @@ if($_GET['arg'] == 'assign')
                 WHERE 
                     a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                     ORDER BY      
-                         $argument, discSort, tat.xTeamsm, $argument2";    
+                         $argument1 $argument, discSort, tat.xTeamsm, $argument2";    
             
-            $result = mysql_query($sql); 
-          
+            $result = mysql_query($sql);  
+            
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -186,7 +190,7 @@ if($_GET['arg'] == 'assign')
                 }  
               } 
                
-              if ($noCat){       // set per name or per club  
+              if ($noCat && !$teams){       // set per name or per club  
                   
                    $sql="SELECT 
                             DISTINCT (a.xAnmeldung) ,
@@ -462,7 +466,7 @@ if($_GET['arg'] == 'assign')
 				    if(mysql_errno() > 0) {
 					    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				    }
-				
+				   
                     if (!$noCat) {
 				        $k = $row[1];	// keep current category
                     }
