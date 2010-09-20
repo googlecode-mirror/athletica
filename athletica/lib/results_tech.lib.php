@@ -19,7 +19,7 @@ require('./lib/common.lib.php');
 require('./lib/heats.lib.php');
 require('./lib/results.lib.php');
 require('./lib/utils.lib.php');
-require('./lib/cl_wind.lib.php');
+require('./lib/cl_wind.lib.php');                                                        
 
 $presets = AA_results_getPresets($round);    // read GET/POST variables
 
@@ -186,7 +186,7 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
          }
          if (count($arr_perfAthlete) == $p1){ 
              AA_rankingForNewPosition($round,2); 
-             AA_newPosition($round,2);
+             AA_newPosition($round,2);                     
          }
          elseif (count($arr_perfAthlete) == $p2){   
              AA_rankingForNewPosition($round,3); 
@@ -835,6 +835,10 @@ if(($_GET['arg'] == 'results_done')
 //
 AA_results_printHeader($presets['category'], $presets['event'], $round);
 
+
+
+ 
+
 $mergedMain=AA_checkMainRound($round);
 if ($mergedMain != 1) {
 
@@ -863,7 +867,7 @@ if($round > 0)
         
         AA_heats_printNewStart($presets['event'], $round, "event_results.php");
                    
-       
+      
         if ($pass == 2){
                $fieldPos = "ss.Position2";   
                 $order = "posOrder";   
@@ -900,7 +904,7 @@ if($round > 0)
                                 . ", r.nurBestesResultat"
                                 . ", ss.Bemerkung"
                                 . ", at.xAthlet"
-                                . ",  if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder  "   
+                                . ",  if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder  "  
                                 . " FROM runde AS r"
                                 . ", serie AS s"
                                 . ", serienstart AS ss"
@@ -929,6 +933,9 @@ if($round > 0)
         else
         {   $sum_athlet = mysql_num_rows($result);
             AA_results_printMenu($round, $status, $prog_mode, 'tech');
+            
+            
+            
           
             // initialize variables
             $h = 0;
@@ -1371,10 +1378,25 @@ if($round > 0)
 <?php
                 }    // ET DB error
             }
+            
 ?>
+                                
 </table>
 <?php
             mysql_free_result($result);
+            
+            ?>
+               <br/>
+            <?php
+            if (!empty($dis)) {
+                 $menu = new GUI_Menulist(); 
+                 $menu->addButton("event_results.php?arg=change_results&round=$round", $GLOBALS['strChangeResults']);     
+                 $menu->printMenu();
+            }
+           
+            
+            
+            
         }        // ET DB error
     }
 }        // ET round selected

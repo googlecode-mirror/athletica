@@ -2767,7 +2767,7 @@ function AA_checkCombinedLast($event)
      * ----------------------------------------------------------------------------------
      */   
 function AA_newPosition($round, $pass)
-{ 
+{  
     global $cfgEightRank, $cfgMaxAthlete, $cfgInvalidResult;
     $field = '';
     
@@ -2814,8 +2814,7 @@ function AA_newPosition($round, $pass)
                          }
                     
               }  
-        }    
-    
+        }   
     
         $sql = "SELECT 
                   ss.xSerienstart "
@@ -2823,7 +2822,7 @@ function AA_newPosition($round, $pass)
                   , if (ss.Rang = 0, 9999999, ss.Rang) as orderRang
                   , LPAD(s.Bezeichnung,5,'0') as heatid
                   , s.MaxAthlet
-                  , s.xSerie
+                  , s.xSerie                   
             FROM runde AS r
                 LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
                 LEFT JOIN serienstart AS ss  ON (ss.xSerie = s.xSerie)
@@ -2838,7 +2837,7 @@ function AA_newPosition($round, $pass)
                 ON an.xAnlage = s.xAnlage
             WHERE r.xRunde = " . $round ."                 
             ORDER BY heatid, orderRang";             
-       
+        
         $res = mysql_query($sql);    
         if(mysql_errno() > 0) {        // DB error
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -2889,7 +2888,7 @@ function AA_newPosition($round, $pass)
                  $i = $maxAthlete + 1;
              }
              if ($pass == 2) {
-                 $sql = "UPDATE serienstart SET Position2 = " . $i ." WHERE xSerienstart = " . $val;     
+                 $sql = "UPDATE serienstart SET Position2 = " . $i ." WHERE xSerienstart = " . $val;  
              }
              elseif ($pass == 3) {  
                   $sql = "UPDATE serienstart SET Position3 = " . $i ." WHERE xSerienstart = " . $val;  
@@ -2912,7 +2911,7 @@ function AA_newPosition($round, $pass)
      * ------------------------------------------
      */   
 function AA_rankingForNewPosition($round, $pass)
-{       
+{  
     $presets = AA_results_getPresets($round);    // read GET/POST variables
     
     $eval = AA_results_getEvaluationType($round);
@@ -2924,8 +2923,8 @@ function AA_rankingForNewPosition($round, $pass)
     $roundSQL = "";
     $roundSQL2 = "";
     if($combined){
-        $roundSQL = "AND serie.xRunde IN (";
-        $roundSQL2 = "AND s.xRunde IN (";
+        $roundSQL = "s.xRunde IN (";
+        $roundSQL2 = "s.xRunde IN (";
         $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
         while($row_c = mysql_fetch_array($res_c)){
             $roundSQL .= $row_c[0].",";
@@ -2934,8 +2933,8 @@ function AA_rankingForNewPosition($round, $pass)
         $roundSQL = substr($roundSQL,0,-1).")";
         $roundSQL2 = substr($roundSQL2,0,-1).")";
     }else{
-        $roundSQL = "AND s.xRunde = $round";
-        $roundSQL2 = "AND s.xRunde = $round";
+        $roundSQL = "s.xRunde = $round";
+        $roundSQL2 = "s.xRunde = $round";
     }
     
     // number of athletes
@@ -2948,8 +2947,8 @@ function AA_rankingForNewPosition($round, $pass)
                     LEFT JOIN start AS st ON (st.xStart = ss.xStart)
                     LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
-             WHERE r.xRunde = " . $round ."
-                   AND ss.Rang > 0";
+             WHERE r.xRunde = " . $round;   
+                 
     $res = mysql_query($sql);
    
     if(mysql_errno() > 0) {        // DB error
@@ -2977,13 +2976,10 @@ function AA_rankingForNewPosition($round, $pass)
                 , r.Leistung                    
           FROM 
                 resultat AS r
-                , serienstart AS ss
-                , serie AS s
-                , runde AS ru  
-          WHERE 
-                r.xSerienstart = ss.xSerienstart
-                AND ss.xSerie = s.xSerie
-                AND s.xRunde = ru.xRunde " .  
+                LEFT JOIN serienstart AS ss ON ( r.xSerienstart = ss.xSerienstart )
+                LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                LEFT JOIN runde AS ru ON (s.xRunde = ru.xRunde) 
+          WHERE  " .
                 $roundSQL2 ."                       
           GROUP BY r.xSerienstart
           ORDER BY posOrder ";
@@ -3063,15 +3059,18 @@ function AA_rankingForNewPosition($round, $pass)
                 $first = true;
                 
                 if ($pass == 2){
-                    $posSQL = " AND ss.Position2 > 0 ";
+                    $posSQL = "  ss.Position2 > 0 ";
                 }
                 elseif ($pass == 3){
-                    $posSQL = " AND ss.Position3 > 0 ";
+                    $posSQL = "  ss.Position3 > 0 ";
                 }
                 else {
                       $posSQL = "";
                 }
                 
+                if (!empty($posSQL) && !empty($roundSQL2)) {
+                    $roundSQL2 = " AND " . $roundSQL2;
+                }
                  $sql="SELECT 
                         COUNT(*),                  
                         ru.Versuche, 
@@ -3082,14 +3081,11 @@ function AA_rankingForNewPosition($round, $pass)
                         , ss.Position3                      
                   FROM 
                         resultat AS r
-                        , serienstart AS ss
-                        , serie AS s
-                        , runde AS ru  
-                  WHERE 
-                        r.xSerienstart = ss.xSerienstart
-                        AND ss.xSerie = s.xSerie
-                        AND s.xRunde = ru.xRunde " .  
-                         $posSQL .                      
+                        LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                        LEFT JOIN runde AS ru ON (s.xRunde = ru.xRunde)  
+                  WHERE " .  
+                        $posSQL .                      
                         $roundSQL2 ."                       
                   GROUP BY r.xSerienstart
                   ORDER BY posOrder ";
@@ -3153,10 +3149,9 @@ function AA_rankingForNewPosition($round, $pass)
         {
             mysql_query("
                 LOCK TABLES
-                    resultat READ
-                    , serie READ
-                    , wettkampf READ
-                    , serienstart WRITE
+                    resultat as r READ
+                    , serie as s READ   
+                    , serienstart as ss WRITE
                     , tempresult1 WRITE
                     , tempresult2 WRITE 
             ");
@@ -3184,24 +3179,23 @@ function AA_rankingForNewPosition($round, $pass)
             {  
                 $result = mysql_query("
                     SELECT
-                        resultat.Leistung
-                        , resultat.Info
-                        , serienstart.xSerienstart
-                        , serienstart.xSerie
+                        r.Leistung
+                        , r.Info
+                        , ss.xSerienstart
+                        , ss.xSerie
                     FROM
-                        resultat
-                        , serienstart
-                        , serie
-                    WHERE resultat.xSerienstart = serienstart.xSerienstart
-                    AND serienstart.xSerie = serie.xSerie
+                        resultat as r
+                        LEFT JOIN serienstart  as ss ON(r.xSerienstart = ss.xSerienstart )
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)  
+                    WHERE                      
                     $roundSQL
-                    AND resultat.Leistung >= 0
+                    AND r.Leistung >= 0
                     ORDER BY
-                        serienstart.xSerienstart
-                        , resultat.xResultat
+                        ss.xSerienstart
+                        , r.xResultat
                        
                 ");
-                
+               
                 $sql_temp = "CREATE TABLE tempresult2 (
                                     Leistung int(9)
                                     , Info char(5)
@@ -3350,7 +3344,7 @@ function AA_rankingForNewPosition($round, $pass)
                                 Rang = $rank
                             WHERE xSerienstart = $row[0]
                         ");
-
+                      
                         if(mysql_errno() > 0) {
                             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                         }
