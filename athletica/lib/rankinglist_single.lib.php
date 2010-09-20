@@ -45,16 +45,19 @@ $flagInfoLine2=false;
  }
  
 if($round > 0) {    // show a specific round  
-   
-         $mainRound=AA_getMainRound($round);  
-         if ($mainRound > 0) {
-              $selection = "r.xRunde =" . $mainRound . " AND ";  
-              $mergedRound=$round;              
-              $eventMerged=true;
-         }
-         else  {
-            $selection = "r.xRunde =" . $round . " AND "; 
-         }   
+        
+       
+              
+
+         $eventMerged=false;          
+    $sqlEvents = AA_getMergedEventsFromEvent($event);
+    if  ($sqlEvents!=''){              
+         $selection = "w.xWettkampf IN " . $sqlEvents . " AND "; 
+         $eventMerged=true; 
+    }
+    else
+          $selection = "w.xWettkampf =" . $event . " AND ";     
+         
 }
 else if($category == 0) {        // show all disciplines for every category    
       
@@ -183,13 +186,11 @@ $results = mysql_query("
                 , r.Datum
                 , r.Startzeit
 ");  
-
+          
 }        
  
-if(mysql_errno() > 0) {        // DB error
-      
-    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-   
+if(mysql_errno() > 0) {        // DB error             
+    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());  
 }
 else {
       
@@ -489,11 +490,11 @@ else {
                              at.Name, 
                              at.Vorname,
                              leistung_neu " 
-                             .$order_perf;   
-               
+                             .$order_perf;  
+              
         }
         else {                        // relay event
-                   
+                                
             $query = "SELECT ss.xSerienstart,                                   
                              IF(r.Leistung < 0 , $max_rank, if (ss.Rang=0, $max_rank-1, ss.Rang)) AS rank, 
                              ss.Qualifikation, 
@@ -522,7 +523,7 @@ else {
                    LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
                    LEFT JOIN wettkampf AS w On (w.xWettkampf= st.xWettkampf)   
                    LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie) 
-                       WHERE s.xRunde = ".$row[0]." 
+                       WHERE ".$roundSQL." 
                       ".$limitRankSQL." 
                       ".$valid_result." 
                       ".$sqlSeparate."                         
@@ -531,11 +532,13 @@ else {
                              rank, 
                              r.Leistung 
                              ".$order_perf.", 
-                             sf.Name;";                              
+                             sf.Name;";   
+                 
         }    
        
         $res = mysql_query($query);
-        if(mysql_errno() > 0) {        // DB error                  
+        if(mysql_errno() > 0) {        // DB error   
+       
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
         }
         else {
@@ -995,8 +998,8 @@ else {
                         }        
                     }
                     if ($heatSeparate && $row_res[17] > 0) {    
-                         $rank=$count_rank;    
-                         if ($row_res[3]==$perf_save || $row_res[3] < 0)        // same rank or invalid result
+                         $rank=$count_rank;                             
+                         if ( $row_res[3] < 0)        // invalid result 
                              $rank='';  
                     }    
                     
