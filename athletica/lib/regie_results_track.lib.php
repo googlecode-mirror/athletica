@@ -80,7 +80,9 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
                     , athlet as at READ 
                     , verein as v READ 
                     , anlage as an READ 
-                    , rundentyp as rt READ   
+                    , rundentyp_de as rt READ  
+                    , rundentyp_fr as rt READ
+                    , rundentyp_it as rt READ 
                     , tempTrack WRITE
             ");
                                                                   
@@ -212,15 +214,14 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 					LEFT JOIN verein AS v  ON (v.xVerein = at.xVerein)
                     LEFT JOIN tempTrack AS t ON (t.xSerienstart = ss.xSerienstart)  
-				    LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+				    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 				    LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
 				WHERE 
                     r.xRunde = $round    				
 				ORDER BY
 					heatid
-					, orderRang
-			");
-           
+                     , orderRang       
+			");        
 		}
 		else {								// relay event
 			$query = ("
@@ -252,7 +253,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					LEFT JOIN staffel AS sf ON (sf.xStaffel = st.xStaffel) 
 					LEFT JOIN verein AS v ON (v.xVerein = sf.xVerein) 
                     LEFT JOIN tempTrack AS t ON (t.xSerienstart = ss.xSerienstart)   
-				    LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+				    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 				    LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
 				WHERE 
                     r.xRunde = $round  				
@@ -285,12 +286,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 				if($h != $row[3])		// new heat
 				{
 					$tracks = $row[0];	// keep nbr of planned tracks
-
-					// fill previous heat with empty tracks
-					if($p > 1) {
-						$resTable->printEmptyTracks($p, $tracks, 5+$c);
-					}
-	
+                    						
 					$h = $row[3];				// keep heat ID
 					$p = 1;						// start with track one
 
@@ -320,18 +316,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					}
 				}		// ET new heat
 
-/*
- * Empty tracks
- */
-				if(($layout == $cfgDisciplineType[$strDiscTypeTrack])
-					|| ($layout == $cfgDisciplineType[$strDiscTypeTrackNoWind])
-					|| ($layout == $cfgDisciplineType[$strDiscTypeRelay]))
-				{
-					// current track and athlete's position not identical
-					if($p < $row[9]) {
-						$p = $resTable->printEmptyTracks($p, ($row[9]-1), 6+$c);
-					}
-				}	// ET empty tracks
+
 
 /*
  * Athlete/Relay data lines
@@ -369,7 +354,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 				if($relay == FALSE) {
 					  $resTable->printAthleteLine($row[9], $row[12]
                             , "$row[13] $row[14]", '',
-                             '', AA_formatResultTime($row[19], true), $perfRounded, $row[10], $row[11], '', $row[20], 'regie', $row[21]);                       
+                             $row[16], AA_formatResultTime($row[19], true), $perfRounded, $row[10], $row[11], '', $row[20], 'regie', $row[21]);                       
 				}
 				else {	// relay
 					
