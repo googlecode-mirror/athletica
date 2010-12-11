@@ -34,7 +34,7 @@ $licType_clause="";
 
 // basic sort argument (default: sort by name)
 if ($_GET['sort'] == "nbr") {
-	$argument = "a.Startnummer, d.Anzeige";
+	$argument = "a.Startnummer, at.Name, at.Vorname, d.Anzeige";
 } elseif ($_GET['sort'] == "bestperf" && ($_GET['discgroup'] || $_GET['discipline'] > 0)) { 
       $argument = "s.Bestleistung, at.Name, at.Vorname"; 
 }
@@ -204,7 +204,7 @@ $result = mysql_query("
 	FROM
 		anmeldung AS a
 		, athlet AS at
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 		, kategorie AS k
 		, kategorie AS ck
 		, start AS s
@@ -216,7 +216,7 @@ $result = mysql_query("
 		ON a.xTeam = t.xTeam
 	LEFT JOIN region as re 
 		ON at.xRegion = re.xRegion
-	LEFT JOIN disziplin AS d2 
+	LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 
 		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
     LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)                             
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
@@ -239,7 +239,7 @@ $result = mysql_query("
 		$argument
 	
 ");  
- 
+     
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
