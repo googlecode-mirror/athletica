@@ -71,17 +71,17 @@ $results = mysql_query("
 		, kategorie AS ka
 		, start as st
 		, wettkampf as w
-		, disziplin as d
+		, disziplin_" . $_COOKIE['language'] . " as d
 		LEFT JOIN region as re ON at.xRegion = re.xRegion
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
-	" . $contestcat . "
+	" . $contestcat . "  
 	AND at.xAthlet = a.xAthlet
 	AND v.xVerein = at.xVerein
 	AND k.xKategorie = w.xKategorie
 	AND st.xAnmeldung = a.xAnmeldung
 	AND w.xWettkampf = st.xWettkampf  
 	AND w.Mehrkampfcode = d.Code  
-	AND w.Mehrkampfcode > 0
+	AND w.Mehrkampfcode > 0   
 	AND ka.xKategorie = a.xKategorie 
     AND st.anwesend = 0 	
 	ORDER BY    	 
@@ -89,43 +89,7 @@ $results = mysql_query("
 		, w.Mehrkampfcode
 		, ka.Alterslimite DESC
 "); 
-   
-  /*        
-   $results= mysql_query("SELECT  
-        a.xAnmeldung
-        , at.Name
-        , at.Vorname
-        , at.Jahrgang
-        , k.Name
-        , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
-        , IF(at.xRegion = 0, at.Land, re.Anzeige)
-        , w.Mehrkampfcode
-        , d.Name
-        , w.xKategorie
-        , ka.Code
-        , ka.Name
-        , ka.Alterslimite
-    FROM
-        anmeldung AS a
-        LEFT JOIN athlet AS at USING (xAthlet) 
-        LEFT JOIN verein AS v USING (xVerein)
-        LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
-        LEFT JOIN kategorie AS ka ON (ka.xKategorie = a.xKategorie) 
-        LEFT JOIN start as st  ON (st.xAnmeldung = a.xAnmeldung)
-        LEFT JOIN wettkampf as w On (w.xWettkampf = st.xWettkampf)
-        LEFT JOIN disziplin as d ON (w.Mehrkampfcode = d.Code) 
-        LEFT JOIN region as re ON at.xRegion = re.xRegion
-    WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ." 
-     " . $contestcat . "   
-    AND w.Mehrkampfcode > 0 
-    GROUP BY
-        a.xAnmeldung
-    ORDER BY
-        w.xKategorie
-        , w.Mehrkampfcode
-        , ka.Alterslimite DESC
-        ");     
-*/               
+            
   
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -368,22 +332,17 @@ else
                 , w.info
             FROM
                 start AS st USE INDEX (Anmeldung)
-                , serienstart AS ss 
-                , resultat AS r 
-                , serie AS s 
-                , runde AS ru 
-                , wettkampf AS w
-                , disziplin AS d 
-            WHERE st.xAnmeldung = $row[0]
-            AND ss.xStart = st.xStart
-            AND r.xSerienstart = ss.xSerienstart
-            AND s.xSerie = ss.xSerie
-            AND ru.xRunde = s.xRunde
-            AND w.xWettkampf = st.xWettkampf
-            AND d.xDisziplin = w.xDisziplin
+                LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart )
+                LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart) 
+                LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie)
+                LEFT JOIN runde AS ru ON (ru.xRunde = s.xRunde)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+            WHERE st.xAnmeldung = $row[0]            
             AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (r.Info !=  '" . $cfgResultsHighOut . "') )                                                                                
             AND w.xKategorie = $row[9]
             AND w.Mehrkampfcode = $row[7]
+            AND ru.Status = " . $cfgRoundStatus['results_done'] . "   
             GROUP BY
                 st.xStart
             ORDER BY
