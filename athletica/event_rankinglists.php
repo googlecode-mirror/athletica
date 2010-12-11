@@ -41,7 +41,7 @@ if(!empty($presets['event'])){
 	$res = mysql_query("
 		SELECT d.Typ FROM 
 			wettkampf as w
-			LEFT JOIN disziplin as d USING(xDisziplin) 
+			LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d USING(xDisziplin) 
 		WHERE w.xWettkampf = ".$presets['event']
 	);
 	
@@ -325,6 +325,14 @@ if (isset($eventTypeCat['combined'])){?>
             <?php echo $strStartnumbers ?></input>
     </td>
 </tr>
+<tr> 
+    <td class='dialog'>
+        &nbsp;&nbsp;  
+        <input type='checkbox' name='ranklistAll' value='yes'>
+            <?php echo $strRanklistAll ?></input>
+    </td>
+</tr>
+
                           
 
 <?php 
@@ -414,6 +422,13 @@ if (!isset($eventTypeCat['combined'])){?>
         &nbsp;&nbsp;  
         <input type='checkbox' name='withStartnr' value='yes'>
             <?php echo $strStartnumbers ?></input>
+    </td>
+</tr>
+<tr> 
+    <td class='dialog'>
+        &nbsp;&nbsp;  
+        <input type='checkbox' name='ranklistAll' value='yes'>
+            <?php echo $strRanklistAll ?></input>
     </td>
 </tr>
 
