@@ -69,7 +69,7 @@ function AA_heats_seedEntries($event)
 		SELECT
 			d.Typ
 		FROM
-			disziplin AS d
+			disziplin_" . $_COOKIE['language'] . " AS d
 			, wettkampf AS w
 		WHERE xWettkampf = $event
 		AND d.xDisziplin = w.xDisziplin
@@ -303,7 +303,7 @@ function AA_heats_seedEntries($event)
 	else if($entries > 0)
 	{            
 		mysql_query("LOCK TABLES resultat READ, rundenset READ, wettkampf READ , meeting READ, runde WRITE, serie WRITE"
-							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin as d READ");
+							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -411,8 +411,8 @@ function AA_heats_seedEntries($event)
                                         runde AS r
                                         LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
                                         LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie) 
-                                        LEFT JOIN disziplin AS d ON (w.xDisziplin = d.xDisziplin) 
-                                        LEFT JOIN rundentyp AS rt ON (rt.xRundentyp = r.xRundentyp) 
+                                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin) 
+                                        LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = r.xRundentyp) 
                                   WHERE
                                         r.xrunde = " . $round ."
                                         AND w.xMeeting = " . $_COOKIE['meeting_id'] ;
@@ -734,7 +734,7 @@ function AA_heats_seedQualifiedAthletes($event)
 		SELECT
 			d.Typ
 		FROM
-			disziplin AS d
+			disziplin_" . $_COOKIE['language'] . " AS d
 			, wettkampf AS w
 		WHERE xWettkampf = $event
 		AND d.xDisziplin = w.xDisziplin
@@ -855,7 +855,7 @@ function AA_heats_seedQualifiedAthletes($event)
 	else if(mysql_num_rows($result) > 0)
 	{         
 		mysql_query("LOCK TABLES resultat READ, runde WRITE, rundenset READ,serie WRITE"
-							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin as d READ");
+							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -968,8 +968,8 @@ function AA_heats_seedQualifiedAthletes($event)
                                         runde AS r
                                         LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
                                         LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie) 
-                                        LEFT JOIN disziplin AS d ON (w.xDisziplin = d.xDisziplin) 
-                                        LEFT JOIN rundentyp AS rt ON (rt.xRundentyp = r.xRundentyp)  
+                                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin) 
+                                        LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = r.xRundentyp)  
                                   WHERE
                                         r.xrunde = " . $round ."
                                         AND w.xMeeting = " . $_COOKIE['meeting_id'] ;
@@ -1602,7 +1602,7 @@ function AA_heats_changePosition($round)
 	// OK: try to change
 	else
 	{  
-		mysql_query("LOCK TABLES runde READ, serie WRITE, serienstart WRITE, wettkampf READ, disziplin READ, meeting READ");
+		mysql_query("LOCK TABLES runde READ, serie WRITE, serienstart WRITE, wettkampf READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, meeting READ");
 		
 		// change request by text field
 		if(empty($_POST['heat'])){
@@ -1633,10 +1633,10 @@ function AA_heats_changePosition($round)
 			{
 				// get discipline type for evaluating if a filmnumber is needed
 				$filmnr = 0;
-				$res_dist = mysql_query("SELECT disziplin.Typ FROM 
+				$res_dist = mysql_query("SELECT d.Typ FROM 
 								runde
 								LEFT JOIN wettkampf USING(xWettkampf)
-								LEFT JOIN disziplin USING(xDisziplin)
+								LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d USING(xDisziplin)
 							WHERE runde.xRunde = $round");
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -2062,7 +2062,7 @@ function AA_getResultRemark($xAthlete)
                     LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                     LEFT JOIN verein AS v ON (v.xVerein = at.xVerein   )
-                    LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp                              
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp                              
                 WHERE w.mehrkampfcode > 0
                     AND at.xAthlet = ". $xAthlete;
                            

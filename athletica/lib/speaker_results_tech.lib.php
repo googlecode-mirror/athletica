@@ -78,7 +78,7 @@ function AA_speaker_Tech($event, $round, $layout)
 				, athlet AS at
 				, verein AS v
 				, wettkampf AS w
-			LEFT JOIN rundentyp AS rt
+			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 				ON rt.xRundentyp = r.xRundentyp
 			WHERE r.xRunde = $round
 			AND w.xWettkampf = r.xWettkampf
@@ -166,8 +166,8 @@ function AA_speaker_Tech($event, $round, $layout)
 		}
 
 		$prog_mode = AA_results_getProgramMode();
-		$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg, time()+2419200);
+		$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
+setcookie('sort_regie', $arg, time()+2419200);
 		// display all athletes
 		if ($arg=="nbr" && !$relay) {        
 		$argument="a.Startnummer";
@@ -224,7 +224,7 @@ setcookie('sort_speakres', $arg, time()+2419200);
 				, verein AS v
 				, wettkampf AS w
 				, temp AS t
-			LEFT JOIN rundentyp AS rt
+			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 				ON rt.xRundentyp = r.xRundentyp
 			WHERE r.xRunde = $round
 			AND w.xWettkampf = r.xWettkampf

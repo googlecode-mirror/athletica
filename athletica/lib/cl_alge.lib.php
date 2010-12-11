@@ -155,8 +155,8 @@ class alge{
 						   rt.Name 
 					  FROM wettkampf AS w 
 				 LEFT JOIN runde AS r USING(xWettkampf) 
-				 LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
-				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin = d.xDisziplin) 
+				 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON(r.xRundentyp = rt.xRundentyp) 
 				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
 					 WHERE r.xRunde = ".$round.";";
 			$res = mysql_query($sql);
@@ -199,8 +199,8 @@ class alge{
 					  FROM wettkampf AS w 
 				 LEFT JOIN runde AS r USING(xWettkampf) 
 				 LEFT JOIN serie AS s USING(xRunde) 
-				 LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
-				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin = d.xDisziplin) 
+				 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON(r.xRundentyp = rt.xRundentyp) 
 				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
 					 WHERE s.xSerie = ".$heat.";";
 			$res = mysql_query($sql);
@@ -227,8 +227,9 @@ class alge{
 		$relay = AA_checkRelay(0, $round);
 		
 		mysql_query("LOCK TABLES wettkampf as w READ, runde as r READ
-					, serie as s READ, disziplin as d READ
-					, rundentyp as rt READ, kategorie as k READ
+					, serie as s READ, disziplin_de as d READ , disziplin_fr as d READ  , disziplin_it as d READ  
+					, rundentyp_de as rt READ, rundentyp_fr as rt READ, rundentyp_it as rt READ
+                    , kategorie as k READ
 					, anmeldung as a READ, athlet as at READ
 					, start as st READ, serienstart as ss READ
 					, verein as v READ, meeting as m READ
@@ -281,11 +282,11 @@ class alge{
                            d.Code 
 					  FROM meeting AS m 
 				 LEFT JOIN wettkampf AS w USING(xMeeting) 
-				 LEFT JOIN disziplin AS d USING(xDisziplin) 
+				 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d USING(xDisziplin) 
 				 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie) 
 				 LEFT JOIN runde AS r ON(w.xWettkampf = r.xWettkampf) 
 				 LEFT JOIN serie AS s USING(xRunde) 
-				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON(r.xRundentyp = rt.xRundentyp) 
 				 LEFT JOIN stadion AS sta ON(m.xStadion = sta.xStadion) 
 					 WHERE r.xRunde = ".$round." 
 					   AND w.Zeitmessung = 1;";      		

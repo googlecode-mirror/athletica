@@ -75,7 +75,7 @@ function AA_speaker_High($event, $round, $layout)
 				, anmeldung AS a
 				, athlet AS at
 				, verein AS v
-			LEFT JOIN rundentyp AS rt
+			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 				ON rt.xRundentyp = r.xRundentyp
 			WHERE r.xRunde = $round
 			AND s.xRunde = r.xRunde

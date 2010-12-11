@@ -129,7 +129,7 @@ function AA_sheets_processSingle($xCategory, $category)
 		LOCK TABLES
 	  		anmeldung AS a 
   			, athlet READ
-  			, disziplin READ
+  			, disziplin_" . $_COOKIE['language'] . " READ
   			, resultat READ
   			, serie READ
   			, serienstart READ
@@ -225,7 +225,7 @@ function AA_sheets_processSingle($xCategory, $category)
 				FROM
 					anmeldung AS a
 					, athlet AS at 
-					, disziplin AS d 
+					, disziplin_" . $_COOKIE['language'] . " AS d 
 					, resultat AS r 
 					, serie AS s 
 					, serienstart AS ss 
@@ -565,7 +565,7 @@ function AA_sheets_processSingle($xCategory, $category)
 					, d.Typ
                     , ss.Bemerkung
 				FROM
-					disziplin AS d 
+					disziplin_" . $_COOKIE['language'] . " AS d 
 					, resultat AS r 
 					, serienstart AS ss 
 					, staffel AS st 
@@ -1086,7 +1086,7 @@ function AA_sheets_processCombined($xCategory, $category)
 					, serie AS s 
 					, runde AS ru 
 					, wettkampf AS w
-					, disziplin AS d 
+					, disziplin_" . $_COOKIE['language'] . " AS d 
 				WHERE st.xAnmeldung = $row[0]
 				AND ss.xStart = st.xStart
 				AND r.xSerienstart = ss.xSerienstart

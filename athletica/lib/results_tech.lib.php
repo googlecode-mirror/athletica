@@ -913,7 +913,7 @@ if($round > 0)
                                 . ", athlet AS at"
                                 . ", verein AS v"                                   
                                 . " LEFT JOIN team AS t ON(a.xTeam = t.xTeam)" 
-                                . " LEFT JOIN rundentyp AS rt"
+                                . " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
                                 . " ON rt.xRundentyp = r.xRundentyp"
                                 . " LEFT JOIN anlage AS an"
                                 . " ON an.xAnlage = s.xAnlage"

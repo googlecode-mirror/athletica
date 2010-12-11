@@ -83,7 +83,7 @@ function AA_rankinglist_TeamSM($category, $event, $formaction, $break, $cover, $
 		FROM
 			wettkampf AS w
 			, kategorie AS k
-			, disziplin AS d
+			, disziplin_" . $_COOKIE['language'] . " AS d
 		WHERE
 			$selection
 		AND	k.xKategorie = w.xKategorie

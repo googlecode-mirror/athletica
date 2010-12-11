@@ -69,7 +69,7 @@ class Timetable
 			}
 			else
 			{
-				mysql_query("LOCK TABLES wettkampf, rundentyp READ, runde WRITE");
+				mysql_query("LOCK TABLES wettkampf, rundentyp_de READ, rundentyp_fr READ, rundentyp_it READ, runde WRITE");
 				// check if event is valid
 				if(AA_utils_checkReference("wettkampf", "xWettkampf",
 					$this->event)==0)
@@ -80,7 +80,7 @@ class Timetable
 				{   
                     // check if roundtype is valid
 					if((!empty($this->type))
-						&& (AA_utils_checkReference("rundentyp", "xRundentyp",
+						&& (AA_utils_checkReference("rundentyp_" . $_COOKIE['language'], "xRundentyp",
 							$this->type) == 0))
 					{
 						$GLOBALS['AA_ERROR'] = $GLOBALS['strType'] . $GLOBALS['strErrNotValid'];
@@ -273,7 +273,7 @@ class Timetable
 		// OK: try to change round
 		else
 		{
-			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin as d READ, runde WRITE, wettkampf WRITE");
+			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ, runde WRITE, wettkampf WRITE");
 
 			$status = AA_utils_getRoundStatus($this->round);
 
@@ -488,7 +488,7 @@ class Timetable
              FROM
                 wettkampf as w
                 LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
-                LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin)
              WHERE
                 w.xKategorie = ". $_POST['cat'] ."
                 AND w.xKategorie_svm = " .$_POST['svmcat'] ."

@@ -23,7 +23,9 @@ if (!defined('AA_TIMETABLE_LIB_INCLUDED'))
  *	-------------------
  */
 function AA_timetable_display($arg = 'monitor')
-{
+{      
+
+
 	require('./config.inc.php');
 	require('./lib/common.lib.php');
    
@@ -41,9 +43,9 @@ function AA_timetable_display($arg = 'monitor')
 			k.Anzeige,
             k.Kurzname
 	");
-   
+     
 	if(mysql_errno() > 0)	// DB error
-	{
+	{   
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else			// no DB error
@@ -93,8 +95,8 @@ function AA_timetable_display($arg = 'monitor')
 				runde AS r
 				, wettkampf AS w
 				, kategorie AS k
-				, disziplin AS d
-			LEFT JOIN rundentyp AS rt
+				, disziplin_" . $_COOKIE['language'] . " AS d
+			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 				ON r.xRundentyp = rt.xRundentyp
 			LEFT JOIN start AS s
 				ON w.xWettkampf = s.xWettkampf
@@ -118,9 +120,10 @@ function AA_timetable_display($arg = 'monitor')
                 , k.Kurzname
 				, d.Anzeige
 		");   
-       
+        
+                       
 		if(mysql_errno() > 0)	// DB error
-		{
+		{    
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else			// no DB error
@@ -146,7 +149,9 @@ function AA_timetable_display($arg = 'monitor')
                 $result = mysql_query("SELECT xRundenset FROM rundenset
                         WHERE    xRunde = $row[0] 
                         AND    xMeeting = ".$_COOKIE['meeting_id']);
+               
                 if(mysql_errno() > 0){
+                   
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }else{
                     $rsrow = mysql_fetch_array($result); // get round set id
@@ -398,6 +403,7 @@ function AA_timetable_display($arg = 'monitor')
                         $result=mysql_query($sql);
                            
 						if(mysql_errno() > 0) {		// DB error
+                        
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}
 						else {
@@ -425,7 +431,8 @@ function AA_timetable_display($arg = 'monitor')
                                         AND st.Anwesend = 0";
                            
                             $result = mysql_query($sql_c);
-                            if(mysql_errno() > 0) {     
+                            if(mysql_errno() > 0) {    
+                             
                                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                             }else{
                                 $start_row = mysql_fetch_array($result);
@@ -488,7 +495,7 @@ function AA_timetable_display($arg = 'monitor')
 											rundenset AS rs
 											, runde AS r
 											, wettkampf AS w
-											, disziplin AS d
+											, disziplin_" . $_COOKIE['language'] . " AS d
 											LEFT JOIN start AS s
 												ON w.xWettkampf = s.xWettkampf
 												AND s.Anwesend = 0
@@ -589,7 +596,7 @@ function AA_timetable_display($arg = 'monitor')
                                             rundenset AS rs
                                             , runde AS r
                                             , wettkampf AS w
-                                            , disziplin AS d
+                                            , disziplin_" . $_COOKIE['language'] . " AS d
                                             LEFT JOIN start AS s
                                                 ON w.xWettkampf = s.xWettkampf
                                                 AND s.Anwesend = 0
@@ -661,10 +668,9 @@ function AA_timetable_display_regie($timestamp)
         
     mysql_query("DROP TABLE IF EXISTS `tempTrack`");    // temporary table     
     mysql_query("DROP TABLE IF EXISTS `tempHigh`");    // temporary table   
- 
- 
-   
+                                                                
             $temp = mysql_query("
+            
             CREATE TEMPORARY TABLE IF NOT EXISTS `tempTrack` (
                           `leistung` int(11) NOT NULL default '0',  
                           `xSerienstart` int(10) NOT NULL default '0',
@@ -761,8 +767,8 @@ function AA_timetable_display_regie($timestamp)
                                     runde AS r
                                     LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
                                     LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
-                                    LEFT JOIN disziplin AS d ON (w.xDisziplin = d.xDisziplin)
-                                LEFT JOIN rundentyp AS rt
+                                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin)
+                                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
                                     ON r.xRundentyp = rt.xRundentyp
                                 LEFT JOIN start AS s
                                     ON w.xWettkampf = s.xWettkampf
@@ -804,9 +810,9 @@ function AA_timetable_display_regie($timestamp)
                                 
                                 while ($row = mysql_fetch_row($res))
                                 { 
-                                     if (strtotime($row[22]) >= $timestamp){           
-                                         continue;
-                                     }
+                                    // if (strtotime($row[22]) >= $timestamp){           
+                                   //      continue;
+                                    // }
                                    
                                     if ($row[20] == 0 && $row[20] != NULL)  {               // don't' show merged  rounds
                                           continue;  
@@ -882,4 +888,4 @@ function AA_timetable_display_regie($timestamp)
 }
 
 }		// AA_TIMETABLE_LIB_INCLUDED
-?>
+    

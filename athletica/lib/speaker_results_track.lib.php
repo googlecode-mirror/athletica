@@ -108,7 +108,7 @@ function AA_speaker_Track($event, $round, $layout)
 					, anmeldung AS a
 					, athlet AS at
 					, verein AS v
-				LEFT JOIN rundentyp AS rt
+				LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 					ON rt.xRundentyp = r.xRundentyp
 				LEFT JOIN anlage AS an
 					ON an.xAnlage = s.xAnlage
@@ -151,7 +151,7 @@ function AA_speaker_Track($event, $round, $layout)
 					, start AS st
 					, staffel AS sf
 					, verein AS v
-				LEFT JOIN rundentyp AS rt
+				LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 					ON rt.xRundentyp = r.xRundentyp
 				LEFT JOIN anlage AS an
 					ON an.xAnlage = s.xAnlage

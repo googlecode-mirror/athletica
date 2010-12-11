@@ -145,7 +145,7 @@ function AA_meeting_addEvent()
 	$stdEtime = '';
 	$stdMtime = '';
 
-	mysql_query("LOCK TABLES kategorie READ, disziplin READ, meeting READ"
+	mysql_query("LOCK TABLES kategorie READ, disziplin_de READ, disziplin_fr READ, disziplin_ite READ,  meeting READ"
 					. ", wettkampf WRITE");
 	// check if category ist still valid
 	if(AA_checkReference("kategorie", "xKategorie", $_POST['cat']) == 0)
@@ -167,7 +167,7 @@ function AA_meeting_addEvent()
 					, Appellzeit
 					, Stellzeit
 				FROM 
-					disziplin
+					disziplin_" . $_COOKIE['language'] . "
 				WHERE xDisziplin = " . $_POST['discipline']
 			);
 
@@ -358,7 +358,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		$t = $_POST['combinedtype'];
 		
 		// get short name
-		$res = mysql_query("SELECT Kurzname FROM disziplin WHERE Code = $t");
+		$res = mysql_query("SELECT Kurzname FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $t");
 		$row = mysql_fetch_array($res);
 		$sName = $row[0];
 		
@@ -393,7 +393,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 			foreach($cfgCombinedWO[$tt] as $val){
 				
 				$k++;
-				$res = mysql_query("SELECT xDisziplin FROM disziplin WHERE Code = $val");
+				$res = mysql_query("SELECT xDisziplin FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $val");
 				$row = mysql_fetch_array($res);
 				$d = $row[0];
 				$combEnd = 0;
@@ -502,7 +502,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 	
 	mysql_query("
 		LOCK TABLES
-			disziplin READ
+			disziplin_" . $_COOKIE['language'] . " READ
 			, team READ
 			, serienstart READ
 			, start READ
@@ -543,16 +543,16 @@ function AA_meeting_changeCategory($byCombtype = 0)
 		$result = mysql_query("
 			SELECT
 				wettkampf.xWettkampf
-				, disziplin.Kurzname
+				, d.Kurzname
 				, wettkampf.Mehrkampfcode
-				, disziplin.Typ
-                , disziplin.Code
+				, d.Typ
+                , d.Code
 			FROM
 				wettkampf
-				, disziplin
+				, disziplin_" . $_COOKIE['language'] . " AS d
 			WHERE wettkampf.xKategorie = " . $_POST['cat'] . "
 			AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
-			AND disziplin.xDisziplin = wettkampf.xDisziplin
+			AND d.xDisziplin = wettkampf.xDisziplin
 			$sqlCombtype
 			$sqlSetCombinedOnly
 		");     
@@ -741,7 +741,7 @@ function AA_meeting_changeEvent()
 
 	mysql_query("
 		LOCK TABLES
-			disziplin READ
+			disziplin_" . $_COOKIE['language'] . " READ
 			, serienstart READ
 			, start READ
 			, resultat wRITE
@@ -844,7 +844,7 @@ function AA_meeting_changeEventDiscipline()
 		$sql="SELECT
 					xDisziplin
 			  FROM 
-					disziplin
+					disziplin_" . $_COOKIE['language'] . "
 			  WHERE
 					code = ".$code.";";
 
@@ -862,7 +862,7 @@ function AA_meeting_changeEventDiscipline()
 
 	mysql_query("
 		LOCK TABLES
-			disziplin READ
+			disziplin_" . $_COOKIE['language'] . " READ
 			, serienstart READ
 			, start READ
 			, resultat wRITE
@@ -1194,7 +1194,7 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
            
             foreach($arrSVM as $key => $val){      
                 $k++;
-                $res = mysql_query("SELECT xDisziplin, Typ FROM disziplin WHERE Code = $val");
+                $res = mysql_query("SELECT xDisziplin, Typ FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $val");
                 $row = mysql_fetch_array($res);
                 $d = $row[0]; 
                 $dTyp = $row[1]; 
@@ -1332,7 +1332,7 @@ function AA_meeting_addTime($st , $wTyp, $item, $dTyp)  {
             , d.Stellzeit
         FROM
             wettkampf as w
-            LEFT JOIN disziplin as d USING(xDisziplin)
+            LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d USING(xDisziplin)
         WHERE w.xWettkampf = " . $item
     );
     $row = mysql_fetch_row($result);

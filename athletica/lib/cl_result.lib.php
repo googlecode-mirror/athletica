@@ -267,7 +267,7 @@ class Result
         mysql_query("
             LOCK TABLES rundenset READ, runde READ, runde as r READ , serie as s READ , start as st READ, 
             wettkampf as w READ , anmeldung as a READ , athlet as at READ, verein as v READ, 
-            rundentyp as rt READ, serienstart as ss READ  , serienstart WRITE
+            rundentyp_de as rt READ, rundentyp_fr as rt READ, rundentyp_it as rt READ, serienstart as ss READ  , serienstart WRITE
         ");
 
         if(!empty($this->startID))    // result provided -> change it
@@ -321,7 +321,7 @@ class Result
                                     LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                                     LEFT JOIN verein AS v ON (v.xVerein = at.xVerein   )
-                                    LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp                              
+                                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp                              
                                WHERE 
                                     w.mehrkampfcode > 0
                                     AND at.xAthlet = ". $this->xAthlete;

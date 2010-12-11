@@ -165,7 +165,7 @@ function processSingle($xCategory, $category)
 	mysql_query("
 		LOCK TABLES
 	  		anmeldung AS a 
-  			, disziplin READ
+  			, disziplin_" . $_COOKIE['language'] . " READ
   			, resultat READ
   			, serienstart READ
   			, staffel READ
@@ -235,7 +235,7 @@ function processSingle($xCategory, $category)
 				, at.Geschlecht                
   			FROM
 	  			wettkampf AS w
-	  			, disziplin AS d 
+	  			, disziplin_" . $_COOKIE['language'] . " AS d 
 	  			, start AS st 
 	  			, serienstart AS ss 
 	  			, resultat AS r 
@@ -258,7 +258,7 @@ function processSingle($xCategory, $category)
 				d.Anzeige
 				, pts DESC
   		");
-	    
+	   
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -459,7 +459,7 @@ function processSingle($xCategory, $category)
 	  			, d.Typ
   			FROM
 	  			wettkampf AS w
-	  			, disziplin AS d 
+	  			, disziplin_" . $_COOKIE['language'] . " AS d 
 	  			, start AS st 
 	  			, serienstart AS ss 
 	  			, resultat AS r 
@@ -898,7 +898,7 @@ function processCombined($xCategory, $category, $type)
 					, serie AS s 
 					, runde AS ru 
 					, wettkampf AS w
-					, disziplin AS d 
+					, disziplin_" . $_COOKIE['language'] . " AS d 
 				WHERE st.xAnmeldung = $row[0]
 				AND ss.xStart = st.xStart
 				AND r.xSerienstart = ss.xSerienstart

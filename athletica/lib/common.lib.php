@@ -546,11 +546,11 @@ require('./config.inc.php');
 		$relay = FALSE;
 		if($event > 0)
 		{
-			$result = mysql_query("SELECT disziplin.Staffellaeufer"
-										. " FROM disziplin"
+			$result = mysql_query("SELECT d.Staffellaeufer"
+										. " FROM disziplin_" . $_COOKIE['language'] . " AS d "
 										. ", wettkampf"
 										. " WHERE wettkampf.xWettkampf = " . $event
-										. " AND wettkampf.xDisziplin = disziplin.xDisziplin");
+										. " AND wettkampf.xDisziplin = d.xDisziplin");
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -564,13 +564,13 @@ require('./config.inc.php');
 		}
 		elseif($round > 0)
 		{
-			$result = mysql_query("SELECT disziplin.Staffellaeufer"
-										. " FROM disziplin"
+			$result = mysql_query("SELECT d.Staffellaeufer"
+										. " FROM disziplin_" . $_COOKIE['language'] . " AS d "  
 										. ", wettkampf"
 										. ", runde"
 										. " WHERE wettkampf.xWettkampf = runde.xWettkampf"
 										. " AND runde.xRunde = $round"
-										. " AND wettkampf.xDisziplin = disziplin.xDisziplin");
+										. " AND wettkampf.xDisziplin = d.xDisziplin");
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -597,15 +597,15 @@ require('./config.inc.php');
 		$status = 0;
 		$result = mysql_query("
 			SELECT
-				disziplin.Typ
+				d.Typ
 				, wettkampf.Windmessung
 			FROM
 				runde
 				, wettkampf
-				, disziplin
+				, disziplin_" . $_COOKIE['language'] ." AS d
 			WHERE runde.xRunde = $round
 			AND wettkampf.xWettkampf = runde.xWettkampf
-			AND disziplin.xDisziplin = wettkampf.xDisziplin
+			AND d.xDisziplin = wettkampf.xDisziplin
 		");
 
 		if(mysql_errno() > 0)		// DB error
@@ -1469,9 +1469,9 @@ function AA_getBestPrevious($disciplin, $enrolement, $order, $date = '', $time =
 				 LEFT JOIN anmeldung AS a USING(xAnmeldung) 
 				 LEFT JOIN athlet AS at USING(xAthlet) 
 				 LEFT JOIN wettkampf AS w ON(st.xWettkampf = w.xWettkampf) 
-				 LEFT JOIN disziplin AS d USING(xDisziplin) 
+				 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d USING(xDisziplin) 
 				 LEFT JOIN verein AS v ON(at.xVerein = v.xVerein) 
-				 LEFT JOIN rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp) 
+				 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON(r.xRundentyp = rt.xRundentyp) 
 				INNER JOIN resultat AS rs ON(ss.xSerienstart = rs.xSerienstart) 
 					 WHERE a.xAnmeldung = ".$enrolement." 
 					   AND d.xDisziplin = ".$disciplin." 
@@ -1605,7 +1605,7 @@ function AA_getEventTypes($round){
 	  $arrDisc=array();    
 	  $arrDisc[0]=false;  
 	  $result = mysql_query("SELECT d.xDisziplin, d.Anzeige"
-										. " FROM disziplin AS d" 
+										. " FROM disziplin_" . $_COOKIE['language'] . " AS d" 
 										. " WHERE d.xDisziplin IN (" . $discFrom . ","  .  $discTo . ")");  
 															  
 										
@@ -2793,7 +2793,7 @@ function AA_newPosition($round, $pass)
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                                                      
                 LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-                LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp 
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp 
                 LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
                 LEFT JOIN resultat as re ON (re.xSerienstart = ss.xSerienstart)
             WHERE r.xRunde = " . $round ." AND ss.Rang > 0                 
@@ -2831,7 +2831,7 @@ function AA_newPosition($round, $pass)
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                                                      
                 LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-                LEFT JOIN rundentyp AS rt
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
                 ON rt.xRundentyp = r.xRundentyp
                 LEFT JOIN anlage AS an
                 ON an.xAnlage = s.xAnlage

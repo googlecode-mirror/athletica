@@ -131,12 +131,18 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
             , serienstart as se READ    
 			, start as st READ
 			, anmeldung as a READ
-			, disziplin as d READ
+			, disziplin_de as d READ
+            , disziplin_fr as d READ 
+            , disziplin_it as d READ 
 			, wettkampf as w READ
-			, rundentyp as rt READ
+			, rundentyp_de as rt READ
+            , rundentyp_fr as rt READ
+            , rundentyp_it as rt READ
 			, kategorie as k READ
 			, staffel as sf READ
-			, disziplin READ
+			, disziplin_de READ
+            , disziplin_fr READ  
+            , disziplin_it READ  
 			, wettkampf READ"
 	);
 	
@@ -476,7 +482,9 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
             , serienstart as se READ 
 			, start as st READ
 			, anmeldung as a READ
-			, disziplin READ
+			, disziplin_de READ
+            , disziplin_fr READ 
+            , disziplin_it READ 
 			, wettkampf READ
 			, staffel as sf READ
             , kategorie as k READ"
@@ -1104,10 +1112,10 @@ function AA_results_getEvaluationType($round)
 
 	if(!empty($round))
 	{
-		$result = mysql_query("SELECT rundentyp.Wertung"
-									. " FROM rundentyp"
+		$result = mysql_query("SELECT rt.Wertung"
+									. " FROM rundentyp_" . $_COOKIE['language']  . " as rt "
 									. ", runde"
-									. " WHERE rundentyp.xRundentyp = runde.xRundentyp"
+									. " WHERE rt.xRundentyp = runde.xRundentyp"
 									. " AND runde.xRunde = " . $round);
 
 		if(mysql_errno() > 0)		// DB error

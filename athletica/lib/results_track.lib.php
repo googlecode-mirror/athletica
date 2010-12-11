@@ -11,7 +11,7 @@ if (!defined('AA_RESULTS_TRACK_LIB_INCLUDED'))
 	define('AA_RESULTS_TRACK_LIB_INCLUDED', 1);
 
 function AA_results_Track($round, $layout, $autoRank='')
-{   
+{              
 require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_dropdown.lib.php');
 require('./lib/cl_gui_select.lib.php');
@@ -42,7 +42,9 @@ if($_GET['arg'] == 'results_done')
 	
 	mysql_query("
 		LOCK TABLES
-			rundentyp READ
+			rundentyp_de READ
+            , rundentyp_fr READ
+            , rundentyp_it READ
 			, runde READ
 			, serie READ
 			, resultat READ
@@ -414,7 +416,9 @@ if(($_GET['arg'] == 'results_done')
 	          
 	mysql_query("
 		LOCK TABLES
-			rundentyp READ
+			rundentyp_de READ
+            , rundentyp_fr READ
+            , rundentyp_it READ
 			, runde READ
 			, serie READ
 			, resultat READ   
@@ -612,7 +616,7 @@ if($round > 0)
                     rt.Typ
                 FROM
                     runde as r
-                    LEFT JOIN rundentyp as rt USING (xRundentyp)
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " as rt USING (xRundentyp)
                 WHERE
                     r.xRunde=" .$round;
         $res_r = mysql_query($sql_r);
@@ -662,7 +666,7 @@ if($round > 0)
 					. ", athlet AS at"
 					. ", verein AS v" 
                     . " LEFT JOIN team AS t ON(a.xTeam = t.xTeam)"
-					. " LEFT JOIN rundentyp AS rt"
+					. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 					. " ON rt.xRundentyp = r.xRundentyp"
 					. " LEFT JOIN anlage AS an"
 					. " ON an.xAnlage = s.xAnlage"
@@ -700,7 +704,7 @@ if($round > 0)
 					. ", staffel AS sf"
 					. ", verein AS v"                    
                     . " LEFT JOIN team AS t ON(sf.xTeam = t.xTeam)"
-					. " LEFT JOIN rundentyp AS rt"
+					. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 					. " ON rt.xRundentyp = r.xRundentyp"
 					. " LEFT JOIN anlage AS an"
 					. " ON an.xAnlage = s.xAnlage"
@@ -979,7 +983,7 @@ if($round > 0)
 					 LEFT JOIN serie AS se USING(xSerie) 
 					 LEFT JOIN runde AS ru USING(xRunde) 
 					 LEFT JOIN wettkampf AS w USING(xWettkampf) 
-					 LEFT JOIN disziplin AS d USING(xDisziplin) 
+					 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d USING(xDisziplin) 
 						 WHERE rs.xSerienstart = ".$row[8]." 
 					  ORDER BY rs.Leistung ASC;";
 				$res = mysql_query($sql);

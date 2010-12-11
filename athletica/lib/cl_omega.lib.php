@@ -260,11 +260,11 @@ class omega{
 		
 		mysql_query("LOCK TABLES d READ, w READ");
 		
-		//$sql = "SELECT * FROM disziplin ";
+		//$sql = "SELECT * FROM disziplin_" . $_COOKIE['language'] . "
 		$sql = "SELECT DISTINCT d.xDisziplin, d.* FROM
 				runde as r 
 				LEFT JOIN wettkampf as w USING(xWettkampf)
-				LEFT JOIN disziplin as d USING(xDisziplin)
+				LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d USING(xDisziplin)
 			WHERE
 				w.xMeeting = $meeting
 			AND	d.Strecke > 0 
@@ -329,13 +329,13 @@ class omega{
 		
 		$tmp = 'Event; Round; NbHeat; idLong; idStyle; "AbrevCat"; "Date"; "Time"; idJuge1; idJuge2';
 		
-		mysql_query("LOCK TABLES serie as s READ, runde as r READ, wettkampf as w READ, disziplin as d READ, omega_typ as o READ, kategorie as k READ");
+		mysql_query("LOCK TABLES serie as s READ, runde as r READ, wettkampf as w READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ, omega_typ as o READ, kategorie as k READ");
 		
 		$sql = "SELECT s.Film, w.xWettkampf, r.xRunde, s.xSerie, d.xDisziplin, d.xOMEGA_Typ, k.Kurzname, r.Datum, r.Startzeit FROM
 				serie as s
 				LEFT JOIN runde as r USING(xRunde)
 				LEFT JOIN wettkampf as w USING(xWettkampf)
-				LEFT JOIN disziplin as d USING(xDisziplin)
+				LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d USING(xDisziplin)
 				LEFT JOIN omega_typ as o USING(xOMEGA_Typ)
 				LEFT JOIN kategorie as k ON w.xKategorie = k.xKategorie
 			WHERE
@@ -375,13 +375,13 @@ class omega{
 		
 		$tmp = 'Event; Round; "Title"; "Sponsor"';
 		
-		mysql_query("LOCK TABLES runde as r READ, wettkampf as w READ, serie as s, rundentyp as rt READ");
+		mysql_query("LOCK TABLES runde as r READ, wettkampf as w READ, serie as s, rundentyp_de as rt READ, rundentyp_fr as rt READ, rundentyp_it as rt READ");
 		
 		$sql = "SELECT s.Film, s.Bezeichnung, rt.Name, rt.Typ FROM
 				serie as s
 				LEFT JOIN runde as r USING(xRunde)
 				LEFT JOIN wettkampf as w USING(xWettkampf)
-				LEFT JOIN rundentyp as rt ON rt.xRundentyp = r.xRundentyp
+				LEFT JOIN rundentyp_" . $_COOKIE['language'] . " as rt ON rt.xRundentyp = r.xRundentyp
 			WHERE
 				w.Zeitmessung = 1
 			AND	w.xMeeting = ".$meeting." 

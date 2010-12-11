@@ -170,7 +170,7 @@ function AA_timing_setTiming($system){
                 w.xWettkampf 
           FROM 
                 wettkampf as w
-                LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
           WHERE 
                 d.Typ IN ( ". $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']] ."," 
                 . $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']] .","

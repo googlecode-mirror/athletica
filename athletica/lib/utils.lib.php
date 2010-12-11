@@ -84,15 +84,15 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			// get formula to calculate points from performance
 			$result = mysql_query("
 				SELECT
-					disziplin.Typ
+					d.Typ
 					, wettkampf.Punktetabelle
 					, wettkampf.Punkteformel
-					, disziplin.xDisziplin
+					, d.xDisziplin
 				FROM
-					disziplin
+					disziplin_" . $_COOKIE['language'] . " As d
 					, wettkampf
 				WHERE wettkampf.xWettkampf = $event
-				AND disziplin.xDisziplin = wettkampf.xDisziplin 
+				AND d.xDisziplin = wettkampf.xDisziplin 
 				AND wettkampf.Punktetabelle > 0
 				AND (wettkampf.Punkteformel != '0'
 				 OR (wettkampf.Punkteformel = '0' 
@@ -641,7 +641,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
         mysql_query("
             LOCK TABLES rundenset READ, runde READ, runde as r READ , serie as s READ , start as st READ, 
             wettkampf as w READ , anmeldung as a READ , athlet as at READ, verein as v READ, 
-            rundentyp as rt READ, serienstart as ss READ  , serienstart WRITE
+            rundentyp_de as rt READ, rundentyp_fr as rt READ, rundentyp_it as rt READ, serienstart as ss READ  , serienstart WRITE
         ");
 
         if(!empty($startID))    // result provided -> change it
@@ -695,7 +695,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
                                         LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                                         LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                                         LEFT JOIN verein AS v ON (v.xVerein = at.xVerein   )
-                                        LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp                              
+                                        LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp                              
                                    WHERE w.mehrkampfcode > 0
                                         AND at.xAthlet = ". $xAthlete;                           
                            

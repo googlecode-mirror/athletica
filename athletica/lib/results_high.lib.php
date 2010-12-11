@@ -77,7 +77,9 @@ if($_POST['arg'] == 'save_res')
        
         mysql_query("
             LOCK TABLES
-                disziplin READ
+                disziplin_de READ
+                , disziplin_fr READ
+                , disziplin_it READ
                 , runde READ
                 , runde AS r READ 
                 , serienstart WRITE
@@ -938,7 +940,7 @@ if($round > 0 && $prog_mode != 2)
                 , athlet AS at
                 , verein AS v
             LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-            LEFT JOIN rundentyp AS rt
+            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
                 ON rt.xRundentyp = r.xRundentyp
             LEFT JOIN resultat AS rs
                 ON rs.xSerienstart = ss.xSerienstart
@@ -1323,7 +1325,7 @@ else if($round > 0 && $prog_mode == 2){
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
                 LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-                LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
                 LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart
             WHERE r.xRunde = $round              
             GROUP BY ss.xSerienstart
@@ -1378,7 +1380,7 @@ else if($round > 0 && $prog_mode == 2){
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
                 LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-                LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
                 LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart  
             WHERE r.xRunde = $round      
               ORDER BY
@@ -1474,10 +1476,10 @@ else if($round > 0 && $prog_mode == 2){
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
                 LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-                LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
                 LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)  
-                LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)   
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)   
             WHERE r.xRunde = $round                 
               ORDER BY
                 heatid

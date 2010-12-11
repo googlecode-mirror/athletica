@@ -767,7 +767,7 @@ class GUI_DisciplineSelect
 			$where = " AND xDisziplin NOT IN ($keys) ";
 		}
         elseif ($event == true) {
-           $table = " INNER JOIN wettkampf as w ON (disziplin.xDisziplin = w.xDisziplin) ";
+           $table = " INNER JOIN wettkampf as w ON (d.xDisziplin = w.xDisziplin) ";
            $dist = " DISTINCT ";
         }
 
@@ -775,20 +775,20 @@ class GUI_DisciplineSelect
 		// get items from DB
 		$this->select->addOptionsFromDB("
 			SELECT $dist 
-				disziplin.xDisziplin
+				d.xDisziplin
 				, Kurzname
 			FROM
-				disziplin
+				disziplin_" . $_COOKIE['language'] . "  AS d
                 $table  
-			WHERE disziplin.Typ != ".$cfgDisciplineType[$strDiscCombined]."
+			WHERE d.Typ != ".$cfgDisciplineType[$strDiscCombined]."
             AND aktiv = 'y' 
 			$where
 			ORDER BY
 				Anzeige
 		");
-       
+        
 		if(!empty($GLOBALS['AA_ERROR']))
-		{
+		{   
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
 		}
 		if($this->new == true) {
@@ -837,16 +837,16 @@ class GUI_EventSelect
 
 		if($this->category < 1)	{		// no selection
 			$cat_argument = "";
-			$displ = "IF(LENGTH(wettkampf.Info)>0, CONCAT(kategorie.Kurzname, ', ', disziplin.Kurzname, ' (', wettkampf.Info, ')'), CONCAT(kategorie.Kurzname, ', ', disziplin.Kurzname))";
+			$displ = "IF(LENGTH(wettkampf.Info)>0, CONCAT(kategorie.Kurzname, ', ', d.Kurzname, ' (', wettkampf.Info, ')'), CONCAT(kategorie.Kurzname, ', ', d.Kurzname))";
 		}
 		else {
 			$cat_argument = " AND wettkampf.xKategorie = " . $this->category;
-			$displ = "IF(LENGTH(wettkampf.Info)>0,  CONCAT(disziplin.Kurzname, ' (', wettkampf.Info, ')') , disziplin.Kurzname) as DiszName";
+			$displ = "IF(LENGTH(wettkampf.Info)>0,  CONCAT(d.Kurzname, ' (', wettkampf.Info, ')') , d.Kurzname) as DiszName";
 		}
 
 		$where = '';
 		if($relay == true) {
-			$where = 'AND disziplin.Staffellaeufer > 0 ';
+			$where = 'AND d.Staffellaeufer > 0 ';
 		}
 
 		// get items from DB
@@ -856,14 +856,14 @@ class GUI_EventSelect
 				FROM 
 					wettkampf 
 				LEFT JOIN kategorie USING (xKategorie)
-				LEFT JOIN disziplin ON (wettkampf.xDisziplin = disziplin.xDisziplin)
+				LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (wettkampf.xDisziplin = d.xDisziplin)
 				WHERE 
 					wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
 				$cat_argument  
 				$where
 				ORDER BY 
 					kategorie.Anzeige 
-					, disziplin.Anzeige";
+					, d.Anzeige";
 		
 		
 			/*SELECT
@@ -931,11 +931,11 @@ class GUI_EventCombinedSelect
 
 		if($this->category < 1)	{		// no selection
 			$cat_argument = "";
-			$displ = "CONCAT(kategorie.Kurzname, ', ', disziplin.Name)";
+			$displ = "CONCAT(kategorie.Kurzname, ', ', d.Name)";
 		}
 		else {
 			$cat_argument = " AND wettkampf.xKategorie = " . $this->category;
-			$displ = "disziplin.Name";
+			$displ = "d.Name";
 		}
 		
 		// get items from DB
@@ -946,18 +946,18 @@ class GUI_EventCombinedSelect
 			FROM
 				wettkampf
 				, kategorie
-				, disziplin
+				, disziplin_" . $_COOKIE['language'] . " AS d
 			WHERE wettkampf.xMeeting = " . $_COOKIE['meeting_id']  
 			. $cat_argument. "
 			AND wettkampf.xKategorie = kategorie.xKategorie
-			AND wettkampf.Mehrkampfcode = disziplin.Code
+			AND wettkampf.Mehrkampfcode = d.Code
 			AND wettkampf.Mehrkampfcode > 0
 			GROUP BY
 				wettkampf.xKategorie
 				, wettkampf.Mehrkampfcode
 			ORDER BY
 				kategorie.Anzeige
-				, disziplin.Anzeige
+				, d.Anzeige
 		");
 
 		if(!empty($GLOBALS['AA_ERROR']))
@@ -1310,17 +1310,17 @@ class GUI_RoundSelect
 		$this->select->addOptionsFromDB("
 			SELECT
 				runde.xRunde
-				,  IF(rundentyp.Typ IS NULL
+				,  IF(rt.Typ IS NULL
 					, '".$GLOBALS['strFinalround']."' 
-					, IF(rundentyp.Typ = 'D'
-						, CONCAT(rundentyp.Typ, ' g', runde.Gruppe)
-						, rundentyp.Typ
+					, IF(rt.Typ = 'D'
+						, CONCAT(rt.Typ, ' g', runde.Gruppe)
+						, rt.Typ
 					)
 				)
 			FROM
 				runde
-			LEFT JOIN rundentyp
-				ON runde.xRundentyp = rundentyp.xRundentyp
+			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
+				ON runde.xRundentyp = rt.xRundentyp
 			WHERE runde.xWettkampf = " . $this->event
 		);
 
@@ -1376,7 +1376,7 @@ class GUI_RoundtypeSelect
 				xRundentyp
 				, Name
 			FROM
-				rundentyp
+				rundentyp_" . $_COOKIE['language'] . "
 		");
 
 		if(!empty($GLOBALS['AA_ERROR']))
@@ -1648,7 +1648,7 @@ class GUI_ScoreTableDisciplineSelect
 				DISTINCT(xDisziplin) 
 				, Name
 			FROM
-				disziplin 
+				disziplin_" . $_COOKIE['language'] . " 
 			ORDER BY
 				Anzeige
 		");
