@@ -33,7 +33,9 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
                     , anmeldung AS A READ 
                     , athlet as at READ 
                     , verein as vREAD 
-                    , rundentyp as rt READ   
+                    , rundentyp_de as rt READ  
+                    , rundentyp_fr as rt READ
+                    , rundentyp_it as rt READ 
                     , tempHigh WRITE
             ");   
     
@@ -231,8 +233,8 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
                     mysql_free_result($result);
                 }         
            
-        $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg1, time()+2419200);
+        $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
+setcookie('sort_regie', $arg, time()+2419200);
 		// display all athletes  
         if ($arg=="pos") {
             $argument="ss.Position";
@@ -273,7 +275,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
 				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 				LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
                 LEFT JOIN tempHigh AS t ON (t.xSerienstart = ss.xSerienstart)    
-			    LEFT JOIN rundentyp AS rt ON (rt.xRundentyp = r.xRundentyp)
+			    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = r.xRundentyp)
 			WHERE r.xRunde = $round   			
 			ORDER BY                     
 				heatid ,
@@ -373,7 +375,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
                     $rank = '';
                 }
 				$resTable->printAthleteLine($row[6], $row[8], "$row[9] $row[10]"
-					, '', '', AA_formatResultMeter($row[14]), $perfs, $fett, $rank, '', $row[15], $curr_class, 'regie' );
+					, '', $row[12], AA_formatResultMeter($row[14]), $perfs, $fett, $rank, '', $row[15], $curr_class, 'regie' );
                 $curr_class = "";
 			}
 			$resTable->endTable();
