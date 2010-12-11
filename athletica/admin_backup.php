@@ -47,8 +47,10 @@ if($_GET['arg'] == 'backup')
 									  (8, 'base_performance', 'SELECT * FROM base_performance'),
 									  (9, 'base_relay', 'SELECT * FROM base_relay'),
 									  (10, 'base_svm', 'SELECT * FROM base_svm'),
-									  (11, 'disziplin', 'SELECT * FROM disziplin'),
-									  (13, 'kategorie', 'SELECT * FROM kategorie'),
+									  (11, 'disziplin_de', 'SELECT * FROM disziplin_de'),
+                                      (12, 'disziplin_fr', 'SELECT * FROM disziplin_fr'),
+                                      (13, 'disziplin_it', 'SELECT * FROM disziplin_it'),
+									  (14, 'kategorie', 'SELECT * FROM kategorie'),
 									  (16, 'layout', 'SELECT * FROM layout WHERE xMeeting = \'%d\''),
 									  (17, 'meeting', 'SELECT * FROM meeting WHERE xMeeting=\'%d\''),
 									  (18, 'omega_typ', 'SELECT * FROM omega_typ'),
@@ -57,21 +59,23 @@ if($_GET['arg'] == 'backup')
 									  (21, 'runde', 'SELECT\r\n    runde.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.runde \r\n        ON (wettkampf.xWettkampf = runde.xWettkampf)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xRunde IS NOT NULL;'),
 									  (22, 'rundenlog', 'SELECT\r\n    rundenlog.*\r\nFROM\r\n    athletica.runde\r\n    JOIN athletica.rundenlog \r\n        ON (runde.xRunde = rundenlog.xRunde)\r\n    JOIN athletica.wettkampf \r\n        ON (wettkampf.xWettkampf = runde.xWettkampf)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xRundenlog IS NOT NULL;'),
 									  (23, 'rundenset', 'SELECT * FROM rundenset WHERE xMeeting = \'%d\''),
-									  (24, 'rundentyp', 'SELECT * FROM rundentyp'),
-									  (25, 'serie', 'SELECT\r\n    serie.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.runde \r\n        ON (wettkampf.xWettkampf = runde.xWettkampf)\r\n    LEFT JOIN athletica.serie \r\n        ON (runde.xRunde = serie.xRunde)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xSerie IS NOT NULL;'),
-									  (26, 'serienstart', 'SELECT\r\n    serienstart.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.runde \r\n        ON (wettkampf.xWettkampf = runde.xWettkampf)\r\n    LEFT JOIN athletica.serie \r\n        ON (runde.xRunde = serie.xRunde)\r\n    LEFT JOIN athletica.serienstart \r\n        ON (serie.xSerie = serienstart.xSerie)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xSerienstart IS NOT NULL;'),
-									  (27, 'stadion', 'SELECT * FROM stadion'),
-									  (28, 'staffel', 'SELECT * FROM staffel WHERE xMeeting = \'%d\''),
-									  (29, 'staffelathlet', 'SELECT\r\n    staffelathlet.*\r\nFROM\r\n    athletica.staffelathlet\r\n    INNER JOIN athletica.runde \r\n        ON (staffelathlet.xRunde = runde.xRunde)\r\n    INNER JOIN athletica.wettkampf \r\n        ON (runde.xWettkampf = wettkampf.xWettkampf)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xStaffelstart IS NOT NULL;'),
-									  (30, 'start', 'SELECT\r\n    start.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.start \r\n        ON (wettkampf.xWettkampf = start.xWettkampf)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xStart IS NOT NULL;'),
-									  (31, 'team', 'SELECT * FROM team WHERE xMeeting = \'%d\''),
-									  (32, 'teamsm', 'SELECT * FROM teamsm WHERE xMeeting = \'%d\''),
-									  (33, 'teamsmathlet', 'SELECT\r\n    teamsmathlet.*\r\nFROM\r\n    athletica.teamsmathlet\r\n    LEFT JOIN athletica.anmeldung \r\n        ON (teamsmathlet.xAnmeldung = anmeldung.xAnmeldung)\r\nWHERE (anmeldung.xMeeting =\'%d\') \r\nAND xTeamsm IS NOT NULL;'),
-									  (34, 'verein', 'SELECT * FROM verein'),
-									  (35, 'wertungstabelle', 'SELECT * FROM wertungstabelle'),
-									  (36, 'wertungstabelle_punkte', 'SELECT * FROM wertungstabelle_punkte'),
-									  (37, 'wettkampf', 'SELECT * FROM wettkampf WHERE xMeeting = \'%d\''),
-									  (38, 'zeitmessung', 'SELECT * FROM zeitmessung WHERE xMeeting = \'%d\'');";
+									  (24, 'rundentyp_de', 'SELECT * FROM rundentyp_de'),
+                                      (25, 'rundentyp_fr', 'SELECT * FROM rundentyp_de'), 
+                                      (26, 'rundentyp_it', 'SELECT * FROM rundentyp_de'), 
+									  (27, 'serie', 'SELECT\r\n    serie.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.runde \r\n        ON (wettkampf.xWettkampf = runde.xWettkampf)\r\n    LEFT JOIN athletica.serie \r\n        ON (runde.xRunde = serie.xRunde)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xSerie IS NOT NULL;'),
+									  (28, 'serienstart', 'SELECT\r\n    serienstart.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.runde \r\n        ON (wettkampf.xWettkampf = runde.xWettkampf)\r\n    LEFT JOIN athletica.serie \r\n        ON (runde.xRunde = serie.xRunde)\r\n    LEFT JOIN athletica.serienstart \r\n        ON (serie.xSerie = serienstart.xSerie)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xSerienstart IS NOT NULL;'),
+									  (29, 'stadion', 'SELECT * FROM stadion'),
+									  (30, 'staffel', 'SELECT * FROM staffel WHERE xMeeting = \'%d\''),
+									  (31, 'staffelathlet', 'SELECT\r\n    staffelathlet.*\r\nFROM\r\n    athletica.staffelathlet\r\n    INNER JOIN athletica.runde \r\n        ON (staffelathlet.xRunde = runde.xRunde)\r\n    INNER JOIN athletica.wettkampf \r\n        ON (runde.xWettkampf = wettkampf.xWettkampf)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xStaffelstart IS NOT NULL;'),
+									  (32, 'start', 'SELECT\r\n    start.*\r\nFROM\r\n    athletica.wettkampf\r\n    LEFT JOIN athletica.start \r\n        ON (wettkampf.xWettkampf = start.xWettkampf)\r\nWHERE (wettkampf.xMeeting =\'%d\') \r\nAND xStart IS NOT NULL;'),
+									  (33, 'team', 'SELECT * FROM team WHERE xMeeting = \'%d\''),
+									  (34, 'teamsm', 'SELECT * FROM teamsm WHERE xMeeting = \'%d\''),
+									  (35, 'teamsmathlet', 'SELECT\r\n    teamsmathlet.*\r\nFROM\r\n    athletica.teamsmathlet\r\n    LEFT JOIN athletica.anmeldung \r\n        ON (teamsmathlet.xAnmeldung = anmeldung.xAnmeldung)\r\nWHERE (anmeldung.xMeeting =\'%d\') \r\nAND xTeamsm IS NOT NULL;'),
+									  (36, 'verein', 'SELECT * FROM verein'),
+									  (37, 'wertungstabelle', 'SELECT * FROM wertungstabelle'),
+									  (38, 'wertungstabelle_punkte', 'SELECT * FROM wertungstabelle_punkte'),
+									  (39, 'wettkampf', 'SELECT * FROM wettkampf WHERE xMeeting = \'%d\''),
+									  (40, 'zeitmessung', 'SELECT * FROM zeitmessung WHERE xMeeting = \'%d\'');";
 		$query_backuptables = mysql_query($sql_backuptables);
 		
 		$result = mysql_query('SELECT Tabelle, SelectSQL FROM sys_backuptabellen');
@@ -132,7 +136,7 @@ if($_GET['arg'] == 'backup')
 			
 			$fieldArray = array();
 			if(mysql_num_rows($res) > 0)	// any content
-			{
+			{  
 				$sqlInsert = "INSERT INTO $row[0] \n";
 				
 				$fields = mysql_query("SHOW COLUMNS FROM $row[0]");
@@ -499,9 +503,32 @@ else if ($_POST['arg'] == 'restore')
 			if($length == false) {
 				break;
 			}
+              if($shortVersion < 4.1){ // replace certain things in older backups       
+               // if ($_COOKIE['language'] == 'de'){
+                      $content = str_replace("disziplin;", "disziplin_de;", $content);
+                      $content = str_replace("rundentyp;", "rundentyp_de;", $content);
+                //}
+               // elseif  ($_COOKIE['language'] == 'fr'){ 
+               //             $content = str_replace("disziplin;", "disziplin_fr;", $content);  
+               //             $content = str_replace("rundentyp;", "rundentyp_fr;", $content);    
+               // }
+              //  elseif  ($_COOKIE['language'] == 'it'){
+               //       $content = str_replace("disziplin;", "disziplin_it;", $content);
+              //        $content = str_replace("rundentyp;", "rundentyp_it;", $content);   
+               // }
+            
+            }        
 			$sqlTruncate[]	= substr($content, 0, $length+1);
 			$content = substr($content, $length+1);
 		}
+        if($shortVersion < 4.1){
+            $sqlTruncate[] = "TRUNCATE TABLE disziplin_fr;";
+            $sqlTruncate[] = "TRUNCATE TABLE disziplin_it;"; 
+            $sqlTruncate[] = "TRUNCATE TABLE rundentyp_fr;";
+            $sqlTruncate[] = "TRUNCATE TABLE rundentyp_it"; 
+        }  
+       
+        
 		
 		rewind($fd);
 		//$content = fread($fd, filesize($_FILES['bkupfile']['tmp_name']));
@@ -517,6 +544,13 @@ else if ($_POST['arg'] == 'restore')
 			// --> the fields are the same but xOMEGA_Konfiguration
 			$content = str_replace("xOMEGA_Konfiguration", "xZeitmessung", $content);
 		}
+        
+        if($shortVersion < 4.1){ // replace certain things in older backups       
+            // as of 4.1 the table disziplin doesn't exist / the new table is named disziplin_de (_fr / _it)   
+            $content = str_replace("disziplin", "disziplin_de", $content);
+            $content = str_replace("rundentyp", "rundentyp_de", $content);   
+         
+        }
 		
 		while(strlen($content) > 0)
 		{
@@ -529,11 +563,35 @@ else if ($_POST['arg'] == 'restore')
 			if($length == false) {
 				break;
 			}
-			$sqlInsert[]	= substr($content, 0, $length+1);
+			$sqlInsert[]	= substr($content, 0, $length+1);             
 			$content = substr($content, $length+1);
 		}
 		
-		
+		 foreach ($sqlInsert as $key => $val){
+              if (strpos($val, "INSERT INTO disziplin_de") !== false){
+                   $val = str_replace("disziplin_de", "disziplin_fr", $val);  
+                   $content_disc_fr = $val;
+                   $val = str_replace("disziplin_fr", "disziplin_it", $val);  
+                   $content_disc_it = $val;
+              }
+              if (strpos($val, "INSERT INTO rundentyp_de") !== false){
+                   $val = str_replace("rundentyp_de", "rundentyp_fr", $val);  
+                   $content_rt_fr = $val;                 
+                   $val = str_replace("rundentyp_fr", "rundentyp_it", $val);  
+                   $content_rt_it = $val;
+              }
+         }
+         if($shortVersion < 4.1 ){
+              if (!empty($content_disc_fr)){
+                  $sqlInsert[] = $content_disc_fr; 
+                  $sqlInsert[] = $content_disc_it; 
+              }
+              if (!empty($content_rt_fr)){   
+                  $sqlInsert[] = $content_rt_fr;   
+                  $sqlInsert[] = $content_rt_it;     
+              }
+        }
+            
 		// to less tables to truncate -> not a valid backup
 		// this isn't relevant for version 1.9 and above ( because of the termination line)
 		if($shortVersion < 1.9 && count($sqlTruncate) < 30){
@@ -557,6 +615,7 @@ else if ($_POST['arg'] == 'restore')
 			}
 			else
 			{*/
+                
 				// process every SQL statement
 				for($i=0; $i < count($sqlTruncate); $i++)
 				{
@@ -578,6 +637,8 @@ else if ($_POST['arg'] == 'restore')
 					}
 					//echo "OK<br>";
 				}
+                
+                
 				
 				for($i=0; $i < count($sqlInsert); $i++)
 				{
@@ -594,7 +655,7 @@ else if ($_POST['arg'] == 'restore')
 					}
 					
 					
-					//echo substr($sqlInsert[$i], 0, strpos($sqlInsert[$i], " VALUES")) . " ... ";
+					//echo substr($sqlInsert[$i], 0, strpos($sqlInsert[$i], " VALUES")) . " ... ";                        
 					mysql_query($sqlInsert[$i]);
 					if(mysql_errno() > 0)
 					{
@@ -610,14 +671,35 @@ else if ($_POST['arg'] == 'restore')
 			
 			// since 1.8 the roundtypes have a code field, update if backup is older
 			if($shortVersion < 1.8){
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'V' WHERE `xRundentyp` =1 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'F' WHERE `xRundentyp` =2 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'Z' WHERE `xRundentyp` =3 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'Q' WHERE `xRundentyp` =5 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'S' WHERE `xRundentyp` =6 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'X' WHERE `xRundentyp` =7 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = 'D' WHERE `xRundentyp` =8 LIMIT 1 ");
-				mysql_query("UPDATE `rundentyp` SET `Code` = '0' WHERE `xRundentyp` =9 LIMIT 1 ");
+                if ($_COOKIE['language'] == 'de' || $_COOKIE['language'] == 'en'){ 
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'V' WHERE `xRundentyp` =1 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'F' WHERE `xRundentyp` =2 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'Z' WHERE `xRundentyp` =3 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'Q' WHERE `xRundentyp` =5 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'S' WHERE `xRundentyp` =6 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'X' WHERE `xRundentyp` =7 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = 'D' WHERE `xRundentyp` =8 LIMIT 1 ");
+				    mysql_query("UPDATE `rundentyp_de` SET `Code` = '0' WHERE `xRundentyp` =9 LIMIT 1 ");
+                }
+                elseif ($_COOKIE['language'] == 'fr'){
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = 'V' WHERE `xRundentyp` =1 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = 'F' WHERE `xRundentyp` =2 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = 'Z' WHERE `xRundentyp` =3 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = 'Q' WHERE `xRundentyp` =5 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = 'X' WHERE `xRundentyp` =7 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = 'D' WHERE `xRundentyp` =8 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_fr` SET `Code` = '0' WHERE `xRundentyp` =9 LIMIT 1 ");
+                }
+                 elseif ($_COOKIE['language'] == 'it'){
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'V' WHERE `xRundentyp` =1 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'F' WHERE `xRundentyp` =2 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'Z' WHERE `xRundentyp` =3 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'Q' WHERE `xRundentyp` =5 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'S' WHERE `xRundentyp` =6 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'X' WHERE `xRundentyp` =7 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = 'D' WHERE `xRundentyp` =8 LIMIT 1 ");
+                        mysql_query("UPDATE `rundentyp_it` SET `Code` = '0' WHERE `xRundentyp` =9 LIMIT 1 ");
+                }
 			}
 			
 			// since 1.9 the categories hava a gender
@@ -665,65 +747,44 @@ else if ($_POST['arg'] == 'restore')
 												, '15'
 												, '18'
 												, 'U10W'
-												, 'w');");
-												
-				// disciplines
-				mysql_query("INSERT IGNORE INTO disziplin 
-											   (xDisziplin
-												, Kurzname
-												, Name
-												, Anzeige
-												, Seriegroesse
-												, Staffellaeufer
-												, Typ
-												, Appellzeit
-												, Stellzeit
-												, Strecke
-												, Code
-												, xOMEGA_Typ)
-										VALUES ('', 
-												'BALL80'
-												, 'Ball 80 g'
-												, '385'
-												, '6'
-												, '0' 
-												, '8'
-												, '01:00:00'
-												, '00:20:00'
-												, '0'
-												, '385'
-												, '1');");
-				mysql_query("UPDATE disziplin 
-								SET Code = 385 
-							  WHERE Anzeige = 385 
-								AND Kurzname = 'BALL80';");
-								
-				mysql_query("INSERT IGNORE INTO disziplin 
-											   (xDisziplin
-												, Kurzname
-												, Name
-												, Anzeige
-												, Seriegroesse
-												, Staffellaeufer
-												, Typ
-												, Appellzeit
-												, Stellzeit
-												, Strecke
-												, Code
-												, xOMEGA_Typ)
-										VALUES ('', 
-												'300H91.4'
-												, '300 m Hürden 91.4'
-												, '289'
-												, '6'
-												, '0' 
-												, '2'
-												, '01:00:00'
-												, '00:15:00'
-												, '300'
-												, '289'
-												, '4');");
-			}
+												, 'w');");                                                   
+                                                
+				
+                 
+                 // disciplines de
+                 mysql_query("INSERT IGNORE INTO disziplin_de (xDisziplin, Kurzname, Name, Anzeige, Seriegroesse, Staffellaeufer, Typ
+                                                            , Appellzeit, Stellzeit, Strecke, Code, xOMEGA_Typ)
+                                                    VALUES ('','BALL80', 'Ball 80 g', '385', '6', '0', '8', '01:00:00', '00:20:00', '0', '385', '1');");
+                                                    
+                 mysql_query("UPDATE disziplin_de SET Code = 385 WHERE Anzeige = 385 AND Kurzname = 'BALL80';");
+                                            
+                 mysql_query("INSERT IGNORE INTO disziplin_de (xDisziplin, Kurzname, Name, Anzeige, Seriegroesse, Staffellaeufer, Typ, 
+                                                            Appellzeit, Stellzeit, Strecke, Code, xOMEGA_Typ)
+                                                    VALUES ('','300H91.4', '300 m Hürden 91.4', '289', '6', '0', '2', '01:00:00', '00:15:00', '300', '289', '4');");
+                    
+                 // disciplines fr
+                 mysql_query("INSERT IGNORE INTO disziplin_fr (xDisziplin, Kurzname, Name, Anzeige, Seriegroesse, Staffellaeufer, Typ
+                                                                , Appellzeit, Stellzeit, Strecke, Code, xOMEGA_Typ)
+                                                        VALUES ('','BAL80', 'bal 80 g', '385', '6', '0', '8', '01:00:00', '00:20:00', '0', '385', '1');");
+                                                        
+                 mysql_query("UPDATE disziplin_fr SET Code = 385 WHERE Anzeige = 385 AND Kurzname = 'BAL80';");
+                                                
+                 mysql_query("INSERT IGNORE INTO disziplin_fr (xDisziplin, Kurzname, Name, Anzeige, Seriegroesse, Staffellaeufer, Typ, 
+                                                                Appellzeit, Stellzeit, Strecke, Code, xOMEGA_Typ)
+                                                        VALUES ('','300H91.4', '300 m haies 91.4', '289', '6', '0', '2', '01:00:00', '00:15:00', '300', '289', '4');");
+                   
+                 // disciplines it
+                 mysql_query("INSERT IGNORE INTO disziplin_it (xDisziplin, Kurzname, Name, Anzeige, Seriegroesse, Staffellaeufer, Typ
+                                                                , Appellzeit, Stellzeit, Strecke, Code, xOMEGA_Typ)
+                                                        VALUES ('','BALLO80', 'ballo 80 g', '385', '6', '0', '8', '01:00:00', '00:20:00', '0', '385', '1');");
+                                                        
+                 mysql_query("UPDATE disziplin_it SET Code = 385 WHERE Anzeige = 385 AND Kurzname = 'BALLO80';");
+                                                
+                 mysql_query("INSERT IGNORE INTO disziplin_it (xDisziplin, Kurzname, Name, Anzeige, Seriegroesse, Staffellaeufer, Typ, 
+                                                                Appellzeit, Stellzeit, Strecke, Code, xOMEGA_Typ)
+                                                        VALUES ('','300H91.4', '300 m ostacoli 91.4', '289', '6', '0', '2', '01:00:00', '00:15:00', '300', '289', '4');");
+                                      
+            }
 			
 			// new categories SENM and SENW
 			if($shortVersion < 3.2){
@@ -794,212 +855,552 @@ else if ($_POST['arg'] == 'restore')
                             ( 'W09', 'U10 W09', 37, 9, '' , 'w', 'n'), 
                             ( 'W08', 'U10 W08', 38, 8, '' , 'w', 'n'), 
                             ( 'W07', 'U08 W07', 39, 7, '' , 'w', 'n')");   
-                 
-                  mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('...KAMPF', '...kampf', 393, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");        
-            }  
-            
-           if($shortVersion < 3.5){
-                // disciplines
-                mysql_query("UPDATE `disziplin` SET Code = 505 ,Anzeige = 505 WHERE xDisziplin = 159");  
                 
-                mysql_query("UPDATE `disziplin` SET Name = 'Erdgas Athletic Cup', Kurzname = 'AC' WHERE Code = 403");   
-              
-                // new discipline code and new sort order
-                mysql_query("UPDATE `disziplin` SET Name = 'Athletic Cup', Kurzname = 'AC' WHERE Code = 403");   
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('75', '75 m', 31, 6, 0, 1, '01:00:00','00:15:00', 75, 31, 1)"); 
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('50H68.6', '50 m Hürden 68.6', 237, 6, 0, 2, '01:00:00','00:15:00', 50, 237, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('60H68.6', '60 m Hürden 68.6', 257, 6, 0, 2, '01:00:00','00:15:00', 60, 257, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('80H84.0', '80 m Hürden 84.0', 260, 6, 0, 1, '01:00:00','00:15:00', 80, 260, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('80H68.6', '80 m Hürden 68.6', 262, 6, 0, 1, '01:00:00','00:15:00', 80, 262, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('300H68.6', '300 m Hürden 68.6', 292, 6, 0, 2, '01:00:00','00:15:00', 300, 292, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('SPEER500', 'Speer 500 gr', 390, 6, 0, 8, '01:00:00','00:20:00', 0, 390, 1)");  
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('5KAMPF_M', 'Fünfkampf M', 415, 6, 0, 9, '01:00:00','00:15:00', 5, 392, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('5KAMPF_U20M', 'Fünfkampf U20 M', 416, 6, 0, 9, '01:00:00','00:15:00', 5, 393, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('5KAMPF_U18M', 'Fünfkampf U18 M', 417, 6, 0, 9, '01:00:00','00:15:00', 5, 405, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('5KAMPF_W', 'Fünfkampf W', 420, 6, 0, 9, '01:00:00','00:15:00', 5, 416, 1)");   
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('5KAMPF_U20W', 'Fünfkampf U20 W', 421, 6, 0, 9, '01:00:00','00:15:00', 5, 417, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('5KAMPF_U18W', 'Fünfkampf U18 W', 422, 6, 0, 9, '01:00:00','00:15:00', 5, 418, 1)");   
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('10KAMPF_MM', 'Zehnkampf MM', 414, 6, 0, 9, '01:00:00','00:15:00', 10, 414, 1)");  
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('2000WALK', '2000 m walk', 419, 6, 0, 7, '01:00:00','00:15:00', 2000, 419, 1)");    
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('...LAUF', '...lauf', 796, 6, 0, 9, '01:00:00','00:15:00', 4, 796, 1)");   
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('...SPRUNG', '...sprung', 797, 6, 0, 9, '01:00:00','00:15:00', 4, 797, 1)");   
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('...WURF', '...wurf', 798, 6, 0, 9, '01:00:00','00:15:00', 4, 798, 1)"); 
-                mysql_query("INSERT INTO `disziplin` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
-                       ('WEIT Z', 'Weit (Zone)', 331, 6, 0, 4, '01:00:00','00:40:00', 0, 331, 1)");   
-                
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 201");   
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 481");   
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 495");   
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 496");   
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 510");   
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 540");   
-                mysql_query("DELETE FROM `disziplin` WHERE Code = 558");    
-                
+                      
+                 mysql_query("INSERT IGNORE INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                        ('...KAMPF', '...kampf', 393, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)"); 
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 404");   
+                     
+                 mysql_query("INSERT IGNORE INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                        ('...ATHLON', '...athlon', 393, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");  
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 404");  
                        
-                mysql_query("UPDATE `disziplin` SET Anzeige = 171 WHERE Code = 182");    
-                mysql_query("UPDATE `disziplin` SET Anzeige = 183 WHERE Code = 190");      
-                mysql_query("UPDATE `disziplin` SET Anzeige = 182 WHERE Code = 195");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 184 WHERE Code = 200");    
-                mysql_query("UPDATE `disziplin` SET Anzeige = 302 WHERE Code = 209");      
-                mysql_query("UPDATE `disziplin` SET Anzeige = 303 WHERE Code = 210");      
-                mysql_query("UPDATE `disziplin` SET Anzeige = 304 WHERE Code = 220");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 259 WHERE Code = 258");      
-                mysql_query("UPDATE `disziplin` SET Anzeige = 262 WHERE Code = 259");      
-                mysql_query("UPDATE `disziplin` SET Anzeige = 184 WHERE Code = 200");  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 267 WHERE Code = 271");  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 258 WHERE Code = 260");     
-                mysql_query("UPDATE `disziplin` SET Anzeige = 260 WHERE Code = 262");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 269 WHERE Code = 268");        
-                mysql_query("UPDATE `disziplin` SET Anzeige = 268 WHERE Code = 269");        
-                mysql_query("UPDATE `disziplin` SET Anzeige = 301 WHERE Code = 298");        
-                mysql_query("UPDATE `disziplin` SET Anzeige = 298 WHERE Code = 301");        
-                mysql_query("UPDATE `disziplin` SET Anzeige = 349 WHERE Code = 347");        
-                mysql_query("UPDATE `disziplin` SET Anzeige = 350 WHERE Code = 349");    
-                mysql_query("UPDATE `disziplin` SET Anzeige = 347 WHERE Code = 351"); 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 361 WHERE Code = 356");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 359 WHERE Code = 357");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 357 WHERE Code = 359");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 356 WHERE Code = 361");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 381 WHERE Code = 375");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 378 WHERE Code = 376");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 376 WHERE Code = 378");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 375 WHERE Code = 381");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 393 WHERE Code = 385");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 392 WHERE Code = 386");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 391 WHERE Code = 387");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 389 WHERE Code = 388");                  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 388 WHERE Code = 389");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 387 WHERE Code = 391");    
-                mysql_query("UPDATE `disziplin` SET Anzeige = 410 WHERE Code = 394");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 411 WHERE Code = 395");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 412 WHERE Code = 396");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 413 WHERE Code = 397");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 414 WHERE Code = 398");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 423 WHERE Code = 399");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 425 WHERE Code = 400");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 426 WHERE Code = 401");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 424 WHERE Code = 402");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 435 WHERE Code = 403");    
-                mysql_query("UPDATE `disziplin` SET Anzeige = 430 WHERE Code = 410");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 431 WHERE Code = 411");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 432 WHERE Code = 412");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 433 WHERE Code = 413");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 434 WHERE Code = 414");    
-                mysql_query("UPDATE `disziplin` SET Anzeige = 395 WHERE Code = 497");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 396 WHERE Code = 498");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 394 WHERE Code = 499");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 397 WHERE Code = 560");                 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 398 WHERE Code = 570");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 399 WHERE Code = 580");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 400 WHERE Code = 589");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 401 WHERE Code = 590");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 402 WHERE Code = 595");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 403 WHERE Code = 600");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 404 WHERE Code = 601");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 405 WHERE Code = 602");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 441 WHERE Code = 494");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 442 WHERE Code = 501");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 443 WHERE Code = 505");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 444 WHERE Code = 511");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 451 WHERE Code = 419");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 452 WHERE Code = 420");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 453 WHERE Code = 430");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 454 WHERE Code = 440");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 455 WHERE Code = 450");                
-                mysql_query("UPDATE `disziplin` SET Anzeige = 456 WHERE Code = 460");   
-                mysql_query("UPDATE `disziplin` SET Anzeige = 450 WHERE Code = 415");  
-                mysql_query("UPDATE `disziplin` SET Anzeige = 457 WHERE Code = 559"); 
-                mysql_query("UPDATE `disziplin` SET Anzeige = 799 WHERE Code = 799"); 
-                
-               // new svm categories 2010 
-               mysql_query("TRUNCATE TABLE kategorie_svm;");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT IGNORE INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                        ('...ATHLON', '...athlon', 393, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");  
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 404");  
+                                      
+            }  
+                          
+            if($shortVersion < 3.5) {    
+                    // disciplines    
+                 mysql_query("UPDATE `disziplin_de` SET Code = 505 ,Anzeige = 505 WHERE xDisziplin = 159"); 
+                 mysql_query("UPDATE `disziplin_de` SET Name = 'Erdgas Athletic Cup', Kurzname = 'AC' WHERE Code = 403");    
+                              
+                                                                                                                           
+                 // new discipline code and new sort order
+                 mysql_query("UPDATE `disziplin_de` SET Name = 'Athletic Cup', Kurzname = 'AC' WHERE Code = 403");   
+                            
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('75', '75 m', 31, 6, 0, 1, '01:00:00','00:15:00', 75, 31, 1)");   
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('50H68.6', '50 m Hürden 68.6', 237, 6, 0, 2, '01:00:00','00:15:00', 50, 237, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('60H68.6', '60 m Hürden 68.6', 257, 6, 0, 2, '01:00:00','00:15:00', 60, 257, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('80H84.0', '80 m Hürden 84.0', 260, 6, 0, 1, '01:00:00','00:15:00', 80, 260, 1)");   
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('80H68.6', '80 m Hürden 68.6', 262, 6, 0, 1, '01:00:00','00:15:00', 80, 262, 1)");  
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('300H68.6', '300 m Hürden 68.6', 292, 6, 0, 2, '01:00:00','00:15:00', 300, 292, 1)");
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('SPEER500', 'Speer 500 gr', 390, 6, 0, 8, '01:00:00','00:20:00', 0, 390, 1)");    
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5KAMPF_M', 'Fünfkampf M', 415, 6, 0, 9, '01:00:00','00:15:00', 5, 392, 1)");    
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5KAMPF_U20M', 'Fünfkampf U20 M', 416, 6, 0, 9, '01:00:00','00:15:00', 5, 393, 1)");
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5KAMPF_U18M', 'Fünfkampf U18 M', 417, 6, 0, 9, '01:00:00','00:15:00', 5, 405, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5KAMPF_W', 'Fünfkampf W', 420, 6, 0, 9, '01:00:00','00:15:00', 5, 416, 1)");      
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5KAMPF_U20W', 'Fünfkampf U20 W', 421, 6, 0, 9, '01:00:00','00:15:00', 5, 417, 1)");  
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5KAMPF_U18W', 'Fünfkampf U18 W', 422, 6, 0, 9, '01:00:00','00:15:00', 5, 418, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('10KAMPF_MM', 'Zehnkampf MM', 414, 6, 0, 9, '01:00:00','00:15:00', 10, 414, 1)");   
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('2000WALK', '2000 m walk', 419, 6, 0, 7, '01:00:00','00:15:00', 2000, 419, 1)");  
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('...LAUF', '...lauf', 796, 6, 0, 9, '01:00:00','00:15:00', 4, 796, 1)");       
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('...SPRUNG', '...sprung', 797, 6, 0, 9, '01:00:00','00:15:00', 4, 797, 1)");   
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('...WURF', '...wurf', 798, 6, 0, 9, '01:00:00','00:15:00', 4, 798, 1)");  
+                 mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('WEIT Z', 'Weit (Zone)', 331, 6, 0, 4, '01:00:00','00:40:00', 0, 331, 1)"); 
+                                   
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 201");    
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 481");  
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 495");  
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 496"); 
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 510");  
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 540");  
+                 mysql_query("DELETE FROM `disziplin_de` WHERE Code = 186");  
+                           
+                            
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 185 WHERE Code = 558");    
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 171 WHERE Code = 182");                            
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 183 WHERE Code = 190"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 182 WHERE Code = 195"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 184 WHERE Code = 200"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 302 WHERE Code = 209"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 303 WHERE Code = 210"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 304 WHERE Code = 220");
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 259 WHERE Code = 258"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 262 WHERE Code = 259"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 184 WHERE Code = 200"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 267 WHERE Code = 271"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 258 WHERE Code = 260"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 260 WHERE Code = 262"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 269 WHERE Code = 268"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 268 WHERE Code = 269"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 301 WHERE Code = 298"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 298 WHERE Code = 301");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 349 WHERE Code = 347");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 350 WHERE Code = 349");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 347 WHERE Code = 351");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 361 WHERE Code = 356"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 359 WHERE Code = 357");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 357 WHERE Code = 359");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 356 WHERE Code = 361");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 381 WHERE Code = 375");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 378 WHERE Code = 376"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 376 WHERE Code = 378"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 375 WHERE Code = 381"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 393 WHERE Code = 385"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 392 WHERE Code = 386"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 391 WHERE Code = 387"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 389 WHERE Code = 388"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 388 WHERE Code = 389"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 410 WHERE Code = 394"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 411 WHERE Code = 395"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 412 WHERE Code = 396"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 413 WHERE Code = 397"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 414 WHERE Code = 398"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 423 WHERE Code = 399"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 425 WHERE Code = 400"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 426 WHERE Code = 401"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 424 WHERE Code = 402");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 435 WHERE Code = 403");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 430 WHERE Code = 410"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 431 WHERE Code = 411"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 432 WHERE Code = 412"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 433 WHERE Code = 413"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 434 WHERE Code = 414"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 395 WHERE Code = 497"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 396 WHERE Code = 498"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 394 WHERE Code = 499"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 397 WHERE Code = 560"); 
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 398 WHERE Code = 570");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 399 WHERE Code = 580");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 400 WHERE Code = 589");   
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 401 WHERE Code = 590");   
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 402 WHERE Code = 595");   
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 403 WHERE Code = 600");   
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 404 WHERE Code = 601");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 405 WHERE Code = 602");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 441 WHERE Code = 494");   
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 442 WHERE Code = 501");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 443 WHERE Code = 505");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 444 WHERE Code = 511");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 451 WHERE Code = 419");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 452 WHERE Code = 420");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 453 WHERE Code = 430");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 454 WHERE Code = 440");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 455 WHERE Code = 450");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 456 WHERE Code = 460");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 450 WHERE Code = 415");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 457 WHERE Code = 559");  
+                 mysql_query("UPDATE `disziplin_de` SET Anzeige = 799 WHERE Code = 799");     
+                                
+                 // discipline fr   
+                 mysql_query("UPDATE `disziplin_fr` SET Code = 505 ,Anzeige = 505 WHERE xDisziplin = 159");  
+                 mysql_query("UPDATE `disziplin_fr` SET Name = 'Erdgas Athletic Cup', Kurzname = 'AC' WHERE Code = 403");  
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 404");  
+                                   
+                 // new discipline fr code and new sort order
+                 mysql_query("UPDATE `disziplin_fr` SET Name = 'Athletic Cup', Kurzname = 'AC' WHERE Code = 403");                                 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('75', '75 m', 31, 6, 0, 1, '01:00:00','00:15:00', 75, 31, 1)");    
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('50H68.6', '50 m haies 68.6', 237, 6, 0, 2, '01:00:00','00:15:00', 50, 237, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('60H68.6', '60 m haies 68.6', 257, 6, 0, 2, '01:00:00','00:15:00', 60, 257, 1)");   
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('80H84.0', '80 m haies 84.0', 260, 6, 0, 1, '01:00:00','00:15:00', 80, 260, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('80H68.6', '80 m haies 68.6', 262, 6, 0, 1, '01:00:00','00:15:00', 80, 262, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('300H68.6', '300 m haies 68.6', 292, 6, 0, 2, '01:00:00','00:15:00', 300, 292, 1)");
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('JAVELOT500', 'Javelot 500 gr', 390, 6, 0, 8, '01:00:00','00:20:00', 0, 390, 1)");  
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('5ATHLON_M', 'Fünfkampf M', 415, 6, 0, 9, '01:00:00','00:15:00', 5, 392, 1)");     
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('5ATHLON_U20M', 'Pentathlon U20 M', 416, 6, 0, 9, '01:00:00','00:15:00', 5, 393, 1)");   
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('5ATHLON_U18M', 'Pentathlon U18 M', 417, 6, 0, 9, '01:00:00','00:15:00', 5, 405, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('5ATHLON_W', 'Pentathlon W', 420, 6, 0, 9, '01:00:00','00:15:00', 5, 416, 1)");       
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('5ATHLON_U20W', 'Pentathlon U20 W', 421, 6, 0, 9, '01:00:00','00:15:00', 5, 417, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('5ATHLON_U18W', 'Pentathlon U18 W', 422, 6, 0, 9, '01:00:00','00:15:00', 5, 418, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('10ATHLON_CM', 'Décathlon CM', 414, 6, 0, 9, '01:00:00','00:15:00', 10, 414, 1)");   
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('2000WALK', '2000 m walk', 419, 6, 0, 7, '01:00:00','00:15:00', 2000, 419, 1)");   
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('...COURS', '...cours', 796, 6, 0, 9, '01:00:00','00:15:00', 4, 796, 1)");   
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('...LONGUEUR', '...longueur', 797, 6, 0, 9, '01:00:00','00:15:00', 4, 797, 1)");   
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('...LANCER', '...lancer', 798, 6, 0, 9, '01:00:00','00:15:00', 4, 798, 1)");     
+                 mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                       ('LONGUEUR Z', 'Longueur (Zone)', 331, 6, 0, 4, '01:00:00','00:40:00', 0, 331, 1)");  
+                                       
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 201");   
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 481");   
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 495");   
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 496");   
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 510");   
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 540");  
+                 mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 186");                          
+                              
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 185 WHERE Code = 558"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 171 WHERE Code = 182");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 183 WHERE Code = 190");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 184 WHERE Code = 200"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 303 WHERE Code = 210");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 304 WHERE Code = 220");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 259 WHERE Code = 258");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 262 WHERE Code = 259");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 184 WHERE Code = 200");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 267 WHERE Code = 271");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 258 WHERE Code = 260");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 260 WHERE Code = 262");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 269 WHERE Code = 268");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 268 WHERE Code = 269");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 301 WHERE Code = 298");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 298 WHERE Code = 301");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 349 WHERE Code = 347");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 350 WHERE Code = 349");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 347 WHERE Code = 351"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 361 WHERE Code = 356"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 359 WHERE Code = 357");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 357 WHERE Code = 359");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 356 WHERE Code = 361"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 381 WHERE Code = 375");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 378 WHERE Code = 376");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 376 WHERE Code = 378");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 375 WHERE Code = 381");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 393 WHERE Code = 385");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 392 WHERE Code = 386");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 391 WHERE Code = 387");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 389 WHERE Code = 388");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 388 WHERE Code = 389");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 387 WHERE Code = 391");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 410 WHERE Code = 394");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 411 WHERE Code = 395");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 412 WHERE Code = 396"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 413 WHERE Code = 397"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 414 WHERE Code = 398"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 423 WHERE Code = 399");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 425 WHERE Code = 400");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 426 WHERE Code = 401");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 424 WHERE Code = 402");    
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 435 WHERE Code = 403");    
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 430 WHERE Code = 410");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 431 WHERE Code = 411");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 432 WHERE Code = 412");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 433 WHERE Code = 413");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 434 WHERE Code = 414");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 395 WHERE Code = 497");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 396 WHERE Code = 498");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 394 WHERE Code = 499");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 397 WHERE Code = 560");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 398 WHERE Code = 570");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 399 WHERE Code = 580"); 
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 400 WHERE Code = 589");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 401 WHERE Code = 590");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 402 WHERE Code = 595");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 403 WHERE Code = 600");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 404 WHERE Code = 601");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 405 WHERE Code = 602");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 441 WHERE Code = 494");        
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 442 WHERE Code = 501");        
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 443 WHERE Code = 505");       
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 444 WHERE Code = 511");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 451 WHERE Code = 419");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 452 WHERE Code = 420");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 453 WHERE Code = 430");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 454 WHERE Code = 440");   
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 455 WHERE Code = 450");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 456 WHERE Code = 460");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 450 WHERE Code = 415");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 457 WHERE Code = 559");  
+                 mysql_query("UPDATE `disziplin_fr` SET Anzeige = 799 WHERE Code = 799");   
+                      
+                 // new discipline it       
+                 mysql_query("UPDATE `disziplin_it` SET Code = 505 ,Anzeige = 505 WHERE xDisziplin = 159");       
+                 mysql_query("UPDATE `disziplin_it` SET Name = 'Erdgas Athletic Cup', Kurzname = 'AC' WHERE Code = 403");                               
+                  
+                 // new discipline it code and new sort order
+                 mysql_query("UPDATE `disziplin_it` SET Name = 'Athletic Cup', Kurzname = 'AC' WHERE Code = 403");   
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('75', '75 m', 31, 6, 0, 1, '01:00:00','00:15:00', 75, 31, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('50H68.6', '50 m ostacoli 68.6', 237, 6, 0, 2, '01:00:00','00:15:00', 50, 237, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('60H68.6', '60 m ostacoli 68.6', 257, 6, 0, 2, '01:00:00','00:15:00', 60, 257, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('80H84.0', '80 m ostacoli 84.0', 260, 6, 0, 1, '01:00:00','00:15:00', 80, 260, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('80H68.6', '80 m ostacoli 68.6', 262, 6, 0, 1, '01:00:00','00:15:00', 80, 262, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('300H68.6', '300 m ostacoli 68.6', 292, 6, 0, 2, '01:00:00','00:15:00', 300, 292, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('GIAVELLOTTO500', 'Giavellotto 500 gr', 390, 6, 0, 8, '01:00:00','00:20:00', 0, 390, 1)");  
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5ATHLON_M', 'Pentathlon M', 415, 6, 0, 9, '01:00:00','00:15:00', 5, 392, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5ATHLON_U20M', 'Pentathlon U20 M', 416, 6, 0, 9, '01:00:00','00:15:00', 5, 393, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5ATHLON_U18M', 'Pentathlon U18 M', 417, 6, 0, 9, '01:00:00','00:15:00', 5, 405, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5ATHLON_W', 'Pentathlon W', 420, 6, 0, 9, '01:00:00','00:15:00', 5, 416, 1)");   
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5ATHLON_U20W', 'Pentathlon U20 W', 421, 6, 0, 9, '01:00:00','00:15:00', 5, 417, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('5ATHLON_U18W', 'Pentathlon U18 W', 422, 6, 0, 9, '01:00:00','00:15:00', 5, 418, 1)");   
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('10ATHLON_MM', 'Decathlon MM', 414, 6, 0, 9, '01:00:00','00:15:00', 10, 414, 1)");  
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('2000WALK', '2000 m walk', 419, 6, 0, 7, '01:00:00','00:15:00', 2000, 419, 1)");    
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('...COURS', '...cours', 796, 6, 0, 9, '01:00:00','00:15:00', 4, 796, 1)");   
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('...LUNGO', '...lungo', 797, 6, 0, 9, '01:00:00','00:15:00', 4, 797, 1)");   
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('...LANCER', '...lancer', 798, 6, 0, 9, '01:00:00','00:15:00', 4, 798, 1)"); 
+                 mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                   ('LUNGO Z', 'Lungo (zone)', 331, 6, 0, 4, '01:00:00','00:40:00', 0, 331, 1)");   
+                                                                                                                                                  
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 201");   
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 481");   
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 495");   
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 496");   
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 510");   
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 540");   
+                 mysql_query("DELETE FROM `disziplin_it` WHERE Code = 186");  
+                          
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 185 WHERE Code = 558");           
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 171 WHERE Code = 182");    
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 183 WHERE Code = 190");      
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 182 WHERE Code = 195");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 184 WHERE Code = 200");    
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 302 WHERE Code = 209");      
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 303 WHERE Code = 210");      
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 304 WHERE Code = 220");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 259 WHERE Code = 258");      
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 262 WHERE Code = 259");      
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 184 WHERE Code = 200");  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 267 WHERE Code = 271");  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 258 WHERE Code = 260");     
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 260 WHERE Code = 262");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 269 WHERE Code = 268");        
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 268 WHERE Code = 269");        
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 301 WHERE Code = 298");        
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 298 WHERE Code = 301");        
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 349 WHERE Code = 347");        
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 350 WHERE Code = 349");    
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 347 WHERE Code = 351"); 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 361 WHERE Code = 356");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 359 WHERE Code = 357");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 357 WHERE Code = 359");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 356 WHERE Code = 361");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 381 WHERE Code = 375");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 378 WHERE Code = 376");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 376 WHERE Code = 378");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 375 WHERE Code = 381");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 393 WHERE Code = 385");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 392 WHERE Code = 386");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 391 WHERE Code = 387");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 389 WHERE Code = 388");                  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 388 WHERE Code = 389");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 387 WHERE Code = 391");    
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 410 WHERE Code = 394");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 411 WHERE Code = 395");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 412 WHERE Code = 396");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 413 WHERE Code = 397");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 414 WHERE Code = 398");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 423 WHERE Code = 399");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 425 WHERE Code = 400");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 426 WHERE Code = 401");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 424 WHERE Code = 402");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 435 WHERE Code = 403");    
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 430 WHERE Code = 410");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 431 WHERE Code = 411");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 432 WHERE Code = 412");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 433 WHERE Code = 413");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 434 WHERE Code = 414");    
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 395 WHERE Code = 497");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 396 WHERE Code = 498");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 394 WHERE Code = 499");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 397 WHERE Code = 560");                 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 398 WHERE Code = 570");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 399 WHERE Code = 580");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 400 WHERE Code = 589");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 401 WHERE Code = 590");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 402 WHERE Code = 595");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 403 WHERE Code = 600");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 404 WHERE Code = 601");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 405 WHERE Code = 602");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 441 WHERE Code = 494");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 442 WHERE Code = 501");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 443 WHERE Code = 505");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 444 WHERE Code = 511");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 451 WHERE Code = 419");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 452 WHERE Code = 420");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 453 WHERE Code = 430");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 454 WHERE Code = 440");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 455 WHERE Code = 450");                
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 456 WHERE Code = 460");   
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 450 WHERE Code = 415");  
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 457 WHERE Code = 559"); 
+                 mysql_query("UPDATE `disziplin_it` SET Anzeige = 799 WHERE Code = 799"); 
+                      
+                 // new svm categories 2010 
+                 mysql_query("TRUNCATE TABLE kategorie_svm;");  
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (1, '29.01 Nationalliga A Männer', '29_01')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (2, '29.02 Nationalliga A Frauen', '29_02')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (3, '30.01 Nationalliga B Männer', '30_01')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (4, '30.02 Nationalliga B Frauen', '30_02')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (5, '31.01 Nationalliga C Männer', '31_01')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (6, '31.02 Nationalliga C Frauen', '31_02')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (7, '32.01 Regionalliga Ost Männer', '32_01')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (8, '32.02 Regionalliga West Männer', '32_02')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (9, '32.03 Regionalliga Ost Frauen', '32_03')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (10, '32.04 Regionalliga West Frauen', '32_04')");    
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (11, '33.01 Junior Liga A Männer', '33_01')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (12, '33.02 Junior Liga B Männer', '33_02')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (13, '33.03 Junior Liga A Frauen', '33_03')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (14, '33.04 Junior Liga B Frauen', '33_04')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (15, '35.01 M30 und älter Männer', '35_01')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (16, '35.02 U18 M', '35_02')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (17, '35.03 U18 M Mehrkampf', '35_03')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (18, '35.04 U16 M', '35_04')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (19, '35.05 U16 M Mehrkampf', '35_05')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (20, '35.06 U14 M', '35_06')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (21, '35.07 U14 M Mannschaftswettkampf', '35_07')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (22, '35.08 U12 M Mannschaftswettkampf', '35_08')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (23, '36.01 W30 und älter Frauen', '36_01')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (24, '36.02 U18 W', '36_02')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (25, '36.03 U18 W Mehrkampf', '36_03')");    
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (26, '36.04 U16 W', '36_04')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (27, '36.05 U16 W Mehrkampf', '36_05')"); 
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (28, '36.06 U14 W', '36_06')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (29, '36.07 U14 W Mannschaftswettkampf', '36_07')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (30, '36.08 U12 W Mannschaftswettkampf', '36_08')");  
-               mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
+                 mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (31, '36.09 Mixed Team U12 M und U12 W', '36_09')");                                          
                                   
             }
-            if($shortVersion < 4.0){  
-                    mysql_query("UPDATE `disziplin` SET Typ = 5 WHERE Code = 331"); 
-                    
+            if($shortVersion < 4.0){    
+                         
+                  mysql_query("UPDATE `disziplin_de` SET Typ = 5 WHERE Code = 331"); 
+                  mysql_query("DELETE FROM `disziplin_de` WHERE Code = 404");                                      
+                        
+                  mysql_query("UPDATE `disziplin_fr` SET Typ = 5 WHERE Code = 331");  
+                  mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 404");                                      
+                        
+                  mysql_query("UPDATE `disziplin_it` SET Typ = 5 WHERE Code = 331");   
+                  mysql_query("DELETE FROM `disziplin_it` WHERE Code = 404");                                       
+                        
+                        
+                  $res = mysql_query("SELECT Name, Kurzname FROM disziplin_de WHERE Code = 799");                               
+                  if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT IGNORE INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                    ('...KAMPF', '...kampf', 799, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");
+                  }  
+                              
+                  $res = mysql_query("SELECT Name, Kurzname FROM disziplin_fr WHERE Code = 799");                               
+                  if (mysql_num_rows($res) > 0){
+                        mysql_query("UPDATE `disziplin_fr` SET Name = '...athlon', Kurzname = '...ATHLON' WHERE Code = 799");
+                  }
+                  else {
+                        mysql_query("INSERT IGNORE INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                    ('...ATHLON', '...athlon', 799, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");
+                  }  
+                             
+                  $res = mysql_query("SELECT Name, Kurzname FROM disziplin_it WHERE Code = 799");                               
+                  if (mysql_num_rows($res) > 0){
+                        mysql_query("UPDATE `disziplin_it` SET Name = '...athlon', Kurzname = '...ATHLON' WHERE Code = 799");
+                  }
+                  else {
+                        mysql_query("INSERT IGNORE INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                    ('...ATHLON', '...athlon', 799, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");
+                  }     
+                            
+                  mysql_query("DELETE FROM `disziplin_de` WHERE Code = 186");   
+                  mysql_query("UPDATE `disziplin_de` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");
+                               
+                  $res = mysql_query("SELECT Name FROM disziplin_de WHERE Code = 558");                               
+                  if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ, aktiv) VALUES 
+                                            ('100KM', '100 km', 185, 6, 0, 7, '01:00:00', '00:15:00', '100000', 558, 1, 'y')"); 
+                  }
+                  else {
+                        mysql_query("UPDATE `disziplin_de` SET Anzeige = 185 WHERE Code = 558");
+                  }     
+                                                       
+                  mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 186");   
+                  mysql_query("UPDATE `disziplin_fr` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");
+                               
+                  $res = mysql_query("SELECT Name FROM disziplin_fr WHERE Code = 558");                               
+                  if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ, aktiv) VALUES 
+                                            ('100KM', '100 km', 185, 6, 0, 7, '01:00:00', '00:15:00', '100000', 558, 1, 'y')"); 
+                  }
+                  else {
+                        mysql_query("UPDATE `disziplin_fr` SET Anzeige = 185 WHERE Code = 558");
+                  }
+                  mysql_query("DELETE FROM `disziplin_it` WHERE Code = 186");   
+                  mysql_query("UPDATE `disziplin_it` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");
+                               
+                  $res = mysql_query("SELECT Name FROM disziplin_it WHERE Code = 558");                               
+                  if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ, aktiv) VALUES 
+                                            ('100KM', '100 km', 185, 6, 0, 7, '01:00:00', '00:15:00', '100000', 558, 1, 'y')"); 
+                  }
+                  else {
+                        mysql_query("UPDATE `disziplin_it` SET Anzeige = 185 WHERE Code = 558");
+                  }
+                        
+                                       
                     mysql_query("TRUNCATE TABLE kategorie_svm;");  
                     mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                 (1, '29.01 Nationalliga A Männer', '29_01')"); 
@@ -1071,8 +1472,309 @@ else if ($_POST['arg'] == 'restore')
                                (34, '36.08 U12 W Mannschaftswettkampf', '36_08')");      
                     mysql_query("INSERT INTO kategorie_svm (xKategorie_svm, Name, Code) VALUES 
                                (35, '36.09 Mixed Team U12 M und U12 W', '36_09')");
-             
+                                                                                        
 			}
+            
+             if($shortVersion < 4.1){          
+                   
+                   mysql_query("UPDATE disziplin_de SET Staffellaeufer = '3' WHERE Code = '602'"); 
+                   mysql_query("DELETE FROM `disziplin_de` WHERE Code = 404");      
+                   mysql_query("UPDATE `disziplin_de` SET Name = 'Zehnkampf W' WHERE Code = 413");     
+                           
+                   mysql_query("DELETE FROM `disziplin_de` WHERE Code = 186");   
+                   mysql_query("UPDATE `disziplin_de` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");
+                               
+                   $res = mysql_query("SELECT Name FROM disziplin_de WHERE Code = 558");                               
+                   if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ, aktiv) VALUES 
+                                            ('100KM', '100 km', 185, 6, 0, 7, '01:00:00', '00:15:00', '100000', 558, 1, 'y')"); 
+                   }
+                   else {
+                        mysql_query("UPDATE `disziplin_de` SET Anzeige = 185 WHERE Code = 558");
+                   }     
+                                                       
+                   mysql_query("DELETE FROM `disziplin_fr` WHERE Code = 186");   
+                   mysql_query("UPDATE `disziplin_fr` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");
+                              
+                   $res = mysql_query("SELECT Name FROM disziplin_fr WHERE Code = 558");                               
+                   if (mysql_num_rows($res) == 0){                                         
+                        mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ, aktiv) VALUES 
+                                            ('100KM', '100 km', 185, 6, 0, 7, '01:00:00', '00:15:00', '100000', 558, 1, 'y')");                                      
+                   }
+                   else {   
+                        mysql_query("UPDATE `disziplin_fr` SET Anzeige = 185 WHERE Code = 558");
+                   }
+                   mysql_query("DELETE FROM `disziplin_it` WHERE Code = 186");   
+                   mysql_query("UPDATE `disziplin_it` SET Anzeige = 440, Kurzname = '10KM' WHERE Code = 491");
+                               
+                   $res = mysql_query("SELECT Name FROM disziplin_it WHERE Code = 558");                               
+                   if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ, aktiv) VALUES 
+                                            ('100KM', '100 km', 185, 6, 0, 7, '01:00:00', '00:15:00', '100000', 558, 1, 'y')"); 
+                   }
+                   else {
+                        mysql_query("UPDATE `disziplin_it` SET Anzeige = 185 WHERE Code = 558");
+                   }                 
+                       
+                   $res = mysql_query("SELECT Name, Kurzname FROM disziplin_de WHERE Code = 799");                               
+                   if (mysql_num_rows($res) == 0){                                     
+                        mysql_query("INSERT IGNORE INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                    ('...ATHLON', '...athlon', 799, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");
+                   }  
+                              
+                   $res = mysql_query("SELECT Name, Kurzname FROM disziplin_fr WHERE Code = 799");                               
+                   if (mysql_num_rows($res) > 0){
+                        mysql_query("UPDATE `disziplin_fr` SET Name = '...athlon', Kurzname = '...ATHLON' WHERE Code = 799");
+                   }
+                   else {
+                        mysql_query("INSERT IGNORE INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                    ('...ATHLON', '...athlon', 799, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");
+                   }  
+                             
+                   $res = mysql_query("SELECT Name, Kurzname FROM disziplin_it WHERE Code = 799");                               
+                   if (mysql_num_rows($res) > 0){
+                        mysql_query("UPDATE `disziplin_it` SET Name = '...athlon', Kurzname = '...ATHLON' WHERE Code = 799");
+                   }
+                   else {
+                        mysql_query("INSERT IGNORE INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
+                                    ('...ATHLON', '...athlon', 799, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)");
+                   }  
+                          
+                           
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '1 mile', Kurzname = '1MILE' WHERE Code = 120");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '1 heure', Kurzname = '1HEURE' WHERE Code = 182");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Demimarathon', Kurzname = 'DEMIMARATHON' WHERE Code = 190"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Marathon', Kurzname = 'MARATHON' WHERE Code = 200");      
+                               
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '50 m haies 106.7' WHERE Code = 232"); 
+                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '50 m haies 99.1' WHERE Code = 233");  
+                            
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '50 m haies 91.4' WHERE Code = 234");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '50 m haies 84.0' WHERE Code = 235");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '50 m haies 76.2' WHERE Code = 236");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '60 m haies 106.7' WHERE Code = 252");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '60 m haies 99.1' WHERE Code = 253"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '60 m haies 91.4' WHERE Code = 254");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '60 m haies 84.0' WHERE Code = 255"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '60 m haies 76.2' WHERE Code = 256");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '80 m haies 76.2' WHERE Code = 258");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '100 m haies 84.0' WHERE Code = 261"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '100 m haies 76.2' WHERE Code = 259"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '110 m haies 106.7' WHERE Code = 271");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '110 m haies 99.1' WHERE Code = 269");                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '110 m haies 91.4' WHERE Code = 268");      
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '200 m haies' WHERE Code = 280"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '300 m haies 91.4' WHERE Code = 289");  
+                           
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '300 m haies 84.0' WHERE Code = 290"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '300 m haies 76.2' WHERE Code = 291");      
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '400 m haies 91.4' WHERE Code = 301");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '400 m haies 76.2' WHERE Code = 298");    
+                           
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Décathlon W' WHERE Code = 413");                                                                                                                                                                                                                                    
+                            
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '5x libre', Kurzname = '5XLIBRE' WHERE Code = 497");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '6x libre', Kurzname = '6XLIBRE' WHERE Code = 499");
+                                   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Hauteur', Kurzname =  'HAUTEUR' WHERE Code = 310;");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Perche', Kurzname =  'PERCHE' WHERE Code = 320;"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Longeur', Kurzname = 'LONGEUR' WHERE Code = 330");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Triple', Kurzname = 'TRIPLE' WHERE Code = 340");       
+                                                       
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Poids 7.26 kg', Kurzname = 'POIDS7.26' WHERE Code = 351");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Poids 6.00 kg', Kurzname = 'POIDS6.00' WHERE Code = 348");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Poids 5.00 kg', Kurzname = 'POIDS5.00' WHERE Code = 347");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Poids 4.00 kg', Kurzname = 'POIDS4.00' WHERE Code = 349");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Poids 3.00 kg', Kurzname = 'POIDS3.00' WHERE Code = 352");   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Poids 2.50 kg', Kurzname = 'POIDS2.50' WHERE Code = 353");   
+                                          
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Disque 2.00 kg', Kurzname = 'DISQUE2.00' WHERE Code = 361"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Disque 1.75 kg', Kurzname = 'DISQUE1.75' WHERE Code = 359"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Disque 1.50 kg', Kurzname = 'DISQUE1.50' WHERE Code = 358"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Disque 1.00 kg', Kurzname = 'DISQUE1.00' WHERE Code = 357"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Disque 0.75 kg', Kurzname = 'DISQUE0.75' WHERE Code = 356"); 
+                                         
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Marteau 7.26 kg', Kurzname = ' MARTEAU7.26' WHERE Code = 381");    
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Marteau 6.00 kg', Kurzname = ' MARTEAU6.00' WHERE Code = 378");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Marteau 5.00 kg', Kurzname = ' MARTEAU5.00' WHERE Code = 377");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Marteau 4.00 kg', Kurzname = ' MARTEAU4.00' WHERE Code = 376");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Marteau 3.00 kg', Kurzname = ' MARTEAU3.00' WHERE Code = 375");
+                           
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Javelot 800 gr', Kurzname = 'JAVELOT800' WHERE Code = 391");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Javelot 700 gr', Kurzname = 'JAVELOT700' WHERE Code = 389"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Javelot 600 gr', Kurzname = 'JAVELOT600' WHERE Code = 388"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Javelot 400 gr', Kurzname = 'JAVELOT400' WHERE Code = 387"); 
+                              
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Balle 200 gr', Kurzname = 'BALLE200' WHERE Code = 386"); 
+                          
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon hall', Kurzname = '5ATHLON_H' WHERE Code = 394"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon hall U18 W', Kurzname = '5ATHLON_H_U18w' WHERE Code = 395");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Heptathlon hall', Kurzname = '7ATHLON_H' WHERE Code = 396");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Heptathlon hall U20 M', Kurzname = '7ATHLON_H_U20M' WHERE Code = 397");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Heptathlon hall U18 M', Kurzname = '7ATHLON_H_U18M' WHERE Code = 398");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Décathlon', Kurzname = '10ATHLON' WHERE Code = 410");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Décathlon U20 M', Kurzname = '10ATHLON_U20M' WHERE Code = 411");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Décathlon U18 M', Kurzname = '10ATHLON_U18M' WHERE Code = 412");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Décathlon W', Kurzname = '10ATHLON_W' WHERE Code = 413");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Heptathlon', Kurzname = '7ATHLON' WHERE Code = 400");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Heptathlon U18 W', Kurzname = '7ATHLON_U18W' WHERE Code = 401");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Hexathlon U16 M', Kurzname = '6ATHLON_U16M' WHERE Code = 402");                                                                             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon U16 W', Kurzname = '5ATHLON_U16W' WHERE Code = 399");  
+                           
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Balle 80 gr', Kurzname = 'BALLE80' WHERE Code = 385"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '300 m haies 91.4' WHERE Code = 298"); 
+                                                                                                                                                                                                                                                                   
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '50 m haies 68.6' WHERE Code = 237");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '60 m haies 68.6' WHERE Code = 257");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '80 m haies 84.0' WHERE Code = 260");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '80 m haies 68.6' WHERE Code = 262");  
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '300 m haies 68.6' WHERE Code = 292");  
+                                                                                                      
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Javelot 500 gr', Kurzname = 'JAVELOT500' WHERE Code = 390");                                                        
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon M', Kurzname = '5ATHLON_M' WHERE Code = 392"); 
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon U20 M', Kurzname = '5ATHLON_U20M' WHERE Code = 393");             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon U18 M', Kurzname = '5ATHLON_U18M' WHERE Code = 405");             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon F', Kurzname = '5ATHLON_F' WHERE Code = 416");             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon U20 F', Kurzname = '5ATHLON_U20F' WHERE Code = 417");             
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Pentathlon U18 F', Kurzname = '5ATHLON_U18F' WHERE Code = 418");                  
+                               
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Décathlon CM', Kurzname = '10ATHLON_CM' WHERE Code = 414");                                                                                                                          
+
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '...cours', Kurzname = '...COURS' WHERE Code = 796");                                                                                                                          
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '...longueur', Kurzname = '...LONGUEUR' WHERE Code = 797");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '...lancer', Kurzname = '...LANCER' WHERE Code = 798");
+                   mysql_query("UPDATE `disziplin_fr` SET Name = '...athlon', Kurzname = '...ATHLON' WHERE Code = 799");  
+
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Longueur (zone)', Kurzname = 'LONGUEUR Z' WHERE Code = 331"); 
+                           
+                   // rundentyp 
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Eliminatoire' WHERE Typ = 'V'"); 
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Finale' WHERE Typ = 'F'");
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Second Tour' WHERE Typ = 'Z'");
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Qualification' WHERE Typ = 'Q'");
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Série' WHERE Typ = 'S'");
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Demi-finale' WHERE Typ = 'X'");
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = 'Concour multiple' WHERE Typ = 'D'");
+                   mysql_query("UPDATE `rundentyp_fr` SET Name = '(sans)' WHERE Typ = '0'");     
+                   
+                   mysql_query("UPDATE disziplin_it SET Staffellaeufer = '3' WHERE Code = '602'");  
+                        
+                   mysql_query("UPDATE `disziplin_it` SET Name = '1 mile', Kurzname = '1MILE' WHERE Code = 120");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '1 ora', Kurzname = '1ORA' WHERE Code = 182");   
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Mezza maratona', Kurzname = 'MEZZA MARA' WHERE Code = 190");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Maratona', Kurzname = 'MARATONA' WHERE Code = 200");         
+                               
+                   mysql_query("UPDATE `disziplin_it` SET Name = '50 m ostacoli 106.7' WHERE Code = 232"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '50 m ostacoli 99.1' WHERE Code = 233");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '50 m ostacoli 91.4' WHERE Code = 234");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '50 m ostacoli 84.0' WHERE Code = 235");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '50 m ostacoli 76.2' WHERE Code = 236");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '60 m ostacoli 106.7' WHERE Code = 252");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '60 m ostacoli 99.1' WHERE Code = 253"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '60 m ostacoli 91.4' WHERE Code = 254"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '60 m ostacoli 84.0' WHERE Code = 255");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '60 m ostacoli 76.2' WHERE Code = 256");   
+                   mysql_query("UPDATE `disziplin_it` SET Name = '80 m ostacoli 76.2' WHERE Code = 258");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '100 m ostacoli 84.0' WHERE Code = 261"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '100 m ostacoli 76.2' WHERE Code = 259"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '110 m ostacoli 106.7' WHERE Code = 271");
+                   mysql_query("UPDATE `disziplin_it` SET Name = '110 m ostacoli 99.1' WHERE Code = 269");                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = '110 m ostacoli 91.4' WHERE Code = 268");      
+                   mysql_query("UPDATE `disziplin_it` SET Name = '200 m ostacoli' WHERE Code = 280"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '300 m ostacoli 91.4' WHERE Code = 289");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '300 m ostacoli 84.0' WHERE Code = 290"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '300 m ostacoli 76.2' WHERE Code = 291");      
+                   mysql_query("UPDATE `disziplin_it` SET Name = '400 m ostacoli 91.4' WHERE Code = 301");
+                   mysql_query("UPDATE `disziplin_it` SET Name = '400 m ostacoli 76.2' WHERE Code = 298");  
+                           
+                   mysql_query("UPDATE `disziplin_fr` SET Name = 'Decathlon W' WHERE Code = 413");                                                                                                                                                                                                                                    
+                                
+                   mysql_query("UPDATE `disziplin_it` SET Name = '5x libero', Kurzname = '5XLIBERO' WHERE Code = 497"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '6x libero', Kurzname = '6XLIBERO' WHERE Code = 499");  
+                           
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Alto', Kurzname =  'ALTO' WHERE Code = 310");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Asta', Kurzname = 'ASTA' WHERE Code = 320"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Lungo', Kurzname = 'LUNGO' WHERE Code = 330");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Triplo', Kurzname = 'TRIPLO' WHERE Code = 340");   
+                                                       
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Peso 7.26 kg', Kurzname = 'PESO7.26' WHERE Code = 351");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Peso 6.00 kg', Kurzname = 'PESO6.00' WHERE Code = 348");   
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Peso 5.00 kg', Kurzname = 'PESO5.00' WHERE Code = 347");   
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Peso 4.00 kg', Kurzname = 'PESO4.00' WHERE Code = 349");   
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Peso 3.00 kg', Kurzname = 'PESO3.00' WHERE Code = 352");   
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Peso 2.50 kg', Kurzname = 'PESO2.50' WHERE Code = 353");   
+                           
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Disco 2.00 kg', Kurzname = 'DISCO2.00' WHERE Code = 361"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Disco 1.75 kg', Kurzname = 'DISCO1.75' WHERE Code = 359"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Disco 1.50 kg', Kurzname = 'DISCO1.50' WHERE Code = 358"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Disco 1.00 kg', Kurzname = 'DISCO1.00' WHERE Code = 357"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Disco 0.75 kg', Kurzname = 'DISCO0.75' WHERE Code = 356"); 
+                           
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Martello 7.26 kg', Kurzname = 'MARTELLO7.26' WHERE Code = 381");    
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Martello 6.00 kg', Kurzname = 'MARTELLO6.00' WHERE Code = 378");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Martello 5.00 kg', Kurzname = 'MARTELLO5.00' WHERE Code = 377");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Martello 4.00 kg', Kurzname = 'MARTELLO4.00' WHERE Code = 376");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Martello 3.00 kg', Kurzname = 'MARTELLO3.00' WHERE Code = 375");
+                           
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Giavellotto 800 gr', Kurzname = 'GIAVELLOTTO800' WHERE Code = 391");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Giavellotto 700 gr', Kurzname = 'GIAVELLOTTO700' WHERE Code = 389"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Giavellotto 600 gr', Kurzname = 'GIAVELLOTTO600' WHERE Code = 388"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Giavellotto 400 gr', Kurzname = 'GIAVELLOTTO400' WHERE Code = 387"); 
+                              
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pallina 200 gr', Kurzname = 'PALLINO200' WHERE Code = 386"); 
+                          
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon hall', Kurzname = '5ATHLON_H' WHERE Code = 394"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon hall U18 W', Kurzname = '5ATHLON_H_U18w' WHERE Code = 395");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Heptathlon hall', Kurzname = '7ATHLON_H' WHERE Code = 396");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Heptathlon hall U20 M', Kurzname = '7ATHLON_H_U20M' WHERE Code = 397");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Heptathlon hall U18 M', Kurzname = '7ATHLON_H_U18M' WHERE Code = 398");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Decathlon', Kurzname = '10ATHLON' WHERE Code = 410");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Decathlon U20 M', Kurzname = '10ATHLON_U20M' WHERE Code = 411");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Decathlon U18 M', Kurzname = '10ATHLON_U18M' WHERE Code = 412");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Decathlon W', Kurzname = '10ATHLON_W' WHERE Code = 413");
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Heptathlon', Kurzname = '7ATHLON' WHERE Code = 400");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Heptathlon U18 W', Kurzname = '7ATHLON_U18W' WHERE Code = 401");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Hexathlon U16 M', Kurzname = '6ATHLON_U16M' WHERE Code = 402");                                                                             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon U16 W', Kurzname = '5ATHLON_U16W' WHERE Code = 399");  
+                           
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pallina 80 gr', Kurzname = 'PALLINO80' WHERE Code = 385"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = '300 m ostacoli 91.4' WHERE Code = 298"); 
+                           
+                   mysql_query("UPDATE `disziplin_it` SET Name = '50 m ostacoli 68.6' WHERE Code = 237");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '60 m ostacoli 68.6' WHERE Code = 257");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '80 m ostacoli 84.0' WHERE Code = 260");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '80 m ostacoli 68.6' WHERE Code = 262");  
+                   mysql_query("UPDATE `disziplin_it` SET Name = '300 m ostacoli 68.6' WHERE Code = 292");  
+                                                                                                      
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Giavellotto 500 gr', Kurzname = 'GIAVELLOTTO500' WHERE Code = 390");                                                        
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon M', Kurzname = '5ATHLON_M' WHERE Code = 392"); 
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon U20 M', Kurzname = '5ATHLON_U20M' WHERE Code = 393");             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon U18 M', Kurzname = '5ATHLON_U18M' WHERE Code = 405");             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon F', Kurzname = '5ATHLON_F' WHERE Code = 416");             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon U20 F', Kurzname = '5ATHLON_U20F' WHERE Code = 417");             
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Pentathlon U18 F', Kurzname = '5ATHLON_U18F' WHERE Code = 418");                  
+                               
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Decathlon CM', Kurzname = '10ATHLON_CM' WHERE Code = 414");                                                                                                                          
+
+                   mysql_query("UPDATE `disziplin_it` SET Name = '...cours', Kurzname = '...COURS' WHERE Code = 796");                                                                                                                          
+                   mysql_query("UPDATE `disziplin_it` SET Name = '...lungo', Kurzname = '...LUNGO' WHERE Code = 797");
+                   mysql_query("UPDATE `disziplin_it` SET Name = '...lancer', Kurzname = '...LANCER' WHERE Code = 798");
+                   mysql_query("UPDATE `disziplin_it` SET Name = '...athlon', Kurzname = '...ATHLON' WHERE Code = 799");       
+
+                   mysql_query("UPDATE `disziplin_it` SET Name = 'Lungo (zone)', Kurzname = 'LUNGO Z' WHERE Code = 331"); 
+                           
+                   // rundentyp 
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Eliminatoria' WHERE Typ = 'V'"); 
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Finale' WHERE Typ = 'F'");
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Secondo tour' WHERE Typ = 'Z'");
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Qualificazione' WHERE Typ = 'Q'");
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Serie' WHERE Typ = 'S'");
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Semifinale' WHERE Typ = 'X'");
+                   mysql_query("UPDATE `rundentyp_it` SET Name = 'Gara multipla' WHERE Typ = 'D'");
+                   mysql_query("UPDATE `rundentyp_it` SET Name = '(senza)' WHERE Typ = '0'");
+             }
+             
 			// security updates
 			mysql_query("UPDATE kategorie 
 							SET Code = 'U10M' 
