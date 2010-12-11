@@ -81,6 +81,11 @@ if($_GET['withStartnr'] == "yes"){
     $withStartnr = true;
 }      
 
+$ranklistAll = false;     
+if($_GET['ranklistAll'] == "yes"){  
+    $ranklistAll = true;
+}      
+
 $team = 'ranking';
 if(!empty($_GET['team'])) {
 	$team = $_GET['team'];
@@ -137,7 +142,7 @@ if($_GET['athleteCat'] == "yes"){
 // Ranking list single event
 if($type == 'single')
 {   
-	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo,$athleteCat , $withStartnr);
+	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo,$athleteCat , $withStartnr, $ranklistAll);
 }                                                                                                                                                                                                     
 
 // Ranking list combined events
