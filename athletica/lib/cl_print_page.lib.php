@@ -727,8 +727,8 @@ class PRINT_RankingList extends PRINT_Page
            $this->linecnt+=$countLine;    
 ?>
 	<tr>
-		<td class='rank_rank'></td>
-		<td class='rank_name' colspan="8"><?php echo $text; ?></td>
+		<td class='rank_attempts'></td>
+		<td class='rank_attempts' rank_name colspan="8"><?php echo $text; ?></td>
 	</tr>
 <?php
 	}
