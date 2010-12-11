@@ -504,34 +504,34 @@ td.cover_slogan  { font-size:10px; font-weight:bold;
 /* category/discipline title */
 th.rank_cat  { width:200px; font-size:16px;
 				padding-left:0px; padding-right:0px;
-				padding-top:20px; padding-bottom:6px; }
+				padding-top:20px; padding-bottom:2px; }
 th.rank_disc  { width:200px; font-size:16px;
 				padding-left:0px; padding-right:0px;
-				padding-top:20px; padding-bottom:6px; }
+				padding-top:20px; padding-bottom:2px; }
 th.rank_round  { width:200px; font-size:16px;
 				padding-left:0px; padding-right:0px;
-				padding-top:20px; padding-bottom:6px; }
+				padding-top:20px; padding-bottom:2px; }
 
 
 /* heat info line */
 th.rank_heat  { font-size:14px; font-weight: normal;
 				padding-left:0px; padding-right:0px;
-				padding-top:20px; padding-bottom:4px; }
+				padding-top:20px; padding-bottom:2px; }
 th.rank_heatwind  { font-size:14px; font-weight: normal;
 				padding-left:0px; padding-right:0px;
-				padding-top:20px; padding-bottom:4px; }
+				padding-top:20px; padding-bottom:2px; }
 th.rank_datetime  { font-size:14px; font-weight: normal; text-align:right;
 				padding-left:0px; padding-right:0px;
-				padding-top:20px; padding-bottom:4px; }
+				padding-top:20px; padding-bottom:2px; }
 
 /* list header line */
-th.rank_rank { width:36px; padding-left:9px; padding-right:0px;
+th.rank_rank { width:36px; padding-left:3px; padding-right:0px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.rank_stnr { width:20px; padding-left:0px; padding-right:0px;
                 padding-top:0px; padding-bottom:2px;
                 border-bottom:1px solid #000000; }
-th.rank_name { width:197px; padding-left:0px; padding-right:5px;
+th.rank_name { width:197px; padding-left:3px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.rank_year { width:20px; padding-left:0px; padding-right:3px;
@@ -560,12 +560,12 @@ th.rank_remark { width:30px; padding-left:0px; padding-right:5px;
                 border-bottom:1px solid #000000; }
 
 /* list item */
-td.rank_rank {	text-align:right; padding-left:0px; padding-right:4px;
+td.rank_rank {	text-align:right; padding-left:0px; padding-right:3px;
 				padding-top:2px; padding-bottom:0px; }
 td.rank_stnr {  text-align:right; padding-left:0px; padding-right:6px;
                 padding-top:2px; padding-bottom:0px;
                font-size: 10px; font-style:italic}  
-td.rank_name { padding-left:0px; padding-right:5px;
+td.rank_name { padding-left:3px; padding-right:5px;
 				padding-top:2px; padding-bottom:0px; }
 td.rank_year {	padding-left:0px; padding-right:5px;
 				padding-top:2px; padding-bottom:0px; }
@@ -584,6 +584,9 @@ td.rank_wind { font-size:12px; text-align:right;
 				padding-top:2px; padding-bottom:0px; }
 td.rank_remark { padding-left:0px; padding-right:5px;
                 padding-top:2px; padding-bottom:0px; }
+td.rank_attempts   { padding-left:3px; padding-right:5px;
+                padding-top:2px; padding-bottom:0px; 
+                font-size: 11px;}            
 
 /* combined header line */
 th.comb_rank { width:35px; padding-left:5px; padding-right:5px;
