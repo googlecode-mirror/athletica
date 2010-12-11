@@ -202,38 +202,43 @@ if(mysql_errno() > 0){
             }  
 	}
 }
+   
+AA_timetable_display('monitor');  
 
-
-AA_timetable_display('monitor'); 
-
-?>
+    $hour= date("H") + 2;   
+    $dateHour = date("Y-m-d") . $hour;
+              ?>
 
 <script type="text/javascript">
 <!--
 	window.setTimeout("updatePage()", <?php echo $cfgMonitorReload * 1000; ?>);
 
 	// scroll to put current time line approximately to the middle of the screen
-	var now = new Date();
+	//var now = new Date();
 	//var now = new Date(2003,2,9,10,0,0);	// test case
-	var year = now.getYear();
-	var m = now.getMonth() + 1;
-	var month = ((m < 10) ? ("0" + m) : m);
-	var d = now.getDate();
-	var day = ((d < 10) ? ("0" + d) : d);
-	var h = now.getHours() - 2;
-	var hour = ((h < 10) ? ("0" + h) : h);
-	var date = year + "-" + month + "-" + day + hour;
-	if(document.getElementById(date))
-	{
+	//var year = now.getFullYear();      
+	//var m = now.getMonth() + 1;
+	//var month = ((m < 10) ? ("0" + m) : m);
+	//var d = now.getDate();
+	//var day = ((d < 10) ? ("0" + d) : d);
+	//var h = now.getHours() + 2;
+	//var hour = ((h < 10) ? ("0" + h) : h);
+	//var date = year + "-" + month + "-" + day + hour;         
+   
+	if(document.getElementById('<?php echo $dateHour; ?>'))
+	{   
 		// scroll to current time (Internet Explorer only!!!)
-		document.getElementById(date).scrollIntoView("false");
+		document.getElementById('<?php echo $dateHour; ?>').scrollIntoView("true");
+        
 		// get Y-offset 
-		if(document.documentElement && document.documentElement.scrollTop)
-		{														//IE6 standards compliant mode
-			var scroll = document.documentElement.scrollTop;
-	  }
+		//if(document.documentElement && document.documentElement.scrollTop)
+		//{														//IE6 standards compliant mode
+		//	var scroll = document.documentElement.scrollTop;
+	    //}
 		// scroll to the left
-		window.scrollTo(0, scroll);
+		//window.scrollTo(0, scroll);
+        
+        
 	}
 
 	function updatePage()
@@ -241,13 +246,16 @@ AA_timetable_display('monitor');
 		window.open("event.php", "main");
 	}
 
-	//-->
+	
 </script>
 
-<?php
 
+
+<?php
+            
 /*echo "<pre>";
 print_r($GLOBALS);*/
 
 $page->endPage();
-?>
+ 
+
