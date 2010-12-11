@@ -45,6 +45,15 @@ $limit3 = 0;
 
 $allNr = false;
 
+
+ if ( ($_GET['of_sex1'] > 0 || $_GET['of_sex2'] > 0)) {
+     $_GET["sort"] == 'sex';
+ }
+         
+
+   
+   
+ 
 ?>
 
 <?php
@@ -107,7 +116,7 @@ if($_GET['arg'] == 'assign')
 	if ($_GET['sort']!="del" && !$teams || ($_GET['sort']!="del" && $_GET['teams'] && $noCat))		// assign startnumbers     
 	{    
 		// sort argument 
-        $argument1='';
+        $argument1='';   
 		if ($_GET['sort']=="name") {
 		  $argument2="at.Name, at.Vorname"; 	  	
 		} else if ($_GET['sort']=="club" && !$teams) {
@@ -115,6 +124,10 @@ if($_GET['arg'] == 'assign')
         } else if ($_GET['sort']=="club" && $teams) {
           $argument2="at.Name, at.Vorname";   
           $argument1="t.Name,";
+        }
+        else if ($_GET['sort']=="sex") {
+             $argument3="at.Geschlecht,"; 
+             $argument2="at.Name, at.Vorname";  
 		} else {
 		  $argument2="at.Name, at.Vorname";
 		}         
@@ -151,14 +164,15 @@ if($_GET['arg'] == 'assign')
                                      || d.Typ = ".$cfgDisciplineType[$strDiscTypeRelay]."                                       
                                      ),3, 1 ) ) as discSort,
                    tat.xTeamsm,
-                   tsm.Name                        
+                   tsm.Name, 
+                   at.Geschlecht                      
                 FROM 
                     anmeldung AS a
                     LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet        
                     LEFT JOIN verein AS v ON at.xVerein = v.xVerein 
                     LEFT JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
                     LEFT JOIN wettkampf AS w USING (xWettkampf)
-                    LEFT JOIN disziplin AS d On (w.xdisziplin = d.xDisziplin)
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d On (w.xdisziplin = d.xDisziplin)
                     LEFT JOIN kategorie AS k ON k.xKategorie = w.xKategorie
                     LEFT JOIN team AS t ON t.xTeam = a.xTeam 
                     LEFT JOIN teamsmathlet AS tat ON ( tat.xAnmeldung = a.xAnmeldung )
@@ -166,7 +180,7 @@ if($_GET['arg'] == 'assign')
                 WHERE 
                     a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                     ORDER BY      
-                         $argument1 $argument, discSort, tat.xTeamsm, $argument2";    
+                         $argument3 $argument1 $argument, discSort, tat.xTeamsm, $argument2";    
             
             $result = mysql_query($sql);  
             
@@ -177,6 +191,7 @@ if($_GET['arg'] == 'assign')
 			else if(mysql_num_rows($result) > 0)  // data found
 			{ 
             $noCat = true;   
+            $sex = false;
            
               // check if choosen per name/club or per category
               while ($row = mysql_fetch_row($result))
@@ -185,10 +200,15 @@ if($_GET['arg'] == 'assign')
                      ($_GET["of_tech_$row[1]"] != 0) ||
                       ($_GET["of_track1_$row[1]"] != 0) ||
                       ($_GET["of_track2_$row[1]"] != 0)) 
-                {
-                      $noCat = false;   
-                }  
+                { 
+                      $noCat = false;                    
               } 
+              }
+              if ( ($_GET["of_sex1"] != 0)  ||   ($_GET["of_sex2"] != 0) ){
+                    $noCat = false;
+                    $sex = true; 
+              }
+              
                
               if ($noCat && !$teams){       // set per name or per club  
                   
@@ -211,16 +231,16 @@ if($_GET['arg'] == 'assign')
                             LEFT JOIN verein AS v ON at.xVerein = v.xVerein 
                             LEFT JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
                             LEFT JOIN wettkampf AS w USING (xWettkampf)
-                            LEFT JOIN disziplin AS d On (w.xdisziplin = d.xDisziplin)
+                            LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d On (w.xdisziplin = d.xDisziplin)
                             LEFT JOIN kategorie AS k ON k.xKategorie = w.xKategorie
                             LEFT JOIN team AS t ON t.xTeam = a.xTeam 
                          WHERE 
                             a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                          ORDER BY      
-                            $argument2 , discSort";    
+                            $argument2 , discSort";   
                              
               }
-              
+             
               $result = mysql_query($sql); 
               if(mysql_errno() > 0)        // DB error
                     {
@@ -228,10 +248,13 @@ if($_GET['arg'] == 'assign')
               }         
               
 			  $k = 0;	// initialize current category
+              $s = '';    // initialize current sex 
 			  $v = 0;	// initialize current club   
               $first = true;
               
               $arr_enrolment = array();   
+              
+              $nbr_rest = $_GET["of_rest"];
 			  
 			  // Assign startnumbers
 			  while ($row = mysql_fetch_row($result))
@@ -278,10 +301,14 @@ if($_GET['arg'] == 'assign')
                             $nbr1 = 0; 
                             $nbr2 = 0; 
                             $nbr3 = 0; 
+                            $nbr_sex1 = 0;
+                            $nbr_sex2 = 0;  
                             $limit = 0;
                             $limit1 = 0;
                             $limit2 = 0;
                             $limit3 = 0;
+                            $limit_sex1 = 0;  
+                            $limit_sex2 = 0;     
                             $all = false; 
                        
                             $limit = 9999999;
@@ -292,6 +319,9 @@ if($_GET['arg'] == 'assign')
                             $nbr1=($nbr1==0 && $limit1>0)?1:$nbr1;
                             $nbr2=($nbr2==0 && $limit2>0)?1:$nbr2; 
                             $nbr3=($nbr3==0 && $limit3>0)?1:$nbr3; 
+                            
+                            $nbr_sex1=($nbr_sex1==0 &&   $limit_sex1>0)?1:$nbr_sex1; 
+                            $nbr_sex2=($nbr_sex2==0 &&   $limit_sex2>0)?1:$nbr_sex2;   
                         
                             $first = false;
                         }
@@ -313,10 +343,20 @@ if($_GET['arg'] == 'assign')
                                 $nbr3 = 0;
                                 $limit3 = 0;
                             } 
+                             if(($limit_sex1 > 0 && $nbr_sex1 > $limit_sex1) || $limit_sex1 == 0){
+                                $nbr_sex1 = 0;
+                                $limit_sex1 = 0;
+                            } 
+                             if(($limit_sex2 > 0 && $nbr_sex2 > $limit_sex2) || $limit_sex2 == 0){
+                                $nbr_sex2 = 0;
+                                $limit_sex2 = 0;
+                            } 
                         } 
                     }
-                    else {
-				        if ($k != $row[1]  ){			// new category      
+                    else {                          
+                       
+                       
+				       if (($k != $row[1] && !sex) || ($s != $row[10] && sex)){			// new category or new sex 
                             $nbr = 0;  
                             $nbr1 = 0; 
                             $nbr2 = 0; 
@@ -325,31 +365,50 @@ if($_GET['arg'] == 'assign')
                             $limit1 = 0;
                             $limit2 = 0;
                             $limit3 = 0;
+                            $nbr_sex1 = 0;
+                            $nbr_sex2 = 0;   
+                            $limit_sex1 = 0; 
+                            $limit_sex2 = 0;
                             $all = false;
-                    
-                            if (!empty($_GET["of_$row[1]"])){
-                                $nbr = $_GET["of_$row[1]"];
-                                $limit = $_GET["to_$row[1]"]; 
-                                $all = true;                          
-                            } 
+                                                       
+                            if ($sex){
+                                if (!empty($_GET["of_sex1"])){
+                                    $nbr_sex1 = $_GET["of_sex1"];
+                                    $limit_sex1 = $_GET["to_sex1"];   
+                                } 
+                                if (!empty($_GET["of_sex2"])){
+                                    $nbr_sex2 = $_GET["of_sex2"];
+                                    $limit_sex2 = $_GET["to_sex2"];   
+                                } 
+                            }
                             else {
-                                if (!empty($_GET["of_tech_$row[1]"])){
-                                    $nbr1 = $_GET["of_tech_$row[1]"];
-                                    $limit1 = $_GET["to_tech_$row[1]"];  
+                                if (!empty($_GET["of_$row[1]"])){
+                                    $nbr = $_GET["of_$row[1]"];
+                                    $limit = $_GET["to_$row[1]"]; 
+                                    $all = true;                          
                                 } 
-                                if (!empty($_GET["of_track1_$row[1]"])){
-                                    $nbr2 = $_GET["of_track1_$row[1]"];
-                                    $limit2 = $_GET["to_track1_$row[1]"]; 
+                                else {
+                                    if (!empty($_GET["of_tech_$row[1]"])){
+                                        $nbr1 = $_GET["of_tech_$row[1]"];
+                                        $limit1 = $_GET["to_tech_$row[1]"];  
+                                    } 
+                                    if (!empty($_GET["of_track1_$row[1]"])){
+                                        $nbr2 = $_GET["of_track1_$row[1]"];
+                                        $limit2 = $_GET["to_track1_$row[1]"]; 
+                                    }
+                                    if (!empty($_GET["of_track2_$row[1]"])){
+                                        $nbr3 = $_GET["of_track2_$row[1]"];
+                                        $limit3 = $_GET["to_track2_$row[1]"]; 
+                                    } 
                                 }
-                                if (!empty($_GET["of_track2_$row[1]"])){
-                                    $nbr3 = $_GET["of_track2_$row[1]"];
-                                    $limit3 = $_GET["to_track2_$row[1]"]; 
-                                } 
-                            }  
+                            }
                             $nbr=($nbr==0 && $limit>0)?1:$nbr;   
                             $nbr1=($nbr1==0 && $limit1>0)?1:$nbr1;
                             $nbr2=($nbr2==0 && $limit2>0)?1:$nbr2; 
                             $nbr3=($nbr3==0 && $limit3>0)?1:$nbr3; 
+                            
+                            $nbr_sex1=($nbr_sex1==0 && $limit_sex1>0)?1:$nbr_sex1;  
+                            $nbr_sex2=($nbr_sex2==0 && $limit_sex2>0)?1:$nbr_sex2;   
                 
 				        }else{ 
                             if(($limit > 0 && $nbr > $limit) || $limit == 0){
@@ -368,107 +427,207 @@ if($_GET['arg'] == 'assign')
                                 $nbr3 = 0;
                                 $limit3 = 0;
                             }
+                             if(($limit_sex1 > 0 && $nbr_sex1 > $limit_sex1) || $limit_sex1 == 0){
+                                $nbr_sex1 = 0;
+                                $limit_sex1 = 0;
+                            }
+                             if(($limit_sex2 > 0 && $nbr_sex2 > $limit_sex2) || $limit_sex2 == 0){
+                                $nbr_sex2 = 0;
+                                $limit_sex2 = 0;
+                            }
 				        }   
                     }   
-				
-                    switch ($row[7]){
-                       case 1:  if ($all){
-                                     if (!isset($arr_enrolment[$row[0]])){ 
-                                            mysql_query("
-                                                UPDATE anmeldung SET
-                                                       Startnummer='$nbr'
-                                                WHERE xAnmeldung = $row[0]
-                                                ");
-                                   
-                                            if ($nbr > 0){
-                                                $arr_enrolment [$row[0]] = 'y';   
-                                                $nbr++;
-                                            }                          
-                                     }  
-                                }
-                                else {  
-                                      if (!isset($arr_enrolment[$row[0]])){ 
-                                            mysql_query("
-                                                UPDATE anmeldung SET
-                                                       Startnummer='$nbr1'
-                                                WHERE xAnmeldung = $row[0]
-                                                ");
-                                    
-                                            if ($nbr1 > 0){ 
-                                                $arr_enrolment [$row[0]] = 'y';   
-                                                $nbr1++;
-                                            }
+				    if ($sex){
+                        if ($row[10] == 'm'){
+                           if (!isset($arr_enrolment[$row[0]])){ 
+                                      if ($nbr_sex1 > 0){            
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_sex1'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                
+                                                if ($nbr_sex1 > 0){
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr_sex1++;   
+                                                }  
                                       }
+                                               
+                           }
+                        }
+                           else {
+                                if (!isset($arr_enrolment[$row[0]])){ 
+                                        if ($nbr_sex2 > 0){
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_sex2'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                
+                                                if ($nbr_sex2 > 0){
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr_sex2++;   
+                                                }  
+                                        }
+                                                 
                                 }
-                                break;   
-                       case 2:  if ($all){
-                                     if (!isset($arr_enrolment[$row[0]])){  
-                                            mysql_query("
-                                                UPDATE anmeldung SET
-                                                       Startnummer='$nbr'
-                                                WHERE xAnmeldung = $row[0]
-                                                ");
-                                    
-                                            if ($nbr > 0){ 
-                                                $arr_enrolment [$row[0]] = 'y';   
-                                                $nbr++; 
-                                            }   
-                                     }
-                           
-                                }
-                                else {   
-                                      if (!isset($arr_enrolment[$row[0]])){   
-                                            mysql_query("
-                                                UPDATE anmeldung SET
-                                                       Startnummer='$nbr2'
-                                                WHERE xAnmeldung = $row[0]
-                                            ");
-                                    
-                                            if ($nbr2 > 0){ 
-                                                $arr_enrolment [$row[0]] = 'y';   
-                                                $nbr2++; 
-                                            }   
-                                         }
-                                }
-                                break;                     
-                       case 3:  if ($all){
-                                     if (!isset($arr_enrolment[$row[0]])){   
-                                            mysql_query("
-                                                UPDATE anmeldung SET
-                                                       Startnummer='$nbr'
-                                                WHERE xAnmeldung = $row[0]
-                                            ");
-                                    
-                                            if ($nbr > 0){ 
-                                                $arr_enrolment [$row[0]] = 'y';   
-                                                $nbr++;
-                                            }    
-                                     } 
-                                }
-                                else {   
-                                      if (!isset($arr_enrolment[$row[0]])){ 
-                                            mysql_query("
-                                                UPDATE anmeldung SET
-                                                       Startnummer='$nbr3'
-                                                WHERE xAnmeldung = $row[0]
-                                            ");
-                                   
-                                            if ($nbr3 > 0){ 
-                                                $arr_enrolment [$row[0]] = 'y';   
-                                                $nbr3++;    
-                                            }
-                                      }
-                                }
-                                break;                     
-                       default: break;  
+                           }
+                        
                     }
-               
+                    else {
+                        switch ($row[7]){
+                           case 1:  if ($all){
+                                         if (!isset($arr_enrolment[$row[0]])){ 
+                                                if ($nbr == 0 && $nbr_rest > 0){                                                     
+                                                      mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_rest'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                    $nbr_rest++;   
+                                                }
+                                                else {
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                }
+                                                if ($nbr > 0){
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr++;
+                                                }                          
+                                         }  
+                                    }
+                                    else {  
+                                          if (!isset($arr_enrolment[$row[0]])){ 
+                                               if ($nbr1 == 0 && $nbr_rest > 0){                                                     
+                                                      mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_rest'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                    $nbr_rest++;   
+                                                }
+                                                else {
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr1'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                }
+                                                if ($nbr1 > 0){ 
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr1++;
+                                                }
+                                          }
+                                    }
+                                    break;   
+                           case 2:  if ($all){
+                                         if (!isset($arr_enrolment[$row[0]])){ 
+                                              if ($nbr == 0 && $nbr_rest > 0){                                                     
+                                                      mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_rest'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                    $nbr_rest++;   
+                                                }
+                                                else {
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                }
+                                                if ($nbr > 0){ 
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr++; 
+                                                }   
+                                         }
+                               
+                                    }
+                                    else {   
+                                          if (!isset($arr_enrolment[$row[0]])){  
+                                                if ($nbr2 == 0 && $nbr_rest > 0){                                                     
+                                                      mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_rest'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                    $nbr_rest++;   
+                                                }
+                                                else { 
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr2'
+                                                    WHERE xAnmeldung = $row[0]
+                                                ");
+                                                }
+                                                if ($nbr2 > 0){ 
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr2++; 
+                                                }   
+                                             }
+                                    }
+                                    break;                     
+                           case 3:  if ($all){
+                                         if (!isset($arr_enrolment[$row[0]])){   
+                                              if ($nbr == 0 && $nbr_rest > 0){                                                     
+                                                      mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_rest'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                    $nbr_rest++;   
+                                                }
+                                                else {
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr'
+                                                    WHERE xAnmeldung = $row[0]
+                                                ");
+                                                }
+                                                if ($nbr > 0){ 
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr++;
+                                                }    
+                                         } 
+                                    }
+                                    else {   
+                                          if (!isset($arr_enrolment[$row[0]])){ 
+                                               if ($nbr3 == 0 && $nbr_rest > 0){                                                     
+                                                      mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr_rest'
+                                                    WHERE xAnmeldung = $row[0]
+                                                    ");
+                                                    $nbr_rest++;   
+                                                }
+                                                else {
+                                                mysql_query("
+                                                    UPDATE anmeldung SET
+                                                           Startnummer='$nbr3'
+                                                    WHERE xAnmeldung = $row[0]
+                                                ");
+                                                }
+                                                if ($nbr3 > 0){ 
+                                                    $arr_enrolment [$row[0]] = 'y';   
+                                                    $nbr3++;    
+                                                }
+                                          }
+                                    }
+                                    break;                     
+                           default: break;  
+                        }
+                    }
 				    if(mysql_errno() > 0) {
 					    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				    }
 				   
                     if (!$noCat) {
 				        $k = $row[1];	// keep current category
+                        $s = $row[10];    // keep current sex 
                     }
 				    $v = $row[2];	// keep current club  
 			    }  
@@ -654,7 +813,7 @@ if($_GET['arg'] == 'assign')	// refresh list
 
 function check_rounds(){
 	   
-	//if(true == <?php echo $heats_done ?>){
+	//if(true == <?php //echo $heats_done ?>){
 		
 		check = confirm("<?php echo $strStartNrConfirm ?>");
 		return check;
@@ -729,15 +888,99 @@ function check_of(){
     <td class='dialog'>
         <input class='nbr' type='text' name='clubGap' maxlength='4' value='<?php echo $_GET['clubGap']; ?>'>    </td>
     <td class='dialog'>&nbsp;</td> 
-</tr>    
+</tr>   
+<?php
+     if (!$teams) { 
+             ?> 
+        <tr>
+            <td class='dialog'>
+                <input type='radio' name='sort' id='sex' onChange='check_of()' value='sex' >
+                <?php echo $strSex; ?> 
+            </td>
+            <td class='forms'>&nbsp;          
+            </td>  
+        </tr>    
 
-
-
-
-
+      <?php
+     }
+      
+       // check disziplines man           
+          $res_sex1 = mysql_query("SELECT           
+                        a.xAnmeldung
+                    FROM 
+                        anmeldung AS a  
+                        LEFT JOIN athlet AS at On (at.xAthlet = a.xAthlet)
+                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
+                    WHERE 
+                        a.xMeeting = ".$_COOKIE['meeting_id']." 
+                        AND at.Geschlecht = 'm'    
+                    GROUP BY a.xAnmeldung
+                    ");     
+      
+          if(mysql_errno() > 0){
+                AA_printErrorMsg(mysql_errno().": ".mysql_error());
+          }else{
+                if (mysql_num_rows($res_sex1)>0){ 
+                    $max_startnr_sex1=mysql_num_rows($res_sex1); 
+                }
+          } 
+          // check disziplines wom
+          $res_sex2 = mysql_query("SELECT           
+                        a.xAnmeldung
+                    FROM 
+                        anmeldung AS a  
+                        LEFT JOIN athlet AS at On (at.xAthlet = a.xAthlet)
+                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
+                    WHERE 
+                        a.xMeeting = ".$_COOKIE['meeting_id']." 
+                        AND at.Geschlecht = 'w'    
+                    GROUP BY a.xAnmeldung
+                    ");     
+      
+          if(mysql_errno() > 0){
+                AA_printErrorMsg(mysql_errno().": ".mysql_error());
+          }else{
+                if (mysql_num_rows($res_sex2)>0){ 
+                    $max_startnr_sex2=mysql_num_rows($res_sex2); 
+                }
+          }         
+          
+      if (!$teams) {
+       ?>    
+       
+             <tr>     
+                <th class='dialog'><?php echo $strSex; ?></th>
+                <th class='dialog' > <?php echo $strOf ?></th>
+                <th class='dialog' ><?php echo $strTo ?></th>
+                <th class='dialog' ><?php echo $strMax; ?>  </th>
+                <th class='dialog' colspan='11'>
+             </tr>
+                
+             <tr>
+                <td class='dialog'><?php echo $strMan; ?></td> 
+                <td class='forms'>    
+                <input type="text" size="3" value="<?php echo $_GET['of_sex1']; ?>"  name="of_sex1" ></td>
+                 <td class='forms_right'>
+                                 
+                <input type="text" size="3" value="<?php echo $_GET['to_sex1']; ?>"  name="to_sex1" ></td>
+                <td class='forms_right_grey'><?php echo $max_startnr_sex1; ?></td>  
+             </tr>
+             
+             <tr>
+                <td class='dialog'><?php echo $strWom; ?></td> 
+                <td class='forms'>  
+                <input type="text" size="3" value="<?php echo $_GET['of_sex2']; ?>"  name="of_sex2" ></td>
+                <td class='forms_right'>  
+                <input type="text" size="3" value="<?php echo $_GET['to_sex2']; ?>"  name="to_sex2" ></td>
+                <td class='forms_right_grey'><?php echo $max_startnr_sex2; ?></td>  
+             </tr>   
 <?php
 
-   
+          }
         
     
    if (!$teams){
@@ -786,6 +1029,8 @@ if(mysql_errno() > 0){
                 $max_startnr=$row_count[1];
           }  
           
+        
+          
           // check track disziplines in this meeting under 400 m
           $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeTrack] . ","  
                            . $cfgDisciplineType[$strDiscTypeTrackNoWind]  . ")";   
@@ -797,7 +1042,7 @@ if(mysql_errno() > 0){
                         anmeldung AS a  
                         LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
                         LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
-                        LEFT JOIN disziplin AS d USING ( xDisziplin )  
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
                     WHERE 
                         a.xMeeting = ".$_COOKIE['meeting_id']." 
                         AND w.xKategorie = " .$row[0] ." 
@@ -824,7 +1069,7 @@ if(mysql_errno() > 0){
                         anmeldung AS a  
                         LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
                         LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
-                        LEFT JOIN disziplin AS d USING ( xDisziplin )  
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
                     WHERE 
                         a.xMeeting = ".$_COOKIE['meeting_id']."  
                         AND w.xKategorie = " .$row[0] ." 
@@ -854,7 +1099,7 @@ if(mysql_errno() > 0){
                         anmeldung AS a  
                         LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
                         LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
-                        LEFT JOIN disziplin AS d USING ( xDisziplin )  
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
                     WHERE 
                         a.xMeeting = ".$_COOKIE['meeting_id']."  
                         AND w.xKategorie = " .$row[0] ." 
@@ -882,6 +1127,7 @@ if(mysql_errno() > 0){
         <th class='dialog' colspan='3'><?php echo $strTrack1; ?></th>
         <th class='dialog' colspan='3'><?php echo $strTrack2; ?></th>
         <th class='dialog' colspan='3'><?php echo $strTech; ?></th>
+         <th class='dialog' colspan='3'><?php echo $strRest; ?></th> 
         </tr>
         
         <tr>
@@ -898,11 +1144,23 @@ if(mysql_errno() > 0){
          <th class='dialog' > <?php echo $strOf ?></th>
         <th class='dialog' ><?php echo $strTo ?></th>
          <th class='dialog' ><?php echo $strMax; ?>  </th>
+         <th class='dialog' > <?php echo $strOf ?></th> 
         </tr>
+        
+         <tr>
+    <td class='dialog' colspan="13"></td>
+       <td class='forms'>
+                         
+        <input type="text" size="3" value="<?php echo $_GET['of_rest']; ?>"  name="of_rest" ></td> 
+        
+      </tr>  
         
         <?php 
         }
         ?>
+      
+        
+        
 <tr>
 	<td class='dialog'><?php echo $row[1] ?></td>
    	<td class='forms'>
@@ -933,7 +1191,7 @@ if(mysql_errno() > 0){
         <input type="text" size="3" value="<?php echo $_GET['of_track2_'.$row[0]]; ?>" name="of_track2_<?php echo $row[0] ?>" >    </td>
     <td class='forms_right'>
         
-        <input type="text" size="3" value="<?php echo $_GET['of_track2_'.$row[0]]; ?>" name="to_track2_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['to_track2_'.$row[0]]; ?>" name="to_track2_<?php echo $row[0] ?>" >    </td>
     
     <td class='forms_right_grey'><?php echo $max_startnr_track2; ?></td>
     
