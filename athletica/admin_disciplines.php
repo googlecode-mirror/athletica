@@ -20,8 +20,8 @@ if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
 }
-
-
+       
+  
 //
 // Process add or change-request if required
 //
@@ -41,7 +41,7 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 		// self made combined events must have an unique code
 		$code = 0;
 		if($_POST['type'] == $cfgDisciplineType[$strDiscCombined]){
-			$res = mysql_query("SELECT MAX(Code) FROM disziplin WHERE Typ = ".$cfgDisciplineType[$strDiscCombined]);
+			$res = mysql_query("SELECT MAX(Code) FROM disziplin _" . $_COOKIE['language'] . " WHERE Typ = ".$cfgDisciplineType[$strDiscCombined]);
 			$maxrow = mysql_fetch_array($res);
 			if($maxrow[0] < 9000){	// define codes
 				$code = 9000;
@@ -54,9 +54,9 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 		if ($_POST['activ'] == 'i'){   
             $row_activ = 'n'; 
         }
-        
+        // new disciplin de
 		mysql_query("
-			INSERT INTO disziplin SET 
+			INSERT INTO disziplin_de SET 
 				Kurzname=\"" . strtoupper($_POST['short']) . "\"
 				, Name=\"" . $_POST['name'] . "\"
 				, Anzeige=" . $_POST['order'] . "
@@ -68,6 +68,43 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 				, Code = $code
                 , aktiv='" . $row_activ . "'    
 		");
+        if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
+        // new disciplin fr
+        mysql_query("
+            INSERT INTO disziplin_fr SET 
+                Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                , Name=\"" . $_POST['name'] . "\"
+                , Anzeige=" . $_POST['order'] . "
+                , Seriegroesse=" . $_POST['heat'] . "
+                , Staffellaeufer=" . $_POST['relay'] . "
+                , Typ=" . $_POST['type'] . "
+                , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                , Code = $code
+                , aktiv='" . $row_activ . "'    
+        ");
+        if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
+        // new disciplin it
+        mysql_query("
+            INSERT INTO disziplin_it SET 
+                Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                , Name=\"" . $_POST['name'] . "\"
+                , Anzeige=" . $_POST['order'] . "
+                , Seriegroesse=" . $_POST['heat'] . "
+                , Staffellaeufer=" . $_POST['relay'] . "
+                , Typ=" . $_POST['type'] . "
+                , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                , Code = $code
+                , aktiv='" . $row_activ . "'    
+        ");
+        if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change") {
@@ -77,7 +114,7 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
             $query="SELECT                         
                         aktiv 
                     From 
-                        disziplin 
+                        disziplin_" . $_COOKIE['language'] . " 
                     WHERE xDisziplin=" . $_POST['item'];   
             
              $res=mysql_query($query);
@@ -97,22 +134,124 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
                  else { 
                     $row_activ = $row[1];   
                  }
+                 // update disciplin de 
+             if ($_COOKIE['language'] == 'de'){
+                  // in current language with name and short name
                  mysql_query("
-                        UPDATE disziplin SET 
-                            Kurzname=\"" . strtoupper($_POST['short']) . "\"
-                            , Name=\"" . $_POST['name'] . "\"
-                            , Anzeige=" . $_POST['order'] . "
-                            , Seriegroesse=" . $_POST['heat'] . "
-                            , Staffellaeufer=" . $_POST['relay'] . "
-                            , Typ=" . $_POST['type'] . "
-                            , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
-                            , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
-                            , aktiv='" . $row_activ . "'    
-                        WHERE xDisziplin=" . $_POST['item']
+                    UPDATE disziplin_" . $_COOKIE['language'] . " SET 
+                        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                        , Name=\"" . $_POST['name'] . "\"
+                        , Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
                 );
+           
                 if(mysql_errno() > 0) {
-                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-                }                 
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("         
+                    UPDATE disziplin_de SET                         
+                        Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+             }
+             
+              // update disciplin fr 
+             if ($_COOKIE['language'] == 'fr'){
+                  // in current language with name and short name
+                 mysql_query("
+                    UPDATE disziplin_" . $_COOKIE['language'] . " SET 
+                        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                        , Name=\"" . $_POST['name'] . "\"
+                        , Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("         
+                    UPDATE disziplin_fr SET                         
+                        Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+             }
+              // update disciplin it 
+             if ($_COOKIE['language'] == 'it'){
+                  // in current language with name and short name
+                 mysql_query("
+                    UPDATE disziplin_" . $_COOKIE['language'] . " SET 
+                        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                        , Name=\"" . $_POST['name'] . "\"
+                        , Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("         
+                    UPDATE disziplin_it SET                         
+                        Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+             }
             }
         }
         else {   
@@ -125,24 +264,124 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
              else { 
                     $row_activ = $row[1];   
              }
-             
-		     mysql_query("
-			    UPDATE disziplin SET 
-				    Kurzname=\"" . strtoupper($_POST['short']) . "\"
-				    , Name=\"" . $_POST['name'] . "\"
-				    , Anzeige=" . $_POST['order'] . "
-				    , Seriegroesse=" . $_POST['heat'] . "
-				    , Staffellaeufer=" . $_POST['relay'] . "
-				    , Typ=" . $_POST['type'] . "
-				    , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
-				    , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
-                    , aktiv='" . $row_activ . "'   
-			    WHERE xDisziplin=" . $_POST['item']
-		    );
+             // update disciplin de 
+             if ($_COOKIE['language'] == 'de'){
+                  // in current language with name and short name
+                 mysql_query("
+                    UPDATE disziplin_" . $_COOKIE['language'] . " SET 
+                        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                        , Name=\"" . $_POST['name'] . "\"
+                        , Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
            
-            if(mysql_errno() > 0) {
-                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-            }         
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("         
+                    UPDATE disziplin_de SET                         
+                        Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+             }
+             
+		      // update disciplin fr 
+             if ($_COOKIE['language'] == 'fr'){
+                  // in current language with name and short name
+                 mysql_query("
+                    UPDATE disziplin_" . $_COOKIE['language'] . " SET 
+                        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                        , Name=\"" . $_POST['name'] . "\"
+                        , Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("         
+                    UPDATE disziplin_fr SET                         
+                        Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+             }
+              // update disciplin it 
+             if ($_COOKIE['language'] == 'it'){
+                  // in current language with name and short name
+                 mysql_query("
+                    UPDATE disziplin_" . $_COOKIE['language'] . " SET 
+                        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                        , Name=\"" . $_POST['name'] . "\"
+                        , Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("         
+                    UPDATE disziplin_it SET                         
+                        Anzeige=" . $_POST['order'] . "
+                        , Seriegroesse=" . $_POST['heat'] . "
+                        , Staffellaeufer=" . $_POST['relay'] . "
+                        , Typ=" . $_POST['type'] . "
+                        , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                        , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                        , aktiv='" . $row_activ . "'   
+                    WHERE xDisziplin=" . $_POST['item']
+                );
+           
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }         
+             }
         }
 	}
 }
@@ -151,17 +390,56 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 //
 else if ($_GET['arg']=="del")
 {
-	mysql_query("LOCK TABLES wettkampf READ, disziplin WRITE");
+	mysql_query("LOCK TABLES wettkampf READ, disziplin_de WRITE, disziplin_fr WRITE, disziplin_it WRITE");
 
 	// Check if not used anymore
 	if(AA_checkReference("wettkampf", "xDisziplin", $_GET['item']) == 0) {
-		mysql_query("DELETE FROM disziplin WHERE xDisziplin=" . $_GET['item']);
+		mysql_query("DELETE FROM disziplin_de WHERE xDisziplin=" . $_GET['item']);
+        mysql_query("DELETE FROM disziplin_fr WHERE xDisziplin=" . $_GET['item']);
+        mysql_query("DELETE FROM disziplin_it WHERE xDisziplin=" . $_GET['item']);
 	}
 	// Error: still in use
 	else {
 		AA_printErrorMsg($strDiscipline . $strErrStillUsed);
 	}
 	mysql_query("UNLOCK TABLES");
+}
+else if ($_POST['arg']=="change_all" ){
+            // change discipline de
+            mysql_query("
+                UPDATE disziplin_de SET                            
+                     Appellzeit=SEC_TO_TIME(". ($_POST['time_all']*60) .")
+                    , Stellzeit=SEC_TO_TIME(". ($_POST['mtime_all']*60) .")                       
+                WHERE Typ=" . $_POST['type_all']
+            );                   
+           
+            if(mysql_errno() > 0) {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }  
+            // change discipline fr 
+            mysql_query("
+                UPDATE disziplin_fr SET                            
+                     Appellzeit=SEC_TO_TIME(". ($_POST['time_all']*60) .")
+                    , Stellzeit=SEC_TO_TIME(". ($_POST['mtime_all']*60) .")                       
+                WHERE Typ=" . $_POST['type_all']
+            );                   
+           
+            if(mysql_errno() > 0) {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            } 
+             // change discipline it         
+            mysql_query("
+                UPDATE disziplin_it SET                            
+                     Appellzeit=SEC_TO_TIME(". ($_POST['time_all']*60) .")
+                    , Stellzeit=SEC_TO_TIME(". ($_POST['mtime_all']*60) .")                       
+                WHERE Typ=" . $_POST['type_all']
+            );                   
+           
+            if(mysql_errno() > 0) {
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }                
+    
+
 }
 
 
@@ -220,8 +498,53 @@ if ($_GET['arg']=="disc") {
 	$argument="Anzeige";
 	$img_order="img/sort_act.gif";
 }
-
+ 
 ?>
+ <p/>
+<table class='dialog'>
+<tr>
+<th class='dialog' colspan="4"><?php echo $strGenChange; ?></th>
+
+</tr>
+<tr><td colspan="4"></td></tr>
+<tr>
+    
+    <th class='dialog'><?php echo $strType; ?></th>
+    <th class='dialog'>      
+            <?php echo $strEnrolementTime; ?>   
+    </th>
+    <th class='dialog'>
+        <a href='admin_disciplines.php?arg=mtime'>
+            <?php echo $strManipulationTime; ?>   
+    </th>    
+</tr>
+
+<tr>
+    <form action='admin_disciplines.php' method='post'>
+    <input name='arg' type='hidden' value='change_all'>
+    
+<?php
+    $dd = new GUI_ConfigDropDown('type_all', 'cfgDisciplineType', 0);
+?>
+    <td class='forms_ctr'>
+        <input class='nbr' name='time_all' type='text' maxlength='2' /></td>
+    <td class='forms_ctr'>
+        <input class='nbr' name='mtime_all' type='text' maxlength='2' /></td>
+   
+    <td class='forms'>
+        <!--<button type='submit'>
+            <?php //echo $strChange; ?>
+        </button>  -->
+        
+        <input type="submit" value=" <?php echo $strChange; ?>"   />
+    </td>
+    </form>    
+</tr>
+
+    </table>    
+
+
+
 <p/>
 <table class='dialog'>
 <tr>
@@ -301,9 +624,10 @@ if ($_GET['arg']=="disc") {
         <input type="radio" name="activ" value="a" checked><?php echo $strActivShort ?>
         <input type="radio" name="activ" value="i"><?php echo $strInactivShort ?></td>   
 	<td class='forms'>
-		<button type='submit'>
-			<?php echo $strSave; ?>
-		</button>
+		<!--<button type='submit'>
+			<?php //echo $strSave; ?>
+		</button>       -->
+        <input type="submit" value=" <?php echo $strSave; ?>"   />      
 	</td>
 	</form>	
 </tr>
@@ -320,8 +644,9 @@ $result = mysql_query("SELECT xDisziplin"
 						. ", TRUNCATE(TIME_TO_SEC(Stellzeit)/60, 0)"
 						. ", Code"
                         . ", aktiv"  
-						. " FROM disziplin ORDER BY " . $argument);
-
+						. " FROM disziplin_" . $_COOKIE['language'] . " ORDER BY " . $argument);
+  
+  
 $i = 0;
 $btn = new GUI_Button('', '');	// create button object
 
@@ -402,6 +727,12 @@ while ($row = mysql_fetch_row($result))
 	if(empty($row[9])){
 		$btn->set("admin_disciplines.php?arg=del&item=$row[0]", $strDelete);
 		$btn->printButton();
+        ?>   
+        <!--<form action='admin_disciplines.php' method='post'>
+        <input name='arg' type='hidden' value='del'>
+        <input type="submit" value=" <?php// echo $strDelete; ?>"   /> 
+         </form>  -->
+        <?php     
 	} else {
 		?>
 		&nbsp;
