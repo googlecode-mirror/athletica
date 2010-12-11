@@ -171,7 +171,7 @@ if((!empty($event)) && (!empty($club)))		// category & club selected
 // get information about the selected event, category and club
 $res = mysql_query("SELECT d.Kurzname, k.Geschlecht FROM
 			wettkampf AS w
-			, disziplin AS d
+			, disziplin_" . $_COOKIE['language'] . " AS d
 			, kategorie AS k
 		WHERE
 			xWettkampf = $event

@@ -92,7 +92,7 @@ if ($_POST['arg']=="addtbl" || $_POST['arg'] =="add" || $_POST['arg']=="change")
 		}
 		else {
 			$sqld = "SELECT Typ 
-					   FROM disziplin 
+					   FROM disziplin_" . $_COOKIE['language'] . " 
 					  WHERE xDisziplin = ".$_POST['xDisziplin'].";";
 			$queryd = mysql_query($sqld);
 			
@@ -289,15 +289,15 @@ else
 			<?php
 			$sql = "SELECT xWertungstabelle_Punkte
 						   , xWertungstabelle
-						   , disziplin.xDisziplin
+						   , d.xDisziplin
 						   , Geschlecht
 						   , Leistung
 						   , Punkte 
 						   , Typ
 					  FROM wertungstabelle_punkte 
-				 LEFT JOIN disziplin USING(xDisziplin) 
+				 LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING(xDisziplin) 
 					 WHERE xWertungstabelle = ".$val_scoretable." 
-					   AND disziplin.xDisziplin = ".$val_discipline." 
+					   AND d.xDisziplin = ".$val_discipline." 
 				  ORDER BY Geschlecht ASC, 
 						   Punkte DESC;";
 			$result = mysql_query($sql);

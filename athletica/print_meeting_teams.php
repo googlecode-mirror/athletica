@@ -144,7 +144,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		  		FROM
 			  		anmeldung AS a
 			  		, athlet AS at 
-			  		, disziplin AS d 
+			  		, disziplin_" . $_COOKIE['language'] . " AS d 
 			  		, start AS st 
 			  		, wettkampf AS w
 				WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
@@ -186,7 +186,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 						SELECT
 							d.Kurzname, d.Typ, s.Bestleistung
 						FROM
-							disziplin AS d
+							disziplin_" . $_COOKIE['language'] . " AS d
 							, start AS s
 							, wettkampf AS w
 						WHERE s.xAnmeldung = $list_row[0]
@@ -255,7 +255,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				, d.Name
 			FROM
 				staffel AS s
-				, disziplin AS d
+				, disziplin_" . $_COOKIE['language'] . " AS d
 				, start AS st
 				, wettkampf AS w
 			WHERE s.xTeam = $row[0]

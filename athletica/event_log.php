@@ -46,7 +46,7 @@ $page->printPageTitle($strEventLog . ": " . $_COOKIE['meeting']);
 		, rl.Ereignis
 		, rt.Typ
 	FROM
-		disziplin AS d
+		disziplin_" . $_COOKIE['language'] . " AS d
 		, kategorie AS k
 		, wettkampf AS w
 		, runde AS r
@@ -68,7 +68,7 @@ $sql = "SELECT
 			, rl.Ereignis
 			, rt.Typ
 		FROM
-			disziplin AS d
+			disziplin_" . $_COOKIE['language'] . " AS d
 		LEFT JOIN
 			wettkampf AS w ON(d.xDisziplin = w.xDisziplin)
 		LEFT JOIN 
@@ -78,7 +78,7 @@ $sql = "SELECT
 		LEFT JOIN
 			rundenlog AS rl USING(xRunde)
 		LEFT JOIN
-			rundentyp AS rt ON(r.xRundentyp = rt.xRundentyp)
+			rundentyp_" . $_COOKIE['language'] . " AS rt ON(r.xRundentyp = rt.xRundentyp)
 		WHERE w.xMeeting = ".$_COOKIE['meeting_id']. "
 		ORDER BY
 			rl.Zeit DESC;";

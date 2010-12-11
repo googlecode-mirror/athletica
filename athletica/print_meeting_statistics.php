@@ -150,7 +150,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
         			, w.xWettkampf  
         			, r.Status                                  
               FROM
-        	  		disziplin AS d
+        	  		disziplin_" . $_COOKIE['language'] . " AS d
         			, kategorie AS wk
         			, wettkampf AS w
     				LEFT JOIN start AS s ON w.xWettkampf = s.xWettkampf
@@ -162,7 +162,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
     				LEFT JOIN staffel AS st ON (s.xStaffel = st.xStaffel)
     				LEFT JOIN kategorie AS k ON ( k.xKategorie = 
         				IF(an.xKategorie > 0, an.xKategorie, st.xKategorie))
-    				LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname)    
+    				LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dd ON (w.Info = dd.Kurzname)    
     				LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
      				LEFT JOIN athlet AS at ON (an.xAthlet = at.xAthlet) 
     		  WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
@@ -211,7 +211,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             , wk.Anzeige As wkAnzeige 
                             , w.Typ                          
                     FROM
-                            disziplin AS d
+                            disziplin_" . $_COOKIE['language'] . " AS d
                             , kategorie AS wk
                             , wettkampf AS w
                             LEFT JOIN start AS s ON w.xWettkampf = s.xWettkampf
@@ -223,7 +223,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             LEFT JOIN staffel AS st ON (s.xStaffel = st.xStaffel)
                             LEFT JOIN kategorie AS k ON ( k.xKategorie = 
                                 IF(an.xKategorie > 0, an.xKategorie, st.xKategorie))
-                            LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname)    
+                            LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dd ON (w.Info = dd.Kurzname)    
                             LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
                             LEFT JOIN athlet AS at ON (an.xAthlet = at.xAthlet) 
                             LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
@@ -266,14 +266,14 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             , wk.Anzeige
                             , w.Typ
                      FROM 
-                            disziplin AS d , 
+                            disziplin_" . $_COOKIE['language'] . " AS d , 
                             kategorie AS wk , 
                             wettkampf AS w 
                             LEFT JOIN start AS s ON (w.xWettkampf = s.xWettkampf) 
                             LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung) 
                            
                             LEFT JOIN kategorie AS k ON ( k.xKategorie = an.xKategorie) 
-                            LEFT JOIN disziplin as dd ON (w.Info = dd.Kurzname) 
+                            LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dd ON (w.Info = dd.Kurzname) 
                             LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
                             LEFT JOIN athlet AS at ON (an.xAthlet = at.xAthlet) 
                             LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
@@ -810,7 +810,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                     , anmeldung.xKategorie     
               FROM
               		athlet
-                    INNER JOIN disziplin as d on (d.xDisziplin = wettkampf.xDisziplin)
+                    INNER JOIN disziplin_" . $_COOKIE['language'] . " as d on (d.xDisziplin = wettkampf.xDisziplin)
                     INNER JOIN anmeldung ON (athlet.xAthlet = anmeldung.xAthlet)
                     INNER JOIN start As s ON (anmeldung.xAnmeldung = s.xAnmeldung) AND d.Staffellaeufer = 0
                     INNER JOIN wettkampf ON (s.xWettkampf = wettkampf.xWettkampf)
@@ -881,7 +881,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             , st.xKategorie     
                       FROM
                             start as s
-                            INNER JOIN disziplin as d on (d.xDisziplin = wettkampf.xDisziplin)
+                            INNER JOIN disziplin_" . $_COOKIE['language'] . " as d on (d.xDisziplin = wettkampf.xDisziplin)
                             INNER JOIN staffel st ON (st.xStaffel = s.xStaffel) 
                             INNER JOIN wettkampf ON (s.xWettkampf = wettkampf.xWettkampf) 
                             INNER JOIN meeting ON (wettkampf.xMeeting = meeting.xMeeting) 

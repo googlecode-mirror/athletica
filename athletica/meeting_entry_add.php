@@ -991,7 +991,7 @@ if ($_POST['arg']=="add")
 		//	$sex = $_POST['sex'];
 		//}
 
-		mysql_query("LOCK TABLES disziplin READ, kategorie READ, meeting READ"
+		mysql_query("LOCK TABLES disziplin_de READ, disziplin_fr READ, disziplin_it READ, kategorie READ, meeting READ"
 					. ", runde READ, team READ, verein READ, wettkampf READ"
 					. ", anmeldung WRITE, athlet WRITE start WRITE, staffel READ");
 
@@ -1361,7 +1361,7 @@ if ($_POST['arg']=="add")
 															$res_code = mysql_query("
 																SELECT d.Code, k.Code FROM
 																	wettkampf as w
-																	LEFT JOIN disziplin as d USING(xDisziplin)
+																	LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d USING(xDisziplin)
 																	LEFT JOIN kategorie as k ON w.xKategorie = k.xKategorie
 																WHERE
 																	w.xWettkampf = $event");
@@ -1422,7 +1422,7 @@ if ($_POST['arg']=="add")
 														{
 															// check if event already started
 															$res = mysql_query("SELECT d.Name"
-																		. " FROM disziplin AS d"
+																		. " FROM disziplin_" . $_COOKIE['language'] . " AS d"
 																		. ", runde AS r"
 																		. ", wettkampf AS w"
 																		. " WHERE r.xWettkampf=" . $event
@@ -1534,7 +1534,7 @@ function meeting_get_disciplines(){
 			, k.Geschlecht
 			, k.Alterslimite
 		FROM
-			disziplin AS d
+			disziplin_" . $_COOKIE['language'] . " AS d
 			, wettkampf as w
 			, kategorie as k
 		WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
@@ -1602,7 +1602,7 @@ function meeting_get_disciplines(){
             , k.Geschlecht
             , k.Alterslimite   
         FROM
-            disziplin AS d 
+            disziplin_" . $_COOKIE['language'] . " AS d 
             , wettkampf as w      
             , kategorie as k  
         WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
@@ -1703,7 +1703,7 @@ function meeting_get_disciplines(){
 				}
 				$comb = $event_row[10];
 				$combCat = $event_row[8];
-				$comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $comb");
+				$comb_res = mysql_query("SELECT Name FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $comb");
 				$comb_row = mysql_Fetch_array($comb_res);
 				
                global $AthReg;

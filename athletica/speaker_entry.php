@@ -242,7 +242,7 @@ if ($item > 0)
 			FROM
 				anmeldung AS a
 				, athlet AS at
-				, disziplin AS d
+				, disziplin_" . $_COOKIE['language'] . " AS d
 				, kategorie AS k
 				, resultat AS r
 				, runde AS ru
@@ -253,7 +253,7 @@ if ($item > 0)
 				, wettkampf AS w
 			LEFT  JOIN team AS t
 				ON a.xTeam = t.xTeam
-			LEFT  JOIN rundentyp AS rt
+			LEFT  JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 				ON ru.xRundentyp = rt.xRundentyp
 			WHERE a.xAthlet = $item
 			AND at.xAthlet = a.xAthlet
@@ -287,7 +287,7 @@ if ($item > 0)
 				, rt.Typ
 			FROM
 				staffel AS s
-				, disziplin AS d
+				, disziplin_" . $_COOKIE['language'] . " AS d
 				, kategorie AS k
 				, resultat AS r 
 				, runde AS ru
@@ -298,7 +298,7 @@ if ($item > 0)
 				, wettkampf AS w
 			LEFT JOIN team AS t
 				ON s.xTeam = t.xTeam
-			LEFT  JOIN rundentyp AS rt
+			LEFT  JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 				ON ru.xRundentyp = rt.xRundentyp
 			WHERE s.xStaffel = $item
 			AND v.xVerein = s.xVerein
@@ -354,7 +354,7 @@ if ($item > 0)
 	FROM
 		anmeldung AS a
 		, athlet AS at
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 		, kategorie AS k
 		, kategorie AS ck
 		, start AS s
@@ -366,7 +366,7 @@ if ($item > 0)
 		ON a.xTeam = t.xTeam
 	LEFT JOIN region as re 
 		ON at.xRegion = re.xRegion
-	LEFT JOIN disziplin AS d2 
+	LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 
 		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
 	AND a.xAthlet = $item
@@ -619,8 +619,8 @@ if ($item > 0)
 	
 	<?php 
 	$sql = "SELECT
-				disziplin.Name as DiszName
-				, disziplin.Typ
+				d.Name as DiszName
+				, d.Typ
 				, best_effort
 				, DATE_FORMAT(best_effort_date, '%d.%m.%Y') AS pb_date
 				, best_effort_event
@@ -634,11 +634,11 @@ if ($item > 0)
 					ON (base_athlete.id_athlete = base_performance.id_athlete)
 				INNER JOIN athletica.athlet 
 					ON (athlet.Lizenznummer = base_athlete.license)
-				INNER JOIN athletica.disziplin 
-					ON (disziplin.Code = base_performance.discipline)
+				INNER JOIN athletica.disziplin_" . $_COOKIE['language'] . " AS d 
+					ON (d.Code = base_performance.discipline)
 			WHERE (athlet.xAthlet =$xAthlet)
 			AND NOT (best_effort = '' AND season_effort = '')
-			ORDER BY base_performance.season, disziplin.Code";
+			ORDER BY base_performance.season, d.Code";
 		//echo $sql;
 		$res = mysql_query($sql);
 		

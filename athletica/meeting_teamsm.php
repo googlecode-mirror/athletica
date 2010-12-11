@@ -107,7 +107,7 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
            }
        }         
         if ($msgError == 0){        
-            mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
+            mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
 		       
             if (!is_array($_POST['athlete'])){
                 $tmp_athlete= $_POST['athlete'];
@@ -144,12 +144,12 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 				        if($licence != ''){
 					        // need codes of category and discipline
 					        $res = mysql_query("
-						        SELECT disziplin.Code, kategorie.Code, disziplin.Typ FROM
-							        disziplin
+						        SELECT d.Code, kategorie.Code, d.Typ FROM
+							        disziplin_" . $_COOKIE['language'] . " AS d
 							        , kategorie
 							        , wettkampf
 						        WHERE	wettkampf.xWettkampf = ".$_POST['event']."
-						            AND	wettkampf.xDisziplin = disziplin.xDisziplin
+						            AND	wettkampf.xDisziplin = d.xDisziplin
 						            AND	wettkampf.xKategorie = kategorie.xKategorie");
 					
 					        if($res){
@@ -338,7 +338,7 @@ $result = mysql_query("
 		, kategorie AS k
 		, kategorie AS k2
 		, wettkampf AS w
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 	WHERE
 		t.xTeamsm = ".$_POST['item']."
 	AND	k.xKategorie = t.xKategorie

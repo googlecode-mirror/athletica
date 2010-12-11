@@ -110,7 +110,7 @@ else		// no DB error
 
 	<?php
 	// get disciplines with type for checking if wind can be enabled or not
-	$res = mysql_query("select xDisziplin, Typ from disziplin");
+	$res = mysql_query("select xDisziplin, Typ from disziplin_" . $_COOKIE['language']);
 	$i=0;
 	while($row_dis = mysql_fetch_array($res)){
 		?>

@@ -82,7 +82,7 @@ else if($_POST['arg']=="change_combtype"){
 				AA_printErrorMsg($strDoubleCombinedEvent);
 			}else{  
 			   
-				  mysql_query("LOCK TABLES kategorie READ, disziplin READ"
+				  mysql_query("LOCK TABLES kategorie READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ"
 					. ", wettkampf WRITE");
 			
 				// delete combined event
@@ -127,15 +127,15 @@ else if($_POST['arg']=="change_svmcat"){
                 AA_printErrorMsg($strDoubleCombinedEvent);
             }else{  
                
-                  mysql_query("LOCK TABLES kategorie READ, disziplin READ, kategorie_svm AS ks READ, wettkampf as w READ, runde as r READ,rundentyp READ  "
-                    . ", disziplin as d READ, wettkampf WRITE, runde WRITE");  
+                  mysql_query("LOCK TABLES kategorie READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, kategorie_svm AS ks READ, wettkampf as w READ, runde as r READ, rundentyp_de READ, rundentyp_fr READ, rundentyp_it READ  "
+                    . ", disziplin_de as d READ, disziplin_fr as d READ , disziplin_it as d READ , wettkampf WRITE, runde WRITE");  
     
                   $sql="SELECT 
                             r.xRunde, w.xWettkampf  
                         FROM
                             wettkampf as w
                             LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
-                            LEFT JOIN disziplin as d ON (d.xDisziplin = w.xDisziplin)
+                            LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d ON (d.xDisziplin = w.xDisziplin)
                         WHERE
                             w.xKategorie = ". $category ."
                             AND r.xRunde IS NOT NULL
@@ -231,7 +231,7 @@ elseif($_POST['arg']=="new_discipline"){
 		$t = $_POST['combtype'];
 		
 		// get short name
-		$res = mysql_query("SELECT Kurzname FROM disziplin WHERE Code = $t");
+		$res = mysql_query("SELECT Kurzname FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $t");
 		$row = mysql_fetch_array($res);
 		$sName = $row[0];
 		if (empty($_POST['punktetabelle'])){
@@ -343,7 +343,7 @@ elseif($_POST['arg']=="change_starttime"){
 			, d.Stellzeit
 		FROM
 			wettkampf as w
-			LEFT JOIN disziplin as d USING(xDisziplin)
+			LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d USING(xDisziplin)
 		WHERE w.xWettkampf = " . $_POST['item']
 	);
 	$row = mysql_fetch_row($result);
@@ -564,7 +564,7 @@ $sql = "SELECT
 		LEFT JOIN
 			kategorie AS k USING(xKategorie)
 		LEFT JOIN
-			disziplin AS d ON(w.xDisziplin = d.xDisziplin)
+			disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin = d.xDisziplin)
 		WHERE
 			w.xMeeting = ".$_COOKIE['meeting_id']."
 		AND
@@ -916,7 +916,7 @@ else			// no DB error
 		<select name="combinedtype" onchange="document.combtype_<?php echo $row[1]."_".$row[7] ?>.submit()">
 			<!--<option value="-">-</option>-->
 				<?php               
-				$res_comb = mysql_query("select Code, Name from disziplin where Typ = ".$cfgDisciplineType[$strDiscCombined]. " ORDER BY Anzeige");
+				$res_comb = mysql_query("select Code, Name from disziplin_" . $_COOKIE['language'] . " where Typ = ".$cfgDisciplineType[$strDiscCombined]. " ORDER BY Anzeige");
 				if(mysql_errno() > 0) {	// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}else{
@@ -1083,7 +1083,7 @@ else			// no DB error
                                                     , Name
                                                     , Code 
                                               FROM 
-                                                    disziplin
+                                                    disziplin_" . $_COOKIE['language'] . "
                                               WHERE Code = ". $row[16]); 
                             
                          $row_d = mysql_fetch_array($res_d);
@@ -1100,7 +1100,7 @@ else			// no DB error
 												    , Name
 												    , Code 
 										      FROM 
-												    disziplin");  
+												    disziplin_" . $_COOKIE['language']);  
 					    $val=$cfgCombinedWO[$tt][$c];
 					    
 					    while ($row_d = mysql_fetch_array($res_d)){  
@@ -1582,7 +1582,7 @@ else			// no DB error
 	<select name="combinedtype" onchange="document.addcombtype.submit()">
 		<option value="-">-</option>
 			<?php
-			$res_comb = mysql_query("select Code, Name from disziplin where Typ = ".$cfgDisciplineType[$strDiscCombined] ." ORDER BY Anzeige");
+			$res_comb = mysql_query("select Code, Name from disziplin_" . $_COOKIE['language'] . " where Typ = ".$cfgDisciplineType[$strDiscCombined] ." ORDER BY Anzeige");
 			if(mysql_errno() > 0) {	// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{

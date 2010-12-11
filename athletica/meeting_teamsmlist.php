@@ -100,7 +100,7 @@ $result = mysql_query("
 		teamsm AS t
 		, kategorie AS k
 		, wettkampf AS w
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 	WHERE t.xMeeting = " . $_COOKIE['meeting_id'] . "
 	AND k.xKategorie = t.xKategorie
 	AND w.xWettkampf = t.xWettkampf

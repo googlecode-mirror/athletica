@@ -50,11 +50,11 @@ $sql = "SELECT
 		FROM
 			runde AS r 
 		LEFT JOIN 
-			rundentyp AS rt USING(xRundentyp) 
+			rundentyp_" . $_COOKIE['language'] . " AS rt USING(xRundentyp) 
 		LEFT JOIN 
 			wettkampf AS w ON(r.xWettkampf = w.xWettkampf) 
 		LEFT JOIN 
-			disziplin AS d USING(xDisziplin) 
+			disziplin_" . $_COOKIE['language'] . " AS d USING(xDisziplin) 
 		LEFT JOIN 
 			kategorie AS k ON(w.xKategorie = k.xKategorie) 
 		WHERE 
@@ -126,7 +126,7 @@ if($round > 0)
 			FROM 
 				runde AS r 
 			LEFT JOIN 
-				rundentyp AS rt USING(xRundentyp) 
+				rundentyp_" . $_COOKIE['language'] . " AS rt USING(xRundentyp) 
 			WHERE r.xWettkampf = ".$event." 
 			ORDER BY 
 				r.Datum ASC, 
@@ -169,7 +169,7 @@ if($round > 0)
 				, d.Typ 
 				, d.Strecke
 			FROM 
-				disziplin AS d 
+				disziplin_" . $_COOKIE['language'] . " AS d 
 			LEFT JOIN 
 				wettkampf AS w USING(xDisziplin) 
 			WHERE

@@ -99,7 +99,7 @@ mysql_free_result($result);
 		runde AS r
 		, wettkampf AS w
 		, kategorie AS k
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 	LEFT JOIN rundentyp AS rt
 	ON r.xRundentyp = rt.xRundentyp
 	WHERE r.xRunde = $round
@@ -132,13 +132,13 @@ $sql = "SELECT
 		FROM
 			runde AS r
 		LEFT JOIN
-			rundentyp AS rt USING(xRundentyp)
+			rundentyp_" . $_COOKIE['language'] . " AS rt USING(xRundentyp)
 		LEFT JOIN
 			wettkampf AS w ON(w.xWettkampf = r.xWettkampf)
 		LEFT JOIN
 			kategorie AS k USING(xKategorie)
 		LEFT JOIN 
-			disziplin AS d ON(d.xDisziplin = w.xDisziplin)
+			disziplin_" . $_COOKIE['language'] . " AS d ON(d.xDisziplin = w.xDisziplin)
 		WHERE
 			r.xRunde  ".$sqlRound.";";
 $result = mysql_query($sql);
@@ -267,7 +267,7 @@ if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
 			FROM
 				runde AS r
 			LEFT JOIN
-				rundentyp AS rt USING(xRundentyp)
+				rundentyp_" . $_COOKIE['language'] . " AS rt USING(xRundentyp)
 			WHERE
 				r.xRunde = ".$nextRound.";";
 	$result = mysql_query($sql);

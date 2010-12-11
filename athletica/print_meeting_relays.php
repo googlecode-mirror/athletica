@@ -139,7 +139,7 @@ $result = mysql_query("
 	FROM
 		start AS st
 		, staffel AS s
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 		, kategorie AS k
 		, verein AS v
 		, wettkampf AS w

@@ -103,7 +103,7 @@ $result = mysql_query("
 	FROM
 		start AS st
 		, staffel AS s
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 		, kategorie AS k
 		, wettkampf AS w
 	WHERE s.xMeeting = " . $_COOKIE['meeting_id'] . "

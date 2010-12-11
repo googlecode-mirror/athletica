@@ -48,7 +48,7 @@ if($_GET['arg'] == 'assign')
 			mysql_query("
 				LOCK TABLES  					
 					 kategorie AS k READ
-                    , disziplin AS d READ  
+                    , disziplin_" . $_COOKIE['language'] . " AS d READ  
 					, verein AS v READ  
 					, wettkampf AS w READ  
 					, teamsm WRITE
@@ -61,7 +61,7 @@ if($_GET['arg'] == 'assign')
                     teamsm AS t
                     LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
                     LEFT JOIN wettkampf AS w ON (w.xWettkampf = t.xWettkampf)
-                    LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)   
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON (d.xDisziplin = w.xDisziplin)   
                     LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)   
                 WHERE 
                     t.xMeeting = " . $_COOKIE['meeting_id'] . "                    
@@ -191,7 +191,7 @@ $i = 0;
                     teamsm AS t
                     LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
                     LEFT JOIN wettkampf AS w ON (w.xWettkampf = t.xWettkampf)
-                    LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)   
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)   
                 WHERE 
                     t.xMeeting = " . $_COOKIE['meeting_id'];
                          

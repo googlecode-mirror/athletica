@@ -46,8 +46,8 @@ if (isset($_POST['updateEfforts'])){
 	
 	$sql = "	SELECT
 		athlet.Lizenznummer as License
-		, disziplin.Code as DiszCode
-		, disziplin.Typ
+		, d.Code as DiszCode
+		, d.Typ
 		, xStart
         , wettkampf.Mehrkampfcode as MK
         , anmeldung.xAnmeldung as Enrolment
@@ -59,8 +59,8 @@ if (isset($_POST['updateEfforts'])){
 			ON (start.xWettkampf = wettkampf.xWettkampf)
 		INNER JOIN athletica.athlet 
 			ON (anmeldung.xAthlet = athlet.xAthlet)
-		INNER JOIN athletica.disziplin 
-			ON (wettkampf.xDisziplin = disziplin.xDisziplin)
+		INNER JOIN athletica.disziplin_" . $_COOKIE['language'] . " AS d 
+			ON (wettkampf.xDisziplin = d.xDisziplin)
 	WHERE (athlet.Lizenznummer != 0 AND 
 		wettkampf.xMeeting =$event 
 		$sql_where) ORDER BY License";     

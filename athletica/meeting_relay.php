@@ -318,7 +318,9 @@ else if ($_POST['arg']=="add_pos")
 				anmeldung READ
 				, start READ
 				, runde READ
-				, rundentyp READ
+				, rundentyp_de READ
+                , rundentyp_fr READ
+                , rundentyp_it READ
 				, staffelathlet WRITE
 		");
 		
@@ -326,12 +328,12 @@ else if ($_POST['arg']=="add_pos")
 		// add position for each round
 		//
 		$result = mysql_query("
-				SELECT runde.xRunde, rundentyp.Typ FROM
+				SELECT runde.xRunde, rt.Typ FROM
 					runde
-					, rundentyp
+					, rundentyp_" . $_COOKIE['language'] . " AS rt
 				WHERE
 					runde.xWettkampf = ".$_POST['event']."
-				AND	runde.xRundentyp = rundentyp.xRundentyp");
+				AND	runde.xRundentyp = rt.xRundentyp");
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}else{
@@ -559,7 +561,7 @@ $result = mysql_query("
 	FROM
 		start AS st
 		, staffel AS s
-		, disziplin AS d
+		, disziplin_" . $_COOKIE['language'] . " AS d
 		, kategorie AS k
 		, verein AS v
 		, wettkampf AS w
@@ -695,7 +697,7 @@ else if (mysql_num_rows($result) > 0)
 				, r.xRunde
 			FROM
 				runde as r
-				, rundentyp as rt
+				, rundentyp_" . $_COOKIE['language'] . " as rt
 			WHERE	r.xWettkampf = ".$row[8]."
 			AND	r.xRundentyp = rt.xRundentyp
 			ORDER BY	r.xRunde");
@@ -737,7 +739,7 @@ else if (mysql_num_rows($result) > 0)
 						SELECT sa.Position, rt.Typ, sa.xRunde FROM
 							staffelathlet as sa
 							, runde as r
-							, rundentyp as rt
+							, rundentyp_" . $_COOKIE['language'] . " as rt
 						WHERE	sa.xAthletenstart = ".$ath_row[0]."
 						AND	sa.xStaffelstart = ".$row[5]."
 						AND	sa.xRunde = r.xRunde

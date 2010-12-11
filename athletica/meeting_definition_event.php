@@ -77,7 +77,7 @@ else if ($_POST['arg']=="add_round")
 			, Appellzeit
 			, Stellzeit
 		FROM 
-			disziplin
+			disziplin_" . $_COOKIE['language'] . "
 		WHERE xDisziplin = " . $_POST['xDis']
 	);
 	$row = mysql_fetch_row($result);
@@ -116,7 +116,7 @@ else if ($_POST['arg']=='change_round')
             , d.Stellzeit
         FROM
             wettkampf as w
-            LEFT JOIN disziplin as d USING(xDisziplin)
+            LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d USING(xDisziplin)
         WHERE w.xWettkampf = " . $_POST['item']
     );
     $row = mysql_fetch_row($result);
@@ -359,7 +359,7 @@ $result = mysql_query("
 	FROM
 		wettkampf AS w
 		, kategorie AS k
-		, disziplin as d
+		, disziplin_" . $_COOKIE['language'] . " as d
 	WHERE w.xWettkampf = $event
 	AND w.xKategorie = k.xKategorie
 	AND w.xDisziplin = d.xDisziplin
@@ -522,7 +522,7 @@ $result = mysql_query("
 	FROM
 		runde AS r
 		LEFT JOIN rundenset AS rs ON (rs.xRunde = r.xRunde AND rs.xMeeting = ". $_COOKIE['meeting_id'] .")  
-		LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+		LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 	WHERE r.xWettkampf = $event
 	ORDER BY
 		r.Datum
@@ -731,7 +731,7 @@ if($i == 0){	// no rounds here
 			  FROM 
 			  	   wettkampf AS w 
 		 LEFT JOIN runde AS ru USING(xWettkampf) 
-		 LEFT JOIN rundentyp AS rt ON(rt.xRundentyp = ru.xRundentyp) 
+		 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON(rt.xRundentyp = ru.xRundentyp) 
 		 LEFT JOIN kategorie AS k ON(k.xKategorie = w.xKategorie) 
 		 LEFT JOIN rundenset AS rs ON(rs.xRunde = ru.xRunde AND rs.xMeeting = " .$_COOKIE['meeting_id'].") 
 		 	 WHERE w.xMeeting = ".$_COOKIE['meeting_id']." 

@@ -151,7 +151,7 @@ $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
 //
 if($_GET['arg'] == 'change')
 {
-	mysql_query("LOCK TABLES serienstart READ, staffel as st READ ,  start as s READ,start as s2 READ, verein as v READ, staffelathlet as stat READ, anmeldung as a READ,athlet as at READ,wettkampf as w READ, disziplin as d READ,wettkampf WRITE, start WRITE");
+	mysql_query("LOCK TABLES serienstart READ, staffel as st READ ,  start as s READ,start as s2 READ, verein as v READ, staffelathlet as stat READ, anmeldung as a READ,athlet as at READ,wettkampf as w READ, disziplin_de as d READ, disziplin_fr as d READ , disziplin_it as d READ, wettkampf WRITE, start WRITE");
 	if($comb > 0){ // if combined set present for all starts
 		/*$res = mysql_query("SELECT * FROM
 				serienstart
@@ -247,7 +247,7 @@ if($_GET['arg'] == 'change')
 							LEFT JOIN anmeldung AS a USING(xAnmeldung)
 							LEFT JOIN athlet AS at USING(xAthlet)
 							LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
-							LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin)
+							LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(w.xDisziplin = d.xDisziplin)
 						WHERE        					
 							s2.xStart='" . $_GET['item'] . "'";  
 			    
@@ -272,7 +272,7 @@ if($_GET['arg'] == 'change')
 											LEFT JOIN anmeldung AS a USING(xAnmeldung)
 											LEFT JOIN athlet AS at USING(xAthlet)
 											LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
-											LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin)
+											LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(w.xDisziplin = d.xDisziplin)
 										WHERE        					
 											s.xStaffel='" . $row[0]. "' GROUP BY s.xStart";     
 				    
@@ -991,7 +991,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
                     LEFT JOIN
-                        disziplin AS d ON(w.xDisziplin   = d.xDisziplin) "
+                        disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin   = d.xDisziplin) "
                     . $sqlTable ."
 					WHERE        "
 						. $sqlEventComb   						
@@ -1052,7 +1052,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 					LEFT JOIN
-						disziplin AS d ON(w.xDisziplin   = d.xDisziplin)
+						disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin   = d.xDisziplin)
 					LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) 
 					LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)      
 					WHERE   					
@@ -1089,7 +1089,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN
 						wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 					LEFT JOIN
-						disziplin AS d ON(w.xDisziplin   = d.xDisziplin)
+						disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin   = d.xDisziplin)
 					LEFT JOIN 
 						start AS s1 On (s1.xStaffel= staf.xStaffel)  
 					 LEFT JOIN
@@ -1164,7 +1164,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				LEFT JOIN
 					wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
 				LEFT JOIN
-					disziplin AS d ON(w.xDisziplin = d.xDisziplin)
+					disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin = d.xDisziplin)
 				WHERE        					
 					".$sqlEvents."
 				GROUP BY 
@@ -1195,7 +1195,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
                  
                 LEFT JOIN athlet AS at USING(xAthlet) 
                 LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
-                LEFT JOIN disziplin AS d ON(w.xDisziplin = d.xDisziplin) 
+                LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(w.xDisziplin = d.xDisziplin) 
                 LEFT JOIN team AS t ON (st.xTeam = t.xTeam) 
             WHERE                            
                     ".$sqlEvents." 

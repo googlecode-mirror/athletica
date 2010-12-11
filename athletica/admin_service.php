@@ -282,7 +282,7 @@ if($res_srv_lg=='ok'){
 												Info, 
 												xKategorie_svm 
 										   FROM wettkampf AS w 
-									  LEFT JOIN disziplin AS d USING(xDisziplin) 
+									  LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING(xDisziplin) 
 										  WHERE xMeeting = ".$_SESSION['temp']['xMeeting']." 
 											AND xKategorie = ".$kategorie['xKategorie']." 
 									   ORDER BY Anzeige ASC;";

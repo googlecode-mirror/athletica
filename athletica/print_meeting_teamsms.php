@@ -177,7 +177,7 @@ $sql = "SELECT t.xTeamsm
 	 LEFT JOIN kategorie AS k ON(t.xKategorie = k.xKategorie)
 	 LEFT JOIN verein AS v ON(t.xVerein = v.xVerein) 
      LEFT JOIN wettkampf AS w ON(w.xWettkampf = t.xWettkampf) 
-     LEFT JOIN disziplin AS d ON(d.xDisziplin = w.xDisziplin) 
+     LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(d.xDisziplin = w.xDisziplin) 
 	 	 WHERE t.xMeeting = ".$_COOKIE['meeting_id']." 
 	 	   ".$cat_clause."
            ".$disc_clause."   
@@ -252,7 +252,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                       LEFT JOIN athlet AS at ON(a.xAthlet = at.xAthlet) 
                       LEFT JOIN start AS s ON(s.xAnmeldung = a.xAnmeldung) 
                       LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf) 
-                      LEFT JOIN disziplin AS d ON (d.xDisziplin = w.xDisziplin)    
+                      LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON (d.xDisziplin = w.xDisziplin)    
                             WHERE sma.xTeamsm = ".$s." 
                        ORDER BY at.Name
                                    , at.Vorname";

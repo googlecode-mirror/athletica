@@ -138,7 +138,7 @@ $result = mysql_query("
 	FROM
 		wettkampf AS w
 		, kategorie AS k
-		, disziplin as d
+		, disziplin_" . $_COOKIE['language'] . " as d
 	WHERE w.xMeeting =" . $_COOKIE['meeting_id'] . "
 	AND w.xKategorie = $category
 	AND w.xKategorie = k.xKategorie

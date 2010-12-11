@@ -34,23 +34,128 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 	}
 	// OK: try to add item
 	else if ($_POST['arg']=="add")
-	{
+	{           
+        // new roundtype de
 		mysql_query("
-			INSERT INTO rundentyp SET 
+			INSERT INTO rundentyp_de SET 
 				Typ=\"" . $_POST['type'] . "\"
 				, Name=\"" . $_POST['name'] . "\"
 				, Wertung=" . $_POST['valtype']);
+        if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
+                
+         // new roundtype fr
+        mysql_query("
+            INSERT INTO rundentyp_fr SET 
+                Typ=\"" . $_POST['type'] . "\"
+                , Name=\"" . $_POST['name'] . "\"
+                , Wertung=" . $_POST['valtype']); 
+        if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }               
+                
+        // new roundtype it
+        mysql_query("
+            INSERT INTO rundentyp_it SET 
+                Typ=\"" . $_POST['type'] . "\"
+                , Name=\"" . $_POST['name'] . "\"
+                , Wertung=" . $_POST['valtype']); 
+        if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }                
+                
+                
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change")
 	{
-		mysql_query("
-			UPDATE rundentyp SET
-				Typ=\"" . $_POST['type'] . "\"
-				, Name=\"" . $_POST['name'] . "\"
-				, Wertung=" . $_POST['valtype'] . "
-			WHERE xRundentyp=" . $_POST['item']
-		);
+             // update roundtype de 
+             if ($_COOKIE['language'] == 'de'){
+                 // in current language with name and short name
+                 mysql_query("
+                        UPDATE rundentyp_" . $_COOKIE['language'] . " SET
+                            Typ=\"" . $_POST['type'] . "\"
+                            , Name=\"" . $_POST['name'] . "\"
+                            , Wertung=" . $_POST['valtype'] . "
+                        WHERE xRundentyp=" . $_POST['item']
+                    );
+           
+                 if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("
+                        UPDATE rundentyp_de SET
+                            Typ=\"" . $_POST['type'] . "\"                              
+                            , Wertung=" . $_POST['valtype'] . "
+                        WHERE xRundentyp=" . $_POST['item']
+                    );                    
+           
+                   if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                   }         
+             }
+             
+             // update roundtype fr 
+             if ($_COOKIE['language'] == 'fr'){
+                 // in current language with name and short name
+                 mysql_query("
+                        UPDATE rundentyp_" . $_COOKIE['language'] . " SET
+                            Typ=\"" . $_POST['type'] . "\"
+                            , Name=\"" . $_POST['name'] . "\"
+                            , Wertung=" . $_POST['valtype'] . "
+                        WHERE xRundentyp=" . $_POST['item']
+                    );
+           
+                 if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("
+                        UPDATE rundentyp_fr SET
+                            Typ=\"" . $_POST['type'] . "\"                              
+                            , Wertung=" . $_POST['valtype'] . "
+                        WHERE xRundentyp=" . $_POST['item']
+                    );                    
+           
+                   if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                   }         
+             }
+             // update roundtype it 
+             if ($_COOKIE['language'] == 'it'){
+                 // in current language with name and short name
+                 mysql_query("
+                        UPDATE rundentyp_" . $_COOKIE['language'] . " SET
+                            Typ=\"" . $_POST['type'] . "\"
+                            , Name=\"" . $_POST['name'] . "\"
+                            , Wertung=" . $_POST['valtype'] . "
+                        WHERE xRundentyp=" . $_POST['item']
+                    );
+           
+                 if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                 }         
+                 
+             }
+             else { // in other language without name and short name   
+                   mysql_query("
+                        UPDATE rundentyp_it SET
+                            Typ=\"" . $_POST['type'] . "\"                              
+                            , Wertung=" . $_POST['valtype'] . "
+                        WHERE xRundentyp=" . $_POST['item']
+                    );                    
+           
+                   if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                   }         
+             }
+		
 	}
 }
 //
@@ -58,7 +163,7 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 //
 else if ($_GET['arg']=="del")
 {
-	mysql_query("LOCK TABLES runde READ, rundentyp WRITE");
+	mysql_query("LOCK TABLES runde READ, rundentyp_de WRITE, rundentyp_fr WRITE, rundentyp_it WRITE");
 
 	// Still in use?
 	$rows = AA_checkReference("runde", "xRundentyp", $_GET['item']);
@@ -66,7 +171,9 @@ else if ($_GET['arg']=="del")
 	// OK: not used anymore
 	if($rows == 0)
 	{
-		mysql_query("DELETE FROM rundentyp WHERE xRundentyp=" . $_GET['item']);
+		mysql_query("DELETE FROM rundentyp_de WHERE xRundentyp=" . $_GET['item']);
+        mysql_query("DELETE FROM rundentyp_fr WHERE xRundentyp=" . $_GET['item']);
+        mysql_query("DELETE FROM rundentyp_it WHERE xRundentyp=" . $_GET['item']);
 	}
 	// Error: still in use
 	else
@@ -128,7 +235,7 @@ $result = mysql_query("SELECT xRundentyp"
 							. ", Typ"
 							. ", Name"
 							. ", Wertung"
-							. " FROM rundentyp ORDER BY Typ");
+							. " FROM rundentyp_" . $_COOKIE['language'] . " ORDER BY Typ");
 
 $i = 0;
 $btn = new GUI_Button('', '');	// create button object

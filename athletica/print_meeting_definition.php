@@ -1,4 +1,4 @@
-<?php
+d<?php
 
 /**********
  *
@@ -67,7 +67,7 @@ else		// no DB error
 									. ", w.xKategorie"
 									. ", k.Name"
 									. ", d.Kurzname"
-									. " FROM wettkampf AS w, kategorie AS k, disziplin as d"
+									. " FROM wettkampf AS w, kategorie AS k, disziplin_" . $_COOKIE['language'] . " as d"
 									. " WHERE w.xMeeting =" . $_COOKIE['meeting_id']
 									. " AND w.xKategorie = k.xKategorie"
 									. " AND w.xDisziplin = d.xDisziplin"

@@ -74,8 +74,8 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 					 FROM runde AS r
 					 , wettkampf AS w 
 					 , kategorie AS k
-					 , disziplin AS d
-					 LEFT JOIN rundentyp AS rt
+					 , disziplin_" . $_COOKIE['language'] . " AS d
+					 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
 					 ON r.xRundentyp = rt.xRundentyp
 					 WHERE w.xMeeting = ". $_COOKIE['meeting_id']." 
 					   AND r.xWettkampf = w.xWettkampf 
@@ -190,8 +190,8 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 									. " FROM runde AS r"
 									. ", wettkampf AS w"
 									. ", kategorie AS k"
-									. ", disziplin AS d"
-									. " LEFT JOIN rundentyp AS rt"
+									. ", disziplin_" . $_COOKIE['language'] . " AS d"
+									. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 									. " ON r.xRundentyp = rt.xRundentyp"
 									. " WHERE w.xMeeting=" . $_COOKIE['meeting_id']
 									. " AND r.xWettkampf = w.xWettkampf"

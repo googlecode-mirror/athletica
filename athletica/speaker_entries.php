@@ -144,7 +144,7 @@ if($round > 0)
 				, start AS s
 				, verein AS v
 				, wettkampf AS w
-				, disziplin AS d
+				, disziplin_" . $_COOKIE['language'] . " AS d
 			WHERE s.xWettkampf " . $sqlEvent . "
                 " . $sqlGroup . "
 			    AND a.xAnmeldung = s.xAnmeldung

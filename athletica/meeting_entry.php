@@ -461,7 +461,7 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
     }
     
     
-    mysql_query("LOCK TABLES anmeldung READ, disziplin READ, runde READ,"
+    mysql_query("LOCK TABLES anmeldung READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, runde READ,"
         . " kategorie READ, base_athlete READ, base_performance READ, wettkampf READ, start READ, start WRITE");
     
     
@@ -479,15 +479,15 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
             else                     
             {   
                 // check if event already started
-                $res = mysql_query("SELECT disziplin.Name"
-                                        . " FROM disziplin"
+                $res = mysql_query("SELECT d.Name"
+                                        . " FROM disziplin_" . $_COOKIE['language'] . " AS d"
                                         . ", runde"
                                         . ", wettkampf"
                                         . " WHERE runde.xWettkampf=" . $event
                                         . " AND runde.Status > 0"
                                         . " AND runde.Status != ". $cfgRoundStatus['enrolement_pending']
                                         . " AND wettkampf.xWettkampf = " . $event
-                                        . " AND disziplin.xDisziplin = wettkampf.xDisziplin");
+                                        . " AND d.xDisziplin = wettkampf.xDisziplin");
     
                 if(mysql_errno() > 0) {
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -520,14 +520,14 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
                             AND    wettkampf.xDisziplin = disziplin.xDisziplin
                             AND    wettkampf.xKategorie = kategorie.xKategorie";*/
                             
-                        $sql = "SELECT disziplin.Code AS DiszCode, 
+                        $sql = "SELECT d.Code AS DiszCode, 
                                        kategorie.Code AS KatCode, 
-                                       disziplin.Typ AS Typ, 
-                                       disziplin.xDisziplin, 
+                                       d.Typ AS Typ, 
+                                       d.xDisziplin, 
                                        kategorie.xKategorie, 
                                        wettkampf.xMeeting 
-                                  FROM disziplin 
-                                    LEFT JOIN wettkampf ON(wettkampf.xDisziplin = disziplin.xDisziplin) 
+                                  FROM disziplin_" . $_COOKIE['language'] . " As d
+                                    LEFT JOIN wettkampf ON(wettkampf.xDisziplin = d.xDisziplin) 
                                     LEFT JOIN kategorie USING(xKategorie) 
                                  WHERE wettkampf.xWettkampf = ".$event.";";
                         $res = mysql_query($sql);
@@ -1016,7 +1016,7 @@ else if ($_POST['arg']=="change_top")
 {
     mysql_query("
         LOCK TABLES
-            disziplin READ
+            disziplin_" . $_COOKIE['language'] . " READ
             , wetkkampf READ
             , start WRITE
     ");
@@ -1026,7 +1026,7 @@ else if ($_POST['arg']=="change_top")
         SELECT
             d.Typ
         FROM
-            disziplin AS d
+            disziplin_" . $_COOKIE['language'] . " AS d
             , start AS s
             , wettkampf AS w
         WHERE s.xStart = " . $_POST['event'] . "
@@ -1691,7 +1691,7 @@ function change_licensenr(){
                     FROM
                         start as s
                         , wettkampf as w
-                        , disziplin as d
+                        , disziplin_" . $_COOKIE['language'] . " as d
                     WHERE
                         s.xAnmeldung = $row[0]
                     AND    w.xWettkampf = s.xWettkampf
@@ -2003,7 +2003,7 @@ $dis = '';
             , d.xDisziplin                
         FROM
             wettkampf as w
-            , disziplin AS d
+            , disziplin_" . $_COOKIE['language'] . " AS d
             , kategorie as k
         WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "  
         AND w.xDisziplin = d.xDisziplin
@@ -2117,7 +2117,7 @@ $dis = '';
             , d.xDisziplin
         FROM
             wettkampf as w
-            , disziplin AS d
+            , disziplin_" . $_COOKIE['language'] . " AS d
             , kategorie as k
         WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "  
         AND w.xDisziplin = d.xDisziplin
@@ -2248,7 +2248,7 @@ $dis = '';
                                 echo "</table></td></tr><tr>";
                             }
                             $comb = $event_row[9];
-                            $comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $comb");
+                            $comb_res = mysql_query("SELECT Name FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $comb");
                             $comb_row = mysql_fetch_array($comb_res);
                             
                             //check if performance from base or manually entered
@@ -2291,7 +2291,7 @@ $dis = '';
                                 $comb = 0;
                             }
                             $combClosed = $event_row[9];
-                            $comb_res = mysql_query("SELECT Name FROM disziplin WHERE Code = $combClosed");
+                            $comb_res = mysql_query("SELECT Name FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $combClosed");
                             $comb_row = mysql_fetch_array($comb_res);
                             ?>
                             <tr>

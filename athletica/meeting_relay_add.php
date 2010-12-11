@@ -98,7 +98,12 @@ if ($_POST['arg']=="add")
 		}
 		
 		mysql_query("	LOCK TABLES
-								disziplin READ
+								disziplin_de READ
+                                , disziplin_fr READ
+                                , disziplin_it READ
+                                , disziplin_de AS d READ   
+                                , disziplin_fr AS d READ   
+                                , disziplin_it AS d READ   
 								, kategorie READ
 								, meeting READ
 								, team READ
@@ -228,15 +233,15 @@ if ($_POST['arg']=="add")
 										// check if event already started
 										$res = mysql_query("
 											SELECT
-												disziplin.Name
+												d.Name
 											FROM
-												disziplin
+												disziplin_" . $_COOKIE['language'] . " AS d
 												, runde
 												, wettkampf
 											WHERE runde.xWettkampf=". $_POST['event'] ."
 											AND runde.Status > 0
 											AND wettkampf.xWettkampf = ". $_POST['event'] ."
-											AND disziplin.xDisziplin = wettkampf.xDisziplin
+											AND d.xDisziplin = wettkampf.xDisziplin
 											");
 
 										if(mysql_errno() > 0) {
@@ -466,7 +471,7 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 			SELECT * FROM
 				base_relay as b
 				LEFT JOIN kategorie as k ON k.Code = b.category
-				LEFT JOIN disziplin as d ON d.Code = b.discipline
+				LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d ON d.Code = b.discipline
 			WHERE
 				b.account_code = $club
 			AND	k.xKategorie = $row[0]

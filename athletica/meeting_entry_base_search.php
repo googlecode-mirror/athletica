@@ -181,7 +181,7 @@ if(mysql_errno > 0){
 				, k.Code
 				, k.xKategorie
 			FROM
-				disziplin AS d
+				disziplin_" . $_COOKIE['language'] . " AS d
 				, wettkampf as w
 				, kategorie as k
 			WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."

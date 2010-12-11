@@ -436,7 +436,7 @@ if($category > 0 && $comb > 0){
 				, start as st
 				, anmeldung as a
 				, athlet as at
-				, disziplin as d
+				, disziplin_" . $_COOKIE['language'] . " as d
 			WHERE
 				w.Mehrkampfcode = $comb
 			AND	w.xKategorie = $category
@@ -552,7 +552,7 @@ $page->printPageTitle($strCombinedGroupsAutoAssign.", ".$strEventTypeTeamSM);
 			FROM
 				wettkampf AS w
 				, kategorie AS k
-				, disziplin AS d
+				, disziplin_" . $_COOKIE['language'] . " AS d
 			WHERE
 				k.xKategorie = w.xKategorie
 			AND	d.xDisziplin = w.xDisziplin
@@ -632,7 +632,7 @@ if($disc > 0){
 				, start as st
 				, anmeldung as a
 				, athlet as at
-				, disziplin as d
+				, disziplin_" . $_COOKIE['language'] . " as d
 			WHERE
 				w.xWettkampf = $disc
 			AND	st.xWettkampf = w.xWettkampf

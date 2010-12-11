@@ -324,7 +324,7 @@ if($round > 0)
                     rt.Typ
                 FROM
                     runde as r
-                    LEFT JOIN rundentyp as rt USING (xRundentyp)
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " as rt USING (xRundentyp)
                 WHERE
                     r.xRunde=" .$round;
         $res_r = mysql_query($sql_r);
@@ -408,7 +408,7 @@ if($round > 0)
 					FROM
 						runde AS r
 					LEFT JOIN 
-						rundentyp AS rt USING(xRundentyp)
+						rundentyp_" . $_COOKIE['language'] . " AS rt USING(xRundentyp)
 					LEFT JOIN 
 						serie AS s ON(r.xRunde = s.xRunde)
 					LEFT JOIN 
@@ -484,7 +484,7 @@ if($round > 0)
 					FROM
 						runde AS r
 					LEFT JOIN 
-						rundentyp AS rt USING(xRundentyp)
+						rundentyp_" . $_COOKIE['language'] . " AS rt USING(xRundentyp)
 					LEFT JOIN 
 						serie AS s ON(r.xRunde = s.xRunde)
 					LEFT JOIN 

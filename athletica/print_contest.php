@@ -139,8 +139,8 @@ $sql = "SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
 							. " FROM runde AS r"
 							. ", wettkampf AS w"
 							. ", kategorie AS k"
-							. ", disziplin AS d"
-							. " LEFT JOIN rundentyp AS rt"
+							. ", disziplin_" . $_COOKIE['language'] . " AS d"
+							. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 							. " ON rt.xRundentyp = r.xRundentyp"
 							. " WHERE r.xRunde " . $sqlRound
 							. " AND w.xWettkampf = r.xWettkampf"
@@ -289,7 +289,7 @@ else
 	{
 		$res = mysql_query("SELECT rt.Name"
 										. " FROM runde AS r"
-										. " LEFT JOIN rundentyp AS rt"
+										. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 										. " ON r.xRundentyp = rt.xRundentyp"
 										. " WHERE r.xRunde = $next_round");
 
@@ -316,7 +316,7 @@ else
                     rt.Typ
             FROM
                     runde as r
-                    LEFT JOIN rundentyp as rt USING (xRundentyp)
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " as rt USING (xRundentyp)
             WHERE
                     r.xRunde=" .$round;
     $res_r = mysql_query($sql_r);
@@ -360,7 +360,7 @@ else
 					. ", anmeldung AS a"
 					. ", athlet AS at"
 					. ", verein AS v"
-					. " LEFT JOIN rundentyp AS rt"
+					. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 					. " ON rt.xRundentyp = r.xRundentyp"
 					. " LEFT JOIN anlage AS an"
 					. " ON an.xAnlage = s.xAnlage"
@@ -396,7 +396,7 @@ else
 					. ", start AS st"
 					. ", staffel AS sf"
 					. ", verein AS v"
-					. " LEFT JOIN rundentyp AS rt"
+					. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
 					. " ON rt.xRundentyp = r.xRundentyp"
 					. " LEFT JOIN anlage AS an"
 					. " ON an.xAnlage = s.xAnlage"
