@@ -74,7 +74,9 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                     , anmeldung as a READ 
                     , athlet as at READ 
                     , verein as v READ 
-                    , rundentyp as rt READ   
+                    , rundentyp_de as rt READ
+                    , rundentyp_fr as rt READ
+                    , rundentyp_it as rt READ   
                     , tempTech WRITE
                     , tempTech as t READ  
             ");  
@@ -302,8 +304,8 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
        
 	
 		
-		$arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg1, time()+2419200);
+		$arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
+setcookie('sort_regie', $arg, time()+2419200);
 		// display all athletes
 		if ($arg=="nbr" && !$relay) {        
 		$argument="a.Startnummer";
@@ -361,7 +363,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein) 
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)  
 				LEFT JOIN tempTech AS t ON (t.xSerienstart = ss.xSerienstart)
-			    LEFT JOIN rundentyp AS rt ON rt.xRundentyp = r.xRundentyp
+			    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 			WHERE r.xRunde = $round     
 			ORDER BY s.xSerie, 
 				" . $argument . "
@@ -499,7 +501,7 @@ setcookie('sort_speakres', $arg1, time()+2419200);
                
 				 
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
-					, '','', AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], '', $row[17], $curr_class, 'regie');
+					, '',$row[13], AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], '', $row[17], $curr_class, 'regie');
                     
                  $curr_class = "";
 			}
