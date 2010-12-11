@@ -121,10 +121,18 @@ function printHeatTitleRegie($cat, $disc)
 		}
 		
 		if($this->layout == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']])
-		{
-			?>
-		<th class='dialog' colspan='2'>
-			<?php echo  $GLOBALS['strWind'] . " " . $wind; ?>
+		{    if ($arg != 'regie'){ 
+			    ?>
+		        <th class='dialog' colspan='2'>
+                <?php
+            }
+            else {
+                 ?>
+                <th class='dialog'>
+                <?php
+            }
+			
+           echo  $GLOBALS['strWind'] . " " . $wind; ?>
 		</th>
 			<?php
 		}
@@ -168,6 +176,11 @@ function printHeatTitleRegie($cat, $disc)
 			    <?php
 		    } 
         }
+        else {
+              ?>
+              <th class='dialog'></th>
+            <?php
+        }
 		?>
 	</tr>
 		<?php
@@ -185,10 +198,11 @@ function printHeatTitleRegie($cat, $disc)
             ?>
             <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
             <th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
-            <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
+            
            <?php 
         }
         ?>		
+        <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>    
 		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strPerformance']; ?></th>
 		<?php
@@ -210,6 +224,7 @@ function printHeatTitleRegie($cat, $disc)
               <th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>
             <?php
         }
+       
 		?>
 	</tr>
 		<?php
@@ -271,10 +286,11 @@ function printHeatTitleRegie($cat, $disc)
             ?>
             <td class='forms_ctr'><?php echo $year; ?></td>
             <td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
-            <td><?php echo $club; ?></td>
+            
             <?php
         }
 		 ?>
+         <td><?php echo $club; ?></td> 
 		<td><?php echo $topperf; ?></td>
 		<td class='forms_right'><b><?php echo $perf; ?></b></td>
 <?php
@@ -523,7 +539,7 @@ class GUI_TechResultTable extends GUI_ResultTable
        }
        else {
            ?>
-           <th class='dialog' colspan='2'></th>
+           <th class='dialog' colspan='3'></th>
            <?php
        }
 		?>
@@ -541,8 +557,8 @@ else if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
     if ($argT == 'regie'){
-           $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg1, time()+2419200);
+           $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
+setcookie('sort_regie', $arg1, time()+2419200);
     }
     else {
          $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
@@ -618,15 +634,30 @@ setcookie('sort_speakres', $arg, time()+2419200);
                 ?>
                <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
                 <th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
-                <th class='dialog'>
-                <a href='speaker_results.php?arg=club&round=<?php echo $round; ?>'>
-                        <?php echo $GLOBALS['strClub']; ?>
-                        <img src='<?php echo $img_club; ?>' />
-                    </a>
-                </th>
+                
                 <?php
         }
 		?>
+        <th class='dialog'>  
+        <?php
+        
+        if ($argT == 'regie'){
+            ?>
+             <a href='regie.php?arg=club&round=<?php echo $round; ?>'>
+             <?php echo $GLOBALS['strClub']; ?>
+                        <img src='<?php echo $img_club; ?>' />
+                        </a> 
+             <?php
+        }
+        else {
+             ?>
+            <a href='speaker_results.php?arg=perf&round=<?php echo $round; ?>'>  
+             <?php
+        }               
+        
+        ?>     
+                    
+        </th>
 		<th class='dialog'>
         <?php
          if ($argT == 'regie'){
@@ -689,10 +720,11 @@ setcookie('sort_speakres', $arg, time()+2419200);
             ?>
             <td class='forms_ctr'><?php echo $year; ?></td>
             <td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
-            <td nowrap><?php echo $club; ?></td>
+            
             <?php
         }
 		?>
+        <td nowrap><?php echo $club; ?></td> 
 		<td><?php echo $topperf; ?></td>
 		<td class='forms_ctr'><?php echo $rank; ?></td>
 			<?php
@@ -808,7 +840,7 @@ class GUI_HighResultTable extends GUI_ResultTable
         }
         else {
             ?>   
-             <th class='dialog'  colspan='2'></th>
+             <th class='dialog'  colspan='3'></th>
              <?php
         }
 		?>
@@ -821,8 +853,8 @@ class GUI_HighResultTable extends GUI_ResultTable
 	{        
         
      if ($argT == 'regie'){
-           $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg1, time()+2419200);
+           $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
+setcookie('sort_regie', $arg1, time()+2419200);
     }
     else {
          $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
@@ -869,10 +901,11 @@ setcookie('sort_speakres', $arg, time()+2419200);
             ?>
               <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
               <th class='dialog'><?php echo $GLOBALS['strCountry']; ?></th>
-              <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
+              
               <?php
         }
 		?>
+        <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>  
 		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 		<th class='dialog'>
         
@@ -921,13 +954,14 @@ setcookie('sort_speakres', $arg, time()+2419200);
             ?>
             <td class='forms_ctr'><?php echo $year; ?></td>
             <td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
-            <td nowrap><?php echo $club; ?></td>
+           
             <?php
-        }
+        }            
         if ($rank == 0){
             $rank = '';
         }
-        ?>  		
+        ?>  	
+         <td nowrap><?php echo $club; ?></td>    	
 		<td><?php echo $topperf; ?></td>
 		<td class='forms_ctr'><?php echo $rank; ?></td>
 			<?php
