@@ -95,7 +95,7 @@ $strDisciplines = "Disciplines";
 $strDiscTypeDistance = "Demi-fond/fond"; 
 $strDiscTypeHigh = "Hauteur/perche"; 
 $strDiscTypeJump = "Longueur/triple (mesure du vent)";  
-$strDiscTypeJumpNoWind = "Longueur/triple (sans mesure de vent)"; 
+$strDiscTypeJumpNoWind = "Longueur/triple (sans vent)"; 
 $strDiscTypeNone = "(pas défini)"; 
 $strDiscTypeRelay = "Relais"; 
 $strDiscTypeThrow = "Lancer"; 
@@ -797,5 +797,13 @@ $strUserInfo = "<b>Info pour utilisateur:</b> terminer les essais avec la <span 
 $strStNr = "Do";                        
 
 $strNumberEfforts='Nombre résultats';
+$strResultsUploadedNoResults="Il n'y a pas de (nouveaux) résultats à télécharger. Les résultats ne peuvent être téléchargés qu'une seule fois.";
+
+$strRest = "Restants";
+$strMan = "Hommes";
+$strWom = "Femmes";  
+$strGenChange = "Changement global  ";
+
+$strRanklistAll = "Liste de résultats globale";
 
 ?>
