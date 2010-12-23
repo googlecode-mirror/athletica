@@ -57,10 +57,7 @@ if($_GET['formaction'] == 'print') {		// page for printing
 		$doc = new PRINT_ReceiptEntryPage($_COOKIE['meeting']);  
     } 
        
- if ($club_clause == ''  && $athlete_clause == '') {             // no receipt if nothing is choosed
-   exit();
-}     
-                
+                 
     $reduction=AA_getReduction(); 
   
     $date=date("d.m.Y");      
