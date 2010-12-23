@@ -558,11 +558,11 @@ else if(!empty($_POST['round'])) {
 }
     if ($argT == 'regie'){
            $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
-setcookie('sort_regie', $arg1, time()+2419200);
+           setcookie('sort_regie', $arg1, time()+2419200);            
     }
     else {
-         $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg, time()+2419200);
+         $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speaker'])) ? $_COOKIE['sort_speaker'] : 'pos');
+         setcookie('sort_speaker', $arg, time()+2419200);           
     }
 	
 // sort argument
@@ -854,11 +854,13 @@ class GUI_HighResultTable extends GUI_ResultTable
         
      if ($argT == 'regie'){
            $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
-setcookie('sort_regie', $arg1, time()+2419200);
+           setcookie('sort_regie', $arg1, time()+2419200);
+           $_COOKIE['sort_regie'] = $arg;
     }
     else {
-         $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speakres'])) ? $_COOKIE['sort_speakres'] : 'pos');
-setcookie('sort_speakres', $arg, time()+2419200);
+         $arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speaker'])) ? $_COOKIE['sort_speaker'] : 'pos');
+         setcookie('sort_speaker', $arg, time()+2419200);
+         $_COOKIE['sort_speaker'] = $arg;
     }
     
 // sort argument
