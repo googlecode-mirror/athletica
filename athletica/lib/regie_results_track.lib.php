@@ -204,7 +204,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					, st.Bestleistung
 					, at.xAthlet
                     , t.rang  
-                    , if (ss.Rang = 0, 999999, ss.Rang) as orderRang    
+                    , if (t.Rang > 0, t.Rang, 999999 ) as orderRang                       
 				FROM
 					runde AS r
 					LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
@@ -220,7 +220,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
                     r.xRunde = $round    				
 				ORDER BY
 					heatid
-                     , orderRang       
+                     , orderRang , ss.Position       
 			");        
 		}
 		else {								// relay event
@@ -244,7 +244,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					, r.xRunde
 					, st.xStart
                     , t.rang 
-                    , if (ss.Rang = 0, 999999, ss.Rang) as orderRang    
+                    , if (t.Rang > 0, t.Rang, 999999 ) as orderRang
 				FROM
 					runde AS r
 					LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
@@ -259,7 +259,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
                     r.xRunde = $round  				
 				ORDER BY
 					heatid
-					, orderRang
+					, orderRang , ss.Position       
 			");
 		}           
        
