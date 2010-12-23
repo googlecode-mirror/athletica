@@ -322,7 +322,7 @@ $strTeamRankingDeclaration =
 $strTeamRankingSubtitle1 = "Résultats comptants des disciplines simples et relais"; 
 $strTeamRankingSubtitle2 = "Résultats comptants des groupes de discipline"; 
 $strTeamRankingSubtitle3 = "Autres résultats comptants";  
-$strTeams = "Équipes"; 
+$strTeams = "CSI Équipes"; 
 $strTerminateEnrolement = "Appel terminé"; 
 $strTerminateSeeding = "Répartition terminée"; 
 $strTime = "Heure"; 
@@ -805,5 +805,8 @@ $strWom = "Femmes";
 $strGenChange = "Changement global  ";
 
 $strRanklistAll = "Liste de résultats globale";
+
+
+$strTnMk = "P-CM"; 
 
 ?>

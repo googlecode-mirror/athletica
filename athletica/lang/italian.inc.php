@@ -383,7 +383,7 @@ $strTeamRankingSubtitle1 = "Risultati di singole discipline e staffetta";
 $strTeamRankingSubtitle2 = "Risultati addizionali per gruppi di disciplina";
 $strTeamRankingSubtitle3 = "Altri risultati";
 $strTeamNameRemark = "<b>Attenzione!</b> Questo nome è stato mutato nella lista dei migliori<br>sotto: Nome della società + il no. che segue";
-$strTeams = "Squadre";
+$strTeams = "CSI Squadre";
 $strTeamsAutoAssign = "Assegnazione delle squadre";
 $strTerminateEnrolement = "Iscrizioni concluse";
 $strTerminateSeeding = "Distribuzione conclusa";
@@ -742,5 +742,18 @@ $strXmlNoClub = "<br>&nbsp;&nbsp;La società %NAME% non esiste in Athletica.";
 
 $strOver1000m = "Solo per oltre 1000 m s/m";  
 
+
+
+
+
+
+$strResultsUploadedNoResults =  "Non ci sono (nuovi) risultati da caricare. I risultati possono essere caricati solo una volta.";
+$strRest = "Rimanenti";
+$strMan  =  "Uomini";
+$strWom  =   "Donne";
+$strGenChange  =  "Cambiamento totale";
+$strRanklistAll = "Lista completa dei risultati";
+
+ $strTnMk = "P-GM";     
 
 ?>

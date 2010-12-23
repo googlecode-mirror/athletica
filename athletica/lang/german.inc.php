@@ -548,7 +548,7 @@ $strTeamRankingSubtitle1 = "Zählresultate Einzeldisziplinen und Staffel";
 $strTeamRankingSubtitle2 = "Zusätzliche Zählresultate aus Disziplinengruppen";
 $strTeamRankingSubtitle3 = "Weitere Zählresultate";
 $strTeamNameRemark = "<b>Achtung!</b> Dieser Name wird beim Upload in die Bestenliste geändert in:<br> Vereinsname + fortlaufende Nr";
-$strTeams = "Mannschaften";
+$strTeams = "SVM Mannschaften";
 $strTeamSMClubRule = "Nach Reglement dürfen nur Athleten aus dem Stammverein antreten!";
 $strTeamSMRanking = "Team SM Rangliste";
 $strTeamsTeamSM = "Team SM Mannschaften";
@@ -811,5 +811,9 @@ $strMan = "Männer";
 $strWom = "Frauen";  
 $strGenChange = "Pauschale Änderung";
 
-$strRanklistAll = "Gesamtrangliste";
+$strRanklistAll = "Rangliste über alle Serien";
+
+$strNoDoubleFill = "Es können nur entweder die Felder nach Geschlecht oder die Felder nach Kategorie ausgefüllt werden.";
+$strTnMk = "TN-MK";
+
 ?>
