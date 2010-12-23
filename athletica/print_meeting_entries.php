@@ -474,9 +474,9 @@ else if(mysql_num_rows($result) > 0)  // data found
 			&& (!is_a($doc, "GUI_ClubCatDiscEntryPage")))
 		{   
 		 
-		    // 403 = Athletic Cup
+		    // 403 = UBS Kids Cup
             // 799 = ...kampf
-            // show all disziplines (also if performance is 0) by Athletic Cup and ...kampf              
+            // show all disziplines (also if performance is 0) by UBS Kids Cup and ...kampf              
 			if( ($perf == 0 && $row[23] != 403 && $row[23] != 799) || ( $row[23] > 0 && $row[23] != 403 && $row[23] != 799 && isset($cfgCombinedDef[$row[23]]) && $perf > 0 )) {            
 				//$Info = ($row[17]!="") ? ' ('.$row[17].')' : '';  								
 	 		   	$Info = ($row[18]!="") ? ' ('.$row[18].')' : ''; 
