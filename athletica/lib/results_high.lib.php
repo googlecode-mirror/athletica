@@ -80,6 +80,9 @@ if($_POST['arg'] == 'save_res')
                 disziplin_de READ
                 , disziplin_fr READ
                 , disziplin_it READ
+                , disziplin_de as d READ
+                , disziplin_fr as d READ
+                , disziplin_it as d READ
                 , runde READ
                 , runde AS r READ 
                 , serienstart WRITE
