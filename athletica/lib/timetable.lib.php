@@ -810,9 +810,9 @@ function AA_timetable_display_regie($timestamp)
                                 
                                 while ($row = mysql_fetch_row($res))
                                 { 
-                                    // if (strtotime($row[22]) >= $timestamp){           
-                                   //      continue;
-                                    // }
+                                    if (strtotime($row[22]) >= $timestamp){           
+                                         continue;
+                                    }
                                    
                                     if ($row[20] == 0 && $row[20] != NULL)  {               // don't' show merged  rounds
                                           continue;  

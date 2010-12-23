@@ -166,8 +166,9 @@ function AA_speaker_Tech($event, $round, $layout)
 		}
 
 		$prog_mode = AA_results_getProgramMode();
-		$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
-setcookie('sort_regie', $arg, time()+2419200);
+		$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speaker'])) ? $_COOKIE['sort_speaker'] : 'pos');
+        setcookie('sort_speaker', $arg, time()+2419200);          
+
 		// display all athletes
 		if ($arg=="nbr" && !$relay) {        
 		$argument="a.Startnummer";
