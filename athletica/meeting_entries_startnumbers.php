@@ -9,6 +9,7 @@
   
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
+$anzahl_cat = "0";
 
 require('./lib/common.lib.php');
 
@@ -44,10 +45,12 @@ $limit2 = 0;
 $limit3 = 0;
 
 $allNr = false;
+$sex = false;
 
 
  if ( ($_GET['of_sex1'] > 0 || $_GET['of_sex2'] > 0)) {
      $_GET["sort"] == 'sex';
+     $sex = true;
  }
          
 
@@ -117,20 +120,22 @@ if($_GET['arg'] == 'assign')
 	{    
 		// sort argument 
         $argument1='';   
+        $groupby = '';
 		if ($_GET['sort']=="name") {
 		  $argument2="at.Name, at.Vorname"; 	  	
 		} else if ($_GET['sort']=="club" && !$teams) {
 		  $argument2="v.Sortierwert, at.Name, at.Vorname";   
         } else if ($_GET['sort']=="club" && $teams) {
           $argument2="at.Name, at.Vorname";   
-          $argument1="t.Name,";
-        }
-        else if ($_GET['sort']=="sex") {
-             $argument3="at.Geschlecht,"; 
-             $argument2="at.Name, at.Vorname";  
+          $argument1="t.Name,";                          
 		} else {
 		  $argument2="at.Name, at.Vorname";
-		}         
+		}   
+        
+        if ( ($_GET["of_sex1"] != 0)  ||   ($_GET["of_sex2"] != 0) ){  
+                $argument3="at.Geschlecht,";                
+                $groupby = ' GROUP BY a.xAnmeldung ';   
+        }   
 		
 		// assign per contest cat      
 			$argument = "k.Anzeige, k.xKategorie ";    
@@ -179,9 +184,10 @@ if($_GET['arg'] == 'assign')
                     LEFT JOIN teamsm AS tsm ON tsm.xTeamsm = tat.xTeamsm
                 WHERE 
                     a.xMeeting = " . $_COOKIE['meeting_id'] . " 
+                    $groupby
                     ORDER BY      
                          $argument3 $argument1 $argument, discSort, tat.xTeamsm, $argument2";    
-            
+           
             $result = mysql_query($sql);  
             
 			if(mysql_errno() > 0)		// DB error
@@ -191,7 +197,7 @@ if($_GET['arg'] == 'assign')
 			else if(mysql_num_rows($result) > 0)  // data found
 			{ 
             $noCat = true;   
-            $sex = false;
+           // $sex = false;
            
               // check if choosen per name/club or per category
               while ($row = mysql_fetch_row($result))
@@ -809,31 +815,6 @@ if($_GET['arg'] == 'assign')	// refresh list
 }
 ?>
 
-<script type="text/javascript">     
-
-function check_rounds(){
-	   
-	//if(true == <?php //echo $heats_done ?>){
-		
-		check = confirm("<?php echo $strStartNrConfirm ?>");
-		return check;
-	//}
-    
-}
-         
-function check_of(){
-    
-    // check of values in name_of and club_of
-   
-   if (document.getElementById("name").checked){       
-       document.getElementById("club_of").value = '';
-   }
-  
-}   	
-
-  
-
-</script>
 
 
  <?php
@@ -890,19 +871,7 @@ function check_of(){
     <td class='dialog'>&nbsp;</td> 
 </tr>   
 <?php
-     if (!$teams) { 
-             ?> 
-        <tr>
-            <td class='dialog'>
-                <input type='radio' name='sort' id='sex' onChange='check_of()' value='sex' >
-                <?php echo $strSex; ?> 
-            </td>
-            <td class='forms'>&nbsp;          
-            </td>  
-        </tr>    
-
-      <?php
-     }
+    
       
        // check disziplines man           
           $res_sex1 = mysql_query("SELECT           
@@ -963,19 +932,19 @@ function check_of(){
              <tr>
                 <td class='dialog'><?php echo $strMan; ?></td> 
                 <td class='forms'>    
-                <input type="text" size="3" value="<?php echo $_GET['of_sex1']; ?>"  name="of_sex1" ></td>
+                <input type="text" size="3" value="<?php echo $_GET['of_sex1']; ?>"  name="of_sex1" id="of_sex1" ></td>
                  <td class='forms_right'>
                                  
-                <input type="text" size="3" value="<?php echo $_GET['to_sex1']; ?>"  name="to_sex1" ></td>
+                <input type="text" size="3" value="<?php echo $_GET['to_sex1']; ?>"  name="to_sex1" id="to_sex1"></td>
                 <td class='forms_right_grey'><?php echo $max_startnr_sex1; ?></td>  
              </tr>
              
              <tr>
                 <td class='dialog'><?php echo $strWom; ?></td> 
                 <td class='forms'>  
-                <input type="text" size="3" value="<?php echo $_GET['of_sex2']; ?>"  name="of_sex2" ></td>
+                <input type="text" size="3" value="<?php echo $_GET['of_sex2']; ?>"  name="of_sex2" id="of_sex2" ></td>
                 <td class='forms_right'>  
-                <input type="text" size="3" value="<?php echo $_GET['to_sex2']; ?>"  name="to_sex2" ></td>
+                <input type="text" size="3" value="<?php echo $_GET['to_sex2']; ?>"  name="to_sex2" id="to_sex2"></td>
                 <td class='forms_right_grey'><?php echo $max_startnr_sex2; ?></td>  
              </tr>   
 <?php
@@ -1001,6 +970,7 @@ $res = mysql_query("SELECT
 if(mysql_errno() > 0){
 	AA_printErrorMsg(mysql_errno().": ".mysql_error());
 }else{
+    $arr_cat = array();
 	while($row = mysql_fetch_array($res)){        
            $max_startnr = 0;
            $max_startnr_track1 = 0;
@@ -1151,7 +1121,7 @@ if(mysql_errno() > 0){
     <td class='dialog' colspan="13"></td>
        <td class='forms'>
                          
-        <input type="text" size="3" value="<?php echo $_GET['of_rest']; ?>"  name="of_rest" ></td> 
+        <input type="text" size="3" value="<?php echo $_GET['of_rest']; ?>"  name="of_rest" id="of_rest" ></td> 
         
       </tr>  
         
@@ -1165,10 +1135,10 @@ if(mysql_errno() > 0){
 	<td class='dialog'><?php echo $row[1] ?></td>
    	<td class='forms'>
 		                 
-		<input type="text" size="3" value="<?php echo $_GET['of_'.$row[0]]; ?>"  name="of_<?php echo $row[0] ?>" ></td>
+		<input type="text" size="3" value="<?php echo $_GET['of_'.$row[0]]; ?>"  name="of_<?php echo $row[0] ?>"  id="of_<?php echo $row[0] ?>"></td>
 	<td class='forms_right'>
 		
-		<input type="text" size="3" value="<?php echo $_GET['to_'.$row[0]]; ?>" name="to_<?php echo $row[0] ?>" >	</td>
+		<input type="text" size="3" value="<?php echo $_GET['to_'.$row[0]]; ?>" name="to_<?php echo $row[0] ?>" id="to_<?php echo $row[0] ?>">	</td>
         
         </td>  
     <td class='forms_right_grey'><?php echo $max_startnr; ?></td>
@@ -1177,10 +1147,10 @@ if(mysql_errno() > 0){
     
     <td class='forms'>
         
-        <input type="text" size="3" value="<?php echo $_GET['of_track1_'.$row[0]]; ?>" name="of_track1_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_track1_'.$row[0]]; ?>" name="of_track1_<?php echo $row[0] ?>" id="of_track1_<?php echo $row[0] ?>">    </td>
     <td class='forms_right'>
        
-        <input type="text" size="3" value="<?php echo $_GET['to_track1_'.$row[0]]; ?>" name="to_track1_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['to_track1_'.$row[0]]; ?>" name="to_track1_<?php echo $row[0] ?>" id="to_track1_<?php echo $row[0] ?>">    </td>
     
     
     <td class='forms_right_grey'><?php echo $max_startnr_track1; ?></td>
@@ -1188,29 +1158,33 @@ if(mysql_errno() > 0){
     
      <td class='forms'>
         
-        <input type="text" size="3" value="<?php echo $_GET['of_track2_'.$row[0]]; ?>" name="of_track2_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_track2_'.$row[0]]; ?>" name="of_track2_<?php echo $row[0] ?>" id="of_track2_<?php echo $row[0] ?>">    </td>
     <td class='forms_right'>
         
-        <input type="text" size="3" value="<?php echo $_GET['to_track2_'.$row[0]]; ?>" name="to_track2_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['to_track2_'.$row[0]]; ?>" name="to_track2_<?php echo $row[0] ?>" id="to_track2_<?php echo $row[0] ?>">    </td>
     
     <td class='forms_right_grey'><?php echo $max_startnr_track2; ?></td>
     
     
     <td class='forms'>
        
-        <input type="text" size="3" value="<?php echo $_GET['of_tech_'.$row[0]]; ?>" name="of_tech_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['of_tech_'.$row[0]]; ?>" name="of_tech_<?php echo $row[0] ?>" id="of_tech_<?php echo $row[0] ?>">    </td>
     <td class='forms_right'>
        
-        <input type="text" size="3" value="<?php echo $_GET['to_tech_'.$row[0]]; ?>" name="to_tech_<?php echo $row[0] ?>" >    </td>
+        <input type="text" size="3" value="<?php echo $_GET['to_tech_'.$row[0]]; ?>" name="to_tech_<?php echo $row[0] ?>" id="to_tech_<?php echo $row[0] ?>">    </td>
    
     
     <td class='forms_right_grey'><?php echo $max_startnr_tech; ?></td>
 </tr>
 		<?php
         $i++;
+        $arr_cat[] = $row[0];
+       
 	}
 }
- 
+    $anzahl_cat = count($arr_cat);  
+   
+    
  
    }
    else {
@@ -1331,5 +1305,53 @@ if(mysql_errno() > 0){
  <?php
  }
  ?>
+ 
+<script type="text/javascript">     
+
+function check_rounds(){        
+   
+       var cat = '';
+       var setCat = false;
+       <?php for($i=0;$i<$anzahl_cat;$i++){
+           ?>
+               cat = "<?php echo $arr_cat[$i] ?>";
+               if (document.getElementById("of_"+cat).value > 0 || document.getElementById("of_track1_"+cat).value > 0 || document.getElementById("of_track2_"+cat).value > 0 || document.getElementById("of_tech_"+cat).value > 0 ||
+                     document.getElementById("to_"+cat).value > 0 || document.getElementById("to_track1_"+cat).value > 0 || document.getElementById("to_track2_"+cat).value > 0 || document.getElementById("to_tech_"+cat).value > 0 ||
+                     document.getElementById("of_rest").value > 0) {                                                                                                                                                
+                     setCat = true;
+               }                  
+           <?php                       
+        }       
+        ?>  
+     
+        if ((document.getElementById("of_sex1").value > 0 || document.getElementById("to_sex1").value > 0 || document.getElementById("of_sex2").value > 0 || document.getElementById("to_sex2").value > 0) 
+            && (setCat)){                
+            alert("<?php echo $strNoDoubleFill ?>"); 
+            return false;  
+        }          
+        
+        check = confirm("<?php echo $strStartNrConfirm ?>");
+        return check;
+   
+    
+}
+         
+function check_of(){
+    
+    // check of values in name_of and club_of
+   
+   if (document.getElementById("name").checked){       
+       document.getElementById("club_of").value = '';
+   }
+  
+}       
+
+  
+
+</script>
+ 
+ 
+ 
+ 
 </body>
 </html>
