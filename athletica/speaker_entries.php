@@ -262,7 +262,7 @@ if($round > 0)
 			|| ($row[9] == $cfgDisciplineType[$strDiscTypeRelay])
 			|| ($row[9] == $cfgDisciplineType[$strDiscTypeDistance]))
 		{
-			$perf = AA_formatResultTime($row[7]);
+			$perf = AA_formatResultTime($row[7], true);
 		}
 		else {
 			$perf = AA_formatResultMeter($row[7]);
