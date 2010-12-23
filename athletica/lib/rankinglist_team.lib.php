@@ -125,7 +125,7 @@ $results = mysql_query("
 	ORDER BY
 		k.Anzeige
 ");
-       
+     
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -159,7 +159,10 @@ $GLOBALS[$list]->endPage();	// end HTML page for printing
 
 function processSingle($xCategory, $category)
 {   
-	global $rFrom, $rTo, $limitRank;
+	//global $rFrom, $rTo, $limitRank;
+    $GLOBALS[$rFrom];
+    $GLOBALS[$rTo]; 
+    $GLOBALS[$limitRank]; 
 	require('./config.inc.php');
 
 	mysql_query("
@@ -191,7 +194,7 @@ function processSingle($xCategory, $category)
 		AND t.xKategorie = $xCategory
 		AND v.xVerein = t.xVerein
 	");
-    
+     
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		return;
@@ -200,12 +203,17 @@ function processSingle($xCategory, $category)
 	$tm = 0;			// team
 	$info = '';
 	$points = 0;
+    
 	$sep = '';
 	$temptable = false;
 
 	// process all teams
 	while($row = mysql_fetch_row($results))
 	{
+        
+        
+
+        
 		// store previous before processing new team
 		if(($tm != $row[0])		// new team
 			&& ($tm > 0))			// first team processed
@@ -214,7 +222,7 @@ function processSingle($xCategory, $category)
 				"points"=>$points
 				, "team"=>$team
 				, "club"=>$club
-				, "info"=>$info
+				, "info"=>$info                      
 				, "id"=>$tm		// needed for result upload
 			);
 
@@ -232,7 +240,8 @@ function processSingle($xCategory, $category)
 	  			, w.Typ
 	  			, d.Typ
 				, k.Code
-				, at.Geschlecht                
+				, at.Geschlecht
+               
   			FROM
 	  			wettkampf AS w
 	  			, disziplin_" . $_COOKIE['language'] . " AS d 
@@ -241,7 +250,7 @@ function processSingle($xCategory, $category)
 	  			, resultat AS r 
 	  			, anmeldung AS a 
 				, kategorie AS k
-				, athlet AS at
+				, athlet AS at                   
   			WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
   			AND w.xKategorie = $xCategory
   			AND d.xDisziplin = w.xDisziplin
@@ -251,7 +260,7 @@ function processSingle($xCategory, $category)
   			AND a.xAnmeldung = st.xAnmeldung
 			AND at.xAthlet = a.xAthlet
   			AND a.xTeam = $row[0]
-			AND a.xKategorie = k.xKategorie
+			AND a.xKategorie = k.xKategorie             
 			GROUP BY
 				st.xStart
 			ORDER BY
@@ -268,10 +277,11 @@ function processSingle($xCategory, $category)
 			$d = '';
 			$g = 0;
 			$p = 0;
-			$mixedTeamCount = array('m'=>0, 'w'=>0);
+			$mixedTeamCount = array('m'=>0, 'w'=>0);               
             
 			while($pt_row = mysql_fetch_row($res))
 			{   
+                                 
 				// nbr of athletes to be included in total points
 				switch($pt_row[2]) {
 					case $cfgEventType[$strEventTypeSVMNL]: // new national league mode since 2007
@@ -304,9 +314,10 @@ function processSingle($xCategory, $category)
 									, Wettkampftyp tinyint(4)
 									, Disizplinentyp tinyint(4)
 									)
-								TYPE=HEAP
+								  TYPE=HEAP 
 							");
-						}
+						}       
+                        
 						if(mysql_errno() > 0) {		// DB error
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 						}
@@ -436,7 +447,8 @@ function processSingle($xCategory, $category)
 
 				$c++;
 				$d = $pt_row[0];				// keep discipline
-                
+                                                  
+              
 			}	// END WHILE team events
            
 			// accumulate points of last event
@@ -478,7 +490,7 @@ function processSingle($xCategory, $category)
 				d.Anzeige
 				, pts DESC
   		");
-	   
+	    
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -727,7 +739,7 @@ function processSingle($xCategory, $category)
 			"points"=>$points
 			, "team"=>$team
 			, "club"=>$club
-			, "info"=>$info
+			, "info"=>$info                
 			, "id"=>$tm
 		);
 	}
@@ -740,30 +752,34 @@ function processSingle($xCategory, $category)
 	usort($teamList, "cmp");
 	$rank = 1;									// initialize rank
 	$r = 0;										// start value for ranking
-	$p = 0;
-	foreach($teamList as $team)
-	{
-		$r++;
-		
-		if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
-			continue;
-		}
-		
-		if($p != $team['points']) {	// not same points as previous team
-			$rank = $r;		// next rank
-		}
-		else {
-			$rank = '';
-		}
-		
-		if($GLOBALS['xmladdon']){ 
-			$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
-		}else{
-			$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
-		}
-		$GLOBALS[$list]->printInfo($team['info']);
-		$p = $team['info'];			// keep current points
-	}
+	$p = 0;  
+    
+   
+    foreach($teamList as $team)
+                {
+                    $r++;
+                    
+                    if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
+                        continue;
+                    }
+                    
+                    if($p != $team['points']) {    // not same points as previous team
+                        $rank = $r;        // next rank
+                    }
+                    else {
+                        $rank = '';
+                    }
+                    
+                    if($GLOBALS['xmladdon']){ 
+                        $GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
+                    }else{
+                        $GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
+                    }
+                    $GLOBALS[$list]->printInfo($team['info']);
+                    $p = $team['info'];            // keep current points
+                }
+    
+	
 	$GLOBALS[$list]->endList();
 
 	mysql_query("UNLOCK TABLES");
@@ -776,8 +792,12 @@ function processSingle($xCategory, $category)
 //
 
 function processCombined($xCategory, $category, $type)
-{   
-	global $rFrom, $rTo, $limitRank;
+{  
+	//global $rFrom, $rTo, $limitRank;
+    $GLOBALS[$rFrom];
+    $GLOBALS[$rTo];
+    $GLOBALS[$limitRank];  
+    
 	require('./config.inc.php');
 
 	// get athlete info per category and team
@@ -833,7 +853,7 @@ function processCombined($xCategory, $category, $type)
         $country = '';  
 	
 		while($row = mysql_fetch_row($results))
-		{
+		{      
 			// store previous athlete before processing new athlete
 			if(($a != $row[0])		// new athlete
 				&& ($a > 0))			// first athlete processed
@@ -844,6 +864,7 @@ function processCombined($xCategory, $category, $type)
 					, "year"=>$year
 					, "info"=>$info
                     , "country"=>$country
+                    , "club"=>$club 
 				);
 
 				$points = 0;
@@ -878,7 +899,9 @@ function processCombined($xCategory, $category, $type)
 				$sep = '';
 			}
 
-			$tm = $row[4];		// keep current team
+            if ($type != 'teamP'){     
+			    $tm = $row[4];		// keep current team
+            }
 
 			// events
 			$res = mysql_query("
@@ -999,7 +1022,8 @@ function processCombined($xCategory, $category, $type)
 
 		mysql_free_result($results);
 
-		if(!empty($tm))		// add last team if any
+		
+        if (!empty($tm) || $type == 'teamP')        // add last team if any  or team independent 
 		{
 			// last athlete
 			$athleteList[] = array(
@@ -1008,6 +1032,7 @@ function processCombined($xCategory, $category, $type)
 				, "year"=>$year
 				, "info"=>$info
                 , "country"=>$country  
+                , "club"=>$club     
 			);
            
 			// last team
@@ -1036,45 +1061,79 @@ function processCombined($xCategory, $category, $type)
 		$r = 0;										// start value for ranking
 		$p = 0;
 		$tp = 0;
-		foreach($teamList as $team)
-		{
-			$r++;
-			
-			if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
-				continue;
-			}
-			
-			if($p != $team['points']) {	// not same points as previous team
-				$rank = $r;		// next rank
-			}
-			if($GLOBALS['xmladdon']){
-				$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
-			}else{
-				$GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
-			}
-			$p = $team['points'];			// keep current points
-
-			$i = 0;
-			$xmlinfo = "";
-			foreach($team['athletes'] as $athlete)
-			{   
-				if($i >= $evaluation) {	// show only athletes included in end result
-					break;
-				}
-				$i++;
+        if ($type == 'teamP'){                     // ranking athletes not depending on team                
+            
+                usort($athleteList, "cmp");    // sort athletes by points  
+          
+                $xmlinfo = "";
+                $rank = 0;
+                $i = 0;
                
-				$GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country']);
-				if($GLOBALS['xmladdon']){
-					$xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
-				}else{
-					$GLOBALS[$list]->printInfo($athlete['info']);
-				}
-			}
-			
-			if($GLOBALS['xmladdon']){
-				$GLOBALS[$list]->printInfo(substr($xmlinfo,0,strlen($xmlinfo)-2));
-			}
-		}
+                foreach($athleteList as $key => $athlete)
+                {                         
+                    if ($keep_points != $athlete['points']) {
+                        $i++; 
+                        $rank = $i;
+                    }
+                    else {
+                          $rank = '';
+                    }
+                    
+                    $GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country'], $athlete['club'], $rank, $type);
+                    if($GLOBALS['xmladdon']){
+                        $xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
+                    }else{
+                        $GLOBALS[$list]->printInfo($athlete['info']);
+                    }
+                    $keep_points = $athlete['points'];
+                }
+                
+                if($GLOBALS['xmladdon']){
+                    $GLOBALS[$list]->printInfo(substr($xmlinfo,0,strlen($xmlinfo)-2));
+                }        
+        }
+        else {                             // ranking per team
+         
+		    foreach($teamList as $team)
+		    {
+			    $r++;
+			    
+			    if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
+				    continue;
+			    }
+			    
+			    if($p != $team['points']) {	// not same points as previous team
+				    $rank = $r;		// next rank
+			    }
+			    if($GLOBALS['xmladdon']){
+				    $GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
+			    }else{
+				    $GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
+			    }
+			    $p = $team['points'];			// keep current points
+
+			    $i = 0;
+			    $xmlinfo = "";
+			    foreach($team['athletes'] as $athlete)
+			    {   
+				    if($i >= $evaluation) {	// show only athletes included in end result
+					    break;
+				    }
+				    $i++;
+                   
+				    $GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country']);
+				    if($GLOBALS['xmladdon']){
+					    $xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
+				    }else{
+					    $GLOBALS[$list]->printInfo($athlete['info']);
+				    }
+			    }
+			    
+			    if($GLOBALS['xmladdon']){
+				    $GLOBALS[$list]->printInfo(substr($xmlinfo,0,strlen($xmlinfo)-2));
+			    }
+		    }
+         } 
 
 		$GLOBALS[$list]->endList();
 	}	// ET DB error all teams

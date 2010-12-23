@@ -636,9 +636,9 @@ class GUI_TeamRankingList extends GUI_ListPage
 	}
 
 
-	function printLine($rank, $name, $club, $points)
+	function printLine($rank, $name, $club, $points, $type)
 	{   
-		$this->switchRowClass();
+		$this->switchRowClass();   
 		?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
 		<td class='forms_right'><?php echo $rank; ?></td>
@@ -650,14 +650,31 @@ class GUI_TeamRankingList extends GUI_ListPage
 	}
 
 
-	function printAthleteLine($name, $year, $points, $country)
+	function printAthleteLine($name, $year, $points, $country, $club, $rank, $type)
 	{
 		?>
-	<tr class='<?php echo $this->rowclass[0]; ?>'>
-		<td />
-		<td><?php echo "$name, $year, $country"; ?></td>
-		<td><?php echo $points; ?></td>
-		<td />         
+	
+		
+        <?php
+         if ($type == 'teamP'){
+             ?>
+             <tr class='<?php echo $this->rowclass[0]; ?>'>
+             <td><?php echo $rank; ?></td>
+             <td><?php echo "$name, $year"; ?></td> 
+              <td><?php echo $club; ?></td>
+              <td><?php echo $points; ?></td> 
+              <?php
+         }
+         else {
+             ?>
+             <tr class='<?php echo $this->rowclass[0]; ?>'><td />
+             <td><?php echo "$name, $year, $country"; ?></td>
+             <td><?php echo $points; ?></td>
+             <td />             
+             <?php
+         }
+         ?>
+		
 	</tr>
 		<?php
 	}
