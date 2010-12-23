@@ -152,7 +152,7 @@ else if($type == 'combined')
 }                                                                                                  
 
 // Ranking list teams events
-else if($type == 'team' || $type == 'teamAll')
+else if($type == 'team' || $type == 'teamAll' || $type == 'teamP')
 {   
     @AA_rankinglist_Team($category, $formaction, $break, $cover, $parser=false, $event, $heatSeparate,$type, $catFrom, $catTo);  
 }                                                                                                                   

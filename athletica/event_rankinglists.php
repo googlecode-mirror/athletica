@@ -388,6 +388,13 @@ if (isset($eventTypeCat['club'])){?>
         
     </th>
 </tr>
+ <tr>
+    <th class='dialog'>
+        <input type='radio' name='type' value='teamP'>
+            <?php echo  $strClubRanking . " " . $strTnMk;?> </input>
+        
+    </th>
+</tr>
 <tr>
 	<th class='dialog'>
 		<input type='radio' name='type' value='sheets'>
