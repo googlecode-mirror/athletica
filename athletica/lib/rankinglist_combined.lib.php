@@ -145,7 +145,7 @@ else
 			&& ($a > 0))			// first athlete processed
 		{              		
 			$points_arr[] = $points;     
-           if ($dCode_keep == 403){     // Athletic Cup
+           if ($dCode_keep == 403){     // UBS Kids Cup
                  $points_arr_max_disc[$xKat][] = $points_disc;    
             }
             else {
@@ -233,7 +233,7 @@ else
                   $rank=$v;  
                    
                   if ($rank == $rank_keep){ 
-                   if ($dCode_keep == 403){          // Athletic Cup
+                   if ($dCode_keep == 403){          // UBS Kids Cup
                         $c=0;
                         $c_max_disc1 = 0;
                         $c_max_disc2 = 0; 
@@ -447,7 +447,7 @@ else
                        if($pt_row[4] > 0) {       // any points for this event 
                      
                            $points = $points + $pt_row[4];      // calculate points 
-                           if ($dCode == 403) {                // Athletic Cup
+                           if ($dCode == 403) {                // UBS Kids Cup
                                switch ($pt_row[1]){
                                    case 1:
                                    case 2: $c=0;          // track
@@ -562,7 +562,7 @@ else
 				$rank = $r;		// next rank
 			}
             else {
-                if ($dCode == 403){         // Athletic Cup
+                if ($dCode == 403){         // UBS Kids Cup
                 
                     if ($points_arr_max_disc[$xkat][$key] > $points_arr_max_disc[$xKat][$k]){
                         $rank_arr[$k]  = $r;
@@ -592,7 +592,7 @@ else
                 $rank=$v;   
                
                 if ($rank == $rank_keep){ 
-                   if ($dCode == 403){          // Athletic Cup
+                   if ($dCode == 403){          // UBS Kids Cup
                         $c=0;
                         $c_max_disc1 = 0;
                         $c_max_disc2 = 0; 

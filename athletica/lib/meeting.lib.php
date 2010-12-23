@@ -401,7 +401,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				if($k == count($cfgCombinedWO[$tt]) && $tmp != 403){
 					$combEnd = 1;
 				}
-                if ($val == 100 && $tmp == 403) {         // code 100 = 1000m (a single event inside the athletic cup)
+                if ($val == 100 && $tmp == 403) {         // code 100 = 1000m (a single event inside the UBS Kids Cup)
                          mysql_query("INSERT INTO wettkampf SET
                         Typ = ".$cfgEventType[$strEventTypeSingle]."
                         , Haftgeld = '$penalty'
