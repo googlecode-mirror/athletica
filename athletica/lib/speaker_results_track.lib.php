@@ -166,7 +166,7 @@ function AA_speaker_Track($event, $round, $layout)
 					, ss.Position
 			");
 		}
-
+        
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0) {		// DB error
@@ -242,6 +242,7 @@ function AA_speaker_Track($event, $round, $layout)
  */
 				// get performance
 				$perf = '';
+                $perfRounded = '';     
 				$res = mysql_query("
 					SELECT
 						rs.xResultat
@@ -258,12 +259,12 @@ function AA_speaker_Track($event, $round, $layout)
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 				else
-				{
-					$resrow = mysql_fetch_row($res);
+				{                 					
+                    $resrow = mysql_fetch_row($res);                      
 					if($resrow != NULL) {		// result found
 						$perf = AA_formatResultTime($resrow[1]);                         
                         $perfRounded = AA_formatResultTime($resrow[1], true); 
-					}
+					}                        
 					mysql_free_result($res);
 				}	// ET DB error
 
