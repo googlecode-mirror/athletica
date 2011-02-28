@@ -73,26 +73,27 @@ function AA_rankinglist_TeamSM($category, $event, $formaction, $break, $cover, $
 	//
 	// get each discipline for selection and process
 	//
-	$result = mysql_query("
-		SELECT
-			w.xWettkampf
-			, d.Typ
-			, k.Name
-			, d.Name
-			, w.Windmessung
-		FROM
-			wettkampf AS w
-			, kategorie AS k
-			, disziplin_" . $_COOKIE['language'] . " AS d
-		WHERE
-			$selection
-		AND	k.xKategorie = w.xKategorie
-		AND	d.xDisziplin = w.xDisziplin
-		AND	w.Typ = " . $cfgEventType[$strEventTypeTeamSM] ."
-		ORDER BY
-			k.Anzeige
-			, d.Anzeige
-	");
+	                
+    $sql = "
+        SELECT
+            w.xWettkampf
+            , d.Typ
+            , k.Name
+            , d.Name
+            , w.Windmessung
+        FROM
+            wettkampf AS w
+            LEFT JOIN kategorie AS k ON ( k.xKategorie = w.xKategorie)
+            LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+        WHERE
+            $selection       
+            AND w.Typ = " . $cfgEventType[$strEventTypeTeamSM] ."
+        ORDER BY
+            k.Anzeige
+            , d.Anzeige
+    ";
+                   
+    $result = mysql_query($sql);   
 	
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -151,47 +152,39 @@ function processDiscipline($event, $disctype, $catname, $discname, $windmeas, $l
 	}
 	
 	$sql_leistung = ($order_perf=='ASC') ? "r.Leistung" : "IF(r.Leistung<0, (If(r.Leistung = -99, -9, r.Leistung) * -1), r.Leistung)";
-	$res = mysql_query("
-		SELECT
-			ts.xTeamsm
-			, ts.Name
-			, v.Name
-			, at.Name
-			, at.Vorname
-			, a.Startnummer
-			, ".$sql_leistung." AS leistung_neu
-			, at.xAthlet
-		FROM
-			teamsm AS ts
-			, verein AS v
-			, teamsmathlet AS tsa
-			, anmeldung AS a
-			, athlet AS at
-			, start AS st
-			, serienstart AS ss
-			, resultat AS r 
-			, serie AS se
-			, runde as ru
-		WHERE
-			ts.xWettkampf = $event
-		AND	tsa.xTeamsm = ts.xTeamsm
-		AND	v.xVerein = ts.xVerein
-		AND	a.xAnmeldung = tsa.xAnmeldung
-		AND	at.xAthlet = a.xAthlet
-		AND	st.xAnmeldung = tsa.xAnmeldung
-		AND	st.xWettkampf = $event
-		AND	ss.xStart = st.xStart
-		AND ss.xSerie = se.xSerie
-		AND se.xRunde = ru.xRunde
-		AND ru.Datum LIKE '".$date."'
-		
-		AND	r.xSerienstart = ss.xSerienstart
-		$valid_result
-		
-		ORDER BY
-			ts.xTeamsm
-			, leistung_neu $order_perf
-	");
+	                           
+    $sql = "
+        SELECT
+            ts.xTeamsm
+            , ts.Name
+            , v.Name
+            , at.Name
+            , at.Vorname
+            , a.Startnummer
+            , ".$sql_leistung." AS leistung_neu
+            , at.xAthlet
+        FROM
+            teamsm AS ts
+            LEFT JOIN verein AS v ON (v.xVerein = ts.xVerein)
+            LEFT JOIN teamsmathlet AS tsa ON (tsa.xTeamsm = ts.xTeamsm)
+            LEFT JOIN anmeldung AS a ON (a.xAnmeldung = tsa.xAnmeldung)
+            LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+            LEFT jOIN start AS st ON (st.xAnmeldung = tsa.xAnmeldung)
+            LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart )
+            LEFT JOIN resultat AS r ON ( r.xSerienstart = ss.xSerienstart)
+            LEFT JOIN serie AS se ON (ss.xSerie = se.xSerie)
+            LEFT JOIN runde as ru ON (se.xRunde = ru.xRunde)
+        WHERE
+            ts.xWettkampf = $event       
+            AND st.xWettkampf = $event  
+            AND ru.Datum LIKE '".$date."'  
+            $valid_result    
+        ORDER BY
+            ts.xTeamsm
+            , leistung_neu $order_perf
+    ";
+                
+    $res = mysql_query($sql);     
 	
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());

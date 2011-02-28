@@ -157,10 +157,8 @@ class GUI_Page
 				, DATE_FORMAT(m.DatumBis, '". $GLOBALS['cfgDBdateFormat'] . "')
 			FROM
 				meeting AS m
-				, stadion AS s
-			WHERE m.xMeeting = ". $_COOKIE['meeting_id'] ."
-			AND m.xStadion = s.xStadion
-		");
+				LEFT JOIN stadion AS s ON (m.xStadion = s.xStadion)
+			WHERE m.xMeeting = ". $_COOKIE['meeting_id']);
 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

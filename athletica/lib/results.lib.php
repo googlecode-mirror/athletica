@@ -64,12 +64,16 @@ function AA_results_getPresets($round)
 	if(($round > 0)
 		&& (($presets['category'] == 0) || ($presets['event'] == 0)))
 	{
-		$res = mysql_query("SELECT r.xWettkampf"
-								. ", w.xKategorie"
-								. " FROM runde AS r"
-								. ", wettkampf AS w"
-								. " WHERE r.xRunde = " . $round
-								. " AND r.xWettkampf = w.xWettkampf");
+		$sql = "SELECT 
+                    r.xWettkampf
+					, w.xKategorie
+		        FROM 
+                    runde AS r
+					LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+				WHERE 
+                    r.xRunde = " . $round; 
+                                
+        $res = mysql_query($sql);
 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1053,14 +1057,19 @@ function AA_results_deleteResults($round){
     $prog_mode = AA_results_getProgramMode();
 	
 	// get each heat start and delete results for it
-	mysql_query("LOCK TABLES serie as s READ, serienstart as sst READ, serienstart  AS WRITE ,resultat WRITE");
+	mysql_query("LOCK TABLES serie as s READ, serienstart as sst READ, serienstart  AS WRITE ,resultat WRITE");    
 	
-	$res = mysql_query("	SELECT sst.xSerienstart, s.xSerie FROM
-					serienstart as sst
-					, serie as s
-				WHERE
-					sst.xSerie = s.xSerie
-				AND	s.xRunde = $round");
+    $sql = "SELECT 
+                    sst.xSerienstart, 
+                    s.xSerie 
+            FROM
+                    serienstart as sst
+                    LEFT JOIN serie as s ON (sst.xSerie = s.xSerie)
+            WHERE
+                    s.xRunde = " .$round;      
+    
+    $res = mysql_query($sql);        
+                
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}else{
@@ -1114,9 +1123,9 @@ function AA_results_getEvaluationType($round)
 	{
 		$result = mysql_query("SELECT rt.Wertung"
 									. " FROM rundentyp_" . $_COOKIE['language']  . " as rt "
-									. ", runde"
-									. " WHERE rt.xRundentyp = runde.xRundentyp"
-									. " AND runde.xRunde = " . $round);
+									. " LEFT JOIN runde AS r ON (rt.xRundentyp = r.xRundentyp)"
+									. " WHERE "
+									. " r.xRunde = " . $round);
 
 		if(mysql_errno() > 0)		// DB error
 		{
@@ -1176,17 +1185,21 @@ function AA_results_resetQualification($round)
 
 	if(!empty($round))
 	{
-		mysql_query("LOCK TABLES serie READ, serienstart WRITE");
+		mysql_query("LOCK TABLES serie AS s READ, serienstart AS ss WRITE, serie READ, serienstart WRITE");
 
-		// get athletes by qualifying rank (random order if same rank)
-		$result =	mysql_query("SELECT serienstart.xSerienstart"
-							. " FROM serienstart"
-							. ", serie"
-							. " WHERE serienstart.Qualifikation > 0"
-							// don't requalify athletes who waived to continue
-							. " AND serienstart.Qualifikation != ".$cfgQualificationType['waived']['code']
-							. " AND serienstart.xSerie = serie.xSerie"
-							. " AND serie.xRunde = " . $round);
+		// get athletes by qualifying rank (random order if same rank)   
+        // don't requalify athletes who waived to continue                    
+        $sql = "SELECT 
+                    ss.xSerienstart
+                FROM 
+                    serienstart AS ss 
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                WHERE 
+                    ss.Qualifikation > 0    
+                    AND ss.Qualifikation != ".$cfgQualificationType['waived']['code'] ."  
+                    AND s.xRunde = " . $round;            
+         
+         $result = mysql_query($sql);     
 
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1219,17 +1232,20 @@ function AA_results_setNotStarted($round)
 
 	if(!empty($round))
 	{
-		mysql_query("LOCK TABLES serie READ"
-					. ", resultat WRITE, serienstart WRITE");
-
-		$result = mysql_query("SELECT DISTINCT serienstart.xSerienstart"
-								. " FROM serienstart"
-								. ", serie"
-								. " LEFT JOIN resultat"
-								. " ON serienstart.xSerienstart = resultat.xSerienstart"
-								. " WHERE resultat.Leistung = ". $GLOBALS['cfgInvalidResult']['DNS']['code'] . " or resultat.Leistung = ". $GLOBALS['cfgInvalidResult']['NRS']['code'] 
-								. " AND serienstart.xSerie = serie.xSerie"
-								. " AND serie.xRunde = " . $round);
+		mysql_query("LOCK TABLES serie READ, serie AS s READ "
+					. ", resultat WRITE, resultat AS r WRITE , serienstart WRITE, serienstart AS ss WRITE");    
+	
+        $sql = "SELECT 
+                    DISTINCT ss.xSerienstart
+                FROM 
+                    serienstart AS ss
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                    LEFT JOIN resultat AS r ON (ss.xSerienstart = r.xSerienstart)
+                WHERE 
+                    r.Leistung = ". $GLOBALS['cfgInvalidResult']['DNS']['code'] . " or r.Leistung = ". $GLOBALS['cfgInvalidResult']['NRS']['code'] ."                      
+                    AND s.xRunde = " . $round;     
+        
+        $result = mysql_query($sql);       
 	   
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

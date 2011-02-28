@@ -74,9 +74,8 @@ $results = mysql_query("
 		, w.Typ
   	FROM
 	  	kategorie AS k
-	  	, wettkampf AS w
-  	WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-  	AND k.xKategorie = w.xKategorie
+	  	LEFT JOIN wettkampf AS w ON (k.xKategorie = w.xKategorie)
+  	WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."   	
 	" . $selection . "    
     " // AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."        // old svm
   	." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."  
@@ -150,10 +149,10 @@ function AA_sheets_processSingle($xCategory, $category)
 			, v.Name
 		FROM
 			team AS t
-			, verein AS v
-		WHERE t.xMeeting = " . $_COOKIE['meeting_id'] ."
-		AND t.xKategorie = $xCategory
-		AND v.xVerein = t.xVerein
+			LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
+		WHERE 
+            t.xMeeting = " . $_COOKIE['meeting_id'] ."
+		    AND t.xKategorie = $xCategory 		
 	");   
     
 	if(mysql_errno() > 0) {		// DB error
@@ -204,53 +203,47 @@ function AA_sheets_processSingle($xCategory, $category)
 			}
            
 			// single events
-			// -------------
-			$results = mysql_query("
-				SELECT
-					d.Name
-					, d.Typ
-					, at.Name
-					, at.Vorname
-					, at.Jahrgang
-					, MAX(r.Leistung)
-					, r.Info
-					, MAX(r.Punkte) AS pts
-					, w.Typ
-					, s.Wind
-					, w.Windmessung
-					, k.Code
-					, at.Geschlecht
+			// -------------    
+            $sql = "
+                SELECT
+                    d.Name
+                    , d.Typ
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , MAX(r.Leistung)
+                    , r.Info
+                    , MAX(r.Punkte) AS pts
+                    , w.Typ
+                    , s.Wind
+                    , w.Windmessung
+                    , k.Code
+                    , at.Geschlecht
                     , ss.Bemerkung
                     , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land 
-				FROM
-					anmeldung AS a
-					, athlet AS at 
-					, disziplin_" . $_COOKIE['language'] . " AS d 
-					, resultat AS r 
-					, serie AS s 
-					, serienstart AS ss 
-					, start AS st 
-					, wettkampf AS w
-					, kategorie AS k
+                FROM
+                    anmeldung AS a
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                    LEFT JOIN start AS st ON ( a.xAnmeldung = st.xAnmeldung   ) 
+                    LEFT JOIN wettkampf AS w ON (st.xWettkampf = w.xWettkampf) 
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+                    LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart)   
+                    LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie)                      
+                    LEFT JOIN resultat AS r  ON (r.xSerienstart = ss.xSerienstart)  
+                    LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)
                     LEFT JOIN region AS re ON (at.xRegion = re.xRegion)  
-  				WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-				AND w.xKategorie = $xCategory
-				AND d.xDisziplin = w.xDisziplin
-				AND st.xWettkampf = w.xWettkampf
-				AND ss.xStart = st.xStart
-				AND r.xSerienstart = ss.xSerienstart
-				AND s.xSerie = ss.xSerie
-				AND a.xAnmeldung = st.xAnmeldung
-				AND a.xTeam = " . $team['xTeam'] . "
-				AND at.xAthlet = a.xAthlet
-				AND r.Info != '$cfgResultsHighOut'
-				AND a.xKategorie = k.xKategorie
-				GROUP BY
-					st.xStart
-				ORDER BY
-					d.Anzeige
-					, pts DESC
-			");   
+                WHERE 
+                    w.xMeeting = " . $_COOKIE['meeting_id'] ."
+                    AND w.xKategorie = $xCategory                    
+                    AND a.xTeam = " . $team['xTeam'] . "                 
+                    AND r.Info != '$cfgResultsHighOut'   
+                GROUP BY
+                    st.xStart
+                ORDER BY
+                    d.Anzeige
+                    , pts DESC";         
+            
+            $results = mysql_query($sql);      
            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -553,38 +546,36 @@ function AA_sheets_processSingle($xCategory, $category)
 			}
 
 			// relay events
-			// -------------
-			$results = mysql_query("
-				SELECT
-					d.Name
-					, st.Name
-					, r.Leistung
-					, MAX(r.Punkte) AS pts
-					, st.xStaffel
-					, w.Typ
-					, d.Typ
+			// -------------       
+            $sql = "
+                SELECT
+                    d.Name
+                    , st.Name
+                    , r.Leistung
+                    , MAX(r.Punkte) AS pts
+                    , st.xStaffel
+                    , w.Typ
+                    , d.Typ
                     , ss.Bemerkung
-				FROM
-					disziplin_" . $_COOKIE['language'] . " AS d 
-					, resultat AS r 
-					, serienstart AS ss 
-					, staffel AS st 
-					, start AS s 
-					, wettkampf AS w
-  				WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-				AND w.xKategorie = $xCategory
-				AND d.xDisziplin = w.xDisziplin
-				AND s.xWettkampf = w.xWettkampf
-				AND ss.xStart = s.xStart
-				AND r.xSerienstart = ss.xSerienstart
-				AND st.xStaffel = s.xStaffel
-				AND st.xTeam = " . $team['xTeam'] . "
-				GROUP BY
-					s.xStart
-				ORDER BY
-					d.Anzeige
-					, pts DESC
-			");
+                FROM
+                    wettkampf AS w
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin) 
+                    LEFT JOIN start AS s ON (s.xWettkampf = w.xWettkampf) 
+                    LEFT jOIN serienstart AS ss ON (ss.xStart = s.xStart)     
+                    LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)                    
+                    LEFT JOIN staffel AS st ON (st.xStaffel = s.xStaffel)  
+                WHERE 
+                    w.xMeeting = " . $_COOKIE['meeting_id'] ."
+                    AND w.xKategorie = $xCategory  
+                    AND st.xTeam = " . $team['xTeam'] . "
+                GROUP BY
+                    s.xStart
+                ORDER BY
+                    d.Anzeige
+                    , pts DESC
+            ";      
+             
+            $results = mysql_query($sql);      
            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -976,35 +967,33 @@ function AA_sheets_processCombined($xCategory, $category)
 {
 	require('./config.inc.php');
 
-	// get athlete info per category and team
-	$results = mysql_query("
-		SELECT
-			DISTINCT(a.xAnmeldung)
-			, at.Name
-			, at.Vorname
-			, at.Jahrgang
-			, t.xTeam
-			, t.Name
-			, v.Name
+	// get athlete info per category and team      
+    $sql = "
+        SELECT
+            DISTINCT(a.xAnmeldung)
+            , at.Name
+            , at.Vorname
+            , at.Jahrgang
+            , t.xTeam
+            , t.Name
+            , v.Name
             , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land  
-		FROM
-			anmeldung AS a
-			, athlet AS at
-			, team AS t
-			, verein AS v
-			, start as st
-			, wettkampf as w
+        FROM
+            anmeldung AS a
+            LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+            INNER JOIN team AS t ON (t.xTeam = a.xTeam   )
+            LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
+            LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung  )
+            LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
             LEFT JOIN region AS re ON (at.xRegion = re.xRegion)    
-		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
-		AND at.xAthlet = a.xAthlet
-		AND t.xTeam = a.xTeam
-		AND v.xVerein = t.xVerein
-		AND st.xAnmeldung = a.xAnmeldung
-		AND w.xWettkampf = st.xWettkampf
-		AND w.xKategorie = $xCategory
-		ORDER BY
-			t.xTeam
-	");
+        WHERE 
+            a.xMeeting = " . $_COOKIE['meeting_id'] ."  
+            AND w.xKategorie = $xCategory
+        ORDER BY
+            t.xTeam
+    ";          
+     
+    $results = mysql_query($sql);    
 
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1069,39 +1058,36 @@ function AA_sheets_processCombined($xCategory, $category)
 
 			$tm = $row[4];		// keep current team
 
-			// events
-			$res = mysql_query("
-				SELECT
-					d.Kurzname
-					, d.Typ
-					, MAX(r.Leistung)
-					, r.Info
-					, MAX(r.Punkte) AS pts
-					, s.Wind
-					, w.Windmessung
-				FROM
-					start AS st USE INDEX (Anmeldung)
-					, serienstart AS ss 
-					, resultat AS r 
-					, serie AS s 
-					, runde AS ru 
-					, wettkampf AS w
-					, disziplin_" . $_COOKIE['language'] . " AS d 
-				WHERE st.xAnmeldung = $row[0]
-				AND ss.xStart = st.xStart
-				AND r.xSerienstart = ss.xSerienstart
-				AND s.xSerie = ss.xSerie
-				AND ru.xRunde = s.xRunde
-				AND w.xWettkampf = st.xWettkampf
-				AND w.Typ = " . $cfgEventType[$strEventTypeClubCombined] . "
-				AND d.xDisziplin = w.xDisziplin
-				AND r.Info != '" . $cfgResultsHighOut . "'
-				GROUP BY
-					st.xStart
-				ORDER BY
-					ru.Datum
-					, ru.Startzeit
-			");
+			// events    
+            $sql = "
+                SELECT
+                    d.Kurzname
+                    , d.Typ
+                    , MAX(r.Leistung)
+                    , r.Info
+                    , MAX(r.Punkte) AS pts
+                    , s.Wind
+                    , w.Windmessung
+                FROM
+                    start AS st USE INDEX (Anmeldung)
+                    LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart)
+                    LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)
+                    LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie) 
+                    LEFT JOIN runde AS ru ON (ru.xRunde = s.xRunde)
+                    LEFT JOIN wettkampf AS w  ON (w.xWettkampf = st.xWettkampf)
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+                WHERE 
+                    st.xAnmeldung = $row[0]                 
+                    AND w.Typ = " . $cfgEventType[$strEventTypeClubCombined] . "  
+                    AND r.Info != '" . $cfgResultsHighOut . "'
+                GROUP BY
+                    st.xStart
+                ORDER BY
+                    ru.Datum
+                    , ru.Startzeit
+            ";     
+             
+            $res = mysql_query($sql);    
 		
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1260,29 +1246,28 @@ function AA_sheets_cmp ($a, $b) {
 // print list of relay athletes
 // 
 function AA_sheets_printRelayAthletes($relay)
-{
-	$at_res = mysql_query("
-		SELECT
-		  at.Name
-		  , at.Vorname
-		  , at.Jahrgang
-		  , sta.Position
+{     	
+    $sql = "
+        SELECT
+          at.Name
+          , at.Vorname
+          , at.Jahrgang
+          , sta.Position
           , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land     
-	  FROM
-		  athlet AS at 
-		  , anmeldung AS a 
-		  , start AS s 
-		  , staffelathlet AS sta 
-		  , start AS st
+      FROM
+          athlet AS at 
+          LEFT JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet    ) 
+          LEFT JOIN start AS st ON (a.xAnmeldung = st.xAnmeldung)
+          LEFT JOIN staffelathlet AS sta ON (st.xStart = sta.xAthletenstart)    
+          LEFT JOIN start AS s ON (sta.xStaffelstart = s.xStart)  
           LEFT JOIN region AS re ON (at.xRegion = re.xRegion)    
-	  WHERE s.xStaffel = $relay
-	  AND sta.xStaffelstart = s.xStart
-	  AND st.xStart = sta.xAthletenstart
-	  AND a.xAnmeldung = st.xAnmeldung
-	  AND at.xAthlet = a.xAthlet
-	  ORDER BY
-		  sta.Position
-	");
+      WHERE 
+          s.xStaffel = $relay  
+      ORDER BY
+          sta.Position
+    ";   
+     
+    $at_res = mysql_query($sql);   
 
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

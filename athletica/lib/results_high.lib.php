@@ -243,37 +243,38 @@ if($_POST['arg'] == 'save_res')
             else
             {
                 // if this is a combined event, rank all rounds togheter
-                $roundSQL = "";
+                $roundSQL = "";                       
                 if($combined){
-                    $roundSQL = "AND serie.xRunde IN (";
+                    $roundSQL = " s.xRunde IN (";                             
                     $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
                     while($row_c = mysql_fetch_array($res_c)){
-                        $roundSQL .= $row_c[0].",";
+                        $roundSQL .= $row_c[0].",";                              
                     }
-                    $roundSQL = substr($roundSQL,0,-1).")";
+                    $roundSQL = substr($roundSQL,0,-1).")";                         
                 }else{
-                    $roundSQL = "AND serie.xRunde = $round";
+                    $roundSQL = " s.xRunde = $round";                              
                 }
                 
-                // read all valid results (per athlet)
-                $result = mysql_query("
+                // read all valid results (per athlet)  
+                $sql = "
                     SELECT
-                        resultat.Leistung
-                        , resultat.Info
-                        , serienstart.xSerienstart
-                        , serienstart.xSerie
+                        r.Leistung
+                        , r.Info
+                        , ss.xSerienstart
+                        , ss.xSerie
                     FROM
-                        resultat
-                        , serienstart
-                        , serie
-                    WHERE resultat.xSerienstart = serienstart.xSerienstart
-                    AND serienstart.xSerie = serie.xSerie
-                    $roundSQL
-                    AND resultat.Leistung != 0
+                        resultat AS r
+                        LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie   )
+                    WHERE                      
+                        $roundSQL
+                        AND r.Leistung != 0
                     ORDER BY
-                        serienstart.xSerienstart
-                        ,resultat.Leistung DESC
-                ");
+                        ss.xSerienstart
+                        ,r.Leistung DESC
+                ";               
+                
+                $result = mysql_query($sql);     
                 
                 if(mysql_errno() > 0)        // DB error
                 {
@@ -600,37 +601,38 @@ if($_GET['arg'] == 'results_done')
         else
         {
             // if this is a combined event, rank all rounds togheter
-            $roundSQL = "";
+            $roundSQL = "";                   
             if($combined){
-                $roundSQL = "AND serie.xRunde IN (";
+                $roundSQL = " s.xRunde IN (";                            
                 $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
                 while($row_c = mysql_fetch_array($res_c)){
-                    $roundSQL .= $row_c[0].",";
+                    $roundSQL .= $row_c[0].",";                       
                 }
-                $roundSQL = substr($roundSQL,0,-1).")";
+                $roundSQL = substr($roundSQL,0,-1).")";                   
             }else{
-                $roundSQL = "AND serie.xRunde = $round";
+                $roundSQL = " s.xRunde = $round";                        
             }
             
-            // read all valid results (per athlet)
-            $result = mysql_query("
+            // read all valid results (per athlet)     
+             $sql = "
                 SELECT
-                    resultat.Leistung
-                    , resultat.Info
-                    , serienstart.xSerienstart
-                    , serienstart.xSerie
+                    r.Leistung
+                    , r.Info
+                    , ss.xSerienstart
+                    , ss.xSerie
                 FROM
-                    resultat
-                    , serienstart
-                    , serie
-                WHERE resultat.xSerienstart = serienstart.xSerienstart
-                AND serienstart.xSerie = serie.xSerie
-                $roundSQL
-                AND resultat.Leistung != 0
+                    resultat AS r
+                    LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                WHERE                  
+                    $roundSQL
+                    AND r.Leistung != 0
                 ORDER BY
-                    serienstart.xSerienstart
-                    ,resultat.Leistung DESC
-            ");
+                    ss.xSerienstart
+                    ,r.Leistung DESC
+            ";   
+            
+            $result = mysql_query($sql);  
             
             if(mysql_errno() > 0)        // DB error
             {
@@ -796,20 +798,19 @@ if($_GET['arg'] == 'results_done')
         }    // ET DB error (create temp table)
 
         // read all starting athletes with no valid result (rank=0)
-        // and add disqualification code
-        $result = mysql_query("
-            SELECT DISTINCT
-                serienstart.xSerienstart
-            FROM
-                resultat
-                , serienstart
-                , serie
-            WHERE resultat.xSerienstart = serienstart.xSerienstart
-            AND serienstart.xSerie = serie.xSerie
-            AND serienstart.Rang = 0
-            AND serie.xRunde = $round
-            AND resultat.Leistung >= 0
-        ");
+        // and add disqualification code      
+        $sql = "SELECT DISTINCT
+                    ss.xSerienstart
+                FROM
+                    resultat AS r
+                    LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie )
+                WHERE   
+                    ss.Rang = 0
+                    AND s.xRunde = " . $round ."
+                    AND r.Leistung >= 0";  
+         
+        $result = mysql_query($sql);      
 
         if(mysql_errno() > 0)        // DB error
         {
@@ -911,8 +912,8 @@ if($round > 0 && $prog_mode != 2)
     {
         AA_heats_printNewStart($presets['event'], $round, "event_results.php");
 
-        // display all athletes
-        $result = mysql_query("
+        // display all athletes       
+        $sql = "
             SELECT rt.Name
                 , rt.Typ
                 , s.xSerie
@@ -936,29 +937,24 @@ if($round > 0 && $prog_mode != 2)
                 , ss.RundeZusammen  
             FROM
                 runde AS r
-                , serie AS s
-                , serienstart AS ss
-                , start AS st
-                , anmeldung AS a
-                , athlet AS at
-                , verein AS v
-            LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-                ON rt.xRundentyp = r.xRundentyp
-            LEFT JOIN resultat AS rs
-                ON rs.xSerienstart = ss.xSerienstart
-            WHERE r.xRunde = $round
-            AND s.xRunde = r.xRunde
-            AND ss.xSerie = s.xSerie
-            AND st.xStart = ss.xStart
-            AND a.xAnmeldung = st.xAnmeldung
-            AND at.xAthlet = a.xAthlet
-            AND v.xVerein = at.xVerein
+                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie   )
+                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart
+            WHERE 
+                r.xRunde = $round              
             ORDER BY
                 heatid
                 , ss.Position
                 , rs.xResultat DESC
-        ");
+        ";        
+        
+        $result = mysql_query($sql);    
        
         if(mysql_errno() > 0) {        // DB error
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1117,7 +1113,7 @@ if($round > 0 && $prog_mode != 2)
         <td class='forms_right'><?php echo $row[7]; /* start nbr */ ?></td>
         <td nowrap><?php echo $row[8] . " " . $row[9];  /* name */ ?></td>
         <td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[10]); ?></td>
-        <td><?=(($row[16]!='' && $row[16]!='-') ? $row[16] : '&nbsp;')?></td>
+        <td><?php echo (($row[16]!='' && $row[16]!='-') ? $row[16] : '&nbsp;'); ?></td>
         <td nowrap><?php echo $row[11]; /* club */ ?></td>
    
 <?php
@@ -2295,7 +2291,7 @@ else if($round > 0 && $prog_mode == 2){
                         <td class='forms_right'><?php echo $row[7]; /* start nbr */ ?></td>
                         <td nowrap><?php echo $row[8] . " " . $row[9];  /* name */ ?></td>
                         <td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[10]); ?></td>
-                        <td><?=(($row[16]!='' && $row[16]!='-') ? $row[16] : '&nbsp;')?></td>
+                        <td><?php echo (($row[16]!='' && $row[16]!='-') ? $row[16] : '&nbsp;');?></td>
                         <td nowrap><?php echo $row[11]; /* club */ ?></td>
                                
                         <?php
@@ -2583,20 +2579,20 @@ else
 
 function getNextHeight($heat, $curr_perf)
 {
-    require('./lib/common.lib.php');
-
-    $result = mysql_query("
-        SELECT DISTINCT
-            r.Leistung
-        FROM
-            resultat AS r
-            , serienstart AS ss
-        WHERE r.xSerienstart = ss.xSerienstart
-        AND ss.xSerie = $heat
-        AND r.Leistung > $curr_perf
-        ORDER BY
-            r.Leistung ASC
-    ");
+    require('./lib/common.lib.php');    
+   
+     $sql = "SELECT DISTINCT
+                    r.Leistung
+             FROM
+                    resultat AS r
+                    LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+             WHERE 
+                    ss.xSerie = $heat
+                    AND r.Leistung > $curr_perf
+             ORDER BY
+                    r.Leistung ASC";       
+     
+    $result = mysql_query($sql);   
     
     if(mysql_errno() > 0) {        // DB error
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

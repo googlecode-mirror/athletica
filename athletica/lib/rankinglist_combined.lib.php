@@ -45,51 +45,44 @@ if($catFrom > 0) {
 } 
                                     
 $dCode = 0;
-// get athlete info per contest category
-
-$results = mysql_query("
-	SELECT DISTINCT 
-		a.xAnmeldung
-		, at.Name
-		, at.Vorname
-		, at.Jahrgang
-		, k.Name
-		, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
-		, IF(at.xRegion = 0, at.Land, re.Anzeige)
-		, w.Mehrkampfcode
-		, d.Name
-		, w.xKategorie
-		, ka.Code
-		, ka.Name
-		, ka.Alterslimite 
+// get athlete info per contest category    
+  $sql="SELECT DISTINCT 
+        a.xAnmeldung
+        , at.Name
+        , at.Vorname
+        , at.Jahrgang
+        , k.Name
+        , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
+        , IF(at.xRegion = 0, at.Land, re.Anzeige)
+        , w.Mehrkampfcode
+        , d.Name
+        , w.xKategorie
+        , ka.Code
+        , ka.Name
+        , ka.Alterslimite 
         , d.Code             
-	FROM
-		anmeldung AS a
-		, athlet AS at
-		, verein AS v
-		, kategorie AS k
-		, kategorie AS ka
-		, start as st
-		, wettkampf as w
-		, disziplin_" . $_COOKIE['language'] . " as d
-		LEFT JOIN region as re ON at.xRegion = re.xRegion
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
-	" . $contestcat . "  
-	AND at.xAthlet = a.xAthlet
-	AND v.xVerein = at.xVerein
-	AND k.xKategorie = w.xKategorie
-	AND st.xAnmeldung = a.xAnmeldung
-	AND w.xWettkampf = st.xWettkampf  
-	AND w.Mehrkampfcode = d.Code  
-	AND w.Mehrkampfcode > 0   
-	AND ka.xKategorie = a.xKategorie 
-    AND st.anwesend = 0 	
-	ORDER BY    	 
-		k.Anzeige
-		, w.Mehrkampfcode
-		, ka.Alterslimite DESC
-"); 
-            
+    FROM
+        anmeldung AS a
+        LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet )
+        LEFT JOIN verein AS v  ON (v.xVerein = at.xVerein  )
+        LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung ) 
+        LEFT JOIN wettkampf as w  ON (w.xWettkampf = st.xWettkampf)
+        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.Mehrkampfcode = d.Code)     
+        LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+        LEFT JOIN kategorie AS ka ON (ka.xKategorie = a.xKategorie)     
+        LEFT JOIN region as re ON (at.xRegion = re.xRegion) 
+    WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
+    " . $contestcat . "    
+     
+    AND w.Mehrkampfcode > 0   
+    
+    AND st.anwesend = 0     
+    ORDER BY         
+        k.Anzeige
+        , w.Mehrkampfcode
+        , ka.Alterslimite DESC";      
+
+$results = mysql_query($sql);     
   
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -349,45 +342,7 @@ else
                 w.Mehrkampfreihenfolge ASC
                 , ru.Datum
                 , ru.Startzeit
-        ");  
-     
-      /*  
-		$res = mysql_query("
-			SELECT
-				d.Kurzname
-				, d.Typ
-				, MAX(r.Leistung)
-				, r.Info
-				, MAX(r.Punkte) AS pts
-				, s.Wind
-				, w.Windmessung
-				, st.xStart
-				, CONCAT(DATE_FORMAT(ru.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat'))
-			FROM
-				start as st USE INDEX (Anmeldung)
-				, wettkampf as w
-				, runde as ru
-				, disziplin as d
-				LEFT JOIN serie AS s ON s.xRunde = ru.xRunde
-				LEFT JOIN serienstart AS ss ON ss.xSerie = s.xSerie AND ss.xStart = st.xStart
-				LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart AND r.Info != '" . $cfgResultsHighOut . "')
-				
-			WHERE st.xAnmeldung = $row[0]
-			AND w.xKategorie = $row[9]
-			AND w.Mehrkampfcode = $row[7]   
-			AND w.xWettkampf = st.xWettkampf   
-            AND d.xDisziplin = w.xDisziplin  
-			AND ru.xWettkampf = w.xWettkampf
-			AND ru.Datum LIKE '".$date."'
-			GROUP BY
-				st.xStart
-			ORDER BY
-				w.Mehrkampfreihenfolge ASC
-				, ru.Datum
-				, ru.Startzeit
-		");   
-      */  
-       
+        ");       
            
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

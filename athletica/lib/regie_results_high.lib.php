@@ -23,14 +23,14 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
      mysql_query("
                 LOCK TABLES
                     resultat READ
+                    , resultat AS r READ  
                     , serie READ
                     , start READ                    
-                    , serienstart READ
-                    , serienstart READ                   
-                    , serie AS S READ
-                    , start AS ST READ                      
-                    , serienstart AS SS READ
-                    , anmeldung AS A READ 
+                    , serienstart READ                    
+                    , serie AS s READ
+                    , start AS st READ                      
+                    , serienstart AS ss READ
+                    , anmeldung AS a READ 
                     , athlet as at READ 
                     , verein as vREAD 
                     , rundentyp_de as rt READ  
@@ -44,36 +44,37 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
          
                 // if this is a combined event, rank all rounds togheter
                 $roundSQL = "";
+                
                 if($combined){
-                    $roundSQL = "AND serie.xRunde IN (";
+                    $roundSQL = " s.xRunde IN (";                     
                     $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$presets['event']);
                     while($row_c = mysql_fetch_array($res_c)){
-                        $roundSQL .= $row_c[0].",";
+                        $roundSQL .= $row_c[0].",";                              
                     }
                     $roundSQL = substr($roundSQL,0,-1).")";
                 }else{
-                    $roundSQL = "AND serie.xRunde = $round";
+                    $roundSQL = " s.xRunde = $round";                        
                 }
                 
-                // read all valid results (per athlet)
-                $result = mysql_query("
+                // read all valid results (per athlet)                   
+                 $sql = "
                     SELECT
-                        resultat.Leistung
-                        , resultat.Info
-                        , serienstart.xSerienstart
-                        , serienstart.xSerie
+                        r.Leistung
+                        , r.Info
+                        , ss.xSerienstart
+                        , ss.xSerie
                     FROM
-                        resultat
-                        , serienstart
-                        , serie
-                    WHERE resultat.xSerienstart = serienstart.xSerienstart
-                    AND serienstart.xSerie = serie.xSerie
-                    $roundSQL
-                    AND resultat.Leistung != 0
+                        resultat AS r
+                        LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart  )
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                    WHERE                      
+                        $roundSQL
+                        AND r.Leistung != 0
                     ORDER BY
-                        serienstart.xSerienstart
-                        ,resultat.Leistung DESC
-                ");
+                        ss.xSerienstart
+                        ,r.Leistung DESC";   
+                
+                $result = mysql_query($sql);         
                 
                 if(mysql_errno() > 0)        // DB error
                 {

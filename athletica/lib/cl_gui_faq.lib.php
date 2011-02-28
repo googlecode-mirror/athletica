@@ -49,16 +49,16 @@ class GUI_Faq{
 		$farbetitel = $faq['FarbeTitel'];
 		$farbehg = $faq['FarbeHG'];
 		?>
-		<div style="position:absolute; top:<?php echo $faq['PosTop'] ?>px; left:<?php echo $faq['PosLeft'] ?>px; width: <?=$width?>px; z-index: 1000;" id="faqdiv<?php echo $faq['xFaq'] ?>">
-			<div class="faq" style="background-color: #<?=$farbehg?>;">
+		<div style="position:absolute; top:<?php echo $faq['PosTop'] ?>px; left:<?php echo $faq['PosLeft'] ?>px; width: <?php echo $width; ?>px; z-index: 1000;" id="faqdiv<?php echo $faq['xFaq'] ?>">
+			<div class="faq" style="background-color: #<?php echo $farbehg; ?>;">
 				<table>
-					<tr><th class="faq" style="background-color: #<?=$farbetitel?>;"><?php echo $faq['Frage'] ?></th></tr>
+					<tr><th class="faq" style="background-color: #<?php echo $farbetitel?>;"><?php echo $faq['Frage'] ?></th></tr>
 					<tr><td><?php echo $faq['Antwort'] ?></td></tr>
 					<tr><td height="5px"></td></tr>
 					<tr><td><?php echo $strDontShowAgain; ?> <input style="padding:0px; margin:0px;" type="checkbox" name="faq" id="faq<?php echo $faq['xFaq'] ?>" value="" checked></td></tr>
 				</table>
 			</div>
-			<div style="position:absolute; top:2px; left:<?=$width2?>px;">
+			<div style="position:absolute; top:2px; left:<?php echo $width2;?>px;">
 				<a href='javascript:closeFaq(<?php echo $faq['xFaq'] ?>)'><img src='img/closebutton.png' alt='closebutton' title='close'></a>
 			</div>
 		</div>

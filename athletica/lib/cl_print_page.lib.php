@@ -148,7 +148,7 @@ class PRINT_Page extends GUI_Page
 			?>
 			<tr>
 				<td class='cover_param'><?php echo $GLOBALS['strTiming']; ?></td>
-				<td class='cover_value'><?=$str?></td>
+				<td class='cover_value'><?php echo $str;?></td>
 			</tr>
 			<?php
 		}
@@ -979,10 +979,9 @@ class PRINT_TeamSheet extends PRINT_Page
 				, DATE_FORMAT(m.DatumBis, '" . $GLOBALS['cfgDBdateFormat'] . "')
 			FROM
 				meeting AS m
-				, stadion AS s
-			WHERE m.xMeeting = ". $_COOKIE['meeting_id'] ."
-			AND m.xStadion = s.xStadion
-		");
+				LEFT JOIN stadion AS s ON (m.xStadion = s.xStadion)
+			WHERE 
+                m.xMeeting = ". $_COOKIE['meeting_id']);
 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1367,22 +1366,22 @@ class PRINT_TimetableComp extends PRINT_Page
 		$this->linecnt += 3;	// needs 3 lines
 ?>
 	<tr>
-		<th width="50"><?=$strTimetableCompEnrolement?></th>
-		<th width="50"><?=$strCategoryShort?></th>
-		<th width="130"><?=$strDisciplineShort?></th>
-		<th width="45"><?=$strTimetableCompHeatType?></th>
-		<th width="35"><?=$strTimetableCompGrp?></th>
-		<th width="50"><?=$strTimetableCompManipulationTime?></th>
-		<th width="50"><?=$strTimetableCompTime?></th>
-		<th width="45"><?=$strTimetableCompHeatNum?></th>
-		<th width="70"><?=$strTimetableCompLauf?></th>
-		<th><?=$strTimetableCompRemarks?></th>
+		<th width="50"><?php echo $strTimetableCompEnrolement; ?></th>
+		<th width="50"><?php echo $strCategoryShort; ?></th>
+		<th width="130"><?php echo $strDisciplineShort; ?></th>
+		<th width="45"><?php echo $strTimetableCompHeatType; ?></th>
+		<th width="35"><?php echo $strTimetableCompGrp; ?></th>
+		<th width="50"><?php echo $strTimetableCompManipulationTime; ?></th>
+		<th width="50"><?php echo $strTimetableCompTime; ?></th>
+		<th width="45"><?php echo $strTimetableCompHeatNum;?></th>
+		<th width="70"><?php echo $strTimetableCompLauf; ?></th>
+		<th><?php echo $strTimetableCompRemarks; ?></th>
 	</tr>
 	<tr>
 		<td colspan="10">&nbsp;</td>
 	</tr>
 	<tr>
-		<td colspan="10"><span class="timetableComp_date"><?=$date?></span></td>
+		<td colspan="10"><span class="timetableComp_date"><?php echo $date; ?></span></td>
 	</tr>
 <?php
 		$this->dateFormat = $date;

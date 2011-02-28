@@ -285,7 +285,7 @@ function printHeatTitleRegie($cat, $disc)
         if ($arg != 'regie'){
             ?>
             <td class='forms_ctr'><?php echo $year; ?></td>
-            <td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+            <td class='forms_ctr'><?php echo (($country!='' && $country!='-') ? $country : '&nbsp;'); ?></td>
             
             <?php
         }
@@ -436,7 +436,7 @@ function printHeatTitleRegie($cat, $disc)
 			?>
 			<tr class='<?php echo $this->rowclass[0]; ?>'>
 				<td class='forms_right'>&nbsp;</td>
-				<td colspan="<?=$tds?>"><?=$strAthl?></td>
+				<td colspan="<?php echo $tds; ?>"><?php echo $strAthl; ?></td>
 			</tr>
 			<?php
 		}
@@ -719,7 +719,7 @@ else if(!empty($_POST['round'])) {
         if ($arg != 'regie'){
             ?>
             <td class='forms_ctr'><?php echo $year; ?></td>
-            <td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+            <td class='forms_ctr'><?php echo (($country!='' && $country!='-') ? $country : '&nbsp;'); ?></td>
             
             <?php
         }
@@ -955,7 +955,7 @@ class GUI_HighResultTable extends GUI_ResultTable
         if ($arg != 'regie'){
             ?>
             <td class='forms_ctr'><?php echo $year; ?></td>
-            <td class='forms_ctr'><?=(($country!='' && $country!='-') ? $country : '&nbsp;')?></td>
+            <td class='forms_ctr'><?php echo (($country!='' && $country!='-') ? $country : '&nbsp;'); ?></td>
            
             <?php
         }            

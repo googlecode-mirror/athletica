@@ -30,7 +30,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     $roundSQL2 = "";  
     if($combined){
         $roundSQL = "AND s.xRunde IN ("; 
-        $roundSQL2 = "AND s.xRunde IN (";
+        $roundSQL2 = " s.xRunde IN (";
         $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$event);
         while($row_c = mysql_fetch_array($res_c)){
             $roundSQL .= $row_c[0].",";
@@ -40,21 +40,23 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
         $roundSQL2 = substr($roundSQL2,0,-1).")";
     }else{
         $roundSQL = "AND s.xRunde = $round";
-        $roundSQL2 = "AND s.xRunde = $round";
-    }
+        $roundSQL2 = " s.xRunde = $round";
+    }      
+	
+     $sql = "SELECT 
+                    COUNT(*), 
+                    ru.Versuche
+             FROM 
+                    resultat AS r
+                    LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                    LEFT JOIN runde AS ru ON (s.xRunde = ru.xRunde)   
+             WHERE   
+                    $roundSQL2 
+             GROUP BY r.xSerienstart
+             ORDER BY 1 DESC";    
     
-   
-	$result = mysql_query("SELECT COUNT(*), ru.Versuche"
-                                . " FROM resultat AS r"
-                                . ", serienstart AS ss"
-                                . ", serie AS s"
-                                 . ", runde AS ru" 
-                                . " WHERE r.xSerienstart = ss.xSerienstart"
-                                . " AND ss.xSerie = s.xSerie"
-                                . " AND s.xRunde = ru.xRunde"
-                                . " $roundSQL2 "
-                                . " GROUP BY r.xSerienstart"
-                                . " ORDER BY 1 DESC");
+    $result = mysql_query($sql);         
     
     $row = mysql_fetch_row($result);
       

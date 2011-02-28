@@ -70,10 +70,8 @@ function AA_heats_seedEntries($event)
 			d.Typ
 		FROM
 			disziplin_" . $_COOKIE['language'] . " AS d
-			, wettkampf AS w
-		WHERE xWettkampf = $event
-		AND d.xDisziplin = w.xDisziplin
-	");
+			LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin)
+		WHERE xWettkampf = $event");
 
 	if(mysql_errno() > 0)		// DB error
 	{
@@ -142,7 +140,7 @@ function AA_heats_seedEntries($event)
 			}
 			mysql_free_result($result);
 	}
-	 
+	
 	//
 	// read merged rounds and select all events
 	//    
@@ -165,94 +163,138 @@ function AA_heats_seedEntries($event)
 	//
 	if(!$combined){
         if($relay == FALSE && !$svmContest) {    // single event
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde, t.Name"
-                    . " FROM start as s LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung) LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) " 
-                    . " WHERE " //xWettkampf = " . $event
-                    . $sqlEvents
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xAnmeldung > 0"
-                    . " AND a.xAnmeldung = s.xAnmeldung"
-                    . " AND r.xRunde ". $sqlRounds   
-                    . " ORDER BY $order";   
+            $query = "SELECT 
+                            xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, 
+                            r.xRunde, 
+                            t.Name
+                     FROM 
+                            start as s 
+                            LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung) 
+                            LEFT JOIN team as t ON (a.xTeam = t.xTeam) 
+                            LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf)  
+                     WHERE  
+                         $sqlEvents
+                         AND s.Anwesend = 0
+                         AND s.xAnmeldung > 0
+                         AND a.xAnmeldung = s.xAnmeldung
+                         AND r.xRunde ". $sqlRounds ."  
+                     ORDER BY $order";   
         }
         elseif($relay == FALSE && $svmContest){ // single event but svm             
-            $query = "SELECT s.xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde, t.Name"
-                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
-                    . " WHERE " //xWettkampf = " . $event
-                    . $sqlEvents
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xAnmeldung > 0"
-                    . " AND a.xAnmeldung = s.xAnmeldung"
-                    . " AND r.xRunde ". $sqlRounds
-                    . " ORDER BY $orderFirst $order";    
+           
+            $query = "SELECT 
+                            s.xStart, 
+                            if(Bestleistung = 0, $badValue, Bestleistung) as best, 
+                            r.xRunde, 
+                            t.Name
+                     FROM 
+                            start as s
+                            LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)  
+                            LEFT JOIN team as t ON (a.xTeam = t.xTeam) 
+                            LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) 
+                     WHERE 
+                            $sqlEvents
+                            AND s.Anwesend = 0
+                            AND s.xAnmeldung > 0                            
+                            AND r.xRunde ". $sqlRounds ."
+                     ORDER BY $orderFirst $order";  
+                    
         }
         else {                        // relay event
-            $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, r.xRunde, t.Name"
-                    . " FROM start as s Left JOIN staffel as st ON (s.xStaffel = st.xStaffel) LEFT JOIN team as t ON (t.xTeam = st.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
-                    . " WHERE " // xWettkampf = " . $event
-                    . $sqlEvents
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xStaffel > 0"    
-                    . " AND r.xRunde ". $sqlRounds
-                    . " ORDER BY $order";     
+            $query = "SELECT 
+                            xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, 
+                            r.xRunde,
+                            t.Name
+                     FROM 
+                            start as s 
+                            Left JOIN staffel as st ON (s.xStaffel = st.xStaffel) 
+                            LEFT JOIN team as t ON (t.xTeam = st.xTeam) 
+                            LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) 
+                     WHERE  
+                            $sqlEvents
+                            AND s.Anwesend = 0
+                            AND s.xStaffel > 0   
+                            AND r.xRunde ". $sqlRounds ."
+                     ORDER BY $order";     
         }
     }else{ // combined 
         if ($comb_last == 1) {      // last combined --> all athletes together
-             $order = str_replace("DESC", "ASC", $order);   // last combined checks the best points --> order always ASC
-             if(!empty($cGroup)){
-                $query = "SELECT xStart, if(BestleistungMK = 0, $badValue, BestleistungMK) as best, a.xAthlet, t.Name"
-                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam)"
-                    . " WHERE " . $sqlEvents
-                    . " AND s.xAnmeldung = a.xAnmeldung"
-                    . " AND a.Gruppe = '$cGroup'"
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xAnmeldung > 0"
-                    . " ORDER BY $order";
-                    
-            }else{           
-                $query = "SELECT xStart, if(BestleistungMK = 0, $badValue, BestleistungMK) as best, a.xAthlet,r.xRunde, t.Name"
-                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
-                    . " WHERE " . $sqlEvents
-                    . " AND s.xAnmeldung = a.xAnmeldung"
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xAnmeldung > 0"
-                    . " ORDER BY $order";   
-            }
-            
+             $order = str_replace("DESC", "ASC", $order);   // last combined checks the best points --> order always ASC  
+                          
+             $query = "SELECT 
+                                xStart, 
+                                if(BestleistungMK = 0, $badValue, BestleistungMK) as best, 
+                                a.xAthlet,
+                                r.xRunde, 
+                                t.Name
+                          FROM 
+                                start as s 
+                                 LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)  
+                                LEFT JOIN team as t ON (a.xTeam = t.xTeam) 
+                                LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) 
+                          WHERE " . $sqlEvents ."                                
+                                AND s.Anwesend = 0
+                                AND s.xAnmeldung > 0
+                          ORDER BY $order";  
         }
         else {
             if(!empty($cGroup)){
-                $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet, t.Name"
-                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam)"
-                    . " WHERE " . $sqlEvents
-                    . " AND s.xAnmeldung = a.xAnmeldung"
-                    . " AND a.Gruppe = '$cGroup'"
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xAnmeldung > 0"
-                    . " ORDER BY $order";
+               
+                 $query = "SELECT 
+                                xStart, 
+                                if(Bestleistung = 0, $badValue, Bestleistung) as best, 
+                                a.xAthlet, 
+                                t.Name
+                          FROM 
+                                start as s 
+                                LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)  
+                                LEFT JOIN team as t ON (a.xTeam = t.xTeam)
+                          WHERE " . $sqlEvents  ."                                 
+                                AND a.Gruppe = '$cGroup'
+                                AND s.Anwesend = 0
+                                AND s.xAnmeldung > 0
+                     ORDER BY $order";        
                     
             }else{           
-                $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, a.xAthlet,r.xRunde, t.Name"
-                    . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam) LEFT JOIN runde as r On (r.xWettkampf=s.xWettkampf) "
-                    . " WHERE " . $sqlEvents
-                    . " AND s.xAnmeldung = a.xAnmeldung"
-                    . " AND s.Anwesend = 0"
-                    . " AND s.xAnmeldung > 0"
-                    . " ORDER BY $order";       
+               
+                 $query = "SELECT 
+                                xStart, 
+                                if(Bestleistung = 0, $badValue, Bestleistung) as best, 
+                                a.xAthlet,
+                                r.xRunde, 
+                                t.Name
+                          FROM 
+                                start as s 
+                                LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)    
+                                LEFT JOIN team as t ON (a.xTeam = t.xTeam) 
+                                LEFT JOIN runde as r ON (r.xWettkampf=s.xWettkampf) 
+                          WHERE " . $sqlEvents ."                                  
+                                 AND s.Anwesend = 0
+                                 AND s.xAnmeldung > 0
+                         ORDER BY $order";     
                    
             }
         }
     }
     if($teamsm && !empty($cGroup)){    // teamsm event with groups
-        $query = "SELECT xStart, if(Bestleistung = 0, $badValue, Bestleistung) as best, t.Name"
-                . " FROM start as s, anmeldung as a LEFT JOIN team as t ON (a.xTeam = t.xTeam)"
-                . " WHERE s.xWettkampf = " . $event
-                . " AND s.xAnmeldung = a.xAnmeldung"
-                . " AND a.Gruppe = '$cGroup'"
-                . " AND s.Anwesend = 0"
-                . " AND s.xAnmeldung > 0"
-                . " ORDER BY $order";       
+      
+        $query = "SELECT 
+                        xStart, 
+                        if(Bestleistung = 0, $badValue, Bestleistung) as best, 
+                        t.Name
+                  FROM 
+                        start as s 
+                        LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)
+                        LEFT JOIN team as t ON (a.xTeam = t.xTeam)
+                  WHERE 
+                        s.xWettkampf = " . $event ."                          
+                        AND a.Gruppe = '$cGroup'
+                        AND s.Anwesend = 0
+                        AND s.xAnmeldung > 0
+                  ORDER BY $order";  
+       
     }    
+    
     
      if ($_POST['mode'] == 3) {  
         // count team
@@ -302,8 +344,8 @@ function AA_heats_seedEntries($event)
 	// entries for this event found
 	else if($entries > 0)
 	{            
-		mysql_query("LOCK TABLES resultat READ, rundenset READ, wettkampf READ , meeting READ, runde WRITE, serie WRITE"
-							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
+		mysql_query("LOCK TABLES resultat READ,resultat AS re READ, rundenset READ, wettkampf READ , meeting READ, runde WRITE, serie WRITE, serie AS s WRITE"
+							. ", serienstart WRITE, serienstart AS ss, WRITE runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -312,14 +354,17 @@ function AA_heats_seedEntries($event)
 		}
 		else
 		{
-			// check if there are any results for this round
-			$res = mysql_query("SELECT xResultat"
-									. " FROM resultat"
-									. ", serienstart"
-									. ", serie"
-									. " WHERE serie.xRunde  " . $sqlRounds
-									. " AND serienstart.xSerie = serie.xSerie"
-									. " AND resultat.xSerienstart = serienstart.xSerienstart");   
+			// check if there are any results for this round     
+            $query = "SELECT 
+                            re.xResultat   
+                      FROM 
+                            resultat AS re
+                            LEFT JOIN serienstart AS ss ON (re.xSerienstart = ss.xSerienstart)
+                            LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                      WHERE 
+                            s.xRunde  " . $sqlRounds;    
+            
+            $res = mysql_query($query);        
                                     
 			if(mysql_errno() > 0)		// DB error
 			{
@@ -690,6 +735,7 @@ function AA_heats_seedEntries($event)
 		}		// ET round still active   
 		mysql_query("UNLOCK TABLES");
 	}
+   
      		// ET DB error, entries found
 }
 
@@ -735,9 +781,8 @@ function AA_heats_seedQualifiedAthletes($event)
 			d.Typ
 		FROM
 			disziplin_" . $_COOKIE['language'] . " AS d
-			, wettkampf AS w
-		WHERE xWettkampf = $event
-		AND d.xDisziplin = w.xDisziplin
+			LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin)
+		WHERE xWettkampf = $event 		
 	");
 
 	if(mysql_errno() > 0)		// DB error
@@ -786,23 +831,23 @@ function AA_heats_seedQualifiedAthletes($event)
     
    
     if ($eventMerged) {     
-    
+                                                         
         mysql_query("DROP TABLE IF EXISTS qualified_tmp");    // temporary table    
-  
-        $query_t="CREATE TEMPORARY TABLE qualified_tmp SELECT ss.xStart"
-                            . ", IF(ss.Qualifikation<=2, 0, 1) AS qualified1"
-                            . ", IF(ss.Qualifikation<=2, ss.Rang, 0) AS qualified2"  
-                            . " FROM serienstart AS ss"
-                            . ", serie AS s"
-                            . ", resultat AS r"
-                            . " WHERE ss.Qualifikation > 0"
-                            . " AND ss.Qualifikation != 9"
-                            . " AND s.xSerie = ss.xSerie"
-                            . " AND s.xRunde  " . $sqlRoundsPrev
-                            . " AND r.xSerienstart = ss.xSerienstart"
-                            . " ORDER BY " . $order;
-                             
-                             
+       
+       $query_t="CREATE TEMPORARY  TABLE qualified_tmp 
+                            SELECT 
+                                    ss.xStart
+                                    , IF(ss.Qualifikation<=2, 0, 1) AS qualified1
+                                    , IF(ss.Qualifikation<=2, ss.Rang, 0) AS qualified2  
+                            FROM 
+                                    serienstart AS ss
+                                    LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie)
+                                    LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)
+                            WHERE ss.Qualifikation > 0
+                                     AND ss.Qualifikation != 9                                      
+                                     AND s.xRunde  " . $sqlRoundsPrev ." 
+                            ORDER BY " . $order;    
+      
         $res_tmp = mysql_query($query_t);   
  
         if(mysql_errno() > 0)        // DB error
@@ -818,33 +863,36 @@ function AA_heats_seedQualifiedAthletes($event)
                 $sqlRounds="IN ". $mergedRounds;     
     
            $result = mysql_query("select s.xStart 
-                    ,t.qualified1
-                    , t.qualified2
-                     ,   r.xRunde                        
+                        , t.qualified1
+                        , t.qualified2
+                        , r.xRunde                        
                     FROM
                         start as s  
                         LEFT JOIN runde as r ON (r.xWettkampf = s.xWettkampf)
                         INNER JOIN qualified_tmp AS t ON (t.xStart = s.xStart)
                     WHERE r.xRunde " . $sqlRounds);        
-                            // . " AND s.xRunde = " . $prev_rnd        
+                            
         }
     }
     else {  
-	$result = mysql_query("SELECT ss.xStart"
-							. ", IF(ss.Qualifikation<=2, 0, 1)"
-							. ", IF(ss.Qualifikation<=2, ss.Rang, 0)"
-                            . ", ss.RundeZusammen"
-							. " FROM serienstart AS ss"
-							. ", serie AS s"
-							. ", resultat AS r"
-							. " WHERE ss.Qualifikation > 0"
-							. " AND ss.Qualifikation != 9"
-							. " AND s.xSerie = ss.xSerie"
-							. " AND s.xRunde  =" . $prev_rnd
-							. " AND r.xSerienstart = ss.xSerienstart"
-							. " ORDER BY " . $order);
-                            
-                            // . " AND s.xRunde = " . $prev_rnd    
+	                               
+        $sql = "SELECT 
+                    ss.xStart
+                    , IF(ss.Qualifikation<=2, 0, 1)
+                    , IF(ss.Qualifikation<=2, ss.Rang, 0)
+                    , ss.RundeZusammen
+                FROM 
+                    serienstart AS ss
+                    LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie)
+                    LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)
+                WHERE 
+                    ss.Qualifikation > 0
+                    AND ss.Qualifikation != 9                               
+                    AND s.xRunde  =" . $prev_rnd ."                               
+                ORDER BY " . $order;           
+              
+            $result = mysql_query($sql);
+           
     }
      
 	if(mysql_errno() > 0)		// DB error
@@ -854,8 +902,8 @@ function AA_heats_seedQualifiedAthletes($event)
 	// athletes for this event found
 	else if(mysql_num_rows($result) > 0)
 	{         
-		mysql_query("LOCK TABLES resultat READ, runde WRITE, rundenset READ,serie WRITE"
-							. ", serienstart WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
+		mysql_query("LOCK TABLES resultat READ,resultat AS re READ, runde WRITE, rundenset READ,serie WRITE, serie AS ss WRITE"
+							. ", serienstart WRITE, serienstart AS ss WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -864,16 +912,18 @@ function AA_heats_seedQualifiedAthletes($event)
 		}
 		else
 		{   
-			// check if there are any results for this round
-			$res = mysql_query("SELECT xResultat"
-									. " FROM resultat"
-									. ", serienstart"
-									. ", serie"
-									. " WHERE serie.xRunde = " . $round
-									. " AND serienstart.xSerie = serie.xSerie"
-									. " AND resultat.xSerienstart = serienstart.xSerienstart");
-
-                                    
+			// check if there are any results for this round    			
+            $sql = "SELECT 
+                            re.xResultat
+                      FROM 
+                            resultat AS re
+                            LEFT JOIN serienstart AS ss ON (re.xSerienstart = ss.xSerienstart)
+                            LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie) 
+                      WHERE 
+                            s.xRunde = " . $round;   
+           
+            $res = mysql_query($sql);
+           
 			if(mysql_errno() > 0)		// DB error
 			{
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1225,8 +1275,8 @@ function AA_heats_seedQualifiedAthletes($event)
 		mysql_query("UNLOCK TABLES");
 		mysql_free_result($result);
 	}	// ET DB error, entries found
-    
-   mysql_query("DROP TABLE IF EXISTS qualified_tmp");   
+                                                       
+   mysql_query("DROP TABLE IF EXISTS qualified_tmp");  
 }
 
 
@@ -1884,14 +1934,18 @@ function AA_heats_printNewStart($event, $round, $action)
     else
         $SqlRounds=" = " .$round;     
    
-	// set up key list containing this round's starts
-	$result = mysql_query("SELECT ss.xStart"
-								. " FROM runde AS r"
-								. ", serie AS s"
-								. ", serienstart AS ss"
-								. " WHERE r.xRunde " . $SqlRounds
-								. " AND s.xRunde = r.xRunde"
-								. " AND ss.xSerie = s.xSerie");
+	// set up key list containing this round's starts  
+     $sql= "SELECT 
+                ss.xStart
+            FROM 
+                runde AS r
+                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                INNER JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+            WHERE 
+                r.xRunde " . $SqlRounds;    
+    
+    $result = mysql_query($sql);
+                                
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -1904,6 +1958,12 @@ function AA_heats_printNewStart($event, $round, $action)
 			$keys = $keys . $sep . $row[0];
 			$sep = ",";
 		}
+        if ($keys == '') {
+            $Sqlkeys = '';
+        }
+        else {
+             $Sqlkeys = " AND st.xStart NOT IN (" . $keys .") "; 
+        }
 		mysql_free_result($result);
 	}
 
@@ -1918,32 +1978,36 @@ function AA_heats_printNewStart($event, $round, $action)
 	// get athletes entered for this event but not qualified for this round
 	if($relay == FALSE) {		// single event
 		$title = $GLOBALS['strAthlete'];
-		$query = ("SELECT st.xStart"
-					. ", CONCAT(a.Startnummer, ' ', at.Name , ' ', at.Vorname"
-					. ", ', ',  at.Jahrgang, ', ', v.Name)"
-					. " FROM start AS st"
-					. ", anmeldung AS a"
-					. ", athlet AS at"
-					. ", verein AS v"
-					. " WHERE st.xWettkampf " . $SqlEvents
-					. " AND st.xStart NOT IN (" . $keys
-					. ") AND a.xAnmeldung = st.xAnmeldung"
-					. " AND at.xAthlet = a.xAthlet"
-					. " AND v.xVerein = at.xVerein"
-					. " ORDER BY at.Name, at.Vorname");
+		
+        $query = "SELECT 
+                        st.xStart
+                        , CONCAT(a.Startnummer, ' ', at.Name , ' ', at.Vorname
+                        , ', ',  at.Jahrgang, ', ', v.Name)
+                  FROM 
+                        start AS st
+                        LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                        LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                        LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                  WHERE 
+                        st.xWettkampf " . $SqlEvents ."
+                        AND st.xStart NOT IN (" . $keys . ")  
+                  ORDER BY at.Name, at.Vorname";  
+
 	}
 	else {								// relay event
 		$title = $GLOBALS['strRelay'];
-		$query = ("SELECT st.xStart"
-					. ", CONCAT(sf.Name, ', ', v.Name)"
-					. " FROM start AS st"
-					. ", staffel AS sf"
-					. ", verein AS v"
-					. " WHERE st.xWettkampf " . $SqlEvents
-					. " AND st.xStart NOT IN (" . $keys
-					. ") AND sf.xStaffel = st.xStaffel"
-					. " AND v.xVerein = sf.xVerein"
-					. " ORDER BY sf.Name");
+		
+        $query = "SELECT 
+                        st.xStart
+                        , CONCAT(sf.Name, ', ', v.Name)
+                  FROM 
+                        start AS st
+                        LEFT JOIN staffel AS sf ON (sf.xStaffel = st.xStaffel)
+                        LEFT JOIN verein AS v ON (v.xVerein = sf.xVerein)
+                  WHERE st.xWettkampf " . $SqlEvents ."
+                        AND st.xStart NOT IN (" . $keys . ") AND sf.xStaffel > 0                       
+                  ORDER BY sf.Name";    
+
 	}
    
 	$result = mysql_query($query);

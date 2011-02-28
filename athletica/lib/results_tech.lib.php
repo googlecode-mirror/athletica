@@ -643,22 +643,26 @@ if(($_GET['arg'] == 'results_done')
     // qualify top athletes for next round
     if($qual_top > 0)
     {
-        mysql_query("LOCK TABLES serie READ, serienstart WRITE");
+        mysql_query("LOCK TABLES serie READ, serie AS s READ, serienstart WRITE, serienstart AS ss WRITE");
 
-        // get athletes by qualifying rank (random order if same rank)
-        $result =    mysql_query("SELECT serienstart.xSerienstart"
-                            . ", serienstart.xSerie"
-                            . ", serienstart.Rang"
-                            . " FROM serienstart"
-                            . ", serie"
-                            . " WHERE serienstart.Rang > 0"
-                            //. " AND serienstart.Rang <= " . $qual_top // don't limit rank
-                            . " AND serienstart.xSerie = serie.xSerie"
-                            . " AND serie.xRunde = " . $round
-                            . " AND serienstart.Qualifikation = 0" // don't update athletes who got 'waived' flag
-                            . " ORDER BY serienstart.xSerie"
-                            . ", serienstart.Rang ASC"
-                            . ", RAND()");
+        // get athletes by qualifying rank (random order if same rank)  
+         // don't update athletes who got 'waived' flag  
+         $sql = "SELECT 
+                        ss.xSerienstart
+                        , ss.xSerie
+                        , ss.Rang
+                 FROM 
+                        serienstart AS ss
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie )
+                 WHERE 
+                        ss.Rang > 0  
+                        AND s.xRunde = " . $round ."
+                        AND ss.Qualifikation = 0 
+                 ORDER BY ss.xSerie
+                            , ss.Rang ASC
+                            , RAND()";    
+         
+         $result = mysql_query($sql);      
 
         if(mysql_errno() > 0) {
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -719,29 +723,31 @@ if(($_GET['arg'] == 'results_done')
     // qualify top performing athletes for next round
     if($qual_perf > 0)
     {
-        mysql_query("LOCK TABLES resultat READ, serie READ, serienstart WRITE");
+        mysql_query("LOCK TABLES resultat READ,resultat AS r READ, serie READ, serie AS s READ, serienstart WRITE, serienstart AS ss WRITE ");
 
         // get remaining athletes by performance (random order if equal performance)
 
         /* other possible criteria to order equal performances:
          * - ranking within heat (not implemented)
          * - wind (not implemented)
-         */
-
-        $result = mysql_query("SELECT serienstart.xSerienstart"
-                                    . ", resultat.Leistung"
-                                    . ", serienstart.Qualifikation"
-                                    . " FROM resultat"
-                                    . ", serienstart"
-                                    . ", serie"
-                                    . " WHERE resultat.xSerienstart = serienstart.xSerienstart"
-                                    . " AND resultat.Leistung > 0"
-                                    . " AND (serienstart.Qualifikation = 0 "
-                                        ." OR serienstart.Qualifikation = ".$cfgQualificationType['waived']['code'].")"
-                                    . " AND serienstart.xSerie = serie.xSerie"
-                                    . " AND serie.xRunde = " . $round
-                                    . " ORDER BY resultat.Leistung DESC"
-                                    . ", RAND()");
+         */                              
+         $sql = "SELECT 
+                        ss.xSerienstart
+                        , r.Leistung
+                        , ss.Qualifikation
+                    FROM 
+                        resultat AS r
+                        LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                    WHERE                           
+                         r.Leistung > 0
+                         AND (ss.Qualifikation = 0 
+                                         OR ss.Qualifikation = ".$cfgQualificationType['waived']['code'].")  
+                         AND s.xRunde = " . $round ."
+                    ORDER BY r.Leistung DESC
+                                    , RAND()";    
+       
+        $result = mysql_query($sql);    
 
         if(mysql_errno() > 0) {
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -793,16 +799,19 @@ if(($_GET['arg'] == 'results_done')
             // Change qualification type to "perf_rand" for athletes with same
             // performance as the 1st unqualified athlete
             if($perf != 0)
-            {
-                $result = mysql_query("SELECT serienstart.xSerienstart"
-                                            . " FROM resultat"
-                                            . ", serienstart"
-                                            . ", serie"
-                                            . " WHERE resultat.xSerienstart = serienstart.xSerienstart"
-                                            . " AND resultat.Leistung = " . $perf
-                                            . " AND serienstart.Qualifikation > 0"
-                                            . " AND serienstart.xSerie = serie.xSerie"
-                                            . " AND serie.xRunde = " . $round);
+            {                               
+                $sql = "SELECT 
+                            ss.xSerienstart
+                        FROM 
+                            resultat AS r
+                            LEFT JOIN serienstart AS ss ON (r.xSerienstart = ss.xSerienstart)
+                            LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie)
+                        WHERE  
+                            r.Leistung = " . $perf ."
+                            AND ss.Qualifikation > 0 
+                            AND s.xRunde = " . $round;     
+                
+                $result = mysql_query($sql);       
 
                 if(mysql_errno() > 0) {
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -882,50 +891,46 @@ if($round > 0)
         }
       
        
-        // display all athletes        
-        $sql = "SELECT rt.Name"
-                                . ", rt.Typ"
-                                . ", s.xSerie"
-                                . ", s.Bezeichnung"
-                                . ", s.Wind"
-                                . ", an.Bezeichnung"
-                                . ", ss.xSerienstart"
-                                . ", ss.Position"
-                                . ", ss.Rang"
-                                . ", a.Startnummer"
-                                . ", at.Name"
-                                . ", at.Vorname"
-                                . ", at.Jahrgang"
-                                 . ", if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))"   
-                                . ", LPAD(s.Bezeichnung,5,'0') as heatid"
-                                . ", r.Versuche"
-                                . ", ss.Qualifikation"
-                                . ", at.Land"
-                                . ", r.nurBestesResultat"
-                                . ", ss.Bemerkung"
-                                . ", at.xAthlet"
-                                . ",  if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder  "  
-                                . " FROM runde AS r"
-                                . ", serie AS s"
-                                . ", serienstart AS ss"
-                                . ", start AS st"
-                                . ", anmeldung AS a"
-                                . ", athlet AS at"
-                                . ", verein AS v"                                   
-                                . " LEFT JOIN team AS t ON(a.xTeam = t.xTeam)" 
-                                . " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
-                                . " ON rt.xRundentyp = r.xRundentyp"
-                                . " LEFT JOIN anlage AS an"
-                                . " ON an.xAnlage = s.xAnlage"
-                                . " WHERE r.xRunde = " . $round
-                                . " AND s.xRunde = r.xRunde"
-                                . " AND ss.xSerie = s.xSerie"
-                                . " AND st.xStart = ss.xStart"
-                                . " AND a.xAnmeldung = st.xAnmeldung"
-                                . " AND at.xAthlet = a.xAthlet"
-                                . " AND v.xVerein = at.xVerein"
-                                . " ORDER BY heatid, posOrder";
-        $result = mysql_query($sql);            
+        // display all athletes   
+         $sql = "SELECT 
+                        rt.Name
+                        , rt.Typ
+                        , s.xSerie
+                        , s.Bezeichnung
+                        , s.Wind
+                        , an.Bezeichnung
+                        , ss.xSerienstart
+                        , ss.Position
+                        , ss.Rang
+                        , a.Startnummer
+                        , at.Name
+                        , at.Vorname
+                        , at.Jahrgang
+                        , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
+                        , LPAD(s.Bezeichnung,5,'0') as heatid
+                        , r.Versuche
+                        , ss.Qualifikation
+                        , at.Land
+                        , r.nurBestesResultat
+                        , ss.Bemerkung
+                        , at.xAthlet
+                        ,  if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder   
+                  FROM 
+                        runde AS r
+                        LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                        LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                        LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                        LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                        LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                        LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                                  
+                        LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+                        LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                        LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                  WHERE 
+                        r.xRunde = " . $round ."                                 
+                  ORDER BY heatid, posOrder";  
+                  
+        $result = mysql_query($sql);    
       
         if(mysql_errno() > 0) {        // DB error
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -963,21 +968,21 @@ if($round > 0)
                         <p/>
                             <form name="qualification" action="event_results.php" method="post">
                                 <input type="hidden" name="arg" value="set_qual"/>
-                                <input type="hidden" name="round" value="<?=$round?>"/>
+                                <input type="hidden" name="round" value="<?php echo $round; ?>"/>
                                 <table class="dialog">
                                     <tr>
-                                        <td class="dialog"><?=$strQualification?> <?=$strQualifyTop?></td>
-                                        <td class="dialog"><input type="text" name="qual_top" class="nbr" maxlength="4" value="<?=$row2[0]?>"/></td>
-                                        <td class='dialog'><?=$strQualification?> <?=$strQualifyPerformance?></td>
-                                        <td class='dialog'><input type="text" name="qual_perf" class="nbr" maxlength="4" value="<?=$row2[1]?>"/></td>
-                                        <td><button type="submit"><?=$strChange?></button></td>
+                                        <td class="dialog"><?php echo $strQualification; ?> <?php echo $strQualifyTop; ?></td>
+                                        <td class="dialog"><input type="text" name="qual_top" class="nbr" maxlength="4" value="<?php echo $row2[0]; ?>"/></td>
+                                        <td class='dialog'><?php echo $strQualification; ?> <?php echo $strQualifyPerformance; ?></td>
+                                        <td class='dialog'><input type="text" name="qual_perf" class="nbr" maxlength="4" value="<?php echo $row2[1]; ?>"/></td>
+                                        <td><button type="submit"><?php echo $strChange; ?></button></td>
                                     </tr>
                                 </table>
                             </form>
                             
                             <form name="frmQual" action="event_results.php" method="post">
                                 <input type="hidden" name="arg" value="change_qual"/>
-                                <input type="hidden" name="round" value="<?=$round?>"/>
+                                <input type="hidden" name="round" value="<?php echo $round; ?>"/>
                                 <input type="hidden" name="focus" value="qual_0"/>
                                 <input type="hidden" name="item" value="0"/>
                                 <input type="hidden" name="oldqual" value="0"/>
@@ -1114,7 +1119,7 @@ if($round > 0)
         <td class='forms_right'><?php echo $row[9]; /* start nbr */ ?></td>
         <td nowrap><?php echo $row[10] . " " . $row[11];  /* name */ ?></td>
         <td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[12]); ?></td>
-        <td><?=(($row[17]!='' && $row[17]!='-') ? $row[17] : '&nbsp;')?></td>
+        <td><?php echo (($row[17]!='' && $row[17]!='-') ? $row[17] : '&nbsp;'); ?></td>
         <td nowrap><?php echo $row[13]; /* club */ ?></td>
 <?php
                 $res = mysql_query("SELECT rs.xResultat"
@@ -1159,14 +1164,14 @@ if($round > 0)
                     {
                         if($nextRound>0){
                             ?>
-                            <form name="qual_<?=$i?>" action="event_results.php" method="post">
+                            <form name="qual_<?php echo $i; ?>" action="event_results.php" method="post">
                                 <td>
                                     <input type="hidden" name="arg" value="change_qual"/>
-                                    <input type="hidden" name="round" value="<?=$round?>"/>
-                                    <input type="hidden" name="focus" value="qual_<?=$i?>"/>
-                                    <input type="hidden" name="item" value="<?=$row[6]?>"/>
-                                    <input type="hidden" name="oldqual" value="<?=$row[16]?>"/>
-                                    <input type="hidden" name="heat" value="<?=$row[2]?>"/>
+                                    <input type="hidden" name="round" value="<?php echo $round; ?>"/>
+                                    <input type="hidden" name="focus" value="qual_<?php echo $i; ?>"/>
+                                    <input type="hidden" name="item" value="<?php echo $row[6]; ?>"/>
+                                    <input type="hidden" name="oldqual" value="<?php echo $row[16]; ?>"/>
+                                    <input type="hidden" name="heat" value="<?php echo $row[2]; ?>"/>
                                     <?php
                                     $dropdown = new GUI_Select('qual', 1, 'changequal("qual_'.$i.'", '.$row[6].', '.$row[16].', '.$row[2].', this.value)');
                                     $dropdown->addOptionNone();

@@ -72,21 +72,23 @@ function AA_entries_assignStartnumbers()
 		// Read athletes
 		//
 
-		mysql_query("LOCK TABLES athlet READ, kategorie READ, verein READ"
-				  . ", anmeldung wRITE");
-
-		$result = mysql_query("SELECT anmeldung.xAnmeldung"
-								  . ", anmeldung.xKategorie"
-								  . ", athlet.xVerein"
-								  . " FROM anmeldung"
-								  . ", athlet"
-								  . ", kategorie"
-								  . ", verein"
-								  . " WHERE anmeldung.xMeeting = " . $_COOKIE['meeting_id']
-								  . " AND anmeldung.xAthlet = athlet.xAthlet"
-								  . " AND anmeldung.xKategorie = kategorie.xKategorie"
-								  . " AND athlet.xVerein = verein.xVerein"
-								  . " ORDER BY " . $argument);
+		mysql_query("LOCK TABLES athlet AS at READ, kategorie AS k READ, verein AS v READ"
+				  . ", anmeldung AS a wRITE");      
+		
+         $sql = "SELECT 
+                        a.xAnmeldung
+                        , a.xKategorie
+                        , at.xVerein
+                 FROM 
+                        anmeldung AS a
+                        LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+                        LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)
+                        LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
+                 WHERE 
+                        a.xMeeting = " . $_COOKIE['meeting_id'] ."                          
+                 ORDER BY " . $argument;      
+                 
+        $result = mysql_query($sql);     
 
 		if(mysql_errno() > 0)		// DB error
 		{
