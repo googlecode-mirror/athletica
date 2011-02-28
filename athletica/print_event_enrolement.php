@@ -88,34 +88,35 @@ $sort = "at.Name, at.Vorname";
 // start a new HTML page for printing
 $doc = new PRINT_EnrolementPage($_COOKIE['meeting']);
        
-// get event title data
-$result = mysql_query("SELECT DISTINCT d.Name"
-					. ", k.Name"
-					. ", DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
-					. ", TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')"
-					. ", w.xWettkampf"
-					. ", r.xRunde"
-					. ", r.Status"
-					. ", w.xKategorie"
-					. ", TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')"
-					. ", TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')"
-					. ", w.Mehrkampfcode"
-					. ", dm.Name"
-                    . ", w.Info" 
-                    . ", d.Typ"     
-					. " FROM disziplin_" . $_COOKIE['language'] . " AS d"
-					. ", kategorie AS k"
-					. ", wettkampf AS w"
-					. ", runde AS r"
-					. " LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dm ON w.Mehrkampfcode = dm.Code"
-				    . " LEFT JOIN start AS s ON(s.xWettkampf=w.xWettkampf)"  
-   					. " INNER JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)"   
-					. " WHERE " . $argument
-					. " AND r.xWettkampf = w.xWettkampf"
-					. " AND d.xDisziplin = w.xDisziplin"
-					. " AND k.xKategorie = w.xKategorie"
-					. " ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit");   
-                          
+// get event title data    
+  $sql = "SELECT 
+                DISTINCT d.Name
+                , k.Name
+                , DATE_FORMAT(r.Datum, '$cfgDBdateFormat')
+                , TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')
+                , w.xWettkampf
+                , r.xRunde
+                , r.Status
+                , w.xKategorie
+                , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+                , TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')
+                , w.Mehrkampfcode
+                , dm.Name
+                , w.Info 
+                , d.Typ     
+          FROM 
+                disziplin_" . $_COOKIE['language'] . " AS d
+                LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin ) 
+                LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie ) 
+                LEFT JOIN runde AS r On (r.xWettkampf = w.xWettkampf)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dm ON w.Mehrkampfcode = dm.Code
+                LEFT JOIN start AS s ON(s.xWettkampf=w.xWettkampf)  
+                INNER JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)   
+          WHERE " . $argument ."   
+            ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit";     
+  
+$result = mysql_query($sql);
+
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -274,7 +275,7 @@ else
                     $sort = "v.Sortierwert, at.Name, at.Vorname"; 
                 }  
                 elseif ($_GET['sort'] == 'bestperf') {  
-                    $sort = "s.Bestleistung $order, at.Name, at.Vorname"; 
+                    $sort = "Bestleistung $order, at.Name, at.Vorname"; 
                 }  
                 else {  
                     $sort = "at.Name, at.Vorname"; 
@@ -284,66 +285,69 @@ else
 			  if($combined){
 			  	  $sqlEvt = '';
 			  	  if ($_GET['event'] > 0){   
-			  	  		$sqlEvt = " AND w.xWettkampf = ". $event; 
+			  	  		$sqlEvt = " w.xWettkampf = ". $event ." AND ";
 				  }
                   if ($_GET['sort'] == 'bestperf') {  
                         $sort = "a.BestleistungMK DESC, at.Name, at.Vorname"; 
                   }
-				  $query = "SELECT a.Startnummer"
-						  . ", at.Name"
-						  . ", at.Vorname"
-						  . ", at.Jahrgang"
-						  . ", IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) "
-						  . ", a.BestleistungMK"
-						  . ", d.Typ"
-						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
-						  . ", w.xDisziplin"  
-						  . ", w.xWettkampf"  
-						  . ", s.Bestleistung"  
-						  . " FROM anmeldung AS a"
-						  . ", athlet AS at"
-						  . ", start AS s"
-						  . ", verein AS v"
-						  . ", wettkampf AS w"
-						  . "  LEFT JOIN region as re ON at.xRegion = re.xRegion"
-						  . "  LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d ON w.xDisziplin = d.xDisziplin"
-						  . " WHERE s.xWettkampf = w.xWettkampf"
-						  .  $sqlEvt   
-						  . " AND w.xKategorie = " . $xCat
-						  . " AND w.Mehrkampfcode = " . $xComb
-						  . " AND w.xMeeting = ". $_COOKIE['meeting_id']
-						  . " AND s.xAnmeldung = a.xAnmeldung"
-						  . " AND a.xAthlet = at.xAthlet"
-						  . " AND at.xVerein = v.xVerein"
-						  . " GROUP BY a.xAnmeldung"
-						  . " ORDER BY $sort";
+				  
+                  $query = "SELECT 
+                                    a.Startnummer
+                                  , at.Name
+                                  , at.Vorname
+                                  , at.Jahrgang
+                                  , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
+                                  , a.BestleistungMK
+                                  , d.Typ
+                                  , IF(at.xRegion = 0, at.Land, re.Anzeige)
+                                  , w.xDisziplin  
+                                  , w.xWettkampf  
+                                  , s.Bestleistung  
+                           FROM 
+                                    anmeldung AS a
+                                    LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet )
+                                    LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung )  
+                                    LEFT JOIN wettkampf AS w ON ( s.xWettkampf = w.xWettkampf)  
+                                    LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)  
+                                    LEFT JOIN region as re ON at.xRegion = re.xRegion
+                                    LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d ON w.xDisziplin = d.xDisziplin
+                           WHERE "     
+                                    .  $sqlEvt ."  
+                                    w.xKategorie = " . $xCat ."
+                                    AND w.Mehrkampfcode = " . $xComb  ."
+                                    AND w.xMeeting = ". $_COOKIE['meeting_id'] ."  
+                           GROUP BY a.xAnmeldung
+                           ORDER BY $sort";      
+                       
+                        
 			  }else{
-				  $query = "SELECT DISTINCT a.Startnummer"
-						  . ", at.Name"
-						  . ", at.Vorname"
-						  . ", at.Jahrgang"
-						  . ", if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)) "
-						  . ", s.Bestleistung"
-						  . ", d.Typ"
-						  . ", IF(at.xRegion = 0, at.Land, re.Anzeige)"
-                           . ", d.Name" 
-						  . " FROM anmeldung AS a"
-						  . ", athlet AS at"
-						  . ", start AS s"
-						  . ", verein AS v"
-						  . "  LEFT JOIN region as re ON at.xRegion = re.xRegion"
-						  . "  LEFT JOIN wettkampf as w ON s.xWettkampf = w.xWettkampf"
-						  . "  LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d ON w.xDisziplin = d.xDisziplin"
-                          . "  LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)"   
-						  . "  LEFT JOIN team as t ON a.xTeam = t.xTeam"
-                          . " LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) "
-                          . $sqlEvents   
-                          . " AND w.Mehrkampfcode = 0 " 
-						  . " AND s.xAnmeldung = a.xAnmeldung"
-						  . " AND a.xAthlet = at.xAthlet"
-						  . " AND at.xVerein = v.xVerein"
-                          . $sqlGroup
-						  . " ORDER BY $sortAddition $sort";    
+				 
+                      $query = "SELECT 
+                                    DISTINCT a.Startnummer
+                                    , at.Name
+                                    , at.Vorname
+                                    , at.Jahrgang
+                                    , if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)) 
+                                    , if (s.Bestleistung = 0, 9999999, s.Bestleistung)  as Bestleistung
+                                    , d.Typ
+                                    , IF(at.xRegion = 0, at.Land, re.Anzeige)
+                                    , d.Name 
+                                FROM 
+                                    anmeldung AS a
+                                    LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+                                    LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung)
+                                    LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
+                                    LEFT JOIN region as re ON at.xRegion = re.xRegion
+                                    LEFT JOIN wettkampf as w ON s.xWettkampf = w.xWettkampf
+                                    LEFT JOIN disziplin_" . $_COOKIE['language'] ." as d ON w.xDisziplin = d.xDisziplin
+                                    LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)   
+                                    LEFT JOIN team as t ON a.xTeam = t.xTeam
+                                    LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf)" 
+                              . $sqlEvents ."   
+                                    AND w.Mehrkampfcode = 0 "                                    
+                              . $sqlGroup ."
+                              ORDER BY " . $sortAddition .$sort;  
+                       
 			  }
 		  }
 		  else {							// relay event
@@ -363,40 +367,38 @@ else
            else {  
                 $sort = "st.Name "; 
                 }  
-           }
-            
-			$query = "SELECT s2.xStart"
-					. ", s2.Anwesend"
-					. ", st.Name"
-					. ", if('$svm', t.Name, v.Name) "
-					. ", a.Startnummer"
-					. ", at.Name"
-					. ", at.Vorname"
-					. ", at.Jahrgang"
-					. ", at.Land"
-                    . ", stat.Position" 
-                    . ", st.Startnummer"    
-					. " FROM staffel AS st"
-					. ", start AS s"
-					. ", verein AS v"
-					. ", staffelathlet as stat"
-					. ", start as s2"
-					. ", anmeldung as a"
-					. ", athlet as at"
-					. "  LEFT JOIN team as t ON st.xTeam = t.xTeam"
-					. " WHERE s.xWettkampf = " . $event
-					. " AND s.xStaffel = st.xStaffel"
-					. " AND st.xVerein = v.xVerein"
-					. " AND stat.xStaffelstart = s.xStart"
-					. " AND s2.xStart = stat.xAthletenstart"
-					. " AND a.xAnmeldung = s2.xAnmeldung"
-					. " AND at.xAthlet = a.xAthlet"
-					. " GROUP BY stat.xAthletenstart"
-					. " ORDER BY $sortAddition $sort , stat.position ";
+           }    
+                    
+            $query = "SELECT 
+                            s2.xStart
+                            , s2.Anwesend
+                            , st.Name
+                            , if('$svm', t.Name, v.Name) 
+                            , a.Startnummer
+                            , at.Name
+                            , at.Vorname
+                            , at.Jahrgang
+                            , at.Land
+                             , stat.Position 
+                             , st.Startnummer    
+                       FROM 
+                            staffel AS st     
+                            LEFT JOIN start AS s ON (s.xStaffel = st.xStaffel  )
+                            LEFT JOIN verein AS v  ON (st.xVerein = v.xVerein)
+                            LEFT JOIN staffelathlet as stat ON (stat.xStaffelstart = s.xStart )
+                            LEFT JOIN start as s2 ON (s2.xStart = stat.xAthletenstart)
+                            LEFT JOIN anmeldung as a ON (a.xAnmeldung = s2.xAnmeldung)    
+                            LEFT JOIN athlet as at ON (at.xAthlet = a.xAthlet)
+                            LEFT JOIN team as t ON st.xTeam = t.xTeam
+                     WHERE 
+                            s.xWettkampf = " . $event ."                        
+                     GROUP BY stat.xAthletenstart
+                     ORDER BY $sortAddition $sort , stat.position ";     
+                       
 		  }
-           
-         
-		  $res = mysql_query($query);
+        
+          $res = mysql_query($query);    
+        
           $first=true;
           $athleteLine = '';
 		  if(mysql_errno() > 0)		// DB error
@@ -434,7 +436,11 @@ else
 				        }
 				        else {
 				             $pf=$row[5];            // best effort
-				        }                 				  	    	                       
+				        }  
+                        
+                         if ($pf == 9999999){
+                          $pf = 0;
+                      }                				  	    	                       
 				  	   
 						// show top performance of athletes
 						if(($row[6] == $cfgDisciplineType[$strDiscTypeJump])
@@ -459,11 +465,19 @@ else
 				  	      		$perf=$pf;         // points 
 				  	  	  }
 					   	}
+                        
+                         
+                     
 						$doc->printLine($row[0], $row[1] . " " . $row[2],
 							AA_formatYearOfBirth($row[3]), $row[4], $row[7], $perf);
 				  }
 				  else
-				  {    if ($keep_stName != $row[2]){
+				  {   
+                      if ($row[5] >= 9999999){
+                          $row[5] = 0;
+                      } 
+                      
+                      if ($keep_stName != $row[2]){
                             if (!$first) {
                                  $athleteLine=substr($athleteLine,0,-2);
                                  $doc->printLineAthlete($athleteLine); 
