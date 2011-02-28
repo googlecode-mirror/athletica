@@ -166,6 +166,9 @@ class alge{
 			}else{
 				
 				$row = mysql_fetch_array($res);
+                
+                $replace = array( '/' => '_' ,  ':' => '_','*' => '_', '?' => '_', '<' => '_', '>' => '_', '|' => '_');
+                $row[2] = strtr($row[2] , $replace );       
 				return "_".$row[1]." ".$row[2]." - ".$row[3]."_H";
 				
 			}
@@ -210,6 +213,8 @@ class alge{
 			}else{
 				
 				$row = mysql_fetch_array($res);
+                $replace = array( '/' => '_' ,  ':' => '_','*' => '_', '?' => '_', '<' => '_', '>' => '_', '|' => '_');
+                $row[2] = strtr($row[2] , $replace );       
 				return sprintf("%03d",$row[5])."_".$row[1]." ".$row[2]." - ".$row[3]."_H".$row[4];
 				
 			}
