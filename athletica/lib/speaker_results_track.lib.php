@@ -17,6 +17,9 @@ function AA_speaker_Track($event, $round, $layout)
     require('./lib/cl_performance.lib.php');  
 	require('./config.inc.php');
 	require('./lib/common.lib.php');
+    
+    $mergedMain=AA_checkMainRound($round);
+   if ($mergedMain != 1) {
 
 	$relay = AA_checkRelay($event);	// check, if this is a relay event
 	$status = AA_getRoundStatus($round);
@@ -40,8 +43,8 @@ function AA_speaker_Track($event, $round, $layout)
 		if($status == $cfgRoundStatus['results_done'])
 		{
 			$menu = new GUI_Menulist();
-			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker&show_efforts=none", $GLOBALS['strRankingList']);
-			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker&show_efforts=sb_pb", $GLOBALS['strRankingListEfforts']);
+			$menu->addButton("print_rankinglist.php?event=$event&round=$round&type=single&formaction=speaker&show_efforts=none", $GLOBALS['strRankingList']);
+			$menu->addButton("print_rankinglist.php?event=$event&round=$round&type=single&formaction=speaker&show_efforts=sb_pb", $GLOBALS['strRankingListEfforts']);
 			$menu->printMenu();
 			echo "<p/>";
 		}
@@ -77,96 +80,85 @@ function AA_speaker_Track($event, $round, $layout)
 
 		// display all athletes
 		if($relay == FALSE) {		// single event
-			$query = ("
-				SELECT
-					r.Bahnen
-					, rt.Name
-					, rt.Typ
-					, s.xSerie
-					, s.Bezeichnung
-					, s.Wind
-					, s.Film
-					, s.Status
-					, ss.xSerienstart
-					, ss.Position
-					, ss.Rang
-					, ss.Qualifikation
-					, a.Startnummer
-					, at.Name
-					, at.Vorname
-					, at.Jahrgang
-					, v.Name
-					, LPAD(s.Bezeichnung,5,'0') as heatid
-					, at.Land
-					, st.Bestleistung
-					, at.xAthlet
-				FROM
-					runde AS r
-					, serie AS s
-					, serienstart AS ss
-					, start AS st
-					, anmeldung AS a
-					, athlet AS at
-					, verein AS v
-				LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-					ON rt.xRundentyp = r.xRundentyp
-				LEFT JOIN anlage AS an
-					ON an.xAnlage = s.xAnlage
-				WHERE r.xRunde = $round
-				AND s.xRunde = r.xRunde
-				AND ss.xSerie = s.xSerie
-				AND st.xStart = ss.xStart
-				AND a.xAnmeldung = st.xAnmeldung
-				AND at.xAthlet = a.xAthlet
-				AND v.xVerein = at.xVerein
-				ORDER BY
-					heatid
-					, ss.Position
-			");
+			
+            $query = "
+                SELECT
+                    r.Bahnen
+                    , rt.Name
+                    , rt.Typ
+                    , s.xSerie
+                    , s.Bezeichnung
+                    , s.Wind
+                    , s.Film
+                    , s.Status
+                    , ss.xSerienstart
+                    , ss.Position
+                    , ss.Rang
+                    , ss.Qualifikation
+                    , a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , v.Name
+                    , LPAD(s.Bezeichnung,5,'0') as heatid
+                    , at.Land
+                    , st.Bestleistung
+                    , at.xAthlet
+                FROM
+                    runde AS r
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie   )
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                    LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                    LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                    LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                WHERE 
+                    r.xRunde = $round 
+                ORDER BY
+                    heatid
+                    , ss.Position
+            ";         
+
 		}
 		else {								// relay event
-			$query = ("
-				SELECT
-					r.Bahnen
-					, rt.Name
-					, rt.Typ
-					, s.xSerie
-					, s.Bezeichnung
-					, s.Wind
-					, s.Film
-					, s.Status
-					, ss.xSerienstart
-					, ss.Position
-					, ss.Rang
-					, ss.Qualifikation
-					, sf.Name
-					, v.Name
-					, LPAD(s.Bezeichnung,5,'0') as heatid
-					, r.xRunde
-					, st.xStart
-				FROM
-					runde AS r
-					, serie AS s
-					, serienstart AS ss
-					, start AS st
-					, staffel AS sf
-					, verein AS v
-				LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-					ON rt.xRundentyp = r.xRundentyp
-				LEFT JOIN anlage AS an
-					ON an.xAnlage = s.xAnlage
-				WHERE r.xRunde = $round
-				AND s.xRunde = r.xRunde
-				AND ss.xSerie = s.xSerie
-				AND st.xStart = ss.xStart
-				AND sf.xStaffel = st.xStaffel
-				AND v.xVerein = sf.xVerein
-				ORDER BY
-					heatid
-					, ss.Position
-			");
+			
+            $query = "
+                SELECT
+                    r.Bahnen
+                    , rt.Name
+                    , rt.Typ
+                    , s.xSerie
+                    , s.Bezeichnung
+                    , s.Wind
+                    , s.Film
+                    , s.Status
+                    , ss.xSerienstart
+                    , ss.Position
+                    , ss.Rang
+                    , ss.Qualifikation
+                    , sf.Name
+                    , v.Name
+                    , LPAD(s.Bezeichnung,5,'0') as heatid
+                    , r.xRunde
+                    , st.xStart
+                FROM
+                    runde AS r
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart )
+                    LEFT JOIN staffel AS sf ON (sf.xStaffel = st.xStaffel  )
+                    LEFT JOIN verein AS v ON (v.xVerein = sf.xVerein)
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                    LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                WHERE 
+                    r.xRunde = $round  
+                ORDER BY
+                    heatid
+                    , ss.Position";    
 		}
-        
+       
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0) {		// DB error
@@ -321,6 +313,13 @@ function AA_speaker_Track($event, $round, $layout)
 			mysql_free_result($result);
 		}		// ET DB error
 	}		// ET heat seeding done
+    
+    
+}
+else {
+    
+        AA_printErrorMsg($strErrMergedRoundSpeaker); 
+}
 
 }	// End function AA_speaker_Track
 

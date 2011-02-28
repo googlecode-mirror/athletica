@@ -18,6 +18,9 @@ function AA_speaker_Tech($event, $round, $layout)
 	require('./lib/results.lib.php');
 
 	$status = AA_getRoundStatus($round);
+    
+    $mergedMain=AA_checkMainRound($round);
+   if ($mergedMain != 1) {
 
 	// No action yet
 	if(($status == $cfgRoundStatus['open'])
@@ -47,51 +50,46 @@ function AA_speaker_Tech($event, $round, $layout)
 	
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-		}
+		}        
 		
-		$temp = mysql_query("
-			SELECT
-				rt.Name
-				, rt.Typ
-				, s.xSerie
-				, s.Bezeichnung
-				, s.Wind
-				, s.Status
-				, ss.xSerienstart
-				, ss.Position
-				, ss.Rang
-				, a.Startnummer
-				, at.Name
-				, at.Vorname
-				, at.Jahrgang
-				, v.Name
-				, LPAD(s.Bezeichnung,5,'0') as heatid
-				, w.Windmessung
-				, at.xAthlet
-				, at.Land
-			FROM
-				runde AS r
-				, serie AS s
-				, serienstart AS ss
-				, start AS st
-				, anmeldung AS a
-				, athlet AS at
-				, verein AS v
-				, wettkampf AS w
-			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-				ON rt.xRundentyp = r.xRundentyp
-			WHERE r.xRunde = $round
-			AND w.xWettkampf = r.xWettkampf
-			AND s.xRunde = r.xRunde
-			AND ss.xSerie = s.xSerie
-			AND st.xStart = ss.xStart
-			AND a.xAnmeldung = st.xAnmeldung
-			AND at.xAthlet = a.xAthlet
-			AND v.xVerein = at.xVerein
-			ORDER BY
-				heatid
-				, ss.Position
-		");
+        $sql = "
+            SELECT
+                rt.Name
+                , rt.Typ
+                , s.xSerie
+                , s.Bezeichnung
+                , s.Wind
+                , s.Status
+                , ss.xSerienstart
+                , ss.Position
+                , ss.Rang
+                , a.Startnummer
+                , at.Name
+                , at.Vorname
+                , at.Jahrgang
+                , v.Name
+                , LPAD(s.Bezeichnung,5,'0') as heatid
+                , w.Windmessung
+                , at.xAthlet
+                , at.Land
+            FROM
+                runde AS r
+                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde )
+                LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+            WHERE 
+                r.xRunde = $round   
+            ORDER BY
+                heatid
+                , ss.Position
+        ";      
+        
+        $temp = mysql_query($sql);     
 	
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -159,8 +157,8 @@ function AA_speaker_Tech($event, $round, $layout)
 		if($status == $cfgRoundStatus['results_done'])
 		{
 			$menu = new GUI_Menulist();
-			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker", $GLOBALS['strRankingList']);
-			$menu->addButton("print_rankinglist.php?round=$round&type=single&formaction=speaker&show_efforts=sb_pb", $GLOBALS['strRankingListEfforts']);
+			$menu->addButton("print_rankinglist.php?event=$event&round=$round&type=single&formaction=speaker", $GLOBALS['strRankingList']);
+			$menu->addButton("print_rankinglist.php?event=$event&round=$round&type=single&formaction=speaker&show_efforts=sb_pb", $GLOBALS['strRankingListEfforts']);
 			$menu->printMenu();
 			echo "<p/>";
 		}
@@ -192,53 +190,47 @@ function AA_speaker_Tech($event, $round, $layout)
 		$argument="ss.Position";
 		$img_pos="img/sort_act.gif";
 	}
-		
-	$result = mysql_query("
-			SELECT
-				rt.Name
-				, rt.Typ
-				, s.xSerie
-				, s.Bezeichnung
-				, s.Wind
-				, s.Status
-				, ss.xSerienstart
-				, ss.Position
-				, ss.Rang
-				, a.Startnummer
-				, at.Name
-				, at.Vorname
-				, at.Jahrgang
-				, v.Name
-				, LPAD(s.Bezeichnung,5,'0') as heatid
-				, w.Windmessung
-				, st.Bestleistung
-				, at.xAthlet
-				, at.Land
-				, t.rang
-			FROM
-				runde AS r
-				, serie AS s
-				, serienstart AS ss
-				, start AS st
-				, anmeldung AS a
-				, athlet AS at
-				, verein AS v
-				, wettkampf AS w
-				, temp AS t
-			LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-				ON rt.xRundentyp = r.xRundentyp
-			WHERE r.xRunde = $round
-			AND w.xWettkampf = r.xWettkampf
-			AND s.xRunde = r.xRunde
-			AND ss.xSerie = s.xSerie
-			AND st.xStart = ss.xStart
-			AND a.xAnmeldung = st.xAnmeldung
-			AND at.xAthlet = a.xAthlet
-			AND v.xVerein = at.xVerein
-			AND t.athlet = ss.xSerienstart
-			ORDER BY s.xSerie, 
-				" . $argument . "
-		");
+		           	
+        $sql = "
+            SELECT
+                rt.Name
+                , rt.Typ
+                , s.xSerie
+                , s.Bezeichnung
+                , s.Wind
+                , s.Status
+                , ss.xSerienstart
+                , ss.Position
+                , ss.Rang
+                , a.Startnummer
+                , at.Name
+                , at.Vorname
+                , at.Jahrgang
+                , v.Name
+                , LPAD(s.Bezeichnung,5,'0') as heatid
+                , w.Windmessung
+                , st.Bestleistung
+                , at.xAthlet
+                , at.Land
+                , t.rang
+            FROM
+                runde AS r
+                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde     )
+                LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
+                LEFT JOIN temp AS t ON (t.athlet = ss.xSerienstart)
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+            WHERE 
+                r.xRunde = $round  
+            ORDER BY s.xSerie, 
+                " . $argument . "
+        ";              
+         
+        $result = mysql_query($sql);    
 
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -348,6 +340,12 @@ function AA_speaker_Tech($event, $round, $layout)
 	$temp = mysql_query("
 			DROP TABLE IF EXISTS `temp`
 		");
+        
+}
+else {
+        AA_printErrorMsg($strErrMergedRoundSpeaker);    
+}       
+        
 
 }	// End Function AA_speaker_Tech
 
