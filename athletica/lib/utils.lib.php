@@ -41,9 +41,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
         $sql="SELECT                                           
                     se.RundeZusammen                       
                 FROM
-                    serienstart as se
-                   
-                WHERE se.xSerienstart = " .$startID;
+                    serienstart as se                     
+                WHERE 
+                    se.xSerienstart = " .$startID;
         $res=mysql_query($sql);    
         if(mysql_errno() > 0) {        // DB error
                 $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
@@ -57,9 +57,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
                 $sql="SELECT
                     ru.xWettkampf                      
                 FROM
-                    runde as ru
-                   
-                WHERE ru.xRunde = " .$row[0];
+                    runde as ru                    
+                WHERE 
+                    ru.xRunde = " .$row[0];
                 $res=mysql_query($sql);  
                 if(mysql_errno() > 0) {        // DB error
                     $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
@@ -81,23 +81,24 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		$points = 0;
 		if($perf > 0)
 		{
-			// get formula to calculate points from performance
-			$result = mysql_query("
-				SELECT
-					d.Typ
-					, wettkampf.Punktetabelle
-					, wettkampf.Punkteformel
-					, d.xDisziplin
-				FROM
-					disziplin_" . $_COOKIE['language'] . " As d
-					, wettkampf
-				WHERE wettkampf.xWettkampf = $event
-				AND d.xDisziplin = wettkampf.xDisziplin 
-				AND wettkampf.Punktetabelle > 0
-				AND (wettkampf.Punkteformel != '0'
-				 OR (wettkampf.Punkteformel = '0' 
-				AND wettkampf.Punktetabelle >= 100))
-			");
+			// get formula to calculate points from performance     
+            $sql= "
+                SELECT
+                    d.Typ
+                    , w.Punktetabelle
+                    , w.Punkteformel
+                    , d.xDisziplin
+                FROM
+                    disziplin_" . $_COOKIE['language'] . " As d
+                    LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin)
+                WHERE 
+                    w.xWettkampf = $event     
+                    AND w.Punktetabelle > 0
+                    AND (w.Punkteformel != '0'
+                        OR (w.Punkteformel = '0' 
+                    AND w.Punktetabelle >= 100))";  
+            
+            $result = mysql_query($sql);     
 			
 			if(mysql_errno() > 0) {		// DB error
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
@@ -230,20 +231,20 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				// e.g.: for svm NL only the 2 best athletes of a team are counting -> distribute points on these athletes
 		$countMaxRes = 0; // set to the maximum of countet results in case of an svm contest
 		      
-		$relay = AA_checkRelay('',$round);  
-		
-		$res = mysql_query("
-			SELECT
-				w.Punktetabelle
-				, w.Punkteformel
-				, w.Typ
-			FROM
-				runde as r
-				, wettkampf as w
-			WHERE
-				r.xWettkampf = w.xWettkampf
-			AND	r.xRunde = $round
-		");
+		$relay = AA_checkRelay('',$round);     
+	
+        $sql = "
+            SELECT
+                w.Punktetabelle
+                , w.Punkteformel
+                , w.Typ
+            FROM
+                runde as r
+                LEFT JOIN wettkampf as w  ON (r.xWettkampf = w.xWettkampf )
+            WHERE                 
+                r.xRunde = $round";   
+         
+        $res = mysql_query($sql);      
 		
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -312,36 +313,40 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 			// so: only the best 2 athletes of the same team will get points    
 			
 			if(!$bSVM){ 				
-				$res = mysql_query("
-					SELECT
-						serienstart.xSerienstart
-						, serienstart.Rang
-					FROM
-						serienstart
-						, serie
-					WHERE serienstart.xSerie = serie.xSerie
-					AND serie.xRunde = $round
-					AND serienstart.Rang > 0
-					ORDER BY serienstart.Rang ASC
-				");
+				
+                $sql= "
+                    SELECT
+                        ss.xSerienstart
+                        , ss.Rang
+                    FROM
+                        serienstart AS ss
+                        LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie )
+                    WHERE 
+                         s.xRunde = $round
+                         AND ss.Rang > 0
+                    ORDER BY ss.Rang ASC
+                ";   
+                   
+                $res = mysql_query($sql);
+
 		 }else{     		  
 				 	$res = mysql_query("
 						SELECT 
-							serienstart.xSerienstart
-							, serienstart.Rang
-							, IF(anmeldung.xTeam > 0, anmeldung.xTeam, staffel.xTeam)
+							ss.xSerienstart
+							, ss.Rang
+							, IF(a.xTeam > 0, a.xTeam, staf.xTeam)
 						FROM
-							serienstart
-							, serie
-							, start
-							LEFT JOIN staffel ON start.xStaffel = staffel.xStaffel
-							LEFT JOIN anmeldung ON start.xAnmeldung = anmeldung.xAnmeldung
-						WHERE serienstart.xSerie = serie.xSerie
-						AND serienstart.xStart = start.xStart
-						AND serie.xRunde = $round
-						AND serienstart.Rang > 0
-						ORDER BY serienstart.Rang ASC
-						");   				   
+							serienstart AS ss
+							LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie  )
+							LEFT JOIN start AS st ON (ss.xStart = st.xStart)
+							LEFT JOIN staffel AS staf ON (st.xStaffel = staf.xStaffel)
+							LEFT JOIN anmeldung AS a ON (st.xAnmeldung = a.xAnmeldung)
+						WHERE  						 
+						    s.xRunde = $round
+						    AND ss.Rang > 0
+						ORDER BY ss.Rang ASC
+						");    
+                           
 			}     
 			 
 			if(mysql_errno() > 0) {
@@ -548,10 +553,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				DISTINCT w.xKategorie
 			FROM
 				wettkampf AS w
-				, kategorie AS k
+				LEFT JOIN kategorie AS k  ON (w.xKategorie = k.xKategorie)
 			WHERE
-				w.xMeeting=" . $_COOKIE['meeting_id'] . "
-				AND w.xKategorie = k.xKategorie
+				w.xMeeting=" . $_COOKIE['meeting_id'] . "  
 			ORDER BY
 				k.Anzeige
 		");
