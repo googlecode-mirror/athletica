@@ -113,13 +113,12 @@ $results = mysql_query("
 		, w.Typ
   	FROM
 	  	wettkampf AS w
-	  	, kategorie AS k
-  	WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-	" . $selection . "
-  	AND k.xKategorie = w.xKategorie "
-  	// AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."           // old svm
-    ." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."   
-	AND w.Typ <  " . $cfgEventType[$strEventTypeTeamSM] ."
+	  	LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+  	WHERE 
+        w.xMeeting = " . $_COOKIE['meeting_id'] ."
+	    " . $selection . "   
+        AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."   
+	    AND w.Typ <  " . $cfgEventType[$strEventTypeTeamSM] ."
 	GROUP BY
 		k.xKategorie
 	ORDER BY
@@ -130,7 +129,20 @@ if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 else
-{
+{              
+    mysql_query("DROP TABLE IF EXISTS tmp_team");    // temporary table     
+          
+    mysql_query("CREATE TEMPORARY TABLE tmp_team(              
+                              xKategorie int(11)
+                              , xDisziplin int(11)  
+                              , Punkte float
+                              , xTeam int(11)  
+                              )
+                              TYPE=HEAP");       
+     if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error()); 
+     }
+    
 	// process all teams per category
 	while($row = mysql_fetch_row($results))
 	{
@@ -144,8 +156,10 @@ else
 		{    
 			processSingle($row[0], $row[1]);
 		}
-	}
-
+	} 
+    
+    mysql_query("DROP TABLE IF EXISTS tmp_team");    // temporary table          
+         
 	mysql_free_result($results);
 }	// ET DB error categories 
 
@@ -158,8 +172,7 @@ $GLOBALS[$list]->endPage();	// end HTML page for printing
 //
 
 function processSingle($xCategory, $category)
-{   
-	//global $rFrom, $rTo, $limitRank;
+{         	
     $GLOBALS[$rFrom];
     $GLOBALS[$rTo]; 
     $GLOBALS[$limitRank]; 
@@ -189,11 +202,9 @@ function processSingle($xCategory, $category)
 			, v.Name
 		FROM
 			team AS t
-			, verein AS v
+			LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
 		WHERE t.xMeeting = " . $_COOKIE['meeting_id'] ."
-		AND t.xKategorie = $xCategory
-		AND v.xVerein = t.xVerein
-	");
+		AND t.xKategorie = $xCategory");
      
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -223,7 +234,7 @@ function processSingle($xCategory, $category)
 				, "team"=>$team
 				, "club"=>$club
 				, "info"=>$info                      
-				, "id"=>$tm		// needed for result upload
+				, "id"=>$tm		// needed for result upload      
 			);
 
 			$info = '';
@@ -232,41 +243,35 @@ function processSingle($xCategory, $category)
 		}
 
 		// single events
-		// -------------
-		$res = mysql_query("
-  			SELECT
-	  			d.Kurzname
-	  			, MAX(r.Punkte) AS pts
-	  			, w.Typ
-	  			, d.Typ
-				, k.Code
-				, at.Geschlecht
-               
-  			FROM
-	  			wettkampf AS w
-	  			, disziplin_" . $_COOKIE['language'] . " AS d 
-	  			, start AS st 
-	  			, serienstart AS ss 
-	  			, resultat AS r 
-	  			, anmeldung AS a 
-				, kategorie AS k
-				, athlet AS at                   
-  			WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-  			AND w.xKategorie = $xCategory
-  			AND d.xDisziplin = w.xDisziplin
-  			AND st.xWettkampf = w.xWettkampf
-  			AND ss.xStart = st.xStart
-  			AND r.xSerienstart = ss.xSerienstart
-  			AND a.xAnmeldung = st.xAnmeldung
-			AND at.xAthlet = a.xAthlet
-  			AND a.xTeam = $row[0]
-			AND a.xKategorie = k.xKategorie             
-			GROUP BY
-				st.xStart
-			ORDER BY
-				d.Anzeige
-				, pts DESC
-  		");
+		// -------------        		
+        $sql = "
+              SELECT
+                  d.Kurzname
+                  , MAX(r.Punkte) AS pts
+                  , w.Typ
+                  , d.Typ
+                  , k.Code
+                  , at.Geschlecht   
+              FROM
+                  wettkampf AS w
+                  LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+                  LEFT JOIN start AS st ON (st.xWettkampf = w.xWettkampf )
+                  LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart )
+                  INNER JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart) 
+                  LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                  LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie             )
+                  LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)                  
+              WHERE 
+                  w.xMeeting = " . $_COOKIE['meeting_id'] ."
+                  AND w.xKategorie = $xCategory                  
+                  AND a.xTeam = $row[0]  
+              GROUP BY
+                    st.xStart
+              ORDER BY
+                    d.Anzeige
+                    , pts DESC";     
+        
+        $res = mysql_query($sql);  
 	   
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -462,34 +467,31 @@ function processSingle($xCategory, $category)
 		}
 
 		// relay events
-		// ------------
-		$res = mysql_query("
-  			SELECT
-	  			d.Kurzname
-	  			, MAX(r.Punkte) AS pts
-	  			, w.Typ
-	  			, d.Typ
-  			FROM
-	  			wettkampf AS w
-	  			, disziplin_" . $_COOKIE['language'] . " AS d 
-	  			, start AS st 
-	  			, serienstart AS ss 
-	  			, resultat AS r 
-	  			, staffel AS s 
-  			WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-  			AND w.xKategorie = $xCategory
-  			AND d.xDisziplin = w.xDisziplin
-  			AND st.xWettkampf = w.xWettkampf
-  			AND ss.xStart = st.xStart
-  			AND r.xSerienstart = ss.xSerienstart
-  			AND s.xStaffel = st.xStaffel
-  			AND s.xTeam = $row[0]
-			GROUP BY
-				st.xStart
-			ORDER BY
-				d.Anzeige
-				, pts DESC
-  		");
+		// ------------  
+        $sql = "
+              SELECT
+                  d.Kurzname
+                  , MAX(r.Punkte) AS pts
+                  , w.Typ
+                  , d.Typ
+              FROM
+                  wettkampf AS w
+                  LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin) 
+                  LEFT JOIN start AS st ON (st.xWettkampf = w.xWettkampf     )
+                  LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart) 
+                  INNER JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart) 
+                  LEFT JOIN staffel AS s ON (s.xStaffel = st.xStaffel)
+              WHERE 
+                  w.xMeeting = " . $_COOKIE['meeting_id'] ."
+                  AND w.xKategorie = $xCategory   
+                  AND s.xTeam = $row[0]
+              GROUP BY
+                  st.xStart
+              ORDER BY
+                    d.Anzeige
+                    , pts DESC";      
+        
+        $res = mysql_query($sql);    
 	    
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -740,7 +742,7 @@ function processSingle($xCategory, $category)
 			, "team"=>$team
 			, "club"=>$club
 			, "info"=>$info                
-			, "id"=>$tm
+			, "id"=>$tm              
 		);
 	}
 
@@ -799,36 +801,40 @@ function processCombined($xCategory, $category, $type)
     $GLOBALS[$limitRank];  
     
 	require('./config.inc.php');
+    
+    
+    $n = 0;
+    
+    
 
-	// get athlete info per category and team
-	$results = mysql_query("
-		SELECT
-			DISTINCT(a.xAnmeldung)
-			, at.Name
-			, at.Vorname
-			, at.Jahrgang
-			, t.xTeam
-			, t.Name
-			, v.Name
+	// get athlete info per category and team   	
+    $sql = "
+        SELECT
+            DISTINCT(a.xAnmeldung)
+            , at.Name
+            , at.Vorname
+            , at.Jahrgang
+            , t.xTeam
+            , t.Name
+            , v.Name 
             , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
-		FROM
-			anmeldung AS a
-			, athlet AS at
-			, team AS t
-			, verein AS v
-			, start as st
-			, wettkampf as w
+            , v.xVerein
+        FROM
+            anmeldung AS a
+            LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+            INNER JOIN team AS t ON (t.xTeam = a.xTeam)
+            LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
+            LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung)
+            LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
             LEFT JOIN region AS re ON (at.xRegion = re.xRegion) 
-		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
-		AND at.xAthlet = a.xAthlet
-		AND t.xTeam = a.xTeam
-		AND v.xVerein = t.xVerein
-		AND st.xAnmeldung = a.xAnmeldung
-		AND w.xWettkampf = st.xWettkampf
-		AND w.xKategorie = $xCategory
-		ORDER BY
-			t.xTeam
-	");
+        WHERE 
+            a.xMeeting = " . $_COOKIE['meeting_id'] ." 
+            AND w.xKategorie = $xCategory
+        ORDER BY
+            t.xTeam
+    ";                        
+     
+    $results = mysql_query($sql);    
    
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -847,6 +853,7 @@ function processCombined($xCategory, $category, $type)
 		$name = '';
 		$points = 0;
 		$team = '';
+        $xTeam = 0;   
 		$sep = '';
 		$tm = '';
 		$year = '';
@@ -866,7 +873,7 @@ function processCombined($xCategory, $category, $type)
                     , "country"=>$country
                     , "club"=>$club 
 				);
-
+                 
 				$points = 0;
 				$info = '';
 				$sep = '';
@@ -887,13 +894,16 @@ function processCombined($xCategory, $category, $type)
                 
 				$teamList[] = array(
 					"points"=>$total
+                    , "rank"=>$n  
 					, "team"=>$team
+                    , "teamNr"=>$xTeam 
 					, "club"=>$club
 					, "athletes"=>$athleteList
-					, "id"=>$tm
+					, "id"=>$tm                      
 				);
 
 				$team = '';
+                $xTeam = 0;   
 				$club = '';
 				unset($athleteList);
 				$sep = '';
@@ -903,48 +913,64 @@ function processCombined($xCategory, $category, $type)
 			    $tm = $row[4];		// keep current team
             }
 
-			// events
-			$res = mysql_query("
-				SELECT
-					d.Kurzname
-					, d.Typ
-					, MAX(r.Leistung)
-					, r.Info
-					, MAX(r.Punkte) AS pts
-					, s.Wind
-					, w.Windmessung
-                    , st.xAnmeldung  
-				FROM
-					start AS st USE INDEX (Anmeldung)
-					, serienstart AS ss 
-					, resultat AS r 
-					, serie AS s 
-					, runde AS ru 
-					, wettkampf AS w
-					, disziplin_" . $_COOKIE['language'] . " AS d 
-				WHERE st.xAnmeldung = $row[0]
-				AND ss.xStart = st.xStart
-				AND r.xSerienstart = ss.xSerienstart
-				AND s.xSerie = ss.xSerie
-				AND ru.xRunde = s.xRunde
-				AND w.xWettkampf = st.xWettkampf
-				AND w.Typ = " . $cfgEventType[$strEventTypeClubCombined] . "
-				AND d.xDisziplin = w.xDisziplin
-				AND r.Info != '" . $cfgResultsHighOut . "' 
-				GROUP BY
-					st.xStart
-				ORDER BY
-					ru.Datum
-					, ru.Startzeit
-			");    
+			// events       
+            $sql = "
+                SELECT
+                    d.Kurzname
+                    , d.Typ
+                    , MAX(r.Leistung)
+                    , r.Info
+                    , MAX(r.Punkte) AS pts
+                    , s.Wind
+                    , w.Windmessung
+                    , st.xAnmeldung
+                    , d.xDisziplin
+                     
+                FROM
+                    start AS st USE INDEX (Anmeldung)
+                    LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart   )
+                    LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart) 
+                    LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie)
+                    LEFT JOIN runde AS ru ON (ru.xRunde = s.xRunde) 
+                    LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf)
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin) 
+                WHERE 
+                    st.xAnmeldung = $row[0]                    
+                    AND w.Typ = " . $cfgEventType[$strEventTypeClubCombined] . "                  
+                    AND r.Info != '" . $cfgResultsHighOut . "' 
+                GROUP BY
+                    st.xStart
+                ORDER BY
+                    ru.Datum
+                    , ru.Startzeit
+            ";           
+             
+            $res = mysql_query($sql);      
            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			else
-			{
+			{   
 				while($pt_row = mysql_fetch_row($res))
 				{
+                    if ($row[8] != NULL) {
+                       
+                            $sql = "INSERT INTO tmp_team 
+                                            VALUES (
+                                                 $xCategory   
+                                                , $pt_row[8]
+                                                , $pt_row[4] 
+                                                , $row[4]
+                                                
+                                            )";
+                            mysql_query($sql);
+                           
+                            if(mysql_errno() > 0) {        // DB error
+                               echo "<br>sql=$sql"; 
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            }   
+                    }
 					// set wind, if required
 					if($pt_row[6] == 1)
 					{
@@ -1016,6 +1042,7 @@ function processCombined($xCategory, $category, $type)
 			$name = $row[1] . " " . $row[2];
 			$year = AA_formatYearOfBirth($row[3]);
 			$team = $row[5];
+            $xTeam = $row[4];   
 			$club = $row[6];
             $country = $row[7];
 		}	// END WHILE athlete per category
@@ -1034,7 +1061,7 @@ function processCombined($xCategory, $category, $type)
                 , "country"=>$country  
                 , "club"=>$club     
 			);
-           
+                
 			// last team
 			usort($athleteList, "cmp");	// sort athletes by points
 
@@ -1045,10 +1072,12 @@ function processCombined($xCategory, $category, $type)
 
 			$teamList[] = array(
 				"points"=>$total
+                 , "rank"=>$n     
 				, "team"=>$team
+                , "teamNr"=>$xTeam  
 				, "club"=>$club
 				, "athletes"=>$athleteList
-				, "id"=>$tm
+				, "id"=>$tm                     
 			);
 		}
        
@@ -1061,6 +1090,66 @@ function processCombined($xCategory, $category, $type)
 		$r = 0;										// start value for ranking
 		$p = 0;
 		$tp = 0;
+        
+         $t = 0;
+        foreach($teamList as $team)
+            {
+               
+                
+                if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
+                    continue;
+                }
+                
+                if($p == $team['points']) {    // not same points as previous team
+                    $rank = $t;        // next rank
+                    $arr_same[] = $t;
+                }
+               
+                 $p = $team['points'];            // keep current points     
+                 $t++; 
+                // echo "<br>team Rank = " . $team['rank'];
+                 $team['rank'] = $t;
+            }
+        $key_1 = array();   
+        $key_2 = array();  
+        $p = 0;     
+        $i = 0;  
+        foreach($teamList as $team)
+            {
+                $r++;
+                
+                if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
+                    continue;
+                }
+                
+                if($p != $team['points']) {    // not same points as previous team
+                    $rank = $r;        // next rank
+                    $teamList[$i]['rank'] = $rank;   
+                }
+                else {
+                       $teamList[$i]['rank'] = $r;   
+                      $arr_team = check_samePoints($xCategory);                         
+                     
+                      if ($arr_team[$teamNr_keep] < $arr_team[$team['teamNr']] ) {          //change ranking position
+                           $key_1[] = $i -1;
+                           $key_2[] = $i;  
+                      }                         
+                }
+             $i++;
+             $p = $team['points'];              // keep current points  
+             $teamNr_keep = $team['teamNr'];    // keep current xTeam
+            }
+       if (count($key_1) > 0){
+            foreach ($key_1 as $k) {
+                    $teamList[$key_1[$k]][rank] = $r;   
+                    $teamList[$key_2[$k]][rank] = $r - 1;       
+            }
+          
+       }       
+        
+       usort($teamList, "cmp_rank");      
+       
+        
         if ($type == 'teamP'){                     // ranking athletes not depending on team                
             
                 usort($athleteList, "cmp");    // sort athletes by points  
@@ -1075,10 +1164,10 @@ function processCombined($xCategory, $category, $type)
                         $i++; 
                         $rank = $i;
                     }
-                    else {
+                    else {                                
                           $rank = '';
                     }
-                    
+                     
                     $GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country'], $athlete['club'], $rank, $type);
                     if($GLOBALS['xmladdon']){
                         $xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
@@ -1100,44 +1189,48 @@ function processCombined($xCategory, $category, $type)
 			    
 			    if($limitRank && ($r < $rFrom || $r > $rTo)){ // limit ranks if set (export)
 				    continue;
-			    }
-			    
-			    if($p != $team['points']) {	// not same points as previous team
-				    $rank = $r;		// next rank
-			    }
+			    }      
+               
 			    if($GLOBALS['xmladdon']){
-				    $GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points'], $team['id']);
+				    $GLOBALS[$list]->printLine($team['rank'], $team['team'], $team['club'], $team['points'], $team['id']);
 			    }else{
-				    $GLOBALS[$list]->printLine($rank, $team['team'], $team['club'], $team['points']);
+				    $GLOBALS[$list]->printLine($team['rank'], $team['team'], $team['club'], $team['points']);
 			    }
+                
 			    $p = $team['points'];			// keep current points
 
 			    $i = 0;
 			    $xmlinfo = "";
+              
 			    foreach($team['athletes'] as $athlete)
-			    {   
-				    if($i >= $evaluation) {	// show only athletes included in end result
-					    break;
-				    }
-				    $i++;
-                   
-				    $GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country']);
-				    if($GLOBALS['xmladdon']){
-					    $xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
-				    }else{
-					    $GLOBALS[$list]->printInfo($athlete['info']);
-				    }
-			    }
+			        {   
+				        if($i >= $evaluation) {	// show only athletes included in end result
+					        break;
+				        }
+				        $i++;   
+                        
+				        $GLOBALS[$list]->printAthleteLine($athlete['name'], $athlete['year'], $athlete['points'], $athlete['country']);
+				        if($GLOBALS['xmladdon']){
+					        $xmlinfo .= $athlete['name']." (".$athlete['points'].") / ";
+				        }else{
+					        $GLOBALS[$list]->printInfo($athlete['info']);
+				        }
+			    }    
 			    
 			    if($GLOBALS['xmladdon']){
 				    $GLOBALS[$list]->printInfo(substr($xmlinfo,0,strlen($xmlinfo)-2));
-			    }
+			    } 
+                                        
+                $club = $team['club'];  
 		    }
          } 
 
 		$GLOBALS[$list]->endList();
 	}	// ET DB error all teams
 
+        
+
+    
 }	// end function processCombined()
 
 
@@ -1147,6 +1240,44 @@ function processCombined($xCategory, $category, $type)
 function cmp ($a, $b) {
     if ($a["points"]== $b["points"]) return 0;
     return ($a["points"] > $b["points"]) ? -1 : 1;
+}
+
+function cmp_rank ($a, $b) {
+    if ($a["rank"]== $b["rank"]) return 0;
+    return ($a["rank"] > $b["rank"]) ? 1 : -1;
+}
+
+function check_samePoints($xCategory) {
+    
+    $sql = "SELECT 
+                Punkte,
+                xDisziplin,
+                xTeam
+            FROM tmp_team 
+            WHERE xKategorie = " .$xCategory ."
+            ORDER BY xDisziplin, Punkte";
+    
+    $res = mysql_query($sql); 
+    if (mysql_errno() > 0) {
+        echo "ERROR";
+    }
+    else {
+        $disc = 0;
+        $arr_team = array();
+        while ($row = mysql_fetch_row($res)) {
+            
+             if ($disc != $row[1]){
+                  $arr_team[$row[2]] ++;
+                 
+             }
+            
+             $disc = $row[1];
+            
+        }
+        
+    }
+    
+  return  $arr_team; 
 }
 
 
