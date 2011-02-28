@@ -189,7 +189,7 @@ if($_GET['arg'] == 'assign')
                          $argument3 $argument1 $argument, discSort, tat.xTeamsm, $argument2";    
            
             $result = mysql_query($sql);  
-            
+           
 			if(mysql_errno() > 0)		// DB error
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -243,10 +243,9 @@ if($_GET['arg'] == 'assign')
                          WHERE 
                             a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                          ORDER BY      
-                            $argument2 , discSort";   
-                             
-              }
-             
+                            $argument2 , discSort"; 
+              }                          
+              
               $result = mysql_query($sql); 
               if(mysql_errno() > 0)        // DB error
                     {
@@ -362,7 +361,7 @@ if($_GET['arg'] == 'assign')
                     else {                          
                        
                        
-				       if (($k != $row[1] && !sex) || ($s != $row[10] && sex)){			// new category or new sex 
+				       if (($k != $row[1] && !$sex) || ($s != $row[10] && $sex)){			// new category or new sex 
                             $nbr = 0;  
                             $nbr1 = 0; 
                             $nbr2 = 0; 
@@ -960,10 +959,9 @@ $res = mysql_query("SELECT
 				, k.Kurzname
 			FROM
 				wettkampf as w
-				, kategorie as k
-			WHERE
-				w.xKategorie = k.xKategorie
-			AND	w.xMeeting = ".$_COOKIE['meeting_id']."
+				LEFT JOIN kategorie as k ON (w.xKategorie = k.xKategorie) 
+			WHERE   
+				w.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
 				k.Anzeige");
              
