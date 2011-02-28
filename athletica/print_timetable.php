@@ -26,18 +26,20 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 	//
 	// Display current data
 	//
-	$sql = "SELECT DISTINCT(r.Datum) 
-			, r.Datum
-			FROM runde AS r 
-			, wettkampf AS w 
-			WHERE w.xMeeting = ".$_COOKIE['meeting_id']." 
-			AND r.xWettkampf = w.xWettkampf
+	$sql = "SELECT 
+                DISTINCT(r.Datum) 
+			    , r.Datum
+			FROM 
+                runde AS r 
+			    LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+			WHERE 
+                w.xMeeting = ".$_COOKIE['meeting_id']."  
 			ORDER BY r.Datum ASC;";
 	$query = mysql_query($sql);
 	
 	if(mysql_errno() > 0)	// DB error
 	{
-		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());    
 	}
 	else			// no DB error
 	{
@@ -62,32 +64,32 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 			
 			//
 			// Display all rounds for the current day
-			//
-			$sql2 = "SELECT TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')
-					 , TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')
-					 , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
-					 , rt.Typ
-					 , k.Kurzname
-					 , d.Kurzname
-					 , w.Info
-					 , r.Gruppe
-					 FROM runde AS r
-					 , wettkampf AS w 
-					 , kategorie AS k
-					 , disziplin_" . $_COOKIE['language'] . " AS d
-					 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-					 ON r.xRundentyp = rt.xRundentyp
-					 WHERE w.xMeeting = ". $_COOKIE['meeting_id']." 
-					   AND r.xWettkampf = w.xWettkampf 
-					   AND r.Datum = '".$row[0]."'
-					   AND w.xKategorie = k.xKategorie
-					   AND w.xDisziplin = d.xDisziplin
-					 ORDER BY r.Appellzeit ASC
-					 , r.Stellzeit ASC
-					 , r.Startzeit ASC
-					 , k.Anzeige
-					 , d.Anzeige;";
-			$query2 = mysql_query($sql2);
+			//                     
+            $sql2 = "SELECT 
+                            TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')
+                            , TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')
+                            , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+                            , rt.Typ
+                            , k.Kurzname
+                            , d.Kurzname
+                            , w.Info
+                            , r.Gruppe
+                     FROM 
+                            runde AS r
+                            LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf )
+                            LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+                            LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d  ON (w.xDisziplin = d.xDisziplin)
+                            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON r.xRundentyp = rt.xRundentyp
+                     WHERE 
+                        w.xMeeting = ". $_COOKIE['meeting_id']."                          
+                        AND r.Datum = '".$row[0]."'                         
+                     ORDER BY r.Appellzeit ASC
+                     , r.Stellzeit ASC
+                     , r.Startzeit ASC
+                     , k.Anzeige
+                     , d.Anzeige;";       
+            
+            $query2 = mysql_query($sql2);   
 			
 			if(mysql_errno() > 0)	// DB error
 			{
@@ -115,9 +117,8 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 	//
 	$result = mysql_query("SELECT DISTINCT k.Kurzname"
 								. " FROM wettkampf AS w"
-								. ", kategorie AS k"
-								. " WHERE w.xMeeting=" . $_COOKIE['meeting_id']
-								. " AND w.xKategorie = k.xKategorie"
+								. " LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)"
+								. " WHERE w.xMeeting=" . $_COOKIE['meeting_id']  								
 								. " ORDER BY k.Anzeige");
 	
 	if(mysql_errno() > 0)	// DB error
@@ -135,21 +136,25 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 			$cats[$row[0]] = '';			// category array
 			$c++;									// count items
 		}
-		mysql_free_result($result);
-	
-		$result = mysql_query("SELECT DISTINCT r.Datum"
-									. ", r.Startzeit"
-									. ", TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')"
-									. ", DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
-									. " FROM runde AS r"
-									. ", wettkampf AS w"
-									. " WHERE w.xMeeting=" . $_COOKIE['meeting_id']
-									. " AND r.xWettkampf = w.xWettkampf"
-									. " ORDER BY r.Datum"
-									. ", r.Startzeit");
-	
+		mysql_free_result($result);   
+		
+	    $sql="SELECT 
+                    DISTINCT r.Datum
+                    , r.Startzeit
+                    , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+                    , DATE_FORMAT(r.Datum, '$cfgDBdateFormat')
+               FROM 
+                    runde AS r
+                    LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+               WHERE 
+                    w.xMeeting=" . $_COOKIE['meeting_id'] . "                                      
+               ORDER BY r.Datum
+               , r.Startzeit";
+               
+        $result = mysql_query($sql);   
+            
 		if(mysql_errno() > 0)	// DB error
-		{
+		{   
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
 		else			// no DB error
@@ -182,27 +187,29 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 					$cats[$key]='';		// initialize
 				}
 	
-				// all rounds per date/time
-				$res = mysql_query("SELECT r.xRunde"
-									. ", rt.Typ"
-									. ", k.Kurzname"
-									. ", d.Kurzname"
-									. " FROM runde AS r"
-									. ", wettkampf AS w"
-									. ", kategorie AS k"
-									. ", disziplin_" . $_COOKIE['language'] . " AS d"
-									. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
-									. " ON r.xRundentyp = rt.xRundentyp"
-									. " WHERE w.xMeeting=" . $_COOKIE['meeting_id']
-									. " AND r.xWettkampf = w.xWettkampf"
-									. " AND r.Datum = '" . $row[0]
-									. "' AND r.Startzeit = '" . $row[1]
-									. "' AND w.xKategorie = k.xKategorie"
-									. " AND w.xDisziplin = d.xDisziplin"
-									. " ORDER BY r.Datum"
-									. ", r.Startzeit"
-									. ", k.Anzeige"
-									. ", d.Anzeige");
+				// all rounds per date/time     
+                $sql = "SELECT 
+                                r.xRunde
+                                , rt.Typ
+                                , k.Kurzname
+                                , d.Kurzname
+                         FROM 
+                                runde AS r
+                                LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
+                                LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+                                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin  )
+                                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON r.xRundentyp = rt.xRundentyp
+                         WHERE 
+                                w.xMeeting=" . $_COOKIE['meeting_id'] ."                                 
+                                AND r.Datum = '" . $row[0] ."' 
+                                AND r.Startzeit = '" . $row[1] ." '        
+                         ORDER BY r.Datum
+                                    , r.Startzeit
+                                    , k.Anzeige
+                                    , d.Anzeige";    
+                
+                $res = mysql_query($sql);     
+                                    
 				if(mysql_errno() > 0)	// DB error
 				{
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
