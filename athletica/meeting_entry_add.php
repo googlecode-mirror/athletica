@@ -1420,15 +1420,18 @@ if ($_POST['arg']=="add")
 		
 														if(mysql_errno() == 0) 		// no error
 														{
-															// check if event already started
-															$res = mysql_query("SELECT d.Name"
-																		. " FROM disziplin_" . $_COOKIE['language'] . " AS d"
-																		. ", runde AS r"
-																		. ", wettkampf AS w"
-																		. " WHERE r.xWettkampf=" . $event
-																		. " AND (r.Status = 1 OR r.Status = 2 OR r.Status = 3 OR r.Status = 4 OR r.Status = 6) "
-																		. " AND w.xWettkampf = " . $event
-																		. " AND d.xDisziplin = w.xDisziplin");
+															// check if event already started   
+                                                            $sql = "SELECT 
+                                                                            d.Name
+                                                                    FROM 
+                                                                            disziplin_" . $_COOKIE['language'] . " AS d   
+                                                                            LEFT JOIN wettkampf AS w  ON (d.xDisziplin = w.xDisziplin)
+                                                                            LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
+                                                                    WHERE 
+                                                                         (r.Status = 1 OR r.Status = 2 OR r.Status = 3 OR r.Status = 4 OR r.Status = 6) 
+                                                                         AND  w.xWettkampf= " . $event;     
+                                                           
+                                                            $res = mysql_query($sql);       
 		
 															if(mysql_errno() > 0) {
 																AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -1516,33 +1519,32 @@ function meeting_get_disciplines(){
     $order = "ASC";
     if ($athletesex == 'w'){
          $order = "DESC";  
-    }
-                       
-	$result = mysql_query("
-		SELECT
-			d.Kurzname as DiszKurzname
-			, d.Typ as DiszTyp
-			, w.xWettkampf
-			, w.Typ
-			, k.Kurzname as KatKurzname
-			, k.Name
-			, d.Code as DiszCode
-			, k.Code as KatCode
-			, k.xKategorie
-			, w.Info
-			, w.Mehrkampfcode
-			, k.Geschlecht
-			, k.Alterslimite
-		FROM
-			disziplin_" . $_COOKIE['language'] . " AS d
-			, wettkampf as w
-			, kategorie as k
-		WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
-		AND w.xDisziplin = d.xDisziplin
-		AND w.xKategorie = k.xKategorie
-		ORDER BY
-			 k.Geschlecht $order, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige
-	"); 
+    }                           
+	
+     $sql = "SELECT
+            d.Kurzname as DiszKurzname
+            , d.Typ as DiszTyp
+            , w.xWettkampf
+            , w.Typ
+            , k.Kurzname as KatKurzname
+            , k.Name
+            , d.Code as DiszCode
+            , k.Code as KatCode
+            , k.xKategorie
+            , w.Info
+            , w.Mehrkampfcode
+            , k.Geschlecht
+            , k.Alterslimite
+        FROM
+            disziplin_" . $_COOKIE['language'] . " AS d
+            LEFT JOIN wettkampf as w ON (w.xDisziplin = d.xDisziplin)
+            LEFT JOIN kategorie as k ON (w.xKategorie = k.xKategorie)
+        WHERE 
+            w.xMeeting = " . $_COOKIE['meeting_id'] ."         
+        ORDER BY
+             k.Geschlecht $order, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige";                 
+   
+   $result = mysql_query($sql);       
    
 	if(mysql_errno() > 0)
 	{
@@ -1585,9 +1587,9 @@ function meeting_get_disciplines(){
          }  
     }         
    
-    $kName= $event_rows[0][4];    
+    $kName= $event_rows[0][4];         
    
-    $sql="SELECT  DISTINCT
+       $sql ="SELECT  DISTINCT
             d.Kurzname as DiszKurzname
             , d.Typ as DiszTyp
             , w.xWettkampf
@@ -1603,15 +1605,15 @@ function meeting_get_disciplines(){
             , k.Alterslimite   
         FROM
             disziplin_" . $_COOKIE['language'] . " AS d 
-            , wettkampf as w      
-            , kategorie as k  
-        WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
-        AND w.xDisziplin = d.xDisziplin
-        AND w.xKategorie = k.xKategorie  
+            LEFT JOIN wettkampf as w  ON (w.xDisziplin = d.xDisziplin)    
+            LEFT JOIN kategorie as k ON (w.xKategorie = k.xKategorie)
+        WHERE 
+            w.xMeeting = " . $_COOKIE['meeting_id'] ."  
         ORDER BY
-            k.Geschlecht ".$order.", k.Alterslimite DESC,  k.Kurzname, w.Mehrkampfcode, d.Anzeige";   
+            k.Geschlecht ".$order.", k.Alterslimite DESC,  k.Kurzname, w.Mehrkampfcode, d.Anzeige";     
+    
+    $result = mysql_query($sql);    
    
-    $result = mysql_query($sql);  
     if(mysql_errno() > 0)
     {
         AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -1751,22 +1753,22 @@ function meeting_get_disciplines(){
 				   
 				?>
 				<td class='dialog-top' nowrap="nowrap" id="topperftd<?php echo $combCat.$comb ?>">
-					<input type="checkbox" value="<?php echo $event_row[8]."_".$comb ?>" name="combined[]" id="combinedCheck<?=$event_row[8]?>_<?=$comb?>" 
+					<input type="checkbox" value="<?php echo $event_row[8]."_".$comb ?>" name="combined[]" id="combinedCheck<?php echo $event_row[8]; ?>_<?php echo $comb; ?>" 
 						onclick="check_combined('<?php echo $event_row[8]."_".$comb ?>', this);
-							validate_discipline(<?php echo "'".$combCat.$comb."', '".$event_row[11]."', ".$event_row[12] ?>,this.checked);"<?=$checked?>>
+							validate_discipline(<?php echo "'".$combCat.$comb."', '".$event_row[11]."', ".$event_row[12] ?>,this.checked);"<?php echo $checked; ?>>
 					<?php echo $comb_row['Name']; ?>
 				</td>
 				<td class='dialog-top' nowrap="nowrap">
-					<input type="text" name="topcomb_<?php echo $event_row[8]."_".$comb ?>" id="topcomb<?php echo $event_row[8]."_".$comb ?>" size="5" value="<?=$val?>">
+					<input type="text" name="topcomb_<?php echo $event_row[8]."_".$comb ?>" id="topcomb<?php echo $event_row[8]."_".$comb ?>" size="5" value="<?php echo $val; ?>">
 				</td>
 				<td class='dialog' nowrap="nowrap" colspan="4" id='td_<?php echo $event_row[8]."_".$comb ?>'>
-					<div id="div_<?=$event_row[8]?>_<?=$comb?>" style="position: relative; display: none;">
+					<div id="div_<?php echo $event_row[8]; ?>_<?php echo $comb; ?>" style="position: relative; display: none;">
 						<?php
 						if($checked==' checked="checked"'){
 							?>
 							<script type="text/javascript">
-								check_combined('<?=$event_row[8]?>_<?=$comb?>', document.getElementById('combinedCheck<?=$event_row[8]?>_<?=$comb?>'));
-								validate_discipline('<?=$combCat?><?=$comb?>', '<?=$event_row[11]?>', <?=$event_row[12]?>,this.checked);
+								check_combined('<?php echo $event_row[8]; ?>_<?php echo $comb; ?>', document.getElementById('combinedCheck<?php echo $event_row[8]; ?>_<?php echo $comb; ?>'));
+								validate_discipline('<?php echo $combCat; ?><?php echo $comb; ?>', '<?php echo $event_row[11]; ?>', <?php echo $event_row[12]; ?>,this.checked);
 							</script>
 							<?php
 						}
@@ -1820,7 +1822,7 @@ function meeting_get_disciplines(){
                 <input name='start_<?php echo $event_row[2]?>' type='hidden' id='start<?php echo $event_row[2]?>'
                                 value='start_<?php echo $event_row[0]?>'/>
                 <input name='events[]' type='checkbox' value='<?php echo $event_row['2'] ?>'
-                 onclick="validate_discipline(<?php echo $event_row[2] .',\'' . $event_row[11].'\',' . $event_row[12].','?>this.checked)" <?=$checked?>/><?php echo $event_row[0] .$info?></td>
+                 onclick="validate_discipline(<?php echo $event_row[2] .',\'' . $event_row[11].'\',' . $event_row[12].','?>this.checked)" <?php echo $checked; ?>/><?php echo $event_row[0] .$info?></td>
             <?php
 			  			
 			$effort = (isset($discs_def[$event_row[2]]) && $effort=='' && $first!='') ? $discs_def[$event_row[2]] : $effort;
@@ -1914,20 +1916,20 @@ $page->printPageTitle($strNewEntryFromBase);
 	foreach($cats as $geschlecht => $cat){
 		if($geschlecht!=$last){
 			?>
-			categories[<?=$geschlecht?>] = new Array(<?=count($cat)?>);
-			
+			categories[<?php echo $geschlecht; ?>] = new Array(<?php echo count($cat); ?>);  			
 			<?php
 			$last = $geschlecht;
 		}
 		
 		foreach($cat as $index => $c){
 			?>
-			categories[<?=$geschlecht?>][<?=$index?>] = new Array();
-			categories[<?=$geschlecht?>][<?=$index?>][0] = <?=$c[0]?>;
-			categories[<?=$geschlecht?>][<?=$index?>][1] = <?=$c[1]?>;
+			categories[<?php echo $geschlecht; ?>][<?php echo $index; ?>] = new Array();
+			categories[<?php echo $geschlecht; ?>][<?php echo $index; ?>][0] = <?php echo $c[0]; ?>;
+			categories[<?php echo $geschlecht; ?>][<?php echo $index; ?>][1] = <?php echo $c[1]; ?>;
 			
 			<?php
 		}
+        
 	}
 	?>
 	
@@ -2525,7 +2527,7 @@ $page->printPageTitle($strNewEntryFromBase);
 	}
     	
 	// show disciplines for selected combined event
-	function check_combined(str, o){   
+	function check_combined(str, o){  
 		var d = document.getElementById("div_"+str);
 		var t = document.getElementById("td_"+str);
 		if(o.checked){
@@ -3135,6 +3137,9 @@ if(!empty($club2) && false){ // not yet in use
 			$nbr++;			// get next higher nbr
 		}
 	}
+    
+   
+   
 ?>
 
 <form action='meeting_entry_add.php' method='post' name='entry'>
@@ -3236,10 +3241,10 @@ if(!empty($club2) && false){ // not yet in use
     
 	
 	<input class='nbr' name='day' type='text'
-		maxlength='2' value='<?=$day?>'
+		maxlength='2' value='<?php echo $day; ?>'
 		id="newday" onkeyup="check_birth_date(document.entry.day,2,document.entry.month)">
 	<input class='nbr' name='month' type='text'
-		maxlength='2' value='<?=$month?>'
+		maxlength='2' value='<?php echo $month;?>'
 		id="newmonth" onkeyup="check_birth_date(document.entry.month,2,document.entry.year)" >
 	<input name='year' type='text'
 		maxlength='4' value='<?php echo $year; ?>'
@@ -3277,7 +3282,7 @@ if(!empty($club2) && false){ // not yet in use
 	<input type="hidden" id="newclub" name="club" value="<?php echo $club ?>">
 	<th class='dialog'><?php echo $strClubInfo ?></th>
 	<td class='forms'><input type="text" id="clubinfotext" name="clubinfotext"
-		onkeyup="clubinfo_search()" size="30" value="<?=$clubinfotext?>"></td>
+		onkeyup="clubinfo_search()" size="30" value="<?php echo $clubinfotext;?>"></td>
 </tr>
 
 <tr>
@@ -3303,7 +3308,7 @@ if(!empty($club2) && false){ // not yet in use
 		$dd = new GUI_TeamDropDown($category, $club, $team);
 	?>
 	<th class='dialog'><?php echo $strCombinedGroup; ?></th>
-	<td class='forms'><input type="text" size="2" maxlength="2" name="combinedgroup" id="combinedgroup" value="<?=$combined?>"></td>
+	<td class='forms'><input type="text" size="2" maxlength="2" name="combinedgroup" id="combinedgroup" value="<?php echo $combined; ?>"></td>
 </tr>
 
 <tr>

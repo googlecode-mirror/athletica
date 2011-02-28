@@ -132,7 +132,7 @@ else		// no DB error
 			onchange='document.change_def.submit()' />    </td>
 	<td width="15" ></td>
 	<th class='dialog'>
-	  <?= $strDeposit;?>    </th>
+	  <?php echo $strDeposit; ?>    </th>
 	<td class='forms'><input name="deposit" type="text" class="currency"
 			onchange='document.change_def.submit()' value="<?php echo ($row['Haftgeld']/100) ?>" size="10" /></td>
   </tr>
@@ -150,7 +150,7 @@ else		// no DB error
 		}?>	
 	<td></td>
 	<th class='dialog'>
-	  <?= $strFee;?>   
+	  <?php echo $strFee; ?>   
 	 </th>
 	<td class='forms'>
 	  <input name="fee" type="text"  class="currency"
@@ -174,7 +174,7 @@ else		// no DB error
 	  </table>    </td>
 	<td></td>
 	<th  class="dialog">
-	  <?= $strFeeReduction;?>    </th>
+	  <?php echo $strFeeReduction;?>    </th>
 	<td class='forms'>
 	  <input name="feereduction" type="text"  class="currency"
 			onchange='document.change_def.submit()' value="<?php echo ($row['StartgeldReduktion']/100) ?>" size="10" />

@@ -44,17 +44,17 @@ if(empty($arg) || empty($_POST['newname'])){
 			<col width="100"/>
 		</colgroup>
 		<tr>
-			<th colspan="5" class="dialog"><?=$strMeetingNew?></th>
+			<th colspan="5" class="dialog"><?php echo $strMeetingNew; ?></th>
 		</tr>
 		<tr>
-			<td><?=$strNewName?></td>
-			<td><input type="text" name="newname" value="<?=$_COOKIE['meeting']?>"/></td>
-			<td><?=$strNewNumber?></td>
+			<td><?php echo $strNewName?></td>
+			<td><input type="text" name="newname" value="<?php echo $_COOKIE['meeting']; ?>"/></td>
+			<td><?php echo $strNewNumber; ?></td>
 			<td><input type="text" name="newnumber" value=""/></td>
 			<td>&nbsp;</td>
 		</tr>
 		<tr>
-			<td><?=$strNewDate?></td>
+			<td><?php echo $strNewDate;?></td>
 			<td>
 				<table width="100%" border="0" cellpadding="0" cellspacing="0">
 					<tr>
@@ -63,7 +63,7 @@ if(empty($arg) || empty($_POST['newname'])){
 				</table>
 			</td>
 			<td colspan="2">&nbsp;</td>
-			<td style="text-align: right;"><input type="submit" name="submit" value="<?=$strCopy?>"/></td>
+			<td style="text-align: right;"><input type="submit" name="submit" value="<?php echo$strCopy; ?>"/></td>
 		</tr>
 	</table>
 </form>

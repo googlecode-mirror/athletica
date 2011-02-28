@@ -33,9 +33,9 @@ $result = mysql_query("SELECT m.Name"
 							. ", DATE_FORMAT(m.DatumVon, '$cfgDBdateFormat')"
 							. ", DATE_FORMAT(m.DatumBis, '$cfgDBdateFormat')"
 							. " FROM meeting AS m"
-							. ", stadion AS s"
-							. " WHERE m.xMeeting = ". $_COOKIE['meeting_id']
-							. " AND m.xStadion = s.xStadion");
+							. " LEFT JOIN stadion AS s ON (m.xStadion = s.xStadion)"
+							. " WHERE m.xMeeting = ". $_COOKIE['meeting_id']);
+							
 
 if(mysql_errno() > 0)	// DB error
 {
@@ -62,16 +62,20 @@ else		// no DB error
  *
  *****************************************/
 
-	// get events from DB
-	$result = mysql_query("SELECT w.xWettkampf"
-									. ", w.xKategorie"
-									. ", k.Name"
-									. ", d.Kurzname"
-									. " FROM wettkampf AS w, kategorie AS k, disziplin_" . $_COOKIE['language'] . " as d"
-									. " WHERE w.xMeeting =" . $_COOKIE['meeting_id']
-									. " AND w.xKategorie = k.xKategorie"
-									. " AND w.xDisziplin = d.xDisziplin"
-									. " ORDER BY k.Anzeige, d.Anzeige");
+	// get events from DB     	
+    $sql = "SELECT 
+                    w.xWettkampf
+                    , w.xKategorie
+                    , k.Name
+                    , d.Kurzname
+                FROM 
+                    wettkampf AS w
+                    LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.xDisziplin = d.xDisziplin)
+                WHERE w.xMeeting =" . $_COOKIE['meeting_id'] ."                 
+                ORDER BY k.Anzeige, d.Anzeige";  
+   
+   $result = mysql_query($sql);
 
 	if(mysql_errno() > 0)	// DB error
 	{

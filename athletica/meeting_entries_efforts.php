@@ -167,23 +167,23 @@ if ($res){
 				<table class="dialog" width="475">
 					<tbody><tr>
 
-						<th><?=$strConfiguration?></th>
+						<th><?php echo $strConfiguration; ?></th>
 					</tr>
 					<tr>
-						<td><p><?=$strEffortsUpdateInfo1?></p>
-						  <p><?=$strEffortsUpdateInfo2?></p>
-						  <p><?= $strBaseData?> <b><?=substr($date,8,2). '.'. substr($date,5,2).'.'.substr($date,0,4);?></b><br />
+						<td><p><?php echo $strEffortsUpdateInfo1; ?></p>
+						  <p><?php echo $strEffortsUpdateInfo2; ?></p>
+						  <p><?php echo $strBaseData; ?> <b><?php echo substr($date,8,2). '.'. substr($date,5,2).'.'.substr($date,0,4);?></b><br />
 							<br />
 						  </p>
-						  <p><?=$strEffortsUpdateInfo3?></p>
+						  <p><?php echo $strEffortsUpdateInfo3; ?></p>
 						  <p>
 							<label>
 							  <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
-							  <?=$strOverwrite;?></label>
+							  <?php echo $strOverwrite; ?></label>
 							<br />
 							<label>
 							  <input type="radio" name="mode" value="skip" id="mode_1" />
-							  <?=$strLeaveBehind ;?></label>
+							  <?php echo $strLeaveBehind ;?></label>
 							<br />
 						  </p></td>
 					</tr>

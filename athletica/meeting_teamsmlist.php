@@ -88,26 +88,25 @@ if ($arg=="name") {
 	</tr>
 
 <?php
-// get all teams
-$result = mysql_query("
-	SELECT
-		t.xTeamsm
-		, t.Name
-		, k.Kurzname
-		, d.Kurzname
+// get all teams       
+  $sql = "
+    SELECT
+        t.xTeamsm
+        , t.Name
+        , k.Kurzname
+        , d.Kurzname
         , t.Startnummer
-	FROM
-		teamsm AS t
-		, kategorie AS k
-		, wettkampf AS w
-		, disziplin_" . $_COOKIE['language'] . " AS d
-	WHERE t.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND k.xKategorie = t.xKategorie
-	AND w.xWettkampf = t.xWettkampf
-	AND d.xDisziplin = w.xDisziplin
-	ORDER BY
-		$argument
-");
+    FROM
+        teamsm AS t
+        LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
+        LEFT JOIN wettkampf AS w ON (w.xWettkampf = t.xWettkampf)
+        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+    WHERE 
+        t.xMeeting = " . $_COOKIE['meeting_id'] . "     
+    ORDER BY
+        $argument";    
+ 
+$result = mysql_query($sql);       
 
 if(mysql_errno() > 0)		// DB error
 {

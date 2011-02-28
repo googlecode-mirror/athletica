@@ -88,23 +88,22 @@ else		// delete all meeting data
 	//	delete 'resultat'
 	// -----------------
 	mysql_query("LOCK TABLES resultat WRITE
-					, serienstart READ, start READ, wettkampf READ");
+					, serienstart READ, serienstart AS ss READ, start READ,start As s READ, wettkampf READ, wettkampf AS w READ");
 	
 	$items = 0;
 	// get 'serienstart' IDs 
-	$result = mysql_query("
-		SELECT
-			serienstart.xSerienstart
-		FROM
-			serienstart
-			, start
-			, wettkampf
-		WHERE serienstart.xStart = start.xStart
-		AND start.xWettkampf = wettkampf.xWettkampf
-		AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
-		ORDER BY
-			serienstart.xSerienstart
-	");
+		
+     $sql = "SELECT
+            ss.xSerienstart
+        FROM
+            serienstart AS ss
+            LEFT JOIN start AS s ON (ss.xStart = s.xStart)
+            LEFT JOIN wettkampf AS w ON (s.xWettkampf = w.xWettkampf)
+        WHERE w.xMeeting = " . $_COOKIE['meeting_id'] . "
+        ORDER BY
+            ss.xSerienstart";
+    
+    $result = mysql_query($sql);  
 
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -161,20 +160,20 @@ else		// delete all meeting data
 	//	delete 'serienstart', 'staffelathlet'
 	// -------------------------------------
 	mysql_query("LOCK TABLES serienstart WRITE, staffelathlet WRITE
-					, start READ, wettkampf READ");
+					, start READ,start AS s READ, wettkampf READ, wettkampf AS w READ");
 	
 	$items = 0;
 	// get 'start' IDs 
 	$result = mysql_query("
 		SELECT
-			start.xStart
+			s.xStart
 		FROM
-			start
-			, wettkampf
-		WHERE start.xWettkampf = wettkampf.xWettkampf
-		AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
+			start AS s
+			LEFT JOIN wettkampf AS w ON (s.xWettkampf = w.xWettkampf)
+		WHERE 
+		    w.xMeeting = " . $_COOKIE['meeting_id'] . "
 		ORDER BY
-			start.xStart
+			s.xStart
 	");
 
 	if(mysql_errno() > 0) {
@@ -256,20 +255,20 @@ else		// delete all meeting data
 	//	delete 'serie'
 	// --------------
 	mysql_query("LOCK TABLES serie WRITE, rundenlog WRITE, hoehe WRITE
-					, runde READ, wettkampf READ");
+					, runde READ,runde AS r READ, wettkampf AS w READ , wettkampf READ");
 	
 	$items = 0;
 	// get 'runde' IDs 
 	$result = mysql_query("
 		SELECT
-			runde.xRunde
+			r.xRunde
 		FROM
-			runde
-			, wettkampf
-		WHERE runde.xWettkampf = wettkampf.xWettkampf
-		AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
+			runde AS r
+			LEFT JOIN wettkampf AS w  ON (r.xWettkampf = w.xWettkampf)
+		WHERE 
+		    w.xMeeting = " . $_COOKIE['meeting_id'] . "
 		ORDER BY
-			runde.xRunde
+			r.xRunde
 	");
 
 	if(mysql_errno() > 0) {

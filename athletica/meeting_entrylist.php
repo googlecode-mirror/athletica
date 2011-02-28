@@ -105,15 +105,13 @@ $result = mysql_query("
 		, v.Name
 	FROM
 		anmeldung AS a
-		, athlet AS at
+		LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
 		LEFT JOIN verein AS v USING(xVerein)
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND a.xAthlet = at.xAthlet
-	
+	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "   
 	ORDER BY
 		$argument
 	");
-
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

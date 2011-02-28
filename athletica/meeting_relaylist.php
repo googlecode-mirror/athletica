@@ -92,28 +92,25 @@ if ($arg=="name") {
 <?php
 
 // get all relays with athletes
-// (remark: order of tables in FROM-clause is important for SQL performance)
-$result = mysql_query("
-	SELECT
-		s.xStaffel
-		, k.Kurzname
-		, d.Kurzname
-		, s.Name
-		, s.Startnummer
-	FROM
-		start AS st
-		, staffel AS s
-		, disziplin_" . $_COOKIE['language'] . " AS d
-		, kategorie AS k
-		, wettkampf AS w
-	WHERE s.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND s.xKategorie = k.xKategorie
-	AND s.xStaffel = st.xStaffel
-	AND st.xWettkampf = w.xWettkampf
-	AND w.xDisziplin = d.xDisziplin
-	ORDER BY
-		$argument
-");
+// (remark: order of tables in FROM-clause is important for SQL performance)   
+  $sql = "SELECT
+        s.xStaffel
+        , k.Kurzname
+        , d.Kurzname
+        , s.Name
+        , s.Startnummer
+    FROM
+        start AS st
+        LEFT JOIN staffel AS s ON (s.xStaffel = st.xStaffel)
+        LEFT JOIN wettkampf AS w  ON (st.xWettkampf = w.xWettkampf)
+        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin)  
+        LEFT JOIN kategorie AS k ON (s.xKategorie = k.xKategorie)   
+    WHERE 
+        s.xMeeting = " . $_COOKIE['meeting_id'] . "   
+    ORDER BY
+        $argument";         
+ 
+$result = mysql_query($sql);   
 
 if(mysql_errno() > 0)		// DB error
 {

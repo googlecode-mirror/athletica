@@ -206,10 +206,10 @@ if(isset($_POST['xWertungstabelle']) && $_POST['xWertungstabelle']=='new')
 		<input name='arg' type='hidden' value='addtbl'/>
 		<table class='dialog' width="300">
 			<tr>
-				<th class='dialog'><?=$strName?></th>
+				<th class='dialog'><?php echo $strName; ?></th>
 				<td class='forms'><input type="text" name="Name" value="" class="text"/></td>
 				<td class='forms'>
-					<input type="submit" name="submit" value="<?=$strSave?>"/>
+					<input type="submit" name="submit" value="<?php echo $strSave; ?>"/>
 				</td>
 			</tr>
 		</tr>
@@ -222,7 +222,7 @@ else
 	<input name='arg' type='hidden' value='select_scoretable' />
 	<table>
 		<tr>
-			<th class='dialog'><?=$strScoreTable?></th>
+			<th class='dialog'><?php echo $strScoreTable; ?></th>
 			<td class='forms'>
 				<form action='admin_scoretables.php' method='post' name='scoretable_selection'>
 					<?php
@@ -233,10 +233,10 @@ else
 			<?php
 			if($val_scoretable>0){
 				?>
-				<th class='dialog'><?=$strDiscipline?></th>
+				<th class='dialog'><?php echo $strDiscipline; ?></th>
 				<td class='forms'>
 					<form action='admin_scoretables.php' method='post' name='discipline_selection'>
-						<input type="hidden" name="xWertungstabelle" value="<?=$val_scoretable?>"/>
+						<input type="hidden" name="xWertungstabelle" value="<?php echo $val_scoretable; ?>"/>
 						<?php
 						$dd = new GUI_ScoreTableDisciplineDropDown($val_scoretable, $val_discipline, "submitForm(document.discipline_selection)");
 						?>
@@ -252,7 +252,7 @@ else
 	if($val_scoretable>0)
 	{
 		?>
-		<button name="deltbl" onclick="window.open('admin_scoretables.php?arg=deltbl&item=<?=$val_scoretable?>', '_self');"><?=$strDeleteScoreTable?></button>
+		<button name="deltbl" onclick="window.open('admin_scoretables.php?arg=deltbl&item=<?php echo $val_scoretable; ?>', '_self');"><?php echo $strDeleteScoreTable; ?></button>
 		<?php
 	}
 	
@@ -262,27 +262,27 @@ else
 		<br/><br/><br/>
 		<table class='dialog'>
 			<tr>
-				<th class='dialog'><?=$strPoints?></th>
-				<th class='dialog'><?=$strPerformance?></th>
-				<th class='dialog'><?=$strSex?></th>
+				<th class='dialog'><?php echo $strPoints; ?></th>
+				<th class='dialog'><?php echo $strPerformance; ?></th>
+				<th class='dialog'><?php echo $strSex; ?></th>
 			</tr>
 			<tr>
 				<form action='admin_scoretables.php' method='post'>
 					<td class='forms'>
 						<input name='arg' type='hidden' value='add'/>
-						<input type="hidden" name="xWertungstabelle" value="<?=$val_scoretable?>"/>
-						<input type="hidden" name="xDisziplin" value="<?=$val_discipline?>"/>
-						<input class='text' name='Punkte' type='text' maxlength='10' value="(<?=$strNew?>)" style="width: 80px;"/>
+						<input type="hidden" name="xWertungstabelle" value="<?php echo $val_scoretable; ?>"/>
+						<input type="hidden" name="xDisziplin" value="<?php echo $val_discipline; ?>"/>
+						<input class='text' name='Punkte' type='text' maxlength='10' value="(<?php echo $strNew; ?>)" style="width: 80px;"/>
 					</td>
 					<td class='forms'>
 						<input type='text' name='Leistung' class='textmedium' maxlength='50'/>
 					</td>
 					<td>
-						<input type="radio" name="Geschlecht" value="M" checked="checked"/> <?=$strSexMShort?>
-						<input type="radio" name="Geschlecht" value="W"/> <?=$strSexWShort?>
+						<input type="radio" name="Geschlecht" value="M" checked="checked"/> <?php echo $strSexMShort; ?>
+						<input type="radio" name="Geschlecht" value="W"/> <?php echo $strSexWShort; ?>
 					</td>
 					<td>
-						<button type='submit'><?=$strSave?></button>
+						<button type='submit'><?php echo $strSave; ?></button>
 					</td>
 				</form>
 			</tr>
@@ -327,24 +327,24 @@ else
 				}
 				?>
 				<tr class='<?php echo $rowclass; ?>'>
-					<form name='pt<?=$counter?>' action='admin_scoretables.php#item_<?=$row[0]?>' method='post'>
+					<form name='pt<?php echo $counter; ?>' action='admin_scoretables.php#item_<?php echo $row[0]; ?>' method='post'>
 						<td class='forms'>
 							<input name='arg' type='hidden' value='change'/>
-							<input type="hidden" name="xWertungstabelle" value="<?=$val_scoretable?>"/>
-							<input type="hidden" name="xDisziplin" value="<?=$val_discipline?>"/>
-							<input name='item' type='hidden' value='<?=$row['xWertungstabelle_Punkte']?>'/>
-							<input class='text' name='Punkte' type='text' maxlength='10' value="<?=$row['Punkte']?>" style="width: 80px;" onChange='submitForm(document.pt<?=$counter?>)'/>
+							<input type="hidden" name="xWertungstabelle" value="<?php echo $val_scoretable; ?>"/>
+							<input type="hidden" name="xDisziplin" value="<?php echo $val_discipline; ?>"/>
+							<input name='item' type='hidden' value='<?php echo $row['xWertungstabelle_Punkte']; ?>'/>
+							<input class='text' name='Punkte' type='text' maxlength='10' value="<?php echo $row['Punkte']; ?>" style="width: 80px;" onChange='submitForm(document.pt<?php echo $counter;?>)'/>
 						</td>
 						<td class='forms'>
-							<input type='text' name='Leistung' class='textmedium' value="<?=$perf?>" maxlength='50' onChange='submitForm(document.pt<?=$counter?>)'/>
+							<input type='text' name='Leistung' class='textmedium' value="<?php echo $perf;?>" maxlength='50' onChange='submitForm(document.pt<?php echo $counter;?>)'/>
 						</td>
 						<td>
 							<?php
 							$m = ($row['Geschlecht']=='M') ? ' checked="checked"' : '';
 							$w = ($row['Geschlecht']=='W') ? ' checked="checked"' : '';
 							?>
-							<input type="radio" name="Geschlecht" value="M"<?=$m?> onclick='submitForm(document.pt<?=$counter?>)'/> <?=$strSexMShort?>
-							<input type="radio" name="Geschlecht" value="W"<?=$w?> onclick='submitForm(document.pt<?=$counter?>)'/> <?=$strSexWShort?>
+							<input type="radio" name="Geschlecht" value="M"<?php echo $m; ?> onclick='submitForm(document.pt<?php echo $counter; ?>)'/> <?php echo $strSexMShort; ?>
+							<input type="radio" name="Geschlecht" value="W"<?php echo $w; ?> onclick='submitForm(document.pt<?php echo $counter; ?>)'/> <?php echo $strSexWShort; ?>
 						</td>
 						<td>
 							<?php

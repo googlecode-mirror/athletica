@@ -109,23 +109,22 @@ else
 	<?php
 }
 
-// get team
-$result = mysql_query("
-	SELECT
-		t.xTeam
-		, t.Name
-		, k.Kurzname
-		, v.Name
-		, v.xVerein
-		, k.xKategorie
-	FROM
-		team AS t
-		, kategorie AS k
-		, verein AS v
-	WHERE t.xTeam = " . $_POST['item'] . "
-  	AND v.xVerein = t.xVerein
-	AND k.xKategorie = t.xKategorie
-");
+// get team          
+ $sql =  "SELECT
+        t.xTeam
+        , t.Name
+        , k.Kurzname
+        , v.Name
+        , v.xVerein
+        , k.xKategorie
+    FROM
+        team AS t
+        LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
+        LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
+    WHERE 
+        t.xTeam = " . $_POST['item'];   
+        
+$result = mysql_query($sql);   
 
 if(mysql_errno() > 0)		// DB error
 {

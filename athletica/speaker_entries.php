@@ -125,55 +125,52 @@ if($round > 0)
     }
    
 	if($relay == FALSE) 		// single event
-	{
-		$query = "
-			SELECT
-				a.xAnmeldung
-				, a.Startnummer
-				, at.Name
-				, at.Vorname
-				, at.Jahrgang
-				, v.Name  
+	{             		
+        $query = "
+            SELECT
+                a.xAnmeldung
+                , a.Startnummer
+                , at.Name
+                , at.Vorname
+                , at.Jahrgang
+                , v.Name  
                 , at.xAthlet
-				, s.Bestleistung
-				, w.xDisziplin
-				, d.Typ
-			FROM
-				anmeldung AS a
-				, athlet AS at
-				, start AS s
-				, verein AS v
-				, wettkampf AS w
-				, disziplin_" . $_COOKIE['language'] . " AS d
-			WHERE s.xWettkampf " . $sqlEvent . "
-                " . $sqlGroup . "
-			    AND a.xAnmeldung = s.xAnmeldung
-			    AND at.xAthlet = a.xAthlet
-			    AND v.xVerein = at.xVerein
-                AND s.Anwesend = 0
-				AND w.xWettkampf = s.xWettkampf
-				AND d.xDisziplin = w.xDisziplin
-			ORDER BY " . $argument;
+                , s.Bestleistung
+                , w.xDisziplin
+                , d.Typ
+            FROM
+                anmeldung AS a
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet  )
+                LEFT JOIN start AS s ON (a.xAnmeldung = s.xAnmeldung)
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+            WHERE s.xWettkampf " . $sqlEvent . "
+                " . $sqlGroup . "                 
+                AND s.Anwesend = 0                    
+            ORDER BY " . $argument;       
+           
 	}
 	else {							// relay event
-		$query = "
-			SELECT
-				s.xStaffel
-				, st.Name
-				, v.Name
-			FROM
-				staffel AS st
-				, start AS s
-				, verein AS v
-			WHERE s.xWettkampf " . $sqlEvent . "
-			AND st.xStaffel = s.xStaffel
-			AND v.xVerein = st.xVerein
+		
+        $query= "
+            SELECT
+                s.xStaffel
+                , st.Name
+                , v.Name
+            FROM
+                staffel AS st
+                LEFT JOIN start AS s ON (st.xStaffel = s.xStaffel )
+                LEFT JOIN verein AS v ON (v.xVerein = st.xVerein)
+            WHERE s.xWettkampf " . $sqlEvent . "           
             AND s.Anwesend = 0   
-			ORDER BY " . $argument;
+            ORDER BY " . $argument;          
+           
+          
 	}
     
-	$result = mysql_query($query);
-
+    $result = mysql_query($query);      
+	
 	if(mysql_errno() > 0)		// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

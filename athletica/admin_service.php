@@ -242,7 +242,7 @@ if($res_srv_lg=='ok'){
 		<br/>
 		<form name="frmDisc" action="admin_service.php" method="post">
 			<input type="hidden" name="arg" value="disc"/>
-			<input type="hidden" name="xMeeting" value="<?=$_SESSION['temp']['xMeeting']?>"/>
+			<input type="hidden" name="xMeeting" value="<?php echo $_SESSION['temp']['xMeeting']; ?>"/>
 			
 			<table width="430" border="0" cellpadding="0" cellspacing="0" class="dialog">
 				<colgroup>
@@ -251,9 +251,9 @@ if($res_srv_lg=='ok'){
 					<col width="80"/>
 				</colgroup>
 				<tr>
-					<th class="dialog"><?=$strCategory?></th>
-					<th class="dialog"><?=$strDiscipline?></th>
-					<th class="dialog"><?=$strDelete?></th>
+					<th class="dialog"><?php echo $strCategory; ?></th>
+					<th class="dialog"><?php echo $strDiscipline; ?></th>
+					<th class="dialog"><?php echo $strDelete; ?></th>
 				</tr>
 				<?php
 				$sql = "SELECT DISTINCT(w.xKategorie), 
@@ -268,7 +268,7 @@ if($res_srv_lg=='ok'){
 				while($kategorie = mysql_fetch_assoc($query)){
 					?>
 					<tr>
-						<td style="vertical-align: top;"><b><?=stripslashes($kategorie['Name'])?></b></td>
+						<td style="vertical-align: top;"><b><?php echo stripslashes($kategorie['Name']); ?></b></td>
 						<td colspan="2" style="vertical-align: top;">
 							
 							<table width="100%" border="0" cellpadding="0" cellspacing="0">
@@ -297,9 +297,9 @@ if($res_srv_lg=='ok'){
 									
 									$cls = ($cls=='even') ? 'odd' : 'even';
 									?>
-									<tr class="<?=$cls?>">
-										<td><label for="delete_<?=$kategorie['xKategorie']?>_<?=$disziplin['xDisziplin']?>"><?=stripslashes($disziplin['Name'])?><?=$info?></label></td>
-										<td><input type="checkbox" name="delete[<?=$kategorie['xKategorie']?>][<?=$disziplin['xDisziplin']?>]" id="delete_<?=$kategorie['xKategorie']?>_<?=$disziplin['xDisziplin']?>" value="<?=$disziplin['xDisziplin']?>"<?=$sel?>/></td>
+									<tr class="<?php echo $cls; ?>">
+										<td><label for="delete_<?php echo $kategorie['xKategorie']; ?>_<?php echo $disziplin['xDisziplin']; ?>"><?php echo stripslashes($disziplin['Name']); ?><?php echo $info; ?></label></td>
+										<td><input type="checkbox" name="delete[<?php echo $kategorie['xKategorie']; ?>][<?php echo $disziplin['xDisziplin']; ?>]" id="delete_<?php echo $kategorie['xKategorie']; ?>_<?php echo $disziplin['xDisziplin']; ?>" value="<?php echo $disziplin['xDisziplin']; ?>"<?php echo $sel; ?>/></td>
 									</tr>
 									<?php
 								}
@@ -316,7 +316,7 @@ if($res_srv_lg=='ok'){
 			
 			<table width="430" border="0" cellpadding="0" cellspacing="0">
 				<tr>
-					<td style="text-align: right;"><input type="submit" name="btnSubmit" class="uploadbutton" value="<?=$strDelete?>"/></td>
+					<td style="text-align: right;"><input type="submit" name="btnSubmit" class="uploadbutton" value="<?php echo $strDelete; ?>"/></td>
 				</tr>
 			</table>
 		</form>
@@ -333,19 +333,19 @@ if($res_srv_lg=='ok'){
 						</tr>
 						<tr>
 							<td>
-								<input type="button" value="<?=$strLogout?>" onclick="document.location.href = 'admin_service.php?a=logout';"/>
+								<input type="button" value="<?php echo $strLogout; ?>" onclick="document.location.href = 'admin_service.php?a=logout';"/>
 							</td>
 						</tr>
 					</table><br/>
 					<table class='dialog' width="475">
 						<tr>
-							<th class='insecure'><?=$strSrvRemoveMeetingPasswords?></th>
+							<th class='insecure'><?php echo $strSrvRemoveMeetingPasswords; ?></th>
 						</tr>
 						<tr>
 							<td>
 								<table class='admin'>
 									<tr class="odd">
-										<td width="70" rowspan="2" style="text-align: center;"><img src="img/password.gif" border="0" alt="<?=$strProtectMeeting?>" title="<?=$strProtectMeeting?>"/></td>
+										<td width="70" rowspan="2" style="text-align: center;"><img src="img/password.gif" border="0" alt="<?php echo $strProtectMeeting;?>" title="<?php echo $strProtectMeeting; ?>"/></td>
 										<td><?php echo $strSrvRemoveMeetingPasswordsInfo ?></td>
 									</tr>
 									<tr class='even'>
@@ -355,7 +355,7 @@ if($res_srv_lg=='ok'){
 												$color = ($_SESSION['temp']['res']) ? '008000' : 'FF0000';
 												$msg = ($_SESSION['temp']['res']) ? $strSrvRemoveMeetingPasswordsOK : $strSrvRemoveMeetingPasswordsError;
 												?>
-												<br/><span style="color: #<?=$color?>; font-weight: bold;"><?=$msg?></span><br/><br/>
+												<br/><span style="color: #<?php echo $color; ?>; font-weight: bold;"><?php echo $msg; ?></span><br/><br/>
 												<?php
 												
 												unset($_SESSION['temp']);
@@ -371,7 +371,7 @@ if($res_srv_lg=='ok'){
 					
 					<table class='dialog' width="475">
 						<tr>
-							<th><?=$strSrvRemoveDisciplines?></th>
+							<th><?php echo $strSrvRemoveDisciplines; ?></th>
 						</tr>
 						<tr>
 							<td>
@@ -391,9 +391,9 @@ if($res_srv_lg=='ok'){
 													</script>
 													
 													<span style="color: #008000; font-weight: bold;">
-														<?=$strSrvRemoveDisciplinesOK?><br/>
+														<?php echo $strSrvRemoveDisciplinesOK; ?><br/>
 														<a href="javascript: checkDiv();">Details (Queries)</a>
-														<div id="div_queries" style="display: none;"><?=$_SESSION['temp']['queries']?></div>
+														<div id="div_queries" style="display: none;"><?php echo $_SESSION['temp']['queries']; ?></div>
 													</span><br/><br/><br/>
 													<?php
 													
@@ -401,7 +401,7 @@ if($res_srv_lg=='ok'){
 												}
 												?>
 												
-												<?=$strMeetingTitle?>: 
+												<?php echo $strMeetingTitle; ?>: 
 												<?php
 												$dropdown = new GUI_Select('xMeeting', 1, '');
 												$dropdown->addOptionsFromDB("select xMeeting, Name from meeting order by DatumVon, DatumBis");
@@ -427,7 +427,7 @@ if($res_srv_lg=='ok'){
 				<td style="vertical-align: top;">
 					<table class='dialog' width="475">
 						<tr>
-							<th class='bestlistupdate'><?=$strSrvStatusUpload?></th>
+							<th class='bestlistupdate'><?php echo $strSrvStatusUpload; ?></th>
 						</tr>
 						<tr class="odd">
 							<td><?php echo $strSrvStatusUploadInfo ?></td>
@@ -439,14 +439,14 @@ if($res_srv_lg=='ok'){
 									$color = ($_SESSION['temp']['res']) ? '008000' : 'FF0000';
 									$msg = ($_SESSION['temp']['res']) ? $strSrvStatusUploadOK : $strSrvStatusUploadError;
 									?>
-									<br/><span style="color: #<?=$color?>; font-weight: bold;"><?=$msg?></span><br/><br/>
+									<br/><span style="color: #<?php echo $color; ?>; font-weight: bold;"><?php echo $msg; ?></span><br/><br/>
 									<?php
 									
 									unset($_SESSION['temp']);
 								}
 								?>
-								<input type="button" value="<?=$strSrvStatusUpload0?>" onclick="document.location.href='admin_service.php?a=statusupload&v=0'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-								<input type="button" value="<?=$strSrvStatusUpload1?>" onclick="document.location.href='admin_service.php?a=statusupload&v=1'">
+								<input type="button" value="<?php echo $strSrvStatusUpload0; ?>" onclick="document.location.href='admin_service.php?a=statusupload&v=0'">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="button" value="<?php echo $strSrvStatusUpload1; ?>" onclick="document.location.href='admin_service.php?a=statusupload&v=1'">
 							</td>
 						</tr>
 					</table><br/><br/>
@@ -477,12 +477,12 @@ if($res_srv_lg=='ok'){
 	}
 } else {
 	?>
-	<?=$strServiceMenuInfo?><br/><br/>
+	<?php echo$strServiceMenuInfo; ?><br/><br/>
 	
 	<?php
 	if($res_srv_lg=='error'){
 		?>
-		<br/><span style="color: #FF0000; font-weight: bold;"><?=$strLoginFalse?></span><br/><br/>
+		<br/><span style="color: #FF0000; font-weight: bold;"><?php echo $strLoginFalse; ?></span><br/><br/>
 		<?php
 	}
 	
@@ -497,12 +497,12 @@ if($res_srv_lg=='ok'){
 				<th colspan="2" class="dialog"><?php echo $strLogin ?></th>
 			</tr>
 			<tr>
-				<td class="dialog"><?=$strUserName?></td>
-				<td class="dialog"><input type="text" name="username" value="<?=$wert_username?>"></td>
+				<td class="dialog"><?php echo $strUserName; ?></td>
+				<td class="dialog"><input type="text" name="username" value="<?php echo $wert_username; ?>"></td>
 			</tr>
 			<tr>
-				<td class="dialog"><?=$strPassword?></td>
-				<td class="dialog"><input type="password" name="password" value="<?=$wert_password?>"></td>
+				<td class="dialog"><?php echo $strPassword; ?></td>
+				<td class="dialog"><input type="password" name="password" value="<?php echo $wert_password; ?>"></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="forms" align="right"><input type="submit" value="<?php echo $strLogin ?>"></td>

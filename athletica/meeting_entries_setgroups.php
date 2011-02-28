@@ -154,10 +154,9 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 	// (do not update rounds in last combined contest)
 	$res = mysql_query("SELECT * FROM
 				runde as r
-				, wettkampf as w
-			WHERE
-				r.xWettkampf = w.xWettkampf
-			AND	w.Mehrkampfende = 0
+				LEFT JOIN wettkampf as w ON (r.xWettkampf = w.xWettkampf)
+			WHERE 				
+				w.Mehrkampfende = 0
 			AND	w.Mehrkampfcode = $comb
 			AND	w.xKategorie = $category
 			AND	w.xMeeting = ".$_COOKIE['meeting_id']);
@@ -194,10 +193,9 @@ if($_POST['arg'] == "save" || $_POST['arg'] == "assign"){
 	// if there are already rounds with groups, remove all but the one with the lowest group
 	$res = mysql_query("SELECT r.xRunde, r.Gruppe FROM
 				runde as r
-				, wettkampf as w
-			WHERE
-				r.xWettkampf = w.xWettkampf
-			AND	w.Mehrkampfcode = $comb
+				LEFT JOIN wettkampf as w ON (r.xWettkampf = w.xWettkampf)
+			WHERE  
+				w.Mehrkampfcode = $comb
 			AND	w.xKategorie = $category
 			AND	w.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
@@ -270,10 +268,9 @@ if($_POST['arg'] == "teamsm_save" || $_POST['arg'] == "teamsm_assign"){
 	// (do not update rounds in last combined contest)
 	$res = mysql_query("SELECT * FROM
 				runde as r
-				, wettkampf as w
-			WHERE
-				r.xWettkampf = w.xWettkampf
-			AND	r.Gruppe = ''
+				LEFT JOIN wettkampf as w  ON (r.xWettkampf = w.xWettkampf)
+			WHERE  
+				r.Gruppe = ''
 			AND	w.xWettkampf = $disc");
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -318,10 +315,9 @@ if($_POST['arg'] == "teamsm_save" || $_POST['arg'] == "teamsm_assign"){
 	// if there are already rounds with groups, remove all but the one with the lowest group
 	$res = mysql_query("SELECT r.xRunde, r.Gruppe FROM
 				runde as r
-				, wettkampf as w
-			WHERE
-				r.xWettkampf = w.xWettkampf
-			AND	w.xWettkampf = $disc
+				LEFT JOIN wettkampf as w  ON (r.xWettkampf = w.xWettkampf)
+			WHERE  
+				w.xWettkampf = $disc
 			ORDER BY
 				r.Gruppe ASC");
 	if(mysql_errno() > 0){
@@ -420,33 +416,33 @@ if($category > 0 && $comb > 0){
 		<input type="hidden" name="arg" value="save">
 	<?php
 	
-	// select * athlete for this event
-	$res = mysql_query("SELECT
-				a.xAnmeldung
-				, at.Name
-				, at.Vorname
-				, a.Gruppe
-				, a.Startnummer
-				, st.Bestleistung
-				, d.Code
-				, w.Mehrkampfcode
-				, a.BestleistungMK
-			FROM
-				wettkampf as w
-				, start as st
-				, anmeldung as a
-				, athlet as at
-				, disziplin_" . $_COOKIE['language'] . " as d
-			WHERE
-				w.Mehrkampfcode = $comb
-			AND	w.xKategorie = $category
-			AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-			AND	st.xWettkampf = w.xWettkampf
-			AND	a.xAnmeldung = st.xAnmeldung
-			AND	at.xAthlet = a.xAthlet
-			AND	d.xDisziplin = w.xDisziplin
-			ORDER BY
-				a.xAnmeldung");
+	// select * athlete for this event   
+	                
+     $sql = "SELECT
+                a.xAnmeldung
+                , at.Name
+                , at.Vorname
+                , a.Gruppe
+                , a.Startnummer
+                , st.Bestleistung
+                , d.Code
+                , w.Mehrkampfcode
+                , a.BestleistungMK
+            FROM
+                wettkampf as w
+                LEFT JOIN start as st ON (st.xWettkampf = w.xWettkampf)
+                LEFT JOIN anmeldung as a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet as at ON (at.xAthlet = a.xAthlet )
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (d.xDisziplin = w.xDisziplin)
+            WHERE
+                w.Mehrkampfcode = $comb
+            AND    w.xKategorie = $category
+            AND    w.xMeeting = ".$_COOKIE['meeting_id']." 
+            ORDER BY
+                a.xAnmeldung";           
+    
+    $res = mysql_query($sql);    
+
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
 	}else{
@@ -551,12 +547,10 @@ $page->printPageTitle($strCombinedGroupsAutoAssign.", ".$strEventTypeTeamSM);
 				, CONCAT(k.Kurzname, ', ', d.Kurzname, ' (', w.Info, ')')
 			FROM
 				wettkampf AS w
-				, kategorie AS k
-				, disziplin_" . $_COOKIE['language'] . " AS d
-			WHERE
-				k.xKategorie = w.xKategorie
-			AND	d.xDisziplin = w.xDisziplin
-			AND	w.xMeeting = ".$_COOKIE['meeting_id']."
+				LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+				LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d  ON (d.xDisziplin = w.xDisziplin)
+			WHERE  
+				w.xMeeting = ".$_COOKIE['meeting_id']."
 			AND	w.Typ = ".$cfgEventType[$strEventTypeTeamSM]."
 			$sqlCategory
 			ORDER BY
@@ -616,31 +610,30 @@ if($disc > 0){
 		<input type="hidden" name="arg" value="teamsm_save">
 	<?php
 	
-	// select * athlete for this event
-	$res = mysql_query("SELECT
-				a.xAnmeldung
-				, at.Name
-				, at.Vorname
-				, a.Gruppe
-				, a.Startnummer
-				, st.Bestleistung
-				, d.Code
-				, w.Mehrkampfcode
-				, a.BestleistungMK
-			FROM
-				wettkampf as w
-				, start as st
-				, anmeldung as a
-				, athlet as at
-				, disziplin_" . $_COOKIE['language'] . " as d
-			WHERE
-				w.xWettkampf = $disc
-			AND	st.xWettkampf = w.xWettkampf
-			AND	a.xAnmeldung = st.xAnmeldung
-			AND	at.xAthlet = a.xAthlet
-			AND	d.xDisziplin = w.xDisziplin
-			ORDER BY
-				a.xAnmeldung");
+	// select * athlete for this event     
+      $sql ="SELECT
+                a.xAnmeldung
+                , at.Name
+                , at.Vorname
+                , a.Gruppe
+                , a.Startnummer
+                , st.Bestleistung
+                , d.Code
+                , w.Mehrkampfcode
+                , a.BestleistungMK
+            FROM
+                wettkampf as w
+                LEFT JOIN start as st  ON (st.xWettkampf = w.xWettkampf)
+                LEFT JOIN anmeldung as a ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN athlet as at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON ( d.xDisziplin = w.xDisziplin)
+            WHERE
+                w.xWettkampf = $disc               
+            ORDER BY
+                a.xAnmeldung";          
+    
+    $res = mysql_query($sql);    
+
 	if(mysql_errno() > 0){
 		AA_printErrorMsg(mysql_errno().": ".mysql_error());
 	}else{

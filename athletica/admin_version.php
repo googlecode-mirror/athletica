@@ -89,21 +89,21 @@ $menu->printMenu();
 				<table class='dialog' width="475" border="0" cellpadding="0" cellspacing="0">
 					<tr>
 						<th width="26" class='updatebox'><img src="img/update.gif" width="22" height="22"/></th>
-						<th class='updatebox'><?=$strOldVersion?></th>
+						<th class='updatebox'><?php echo $strOldVersion; ?></th>
 					</tr>
 					<tr>
 						<td colspan="2">
 							<table class='admin'>
 								<tr class='odd'>
 									<td>
-										<?=$strNewVersionDownload?><br/><br/>
+										<?php echo $strNewVersionDownload; ?><br/><br/>
 										
-										<?=$strYourVersion?>: <?=$act_version?><br/>
-										<b><?=$strNewestVersion?>: <?=$version?> (<?=$datum?>)</b><br/><br/>
+										<?php echo $strYourVersion; ?>: <?php echo $act_version; ?><br/>
+										<b><?php echo $strNewestVersion; ?>: <?php echo $version; ?> (<?php echo $datum; ?>)</b><br/><br/>
 									</td>
 								</tr>
 								<tr class='even'>
-									<td><input type="button" value="<?=$strUpdateDownload?> &raquo;" class="uploadbutton" onclick="window.open('<?=$link?>');"></td>
+									<td><input type="button" value="<?php echo $strUpdateDownload; ?> &raquo;" class="uploadbutton" onclick="window.open('<?php echo $link; ?>');"></td>
 								</tr>
 							</table>
 						</td>
@@ -115,17 +115,17 @@ $menu->printMenu();
 				<table class='dialog' width="475" border="0" cellpadding="0" cellspacing="0">
 					<tr>
 						<th width="26" class='updateboxok'><img src="img/update_ok.gif" width="22" height="22"/></th>
-						<th class='updateboxok'><?=$strVersionOK?></th>
+						<th class='updateboxok'><?php echo $strVersionOK; ?></th>
 					</tr>
 					<tr>
 						<td colspan="2">
 							<table class='admin'>
 								<tr class='odd'>
 									<td>
-										<?=$strVersionOK?><br/><br/>
+										<?php echo $strVersionOK; ?><br/><br/>
 										
-										<?=$strYourVersion?>: <?=$act_version?><br/>
-										<b><?=$strNewestVersion?>: <?=$version?> (<?=$datum?>)</b><br/><br/>
+										<?php echo $strYourVersion; ?>: <?php echo $act_version; ?><br/>
+										<b><?php echo $strNewestVersion; ?>: <?php echo $version; ?> (<?php echo $datum; ?>)</b><br/><br/>
 									</td>
 								</tr>
 							</table>

@@ -67,29 +67,28 @@ if($_POST['arg']=='search')
 	}	
 	else {
 		$searchparam = " AND at.Name = '" . $_POST['searchfield'] . "'";
-	}
-
-	 $result = mysql_query("
-		SELECT
-			a.xAnmeldung
-			, a.Startnummer
-			, at.Name
-			, at.Vorname
-			, at.Jahrgang
-			, v.Name
-			, at.xAthlet
-		FROM
-			anmeldung AS a
-			, athlet AS at
-			, verein AS v
-		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-		AND at.xAthlet = a.xAthlet
-		AND v.xVerein = at.xVerein "
-		. $searchparam . "
-		ORDER BY
-			 at.Name
-			,at.Vorname"
-	);
+	}       
+	
+     $sql = "SELECT
+                    a.xAnmeldung
+                    , a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , v.Name
+                    , at.xAthlet
+             FROM
+                    anmeldung AS a
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                    LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+             WHERE 
+                a.xMeeting = " . $_COOKIE['meeting_id'] . "  
+                $searchparam 
+             ORDER BY
+                at.Name
+                ,at.Vorname";        
+    
+    $result = mysql_query($sql);     
 
 	if(mysql_errno() > 0)		// DB error
 	{
@@ -156,39 +155,34 @@ if($_POST['arg']=='search')
 //
 if ($item > 0)
 {
-	$xAthlet = $item;
+	$xAthlet = $item;       
 	
-	
-	
-	$result = mysql_query("
-		SELECT
-			a.xAnmeldung
-			, a.Startnummer
-			, at.Name
-			, at.Vorname
-			, at.Jahrgang
-			, v.Name
-			, at.xAthlet
-			, k.Name
-			, t.Name
-		FROM
-			anmeldung AS a
-			, athlet AS at
-			, verein AS v
-			, kategorie AS k
-		LEFT  JOIN team AS t
-				ON a.xTeam = t.xTeam
-		WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-		AND at.xAthlet = " . $item . "
-		AND a.xAthlet = " . $item . "
-		AND k.xKategorie = a.xKategorie
-		AND v.xVerein = at.xVerein 
-		ORDER BY
-			at.Name
-			, at.Vorname"
-	);
-	$row2 = mysql_fetch_row($result);
-	
+    $sql = "SELECT
+                    a.xAnmeldung
+                    , a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , v.Name
+                    , at.xAthlet
+                    , k.Name
+                    , t.Name
+            FROM
+                    anmeldung AS a
+                    LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+                    LEFT JOIN verein AS v  ON (v.xVerein = at.xVerein)
+                    LEFT JOIN kategorie AS k ON (k.xKategorie = a.xKategorie)
+                    LEFT  JOIN team AS t ON a.xTeam = t.xTeam
+            WHERE 
+                a.xMeeting = " . $_COOKIE['meeting_id'] . "    
+                AND a.xAthlet = " . $item . "  
+            ORDER BY
+                at.Name
+                , at.Vorname";      
+    
+    $result = mysql_query($sql);    
+
+	$row2 = mysql_fetch_row($result); 
 	
 	?>
 	
@@ -223,163 +217,136 @@ if ($item > 0)
 	
 	// athlet
 	if ($relay == 0) {
-		$query = "
-			SELECT
-				a.Startnummer
-				, d.Name
-				, d.Typ
-				, at.Name
-				, at.Vorname
-				, at.Jahrgang
-				, k.Name
-				, v.Name
-				, t.Name
-				, r.Leistung
-				, r.Info
-				, rt.Typ
-				, s.Wind
-				, at.xAthlet
-			FROM
-				anmeldung AS a
-				, athlet AS at
-				, disziplin_" . $_COOKIE['language'] . " AS d
-				, kategorie AS k
-				, resultat AS r
-				, runde AS ru
-				, serie AS s
-				, start  AS st
-				, serienstart AS ss
-				, verein AS v
-				, wettkampf AS w
-			LEFT  JOIN team AS t
-				ON a.xTeam = t.xTeam
-			LEFT  JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-				ON ru.xRundentyp = rt.xRundentyp
-			WHERE a.xAthlet = $item
-			AND at.xAthlet = a.xAthlet
-			AND v.xVerein = at.xVerein
-			AND k.xKategorie = a.xKategorie
-			AND st.xAnmeldung = a.xAnmeldung
-			AND w.xWettkampf = st.xWettkampf
-			AND d.xDisziplin = w.xDisziplin
-			AND ss.xStart = st.xStart
-			AND r.xSerienstart = ss.xSerienstart
-			AND s.xSerie = ss.xSerie
-			AND ru.xRunde = s.xRunde
-			ORDER BY
-				d.Anzeige
-				, ru.Datum
-				, ru.Startzeit
-				, r.xResultat
-		";
+		
+        $query = "
+            SELECT
+                a.Startnummer
+                , d.Name
+                , d.Typ
+                , at.Name
+                , at.Vorname
+                , at.Jahrgang
+                , k.Name
+                , v.Name
+                , t.Name
+                , r.Leistung
+                , r.Info
+                , rt.Typ
+                , s.Wind
+                , at.xAthlet
+            FROM
+                anmeldung AS a
+                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN start  AS st ON (st.xAnmeldung = a.xAnmeldung)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf )
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d  ON (d.xDisziplin = w.xDisziplin )
+                LEFT JOIN kategorie AS k ON (k.xKategorie = a.xKategorie)
+                LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart )
+                INNER JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)
+                LEFT JOIN serie AS s ON (s.xSerie = ss.xSerie)   
+                LEFT JOIN runde AS ru ON (ru.xRunde = s.xRunde)  
+                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                   
+                LEFT JOIN team AS t ON a.xTeam = t.xTeam
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON ru.xRundentyp = rt.xRundentyp
+            WHERE 
+                a.xAthlet = $item            
+            ORDER BY
+                d.Anzeige
+                , ru.Datum
+                , ru.Startzeit
+                , r.xResultat
+        ";       
+                
 	}
 	// relay
 	else {
-		$query = "
-			SELECT
-				s.Name
-				, d.Name
-				, k.Name
-				, v.Name
-				, t.Name
-				, s.xStaffel
-				, r.Leistung
-				, rt.Typ
-			FROM
-				staffel AS s
-				, disziplin_" . $_COOKIE['language'] . " AS d
-				, kategorie AS k
-				, resultat AS r 
-				, runde AS ru
-				, serie AS se
-				, start AS st
-				, serienstart AS ss
-				, verein AS v
-				, wettkampf AS w
-			LEFT JOIN team AS t
-				ON s.xTeam = t.xTeam
-			LEFT  JOIN rundentyp_" . $_COOKIE['language'] . " AS rt
-				ON ru.xRundentyp = rt.xRundentyp
-			WHERE s.xStaffel = $item
-			AND v.xVerein = s.xVerein
-			AND k.xKategorie = s.xKategorie
-			AND st.xStaffel = s.xStaffel
-			AND w.xWettkampf = st.xWettkampf
-			AND d.xDisziplin = w.xDisziplin
-			AND ss.xStart = st.xStart
-			AND r.xSerienstart = ss.xSerienstart
-			AND se.xSerie = ss.xSerie
-			AND ru.xRunde = se.xRunde
-			ORDER BY
-				d.Anzeige
-				, ru.Datum
-				, ru.Startzeit
-		";
+		
+        $query = "SELECT
+                        s.Name
+                        , d.Name
+                        , k.Name
+                        , v.Name
+                        , t.Name
+                        , s.xStaffel
+                        , r.Leistung
+                        , rt.Typ
+                  FROM
+                        staffel AS s    
+                        LEFT JOIN start AS st ON (st.xStaffel = s.xStaffel)     
+                        LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf)
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+                        LEFT JOIN kategorie AS k ON (k.xKategorie = s.xKategorie    )
+                        LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart )
+                        LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)
+                        LEFT JOIN serie AS se ON (se.xSerie = ss.xSerie )    
+                        LEFT JOIN runde AS ru ON (ru.xRunde = se.xRunde  )  
+                        LEFT JOIN verein AS v ON (v.xVerein = s.xVerein)                         
+                        LEFT JOIN team AS t ON s.xTeam = t.xTeam
+                        LEFT  JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON ru.xRundentyp = rt.xRundentyp
+                  WHERE 
+                        s.xStaffel = $item             
+                  ORDER BY
+                    d.Anzeige
+                    , ru.Datum
+                    , ru.Startzeit ";      
+       
 	}
 
-	$result = mysql_query($query);
+	$result = mysql_query($query);      
 
 	if(mysql_errno() > 0)		// DB error
 	{
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else
-	{
-	     
-		 $result2 = mysql_query("
-	SELECT DISTINCT a.xAnmeldung
-		, a.Startnummer
-		, at.Name
-		, at.Vorname
-		, at.Jahrgang
-		, k.Kurzname
-		, k.Name
-		, v.Name
-		, t.Name
-		, d.Kurzname
-		, d.Name
-		, d.Typ
-		, s.Bestleistung
-		, if(at.xRegion = 0, at.Land, re.Anzeige)
-		, ck.Kurzname
-		, ck.Name
-		, s.Bezahlt
-		, w.Info
-		, d2.Kurzname
-		, d2.Name
-		, v.Sortierwert
-		, k.Anzeige
-		, w.Startgeld  
-		, w.mehrkampfcode    
-	FROM
-		anmeldung AS a
-		, athlet AS at
-		, disziplin_" . $_COOKIE['language'] . " AS d
-		, kategorie AS k
-		, kategorie AS ck
-		, start AS s
-		, verein AS v
-		, wettkampf AS w
-	LEFT JOIN runde AS r 
-		ON (s.xWettkampf = r.xWettkampf) 
-	LEFT JOIN team AS t
-		ON a.xTeam = t.xTeam
-	LEFT JOIN region as re 
-		ON at.xRegion = re.xRegion
-	LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 
-		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND a.xAthlet = $item
-	AND at.xVerein = v.xVerein
-	AND a.xKategorie = k.xKategorie
-	AND s.xAnmeldung = a.xAnmeldung
-	AND w.xWettkampf = s.xWettkampf
-	AND ck.xKategorie = w.xKategorie
-	AND d.xDisziplin = w.xDisziplin
-	ORDER BY
-		d.Anzeige
-	
-	");  
+	{               
+		
+     $sql = "SELECT 
+                    DISTINCT a.xAnmeldung
+                    , a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , k.Kurzname
+                    , k.Name
+                    , v.Name
+                    , t.Name
+                    , d.Kurzname
+                    , d.Name
+                    , d.Typ
+                    , s.Bestleistung
+                    , if(at.xRegion = 0, at.Land, re.Anzeige)
+                    , ck.Kurzname
+                    , ck.Name
+                    , s.Bezahlt
+                    , w.Info
+                    , d2.Kurzname
+                    , d2.Name
+                    , v.Sortierwert
+                    , k.Anzeige
+                    , w.Startgeld  
+                    , w.mehrkampfcode    
+            FROM
+                    anmeldung AS a        
+                    LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet) 
+                    LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung)
+                    LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf)
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d  ON (d.xDisziplin = w.xDisziplin)
+                    LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)  
+                    LEFT JOIN kategorie AS ck ON (ck.xKategorie = w.xKategorie)    
+                    LEFT JOIN verein AS v ON (at.xVerein = v.xVerein )                      
+                    LEFT JOIN runde AS r ON (s.xWettkampf = r.xWettkampf) 
+                    LEFT JOIN team AS t ON a.xTeam = t.xTeam
+                    LEFT JOIN region as re ON at.xRegion = re.xRegion
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
+            WHERE 
+                    a.xMeeting = " . $_COOKIE['meeting_id'] . "
+                    AND a.xAthlet = $item   
+            ORDER BY
+                    d.Anzeige";         
+    
+    $result2 = mysql_query($sql);   
+    
 	$tempdisz = "";
           
 		if(mysql_errno() > 0)		// DB error
@@ -561,27 +528,24 @@ if ($item > 0)
 		mysql_free_result($result);
 		// add relay athletes
 		if($relay > 0)
-		{
-			$result = mysql_query("
-				SELECT
-					a.xAnmeldung
-					, a.Startnummer
-					, at.Name
-					, at.Vorname
-				FROM
-					athlet AS at
-					, anmeldung AS a
-					, start AS ss
-					, staffelathlet AS sta
-					, start AS st
-				WHERE ss.xStaffel = $item
-				AND sta.xStaffelstart = ss.xStart
-				AND sta.xAthletenstart = st.xStart
-				AND st.xAnmeldung = a.xAnmeldung
-				AND a.xAthlet = at.xAthlet
-				ORDER BY
-					sta.Position
-			");
+		{         			
+            $sql = "SELECT
+                            a.xAnmeldung
+                            , a.Startnummer
+                            , at.Name
+                            , at.Vorname
+                    FROM
+                            athlet AS at
+                            LEFT JOIN anmeldung AS a ON (a.xAthlet = at.xAthlet)
+                            LEFT JOIN start AS st ON (st.xAnmeldung = a.xAnmeldung)
+                            LEFT JOIN staffelathlet AS sta ON (sta.xStaffelstart = ss.xStart)  
+                            LEFT JOIN start AS ss ON (sta.xAthletenstart = st.xStart) 
+                    WHERE 
+                            ss.xStaffel = $item                 
+                    ORDER BY
+                            sta.Position";      
+            
+            $result = mysql_query($sql);     
 
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -639,7 +603,7 @@ if ($item > 0)
 			WHERE (athlet.xAthlet =$xAthlet)
 			AND NOT (best_effort = '' AND season_effort = '')
 			ORDER BY base_performance.season, d.Code";
-		//echo $sql;
+		
 		$res = mysql_query($sql);
 		
 		if(mysql_num_rows($res)==0){
@@ -660,12 +624,12 @@ if ($item > 0)
 				$lastseason=$row_perf[8];
 				?>
 				<tr>
-					<th class='dialog' colspan="7"><?=$txtSaison;?></th>
+					<th class='dialog' colspan="7"><?php echo $txtSaison;?></th>
 				</tr>
 				<tr>
 					<td class='dialog'>&nbsp;</td>
-					<th class='dialog' colspan="3"><?= $strPB_long; ?></th>
-					<th class='dialog' colspan="3"><?= $strSB_long; ?></th>
+					<th class='dialog' colspan="3"><?php echo $strPB_long; ?></th>
+					<th class='dialog' colspan="3"><?php echo $strSB_long; ?></th>
 				</tr>
 
 				<?php

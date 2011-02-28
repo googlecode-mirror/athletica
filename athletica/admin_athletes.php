@@ -400,7 +400,7 @@ while ($row = mysql_fetch_row($result))
 		<td><?php echo $row[1]; ?></td>
 		<td><?php echo $row[2]; ?></td>
 		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[3]); ?></td>
-		<td><?=$licenseNr?></td>
+		<td><?php echo $licenseNr; ?></td>
 		<td><?php echo $row[4]; ?></td>
 <?php
 	}	// ET athlete active

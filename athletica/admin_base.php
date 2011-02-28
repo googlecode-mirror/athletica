@@ -376,8 +376,8 @@ document.getElementById("progress").width="150";
 if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0){
 	?>
 	<br/><br/>
-	<?=$strBaseUpdatedSync?>
-	<?php
+	<?php echo $strBaseUpdatedSync; 
+	
 }
 ?>
 </td></tr>
@@ -408,19 +408,19 @@ if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0){
                 <table class="dialog" width="260">
                     <tbody><tr>
 
-                        <th><?=$strConfiguration?></th>
+                        <th><?php echo $strConfiguration; ?></th>
                     </tr>
                     <tr>
                         <td>
-                          <p><?=$strEffortsUpdateInfo4?></p>
+                          <p><?php echo $strEffortsUpdateInfo4; ?></p>
                           <p>
                             <label>
                               <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
-                              <?=$strOverwrite;?></label>
+                              <?php echo $strOverwrite;?></label>
                             <br />
                             <label>
                               <input type="radio" name="mode" value="skip" id="mode_1" />
-                              <?=$strLeaveBehind ;?></label>
+                              <?php echo$strLeaveBehind ;?></label>
                             <br />
                           </p></td>
                     </tr>

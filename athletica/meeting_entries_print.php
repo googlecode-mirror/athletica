@@ -191,13 +191,13 @@ $page->printPageTitle($strPrint);
 	                             foreach ($cfgLicenseType as $key => $value) {
 	                                  if ($value==$row[0]){   
 	                                      ?>
-	                            		  <option value="<?=$row[0]?>"><?php echo $key;  ?></option>   
+	                            		  <option value="<?php echo $row[0]?>"><?php echo $key;  ?></option>   
 	                    				  <?php
 	                                   }
 	                             } 
 	                       }
 	                    ?>
-	                    		<option value="4"><?=$strLicenseTypeNormalNotPayed;?></option
+	                    		<option value="4"><?php echo $strLicenseTypeNormalNotPayed;?></option
                                 </select>      
 	                    </td>
 	                 </tr>
@@ -229,11 +229,11 @@ $page->printPageTitle($strPrint);
                  
                     <td class='forms'>
                         <select name='date'>
-                        <option value="%">- <?=$strAll?> -</option>
+                        <option value="%">- <?php echo $strAll?> -</option>
                     <?php
                         while($row = mysql_fetch_assoc($query)){
                     ?>
-                            <option value="<?=$row['Datum']?>"><?=date('d.m.Y', strtotime($row['Datum']))?></option>
+                            <option value="<?php echo $row['Datum']; ?>"><?php echo date('d.m.Y', strtotime($row['Datum']))?></option>
                     <?php
                        }
                     ?>

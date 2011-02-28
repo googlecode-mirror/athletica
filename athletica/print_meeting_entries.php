@@ -173,72 +173,61 @@ if($_GET['cover'] == 'cover' && !$export) { // print cover page
 	printf("<p/>");
 }
  
- $reduction=AA_getReduction();
+ $reduction=AA_getReduction();      
 
+    $sql = "SELECT 
+                DISTINCT a.xAnmeldung
+                , a.Startnummer
+                , at.Name
+                , at.Vorname
+                , at.Jahrgang
+                , k.Kurzname
+                , k.Name
+                , v.Name
+                , t.Name
+                , d.Kurzname
+                , d.Name
+                , d.Typ
+                , s.Bestleistung
+                , if(at.xRegion = 0, at.Land, re.Anzeige)
+                , ck.Kurzname
+                , ck.Name
+                , s.Bezahlt
+                , w.Info
+                , d2.Kurzname
+                , d2.Name
+                , v.Sortierwert
+                , k.Anzeige
+                , w.Startgeld  
+                , w.mehrkampfcode    
+            FROM
+                anmeldung AS a
+                LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie) 
+                LEFT JOIN athlet AS at  ON (a.xAthlet = at.xAthlet)
+                LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf) 
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)                 
+                LEFT JOIN kategorie AS ck ON (ck.xKategorie = w.xKategorie)                     
+                LEFT JOIN verein AS v ON (at.xVerein = v.xVerein  )                       
+                LEFT JOIN runde AS r ON (s.xWettkampf = r.xWettkampf) 
+                LEFT JOIN team AS t ON a.xTeam = t.xTeam
+                LEFT JOIN region as re ON at.xRegion = re.xRegion
+                LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
+                LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)                             
+            WHERE 
+                a.xMeeting = " . $_COOKIE['meeting_id'] . "  
+                $cat_clause
+                $disc_clause
+                $club_clause
+                $contestcat_clause
+                $date_clause
+                $athlete_clause 
+                $licType_clause     
+                $limitNrSQL
+           ORDER BY
+            $argument";      
  
-$result = mysql_query("
-	SELECT DISTINCT a.xAnmeldung
-		, a.Startnummer
-		, at.Name
-		, at.Vorname
-		, at.Jahrgang
-		, k.Kurzname
-		, k.Name
-		, v.Name
-		, t.Name
-		, d.Kurzname
-		, d.Name
-		, d.Typ
-		, s.Bestleistung
-		, if(at.xRegion = 0, at.Land, re.Anzeige)
-		, ck.Kurzname
-		, ck.Name
-		, s.Bezahlt
-		, w.Info
-		, d2.Kurzname
-		, d2.Name
-		, v.Sortierwert
-		, k.Anzeige
-		, w.Startgeld  
-		, w.mehrkampfcode    
-	FROM
-		anmeldung AS a
-		, athlet AS at
-		, disziplin_" . $_COOKIE['language'] . " AS d
-		, kategorie AS k
-		, kategorie AS ck
-		, start AS s
-		, verein AS v
-		, wettkampf AS w
-	LEFT JOIN runde AS r 
-		ON (s.xWettkampf = r.xWettkampf) 
-	LEFT JOIN team AS t
-		ON a.xTeam = t.xTeam
-	LEFT JOIN region as re 
-		ON at.xRegion = re.xRegion
-	LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 
-		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
-    LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)                             
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND a.xAthlet = at.xAthlet
-	AND at.xVerein = v.xVerein
-	AND a.xKategorie = k.xKategorie
-	AND s.xAnmeldung = a.xAnmeldung
-	AND w.xWettkampf = s.xWettkampf
-	AND ck.xKategorie = w.xKategorie
-	AND d.xDisziplin = w.xDisziplin
-	$cat_clause
-	$disc_clause
-	$club_clause
-	$contestcat_clause
-	$date_clause
-	$athlete_clause 
-	$licType_clause     
-	$limitNrSQL
-	ORDER BY
-		$argument
-	
-");  
+$result = mysql_query($sql);    
      
 if(mysql_errno() > 0)		// DB error
 {

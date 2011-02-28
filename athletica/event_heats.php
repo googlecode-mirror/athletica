@@ -504,7 +504,7 @@ if($round > 0)
 						, ss.Position ASC;";
 			$query = $sql;        
 		}
-         
+       
 		$result = mysql_query($query);
 
 		if(mysql_errno() > 0)		// DB error
@@ -722,7 +722,7 @@ if($round > 0)
 		<td><?php echo $row[9]; ?></td>
 		<td>			<?php echo $row[10] . " " . $row[11]; ?></td>
 		<td><?php echo AA_formatYearOfBirth($row[12]); ?></td>
-		<td><?=(($row[18]!='' && $row[18]!='-') ? $row[18] : '&nbsp;')?></td>
+		<td><?php echo (($row[18]!='' && $row[18]!='-') ? $row[18] : '&nbsp;');?></td>
 		<td><?php echo $row[13]; ?></td>
 		<td>
 <?php

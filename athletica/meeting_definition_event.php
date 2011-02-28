@@ -338,35 +338,33 @@ $page->startPage();
  *	 Show Event	
  *
  *****************************************/
-
-$result = mysql_query("
-	SELECT
-		w.xWettkampf
-		, w.xKategorie
-		, w.Typ
-		, w.Haftgeld
-		, w.Startgeld
-		, w.Punktetabelle
-		, w.Punkteformel
-		, k.Name
-		, d.Name
-		, d.xDisziplin
-		, d.Typ
-		, w.Windmessung
-		, w.Info
-		, w.Zeitmessung
-		, w.ZeitmessungAuto
-	FROM
-		wettkampf AS w
-		, kategorie AS k
-		, disziplin_" . $_COOKIE['language'] . " as d
-	WHERE w.xWettkampf = $event
-	AND w.xKategorie = k.xKategorie
-	AND w.xDisziplin = d.xDisziplin
-	ORDER BY
-		k.Anzeige
-		, d.Anzeige
-");
+                                   
+$sql = "SELECT
+        w.xWettkampf
+        , w.xKategorie
+        , w.Typ
+        , w.Haftgeld
+        , w.Startgeld
+        , w.Punktetabelle
+        , w.Punkteformel
+        , k.Name
+        , d.Name
+        , d.xDisziplin
+        , d.Typ
+        , w.Windmessung
+        , w.Info
+        , w.Zeitmessung
+        , w.ZeitmessungAuto
+    FROM
+        wettkampf AS w
+        LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (w.xDisziplin = d.xDisziplin)
+    WHERE w.xWettkampf = $event
+    ORDER BY
+        k.Anzeige
+        , d.Anzeige";
+ 
+$result = mysql_query($sql);  
 
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -476,7 +474,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 <?php
 		if($row[5]==$cvtTable[$strConvtableRankingPoints] || $row[5]==$cvtTable[$strConvtableRankingPointsU20]){
 			?>
-			<input type="text" name="formula" value="<?=$row[6]?>" style="width: 45px;" onchange="document.event.submit()"/>
+			<input type="text" name="formula" value="<?php echo $row[6]; ?>" style="width: 45px;" onchange="document.event.submit()"/>
 			<?php
 		} else {
 			$dropdown = new GUI_Select('formula', 1, "document.event.submit()");

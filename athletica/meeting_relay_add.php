@@ -230,20 +230,19 @@ if ($_POST['arg']=="add")
 									if(mysql_errno() == 0) 		// no error
 										{
 										$xStaffel = mysql_insert_id();	// get new ID
-										// check if event already started
-										$res = mysql_query("
-											SELECT
-												d.Name
-											FROM
-												disziplin_" . $_COOKIE['language'] . " AS d
-												, runde
-												, wettkampf
-											WHERE runde.xWettkampf=". $_POST['event'] ."
-											AND runde.Status > 0
-											AND wettkampf.xWettkampf = ". $_POST['event'] ."
-											AND d.xDisziplin = wettkampf.xDisziplin
-											");
-
+										// check if event already started   
+                                         $sql = "SELECT
+                                                d.Name
+                                            FROM
+                                                disziplin_" . $_COOKIE['language'] . " AS d
+                                                LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin)
+                                                LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)    
+                                            WHERE 
+                                                r.Status > 0
+                                                AND w.xWettkampf = ". $_POST['event'];    
+                                       
+                                        $res = mysql_query($sql);
+                                       
 										if(mysql_errno() > 0) {
 											AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 										}
@@ -544,7 +543,7 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 	</td>
 </tr>
 <tr>
-	<td colspan="2" class='dialog'><?=$strTeamNameRemark?><br/><br/><?=$strRelayNrInfo?></td>
+	<td colspan="2" class='dialog'><?php echo $strTeamNameRemark; ?><br/><br/><?php echo $strRelayNrInfo; ?></td>
 </tr>
 <tr>
 	<th class='dialog'><?php echo $strTeam; ?></th>
@@ -569,29 +568,27 @@ if(($category != 0) && ($event != 0) && ($club != 0))		// category and event sel
 </tr>
 
 	<?php
-	// list athletes who are not yet assigned to any relay
-	$result = mysql_query("
-		SELECT
-			a.xAnmeldung
-			, at.Name
-			, at.Vorname
-			, at.Jahrgang
-			, st.xStart
-		FROM
-			anmeldung AS a
-			, athlet AS at
-			, start AS st
-		LEFT JOIN staffelathlet AS sa
-			ON st.xStart = sa.xAthletenstart
-		WHERE sa.xAthletenstart IS NULL
-		AND a.xAthlet = at.xAthlet
-		AND a.xAnmeldung = st.xAnmeldung
-		AND st.xWettkampf = $event
-		AND at.xVerein = $club
-		ORDER BY
-			at.Name
-			, at.Vorname
-	");
+	// list athletes who are not yet assigned to any relay     
+      $sql = "SELECT
+            a.xAnmeldung
+            , at.Name
+            , at.Vorname
+            , at.Jahrgang
+            , st.xStart
+        FROM
+            anmeldung AS a
+            LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+            LEFT JOIN start AS st ON (a.xAnmeldung = st.xAnmeldung)
+            LEFT JOIN staffelathlet AS sa ON st.xStart = sa.xAthletenstart
+        WHERE 
+            sa.xAthletenstart IS NULL          
+            AND st.xWettkampf = $event
+            AND at.xVerein = $club
+        ORDER BY
+            at.Name
+            , at.Vorname";
+    
+    $result = mysql_query($sql);
 
 	if(mysql_errno() > 0)
 	{

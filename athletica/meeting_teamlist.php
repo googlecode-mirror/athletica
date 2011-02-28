@@ -79,9 +79,9 @@ $result = mysql_query("
 		, k.Kurzname
 	FROM
 		team AS t
-		, kategorie AS k
-	WHERE t.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND k.xKategorie = t.xKategorie
+		LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
+	WHERE 
+        t.xMeeting = " . $_COOKIE['meeting_id'] . "  
 	ORDER BY
 		$argument
 ");

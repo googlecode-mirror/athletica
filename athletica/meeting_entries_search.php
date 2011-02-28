@@ -62,36 +62,33 @@ $page->printPageTitle($strSearchResults);
 </tr>
 <?php
 
-// read all entries
-$result = mysql_query("
-	SELECT
-		a.xAnmeldung
-		, a.xKategorie
-		, a.Startnummer
-		, at.xAthlet
-		, at.Name
-		, at.Vorname
-		, at.Jahrgang
-		, k.Kurzname
-		, v.Name
-		, v.xVerein
-		, t.Name
-		, t.xTeam
-	FROM
-		anmeldung AS a
-		, athlet AS at
-		, kategorie AS k
-		, verein AS v
-	LEFT JOIN team AS t
-	ON a.xTeam = t.xTeam
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND a.xAthlet = at.xAthlet
-	AND a.xKategorie = k.xKategorie
-	AND at.xVerein = v.xVerein
-	$searchparam
-	ORDER BY
-		a.Startnummer
-");
+// read all entries        
+  $sql = "SELECT
+        a.xAnmeldung
+        , a.xKategorie
+        , a.Startnummer
+        , at.xAthlet
+        , at.Name
+        , at.Vorname
+        , at.Jahrgang
+        , k.Kurzname
+        , v.Name
+        , v.xVerein
+        , t.Name
+        , t.xTeam
+    FROM
+        anmeldung AS a
+        LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet )
+        LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)
+        LEFT JOIN verein AS v ON (at.xVerein = v.xVerein)
+    LEFT JOIN team AS t
+    ON a.xTeam = t.xTeam
+    WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "      
+    $searchparam
+    ORDER BY
+        a.Startnummer";         
+ 
+$result = mysql_query($sql);  
 
 if(mysql_errno() > 0)		// DB error
 {

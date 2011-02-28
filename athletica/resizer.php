@@ -7,7 +7,7 @@ $width = (isset($_COOKIE['meeting_entries_list_size'])) ? $_COOKIE['meeting_entr
 		<script type="text/javascript">
 			// Letzte Position des Objekts
 			var last = 0;
-			var lastsize = <?=$lastsize?>;
+			var lastsize = <?php echo $lastsize; ?>;
 
 			//Das Objekt, das gerade bewegt wird.
 			var dragobjekt = null;
@@ -18,7 +18,7 @@ $width = (isset($_COOKIE['meeting_entries_list_size'])) ? $_COOKIE['meeting_entr
 			// Mausposition
 			var posx = 0;
 			
-			set_size(<?=$width?>);
+			set_size(<?php echo $width; ?>);
 
 			function draginit() {
 				// Initialisierung der Überwachung der Events

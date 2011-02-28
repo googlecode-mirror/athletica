@@ -83,9 +83,8 @@ $result = mysql_query("
 		, k.Kurzname
 	FROM
 		wettkampf AS w
-		, kategorie AS k
-	WHERE w.xMeeting =" . $_COOKIE['meeting_id'] . "
-	AND w.xKategorie = k.xKategorie
+		LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+	WHERE w.xMeeting =" . $_COOKIE['meeting_id'] . "   
 	GROUP BY
 		w.xKategorie
 	ORDER BY
@@ -126,10 +125,9 @@ else			// no DB error
  *
  *	 Events: disciplines per categories	
  *
- *****************************************/
-
-$result = mysql_query("
-	SELECT
+ *****************************************/    
+        
+$sql = "SELECT
 		w.xWettkampf
 		, w.xKategorie
 		, k.Name
@@ -137,15 +135,14 @@ $result = mysql_query("
 		, w.Info
 	FROM
 		wettkampf AS w
-		, kategorie AS k
-		, disziplin_" . $_COOKIE['language'] . " as d
+		LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+		LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.xDisziplin = d.xDisziplin)
 	WHERE w.xMeeting =" . $_COOKIE['meeting_id'] . "
-	AND w.xKategorie = $category
-	AND w.xKategorie = k.xKategorie
-	AND w.xDisziplin = d.xDisziplin
+	AND w.xKategorie = $category 	
 	ORDER BY
-		d.Anzeige
-");
+		d.Anzeige";
+ 
+$result = mysql_query($sql);     
 
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

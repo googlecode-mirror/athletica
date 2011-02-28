@@ -119,35 +119,34 @@ if (empty($mRounds)){
 else {
      $sqlRound = "IN ". $mRounds;  
 }
-// get round info
-$sql = "SELECT DATE_FORMAT(r.Datum, '$cfgDBdateFormat')"
-							. ", TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')"
-							. ", r.Bahnen"
-							. ", rt.Name"
-							. ", w.xWettkampf"
-							. ", k.Name"
-							. ", d.Name"
-							. ", d.Typ"
-							. ", w.Windmessung"
-							. ", w.Info"
-							. ", rt.Typ"
-							. ", d.Staffellaeufer"
-							. ", r.Gruppe"
-							. ", w.Zeitmessung"
-							. ", TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')"
-							. ", TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')"
-							. " FROM runde AS r"
-							. ", wettkampf AS w"
-							. ", kategorie AS k"
-							. ", disziplin_" . $_COOKIE['language'] . " AS d"
-							. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
-							. " ON rt.xRundentyp = r.xRundentyp"
-							. " WHERE r.xRunde " . $sqlRound
-							. " AND w.xWettkampf = r.xWettkampf"
-							. " AND k.xKategorie = w.xKategorie"
-							. " AND d.xDisziplin = w.xDisziplin";   
-                            
-$result = mysql_query($sql);
+// get round info           
+$sql = "SELECT 
+                DATE_FORMAT(r.Datum, '$cfgDBdateFormat')
+                , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+                , r.Bahnen
+                , rt.Name
+                , w.xWettkampf
+                , k.Name
+                , d.Name
+                , d.Typ
+                , w.Windmessung
+                , w.Info
+                , rt.Typ
+                , d.Staffellaeufer
+                , r.Gruppe
+                , w.Zeitmessung
+                , TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')
+                , TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')
+         FROM 
+                runde AS r
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
+                LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+         WHERE 
+                r.xRunde " . $sqlRound;    
+ 
+$result = mysql_query($sql);       
 
 if(mysql_errno() > 0)		// DB error
 {
@@ -338,79 +337,75 @@ else
 	{
 		// display all heats
 		if($relay == FALSE) {		// single event
-			$query = ("SELECT r.Bahnen"
-					. ", rt.Name"
-					. ", rt.Typ"
-					. ", s.Bezeichnung"
-					. ", ss.Position"
-					. ", an.Bezeichnung"
-					. ", a.Startnummer"
-					. ", at.Name"
-					. ", at.Vorname"
-					. ", at.Jahrgang"
-					. ", if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))"
-					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
-					. ", ss.Bahn"
-					. ", s.Film"
-					. ", IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land"  
-					. " FROM runde AS r"
-					. ", serie AS s"
-					. ", serienstart AS ss"
-					. ", start AS st"
-					. ", anmeldung AS a"
-					. ", athlet AS at"
-					. ", verein AS v"
-					. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
-					. " ON rt.xRundentyp = r.xRundentyp"
-					. " LEFT JOIN anlage AS an"
-					. " ON an.xAnlage = s.xAnlage"
-					. " LEFT JOIN team as t ON a.xTeam = t.xTeam"
-					. " LEFT JOIN region AS re ON at.xRegion = re.xRegion " 
-					. " WHERE r.xRunde = " . $round
-					. " AND s.xRunde = r.xRunde"
-					. " AND ss.xSerie = s.xSerie"
-					. " AND st.xStart = ss.xStart"
-					. " AND a.xAnmeldung = st.xAnmeldung"
-					. " AND at.xAthlet = a.xAthlet"
-					. " AND v.xVerein = at.xVerein"
-					. " ORDER BY heatid ". $order." , ss.Position");
+			
+            $query = "SELECT 
+                            r.Bahnen
+                            , rt.Name
+                            , rt.Typ
+                            , s.Bezeichnung
+                            , ss.Position
+                            , an.Bezeichnung
+                            , a.Startnummer
+                            , at.Name
+                            , at.Vorname
+                            , at.Jahrgang
+                            , if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))
+                            , LPAD(s.Bezeichnung,5,'0') as heatid
+                            , ss.Bahn
+                            , s.Film
+                            , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land  
+                     FROM 
+                            runde AS r
+                            LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                            LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                            LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                            LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                            LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                            LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                            LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                            LEFT JOIN team as t ON a.xTeam = t.xTeam
+                            LEFT JOIN region AS re ON at.xRegion = re.xRegion  
+                    WHERE 
+                            r.xRunde = " . $round ."                      
+                     ORDER BY heatid ". $order." , ss.Position";       
+                     
 		}
 		else {								// relay event
-			$query = ("SELECT r.Bahnen"
-					. ", rt.Name"
-					. ", rt.Typ"
-					. ", s.Bezeichnung"
-					. ", ss.Position"
-					. ", an.Bezeichnung"
-					. ", sf.xStaffel"
-					. ", sf.Name"
-					. ", if('$svm', t.Name, v.Name)"
-					. ", LPAD(s.Bezeichnung,5,'0') as heatid"
-					. ", r.xRunde"
-					. ", s.Film"
-					. ", sf.Startnummer"
-                    . ", ss.RundeZusammen"   
-					. " FROM runde AS r"
-					. ", serie AS s"
-					. ", serienstart AS ss"
-					. ", start AS st"
-					. ", staffel AS sf"
-					. ", verein AS v"
-					. " LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt"
-					. " ON rt.xRundentyp = r.xRundentyp"
-					. " LEFT JOIN anlage AS an"
-					. " ON an.xAnlage = s.xAnlage"
-					. " LEFT JOIN team AS t ON sf.xTeam = t.xTeam"
-					. " WHERE r.xRunde = " . $round
-					. " AND s.xRunde = r.xRunde"
-					. " AND ss.xSerie = s.xSerie"
-					. " AND st.xStart = ss.xStart"
-					. " AND sf.xStaffel = st.xStaffel"
-					. " AND v.xVerein = sf.xVerein"
-					. " ORDER BY heatid ". $order.", ss.Position");   
-		}       
-		$result = mysql_query($query);
-       
+			
+            $query = "SELECT 
+                            r.Bahnen
+                            , rt.Name
+                            , rt.Typ
+                            , s.Bezeichnung
+                            , ss.Position
+                            , an.Bezeichnung
+                            , sf.xStaffel
+                            , sf.Name
+                            , if('$svm', t.Name, v.Name)
+                            , LPAD(s.Bezeichnung,5,'0') as heatid
+                            , r.xRunde
+                            , s.Film
+                            , sf.Startnummer
+                            , ss.RundeZusammen   
+                     FROM 
+                            runde AS r
+                            LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                            LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                            LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                            LEFT JOIN staffel AS sf ON (sf.xStaffel = st.xStaffel )
+                            LEFT JOIN verein AS v ON (v.xVerein = sf.xVerein  )
+                            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                            LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                            LEFT JOIN team AS t ON sf.xTeam = t.xTeam
+                     WHERE 
+                            r.xRunde = " . $round ."                        
+                     ORDER BY heatid ". $order.", ss.Position";    
+                     
+		}  
+        
+        $result = mysql_query($query);       
+		
 		if(mysql_errno() > 0)		// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -536,26 +531,27 @@ else
                         else
                             $sqlRound=$row[10]; 
                             
-						// get the relay athletes
-						$res = mysql_query("SELECT at.Name"
-												. ", at.Vorname"
-												. ", sta.Position"
-												. ", IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land"
-												. " FROM athlet AS at"
-												. ", anmeldung AS a"
-												. ", start AS ss"
-												. ", staffelathlet AS sta"
-												. ", start AS st"
-												. " LEFT JOIN region AS re On (at.xRegion = re.xRegion) "
-												. " WHERE ss.xStaffel = " . $row[6]
-												. " AND sta.xStaffelstart = ss.xStart"
-												. " AND sta.xAthletenstart = st.xStart"
-												. " AND st.xAnmeldung = a.xAnmeldung"
-												. " AND a.xAthlet = at.xAthlet"  												
-												. " AND sta.xRunde = ". $sqlRound
-												. " ORDER BY sta.Position
-													LIMIT $maxRunners");    
-                                              
+						// get the relay athletes   
+                        $sql = "SELECT 
+                                    at.Name
+                                    , at.Vorname
+                                    , sta.Position
+                                    , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
+                                FROM 
+                                        athlet AS at
+                                        LEFT JOIN anmeldung AS a ON (a.xAthlet = at.xAthlet)                                                 
+                                        LEFT JOIN start AS st ON (st.xAnmeldung = a.xAnmeldung)
+                                        LEFT JOIN staffelathlet AS sta  ON (sta.xAthletenstart = st.xStart)
+                                        LEFT JOIN start AS ss ON (sta.xStaffelstart = ss.xStart)                                           
+                                        LEFT JOIN region AS re On (at.xRegion = re.xRegion) 
+                                WHERE 
+                                        ss.xStaffel = " . $row[6] ."                                          
+                                        AND sta.xRunde = ". $sqlRound ."
+                                ORDER BY sta.Position
+                                                    LIMIT $maxRunners";    
+                        
+                        $res = mysql_query($sql);          
+                        
 						if(mysql_errno() > 0)		// DB error
 						{
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

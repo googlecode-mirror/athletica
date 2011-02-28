@@ -169,14 +169,19 @@ if((!empty($event)) && (!empty($club)))		// category & club selected
 <form action='meeting_teamsm_add.php' method='post' name='entry'>
 <?php
 // get information about the selected event, category and club
-$res = mysql_query("SELECT d.Kurzname, k.Geschlecht FROM
-			wettkampf AS w
-			, disziplin_" . $_COOKIE['language'] . " AS d
-			, kategorie AS k
-		WHERE
-			xWettkampf = $event
-		AND	d.xDisziplin = w.xDisziplin
-		AND	k.xKategorie = w.xKategorie");
+
+$sql = "SELECT 
+            d.Kurzname, 
+            k.Geschlecht F
+        FROM
+            wettkampf AS w
+            LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d  ON (d.xDisziplin = w.xDisziplin)
+            LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+        WHERE
+            w.xWettkampf = " . $event;    
+ 
+$res = mysql_query($sql);
+
 $row = mysql_fetch_array($res);
 $disciplineName = $row[0];
 $categorySex = $row[1]; 

@@ -107,7 +107,7 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
            }
        }         
         if ($msgError == 0){        
-            mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
+            mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin_de READ, disziplin_de AS d READ, disziplin_fr READ,disziplin_fr AS d READ ,disziplin_it READ, disziplin_it AS d READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
 		       
             if (!is_array($_POST['athlete'])){
                 $tmp_athlete= $_POST['athlete'];
@@ -142,28 +142,31 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 				        $licence = (mysql_num_rows($query_xAthlet)==1 && mysql_result($query_xAthlet, 0, 'lizenznummer')!='') ? mysql_result($query_xAthlet, 0, 'lizenznummer') : '';
 				        $perf = 0;
 				        if($licence != ''){
-					        // need codes of category and discipline
-					        $res = mysql_query("
-						        SELECT d.Code, kategorie.Code, d.Typ FROM
-							        disziplin_" . $_COOKIE['language'] . " AS d
-							        , kategorie
-							        , wettkampf
-						        WHERE	wettkampf.xWettkampf = ".$_POST['event']."
-						            AND	wettkampf.xDisziplin = d.xDisziplin
-						            AND	wettkampf.xKategorie = kategorie.xKategorie");
-					
+					        // need codes of category and discipline     
+                            $sql = "SELECT 
+                                        d.Code, 
+                                        k.Code, 
+                                        d.Typ 
+                                      FROM
+                                        disziplin_" . $_COOKIE['language'] . " AS d
+                                        LEFT JOIN wettkampf AS w ON (w.xDisziplin = d.xDisziplin)
+                                        LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)     
+                                      WHERE
+                                           w.xWettkampf = ".$_POST['event'];   
+                            $res = mysql_query($sql);
+                           
 					        if($res){
 						        $rowCodes = mysql_fetch_array($res);
 						        $res = mysql_query("
 							        SELECT
-								        base_performance.best_effort
-								        , base_performance.season_effort
+								        bp.best_effort
+								        , bp.season_effort
 							        FROM
-								        base_performance
-								        , base_athlete
-							        WHERE	base_athlete.license = ".$licence."
-							        AND	base_performance.id_athlete = base_athlete.id_athlete
-							        AND	base_performance.discipline = ".$rowCodes[0]);
+								        base_performance AS bp
+								        LEFT JOIN base_athlete AS bat ON (bp.id_athlete = bat.id_athlete)
+							        WHERE	bat.license = ".$licence."
+							        AND	bp.id_athlete = bat.id_athlete
+							        AND	bp.discipline = ".$rowCodes[0]);
 					        }
 					        if(mysql_errno() > 0){  
 						        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -315,40 +318,36 @@ else
 
 if($_POST['item'] > 0){
 
-// get team
-$result = mysql_query("
-	SELECT
-		t.Name
-		, k.Kurzname
-		, d.Kurzname
-		, k2.Kurzname
-		, t.xVerein
-		, t.xWettkampf
-		, a.xAnmeldung
-		, a.Startnummer
-		, at.Name
-		, at.Vorname
-		, at.Jahrgang 
+// get team       
+   $sql = "SELECT
+        t.Name
+        , k.Kurzname
+        , d.Kurzname
+        , k2.Kurzname
+        , t.xVerein
+        , t.xWettkampf
+        , a.xAnmeldung
+        , a.Startnummer
+        , at.Name
+        , at.Vorname
+        , at.Jahrgang 
         , t.Startnummer         
-	FROM
-		teamsm AS t
-		LEFT JOIN teamsmathlet AS tsa USING(xTeamsm)
-		LEFT JOIN anmeldung AS a USING(xAnmeldung)
-		LEFT JOIN athlet AS at USING(xAthlet)
-		, kategorie AS k
-		, kategorie AS k2
-		, wettkampf AS w
-		, disziplin_" . $_COOKIE['language'] . " AS d
-	WHERE
-		t.xTeamsm = ".$_POST['item']."
-	AND	k.xKategorie = t.xKategorie
-	AND	w.xWettkampf = t.xWettkampf
-	AND	d.xDisziplin = w.xDisziplin
-	AND	k2.xKategorie = w.xKategorie
-	ORDER BY
-		a.Startnummer
-");
-    
+    FROM
+        teamsm AS t
+        LEFT JOIN teamsmathlet AS tsa USING(xTeamsm)
+        LEFT JOIN anmeldung AS a USING(xAnmeldung)
+        LEFT JOIN athlet AS at USING(xAthlet)
+        LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
+        LEFT JOIN wettkampf AS w ON (w.xWettkampf = t.xWettkampf)
+        LEFT JOIN kategorie AS k2 ON (k2.xKategorie = w.xKategorie)   
+        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON ( d.xDisziplin = w.xDisziplin)
+    WHERE
+        t.xTeamsm = ".$_POST['item']."  
+    ORDER BY
+        a.Startnummer";   
+ 
+$result = mysql_query($sql);
+
 if(mysql_errno() > 0)		// DB error
 {              
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -451,15 +450,13 @@ else if(mysql_num_rows($result) > 0)  // data found
 				, CONCAT(a.Startnummer, '. ', at.Name, ' ', at.Vorname, ' ( ' , at.Jahrgang, ' )')
 			FROM
 				anmeldung AS a
-				, athlet AS at
-				, start AS st
+				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+				LEFT JOIN start AS st ON (a.xAnmeldung = st.xAnmeldung)
 				LEFT JOIN teamsmathlet AS tsa ON (tsa.xAnmeldung = a.xAnmeldung
 					AND tsa.xTeamsm = ".$_POST['item'].")
 			WHERE
 				tsa.xTeamsm IS NULL
-			AND	st.xWettkampf = $event
-			AND	a.xAnmeldung = st.xAnmeldung
-			AND	at.xAthlet = a.xAthlet
+			AND	st.xWettkampf = $event			
 			AND	at.xVerein = $club
 			ORDER BY
 				at.Name
@@ -501,15 +498,13 @@ else if(mysql_num_rows($result) > 0)  // data found
 				, CONCAT(a.Startnummer, '. ', at.Name, ' ', at.Vorname, ' ( ' , at.Jahrgang, ' )')
 			FROM
 				anmeldung AS a
-				, athlet AS at
+				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 				LEFT JOIN teamsmathlet AS tsa ON (tsa.xAnmeldung = a.xAnmeldung
 					AND tsa.xTeamsm = ".$_POST['item'].")
 				LEFT JOIN start AS st ON (st.xAnmeldung = a.xAnmeldung
 					AND st.xWettkampf = $event)
 			WHERE
-				tsa.xTeamsm IS NULL
-			
-			AND	at.xAthlet = a.xAthlet
+				tsa.xTeamsm IS NULL  
 			AND	at.xVerein $sqlClubLG      
 			AND	a.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
@@ -543,12 +538,11 @@ else if(mysql_num_rows($result) > 0)  // data found
 				, CONCAT(a.Startnummer, '. ', at.Name, ' ', at.Vorname, ' ( ' , at.Jahrgang, ' )')
 			FROM
 				anmeldung AS a
-				, athlet AS at
+				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 				LEFT JOIN teamsmathlet AS tsa ON (tsa.xAnmeldung = a.xAnmeldung
 					AND tsa.xTeamsm = ".$_POST['item'].")
 			WHERE
-				tsa.xTeamsm IS NULL
-			AND	at.xAthlet = a.xAthlet
+				tsa.xTeamsm IS NULL 			
 			AND	a.xMeeting = ".$_COOKIE['meeting_id']."
 			ORDER BY
 				at.Name

@@ -112,7 +112,7 @@ $eventTypeCat = AA_getEventTypesCat();
                 <?php
                 for ($i=1;$i<=99;$i++){
                     ?>
-                    <option value="<?=$i?>"><?=$i?></option>
+                    <option value="<?php echo $i?>"><?php echo $i?></option>
                     <?php
                 }
                 ?>

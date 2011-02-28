@@ -72,11 +72,11 @@ $sql = "SELECT
                 MIN(k.Alterslimite) as min_agelimit, 
                 b.sex                
           FROM 
-                base_athlete AS b,  
-                kategorie AS k 
+                base_athlete AS b 
+                LEFT JOIN kategorie AS k ON ( b.license_cat = k.Code OR ( $today  - substring( b.birth_date, 1, 4 ) ) <= k.Alterslimite ) 
           WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId."  
                 AND b.sex = k.Geschlecht and k.aktiv = 'y'  
-                AND ( ( ($today - substring( b.birth_date, 1, 4  ))  <= k.Alterslimite )  OR  (b.license_cat = k.Code)  )
+                
           GROUP BY b.id_athlete
           ORDER BY lastname DESC, 
                    firstname DESC, k.Alterslimite ASC";               
@@ -182,11 +182,9 @@ if(mysql_errno > 0){
 				, k.xKategorie
 			FROM
 				disziplin_" . $_COOKIE['language'] . " AS d
-				, wettkampf as w
-				, kategorie as k
-			WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."
-			AND w.xDisziplin = d.xDisziplin
-			AND w.xKategorie = k.xKategorie
+				INNER JOIN wettkampf as w ON ( w.xDisziplin = d.xDisziplin)
+                LEFT JOIN kategorie as k ON (w.xKategorie = k.xKategorie)
+			WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."  			
 			ORDER BY
 				k.Kurzname, w.Mehrkampfcode, d.Anzeige
 		");

@@ -121,42 +121,37 @@ else {
 if($_GET['cover'] == 'cover') {		// print cover page
 	$doc->printCover("$strEntries $strRelays");
 	printf("<p/>");
-}
+}           
 
-$result = mysql_query("
-	SELECT
-		s.xStaffel
-		, s.Name
-		, d.Kurzname
-		, d.Name
-		, k.Kurzname
-		, k.Name
-		, st.xStart
-		, v.Name
-		, t.Name
-		, st.Bestleistung
-		, s.Startnummer
-	FROM
-		start AS st
-		, staffel AS s
-		, disziplin_" . $_COOKIE['language'] . " AS d
-		, kategorie AS k
-		, verein AS v
-		, wettkampf AS w
-	LEFT JOIN team AS t
-		ON s.xTeam = t.xTeam
-	WHERE s.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND s.xVerein = v.xVerein
-	AND s.xKategorie = k.xKategorie
-	AND s.xStaffel = st.xStaffel
-	AND st.xWettkampf = w.xWettkampf
-	AND w.xDisziplin = d.xDisziplin
-	$cat_clause
-	$disc_clause
-	$club_clause
-	ORDER BY
-		$argument
-");
+    $sql = "SELECT
+                s.xStaffel
+                , s.Name
+                , d.Kurzname
+                , d.Name
+                , k.Kurzname
+                , k.Name
+                , st.xStart
+                , v.Name
+                , t.Name
+                , st.Bestleistung
+                , s.Startnummer
+            FROM
+                start AS st
+                LEFT JOIN staffel AS s ON (s.xStaffel = st.xStaffel)
+                LEFT JOIN wettkampf AS w ON (st.xWettkampf = w.xWettkampf)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin)
+                LEFT JOIN kategorie AS k ON (s.xKategorie = k.xKategorie)
+                LEFT JOIN verein AS v ON (s.xVerein = v.xVerein)                 
+                LEFT JOIN team AS t ON s.xTeam = t.xTeam
+            WHERE 
+                s.xMeeting = " . $_COOKIE['meeting_id'] . "  
+                $cat_clause
+                $disc_clause
+                $club_clause
+            ORDER BY
+                $argument";    
+        
+        $result = mysql_query($sql);    
 
 if(mysql_errno() > 0)		// DB error
 {
@@ -205,28 +200,26 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$doc->printLine($name, $cat, $club, $disc, $perf, $startnbr);
 			}
 
-			$athletes = '';
-			$res = mysql_query("
-				SELECT
-					a.Startnummer
-					, at.Name
-					, at.Vorname
-				FROM
-					athlet AS at
-					, anmeldung AS a
-					, start AS ss
-					, staffelathlet AS sta
-					, start AS st
-				WHERE ss.xStaffel = $s
-				AND sta.xStaffelstart = ss.xStart
-				AND sta.xAthletenstart = st.xStart
-				AND st.xAnmeldung = a.xAnmeldung
-				AND a.xAthlet = at.xAthlet
-				group by
-					sta.xAthletenstart
-				ORDER BY
-					sta.Position
-			");
+			$athletes = '';     
+                    
+            $sql = "SELECT
+                            a.Startnummer
+                            , at.Name
+                            , at.Vorname
+                    FROM
+                            athlet AS at
+                            LEFT JOIN anmeldung AS a ON (a.xAthlet = at.xAthlet)
+                            LEFT JOIN start AS st ON (st.xAnmeldung = a.xAnmeldung)
+                            LEFt JOIN staffelathlet AS sta ON (sta.xAthletenstart = st.xStart )
+                            LEFT JOIN start AS ss ON (sta.xStaffelstart = ss.xStart )  
+                    WHERE 
+                        ss.xStaffel = $s   
+                    GROUP BY
+                        sta.xAthletenstart
+                    ORDER BY
+                        sta.Position";   
+           
+            $res = mysql_query($sql);    
             
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -362,28 +355,26 @@ else if(mysql_num_rows($result) > 0)  // data found
 
 		$l++;			// increment line count
 
-		$athletes = '';
-		$res = mysql_query("
-			SELECT
-				a.Startnummer
-				, at.Name
-				, at.Vorname
-			FROM
-				athlet AS at
-				, anmeldung AS a
-				, start AS ss
-				, staffelathlet AS sta
-				, start AS st
-			WHERE ss.xStaffel = $s
-			AND sta.xStaffelstart = ss.xStart
-			AND sta.xAthletenstart = st.xStart
-			AND st.xAnmeldung = a.xAnmeldung
-			AND a.xAthlet = at.xAthlet
-			group by
-				sta.xAthletenstart
-			ORDER BY
-				sta.Position
-		");
+		$athletes = '';      		
+		
+        $sql = "SELECT
+                    a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                FROM
+                    athlet AS at
+                    LEFT JOIN anmeldung AS a ON (a.xAthlet = at.xAthlet  )
+                    LEFT JOIN start AS st ON (st.xAnmeldung = a.xAnmeldung)
+                    LEFt JOIN staffelathlet AS sta ON (sta.xAthletenstart = st.xStart)  
+                    LEFT JOIN start AS ss ON (sta.xStaffelstart = ss.xStart)  
+                WHERE 
+                    ss.xStaffel = $s  
+                GROUP BY
+                    sta.xAthletenstart
+                ORDER BY
+                    sta.Position";     
+         
+        $res = mysql_query($sql);         
       
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
