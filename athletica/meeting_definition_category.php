@@ -15,7 +15,7 @@ require('./lib/cl_gui_select.lib.php');
 require('./lib/cl_timetable.lib.php');
 
 require('./lib/meeting.lib.php');
-require('./lib/common.lib.php');
+require('./lib/common.lib.php');    
 
               
 if(AA_connectToDB() == FALSE)	// invalid DB connection
@@ -44,7 +44,7 @@ else if(!empty($_GET['cat'])) {
  $nulltime_exist = false;     
 //
 // Process changes to meeting data
-//
+//         
 
 // change all events of a category
 if ($_POST['arg']=="change_cat")
@@ -62,6 +62,7 @@ else if ($_POST['arg']=="change_event_discipline")
 {
 	AA_meeting_changeEventDiscipline();
 }
+        
 // change type of combined event (needed for bestlist)
 else if($_POST['arg']=="change_combtype"){
 	
@@ -178,10 +179,10 @@ else if($_POST['arg']=="change_svmcat"){
                          // add new svm event   
                        
                         AA_Meeting_getEventType(); 
-                            
+                        
                         $_POST['date']=$_SESSION['meeting_infos']['DatumVon'];  
                         AA_meeting_addSVMEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100); 
-                                                                                                                            
+                        
                 }
                 
              mysql_query("UNLOCK TABLES");  
@@ -207,9 +208,9 @@ elseif($_POST['arg']=="add_svmcat"){
     AA_Meeting_getEventType(); 
     
     $_POST['date']=$_SESSION['meeting_infos']['DatumVon']; 
-       
+   
     AA_meeting_addSVMEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);    
- 
+       
     if ($GLOBALS['AA_ERROR'] != '')
         {
         AA_printErrorMsg($GLOBALS['AA_ERROR']);  
@@ -574,7 +575,7 @@ $sql = "SELECT
 			, w.Mehrkampfreihenfolge
 			, d.Anzeige;";
 
-$result = mysql_query($sql);   
+$result = mysql_query($sql); 
 
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -593,7 +594,7 @@ else			// no DB error
     $keep_key = 0;         // keep the key for the svm disciplin with nulltime
                      	
 	while ($row = mysql_fetch_row($result))
-	{   
+	{    
         if ($i==0){
             if (!empty($row[8])){
                 $svm=$row[8];  
@@ -716,7 +717,7 @@ else			// no DB error
 		<select name="svmcategory" onchange="document.svmcat.submit()">
 			<option value="-">-</option>
 				<?php
-				$res_comb = mysql_query("select xKategorie_SVM, Name from kategorie_svm");
+				$res_comb = mysql_query("select xKategorie_SVM, Name from kategorie_svm ORDER BY Code");
 				if(mysql_errno() > 0) {	// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}else{
@@ -813,7 +814,7 @@ else			// no DB error
 			<?php
 			if($row[3]==$cvtTable[$strConvtableRankingPoints] || $row[3]==$cvtTable[$strConvtableRankingPointsU20]){
 				?>
-				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $row[0]; ?>.arg.value='change_formula'; 
+				<input type="text" name="formula" value="<?php echo $row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $row[0]; ?>.arg.value='change_formula'; 
 					document.event_<?php echo $row[0]; ?>.submit()"/>     			  
 				<?php
 			} else {
@@ -1064,13 +1065,7 @@ else			// no DB error
                      if (isset($cfgCombinedWO[$tt])){
                          $fix_disc = true;
                      }
-                     elseif ($tt == 'ACup'){
-                         $tt_AC = $tt ."_" .$row[5]; 
-                          if (isset($cfgCombinedWO[$tt_AC])){ 
-                                $fix_disc = true;   
-                          }
-                     }
-                     
+                    
 					?>
 					<td class='dialog'>            
 					<input name='cmbtype' type='hidden' value='<?php echo $t; ?>' />
@@ -1119,6 +1114,7 @@ else			// no DB error
                    
                     } 
                     $c++;    
+                  
 				// count of combined disciplines  
 				}
 				 else {                    
@@ -1152,7 +1148,7 @@ else			// no DB error
 				<?php
 			} elseif($row[3]==$cvtTable[$strConvtableRankingPoints] || $row[3]==$cvtTable[$strConvtableRankingPointsU20]){
 				?>
-				<input type="text" name="formula" value="<?=$row[4]?>" style="width: 45px;" onchange="document.event_<?php echo $row[0] ?>.arg.value='change_formula'; 
+				<input type="text" name="formula" value="<?php echo $row[4]; ?>" style="width: 45px;" onchange="document.event_<?php echo $row[0] ?>.arg.value='change_formula'; 
 					document.event_<?php echo $row[0] ?>.submit()"/>
 				<?php
 			} else {
@@ -1535,7 +1531,7 @@ else			// no DB error
 			<form action='meeting_definition_category.php' method='post' name='newdiscipline_<?php echo $comb ?>'>
 			<input name='arg' type='hidden' value='new_discipline' />
 			<input name='cat' type='hidden' value='<?php echo $cCategory; ?>' />
-			<input name='punktetabelle' type='hidden' value='<?=$punktetabelle?>' />
+			<input name='punktetabelle' type='hidden' value='<?php echo $punktetabelle; ?>' />
 			<input name='combtype' type='hidden' value='<?php echo $comb; ?>' />
 			<?php if (!$fix_disc) { $dd = new GUI_DisciplineDropDown(0, true, false, $keys, "document.newdiscipline_$comb.submit()");} ?>
 			<td class='dialog' colspan='6'></td>
@@ -1552,7 +1548,7 @@ else			// no DB error
 	<th class='dialog'><?php echo $strEventType; ?></th>
 </tr>
 <tr>
-	<form action='meeting_definition_category.php?arg=create_combined&cat=<?=$_GET['cat']?>' method='post' name='frmType'>
+	<form action='meeting_definition_category.php?arg=create_combined&cat=<?php echo $_GET['cat']; ?>' method='post' name='frmType'>
 <?php
 			// event type drop down
 			$sel = (isset($_POST['change_type'])) ? $_POST['change_type'] : $cfgEventType[$strEventTypeSingleCombined];
@@ -1635,7 +1631,7 @@ else			// no DB error
         <select name="svmcategory" onchange="document.svmcat.submit()">
             <option value="-">-</option>
                 <?php
-                $res_comb = mysql_query("select xKategorie_SVM, Name from kategorie_svm");
+                $res_comb = mysql_query("select xKategorie_SVM, Name from kategorie_svm ORDER BY Code");
                 if(mysql_errno() > 0) {    // DB error
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }else{
