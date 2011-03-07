@@ -340,10 +340,10 @@ else if ($_POST['arg'] == 'restore')
 		if($error_msg!=''){
 			?>
 			<tr>
-				<th class='bestlistupdate'><?=$strError?></th>
+				<th class='bestlistupdate'><?php echo $strError;?></th>
 			</tr>
 			<tr class="odd">
-				<td><?=$error_msg?></td>
+				<td><?php echo $error_msg; ?></td>
 			</tr>
 			<?php
 			if($error_type==1){
@@ -352,13 +352,13 @@ else if ($_POST['arg'] == 'restore')
 					?>
 					<tr class="odd">
 						<td>
-							<br/><?=$strMaxFileSizeOK?><br/>
+							<br/><?php echo $strMaxFileSizeOK; ?><br/>
 							<ol>
-								<li><?=$strMaxFileSize1?><br/><br/></li>
-								<li><?=$strMaxFileSize2?><br/><br/></li>
-								<li><?=$strMaxFileSize7?><br/><br/></li>
-								<li><?=$strMaxFileSize8?><br/><br/></li>
-								<li><?=$strMaxFileSize6?></li>
+								<li><?php echo $strMaxFileSize1; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize2; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize7; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize8; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize6; ?></li>
 							</ol>
 						</td>
 					</tr>
@@ -369,20 +369,20 @@ else if ($_POST['arg'] == 'restore')
 					?>
 					<tr class="odd">
 						<td>
-							<br/><?=$strMaxFileSizeCorrect?><br/>
+							<br/><?php echo $strMaxFileSizeCorrect; ?><br/>
 							<ol>
-								<li><?=$strMaxFileSize1?><br/><br/></li>
-								<li><?=$strMaxFileSize2?><br/><br/></li>
-								<li><?=$strMaxFileSize3?><br/><br/></li>
+								<li><?php echo $strMaxFileSize1; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize2; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize3; ?><br/><br/></li>
 								<li>
-									<?=$strMaxFileSize4?><br/><br/>
+									<?php echo $strMaxFileSize4; ?><br/><br/>
 									<div class="code">
 										; Maximum allowed size for uploaded files.<br/>
-										upload_max_filesize = <?=$upload_max_filesize?>
+										upload_max_filesize = <?php echo $upload_max_filesize ?>
 									</div><br/>
 								</li>
-								<li><?=$strMaxFileSize5?><br/><br/></li>
-								<li><?=$strMaxFileSize6?></li>
+								<li><?php echo $strMaxFileSize5; ?><br/><br/></li>
+								<li><?php echo $strMaxFileSize6; ?></li>
 							</ol>
 						</td>
 					</tr>
@@ -392,7 +392,7 @@ else if ($_POST['arg'] == 'restore')
 			?>
 			<tr class="even">
 				<td>
-					<input type="button" name="btnBack" value="<?=$strBack?>" class="uploadbutton" onclick="document.location.href = 'admin.php';"/>
+					<input type="button" name="btnBack" value="<?php echo $strBack; ?>" class="uploadbutton" onclick="document.location.href = 'admin.php';"/>
 				</td>
 			</tr>
 			<?php
@@ -820,7 +820,7 @@ else if ($_POST['arg'] == 'restore')
 												, 'MASW'
 												, 'w');");
 			} 
-           
+            
             if($shortVersion < 3.4){ 
                  // correct categories without gender
                  mysql_query("UPDATE kategorie SET Geschlecht = 'w' WHERE Code = 'MASW'");    
@@ -835,28 +835,7 @@ else if ($_POST['arg'] == 'restore')
                  mysql_query("UPDATE kategorie SET Geschlecht = 'm' WHERE Code = 'U14M'");    
                  mysql_query("UPDATE kategorie SET Geschlecht = 'm' WHERE Code = 'U12M'");    
                  mysql_query("UPDATE kategorie SET Geschlecht = 'm' WHERE Code = 'U10M'");      
-                 // special categories athletic cup
-                 mysql_query("INSERT IGNORE INTO kategorie (Kurzname, Name, Anzeige, Alterslimite , Code, Geschlecht, aktiv) VALUES 
-                            ( 'M15', 'U16 M15', 21, 15, '' , 'm', 'n'),
-                            ( 'M14', 'U16 M14', 22, 14, '' , 'm', 'n'),
-                            ( 'M13', 'U14 M13', 23, 13, '' , 'm', 'n'),
-                            ( 'M12', 'U14 M12', 24, 12, '' , 'm', 'n'),
-                            ( 'M11', 'U12 M11', 25, 11, '' , 'm', 'n'),
-                            ( 'M10', 'U12 M10', 26, 10, '' , 'm', 'n'),
-                            ( 'M09', 'U10 M09', 27, 9, '' , 'm', 'n'), 
-                            ( 'M08', 'U10 M08', 28, 8, '' , 'm', 'n'), 
-                            ( 'M07', 'U08 M07', 29, 7, '' , 'm', 'n'), 
-                            ( 'W15', 'U16 W15', 31, 15, '' , 'w', 'n'),
-                            ( 'W14', 'U16 W14', 32, 14, '' , 'w', 'n'),
-                            ( 'W13', 'U14 W13', 33, 13, '' , 'w', 'n'),
-                            ( 'W12', 'U14 W12', 34, 12, '' , 'w', 'n'),
-                            ( 'W11', 'U12 W11', 35, 11, '' , 'w', 'n'),
-                            ( 'W10', 'U12 W10', 36, 10, '' , 'w', 'n'),
-                            ( 'W09', 'U10 W09', 37, 9, '' , 'w', 'n'), 
-                            ( 'W08', 'U10 W08', 38, 8, '' , 'w', 'n'), 
-                            ( 'W07', 'U08 W07', 39, 7, '' , 'w', 'n')");   
                 
-                      
                  mysql_query("INSERT IGNORE INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES 
                                         ('...KAMPF', '...kampf', 393, 6, 0, 9, '01:00:00','00:15:00', 4, 799, 1)"); 
                  mysql_query("DELETE FROM `disziplin_de` WHERE Code = 404");   
@@ -1780,6 +1759,55 @@ else if ($_POST['arg'] == 'restore')
                    mysql_query("UPDATE `rundentyp_it` SET Name = '(senza)' WHERE Typ = '0'");
              }
              
+             if ($shortVersion < 4.2)  {
+              // special categories athletic cup
+                 mysql_query("INSERT IGNORE INTO kategorie (Kurzname, Name, Anzeige, Alterslimite , Code, Geschlecht, aktiv, UKC) VALUES 
+                            ( 'M15', 'U16 M15', 21, 15, 'M15' , 'm', 'y', 'y'),
+                            ( 'M14', 'U16 M14', 22, 14, 'M14' , 'm', 'y', 'y'),
+                            ( 'M13', 'U14 M13', 23, 13, 'M13' , 'm', 'y', 'y'),
+                            ( 'M12', 'U14 M12', 24, 12, 'M12' , 'm', 'y', 'y'),
+                            ( 'M11', 'U12 M11', 25, 11, 'M11' , 'm', 'y', 'y'),
+                            ( 'M10', 'U12 M10', 26, 10, 'M10' , 'm', 'y', 'y'),
+                            ( 'M09', 'U10 M09', 27, 9, 'M09' , 'm', 'y', 'y'), 
+                            ( 'M08', 'U10 M08', 28, 8, 'M08' , 'm', 'y', 'y'), 
+                            ( 'M07', 'U08 M07', 29, 7, 'M07' , 'm', 'y', 'y'), 
+                            ( 'W15', 'U16 W15', 31, 15, 'W15' , 'w', 'y', 'y'),
+                            ( 'W14', 'U16 W14', 32, 14, 'W14' , 'w', 'y', 'y'),
+                            ( 'W13', 'U14 W13', 33, 13, 'W13' , 'w', 'y', 'y'),
+                            ( 'W12', 'U14 W12', 34, 12, 'W12' , 'w', 'y', 'y'),
+                            ( 'W11', 'U12 W11', 35, 11, 'W11' , 'w', 'y', 'y'),
+                            ( 'W10', 'U12 W10', 36, 10, 'W10' , 'w', 'y', 'y'),
+                            ( 'W09', 'U10 W09', 37, 9, 'W09' , 'w', 'y', 'y'), 
+                            ( 'W08', 'U10 W08', 38, 8, 'W08' , 'w', 'y', 'y'), 
+                            ( 'W07', 'U08 W07', 39, 7, 'W07' , 'w', 'y', 'y')");   
+                            
+                mysql_query("ALTER TABLE wettkampf CHANGE Info Info varchar(50)");            ;
+                mysql_query("INSERT INTO `kategorie_svm` VALUES (36, '32.07 Regionalliga B Männer', '32_07')");
+                mysql_query("INSERT INTO `kategorie_svm` VALUES (37, '32.08 Regionalliga B Frauen', '32_08')");
+                
+                mysql_query("UPDATE `kategorie_svm` SET Name = '32.01 Regionalliga A Ost Männer' WHERE Code = '32_01'");
+                mysql_query("UPDATE `kategorie_svm` SET Name = '32.02 Regionalliga A West Männer' WHERE Code = '32_02'");   
+                mysql_query("UPDATE `kategorie_svm` SET Name = '32.03 Regionalliga A Ost Frauen' WHERE Code = '32_03'");   
+                mysql_query("UPDATE `kategorie_svm` SET Name = '32.04 Regionalliga A West Frauen' WHERE Code = '32_04'");   
+                mysql_query("UPDATE `kategorie_svm` SET Name = '32.05 Regionalliga A Mitte Männer' WHERE Code = '32_05'");   
+                mysql_query("UPDATE `kategorie_svm` SET Name = '32.06 Regionalliga A Mitte Frauen' WHERE Code = '32_06'");   
+                
+                mysql_query("ALTER TABLE anmeldung ADD KidID int(11) DEFAULT 0 AFTER Anmeldenr_ZLV");
+                mysql_query("ALTER TABLE anmeldung ADD Angemeldet enum('y','n') DEFAULT 'n' AFTER KidID");
+                mysql_query("ALTER TABLE kategorie ADD UKC enum('y','n') DEFAULT 'n' AFTER aktiv");
+                mysql_query("ALTER TABLE athlet ADD Adresse varchar(25) DEFAULT '' AFTER Manuell");
+                mysql_query("ALTER TABLE athlet ADD Plz int(6) DEFAULT 0 AFTER Adresse");  
+                mysql_query("ALTER TABLE athlet ADD Ort varchar(25) DEFAULT '' AFTER Plz");  
+                mysql_query("ALTER TABLE athlet ADD Email varchar(25) DEFAULT '' AFTER Ort");  
+                mysql_query("ALTER TABLE region ADD UKC enum('y','n') DEFAULT 'n' AFTER Sortierwert");  
+                mysql_query("INSERT INTO region (xRegion, Name, Anzeige, Sortierwert , UKC) VALUES ( '27', 'Liechtenstein', 'FL', 126, 'y')");     
+                mysql_query("INSERT INTO `verein` (`xVerein`, `Name`, `Sortierwert`, `xCode`, `Geloescht`) VALUES ('999999', '', '', 'UKC', '0');");
+                mysql_query("ALTER TABLE athlet DROP KEY `Athlet`;"); 
+                mysql_query("ALTER TABLE athlet ADD UNIQUE KEY `Athlet` (`Name`,`Vorname`,`Geburtstag`,`xVerein`)"); 
+                mysql_query("UPDATE region SET Name = 'Graubünden' WHERE xRegion = 10"); 
+                mysql_query("UPDATE region SET Name = 'Zürich' WHERE xRegion = 26");         
+                 
+             }   
 			// security updates
 			mysql_query("UPDATE kategorie 
 							SET Code = 'U10M' 
@@ -2118,7 +2146,7 @@ else if ($_POST['arg'] == 'restore')
 		// output information about number of truncate and insert statements
 		echo "<tr><td class='dialog'>";
 		if ($skipped_basetables == true){
-			echo "<br><br><br>".$strBackupBaseTablesSkipped." ";?><input type="button" value="<?=$strBaseUpdate?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
+			echo "<br><br><br>".$strBackupBaseTablesSkipped." ";?><input type="button" value="<?php echo $strBaseUpdate; ?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'"><?php
 		}
 		if ($timing_errors>0){
 			echo '<br><br><br><b style="color: #FF0000">'.$strBackupTimingReset.'</b>';
