@@ -7,7 +7,7 @@
  *	
  */     
 require('./lib/cl_gui_entrypage.lib.php');
-require('./lib/cl_print_entrypage.lib.php');
+require('./lib/cl_print_entrypage.lib.php');        
 require('./lib/cl_export_entrypage.lib.php');
 require('./lib/common.lib.php');
 
@@ -46,87 +46,75 @@ if (!empty($_GET['item'])){               // athlete selected  from meeting_entr
 }
 
 $print = false;
-if($_GET['formaction'] == 'print') {		// page for printing 
-	$print = true;
+if($_GET['formaction'] == 'print') {        // page for printing 
+    $print = true;
 } 
                 
   
 // start a new HTML page for printing
                                             
-	if($print == true) { 
-		$doc = new PRINT_ReceiptEntryPage($_COOKIE['meeting']);  
-    } 
-       
+    if($print == true) { 
+        $doc = new PRINT_ReceiptEntryPage($_COOKIE['meeting']);  
+    }        
                  
     $reduction=AA_getReduction(); 
   
     $date=date("d.m.Y");      
- 
-    $result = mysql_query("
-	SELECT DISTINCT a.xAnmeldung
-		, a.Startnummer
-		, at.Name
-		, at.Vorname
-		, at.Jahrgang
-		, k.Kurzname
-		, k.Name
-		, v.Name
-		, t.Name
-		, d.Kurzname
-		, d.Name
-		, d.Typ
-		, s.Bestleistung
-		, if(at.xRegion = 0, at.Land, re.Anzeige)
-		, ck.Kurzname
-		, ck.Name
-		, s.Bezahlt
-		, w.Info
-		, d2.Kurzname
-		, d2.Name
-		, v.Sortierwert
-		, k.Anzeige
-        , w.Startgeld  
-        , m.Name   
-        , m.Ort 
-        , m.DatumVon  
-        , m.DatumBis
-        , sd.Name    
-        , m.Organisator    
-	FROM
-		anmeldung AS a
-		, athlet AS at
-		, disziplin_" . $_COOKIE['language'] . " AS d
-		, kategorie AS k
-		, kategorie AS ck
-		, start AS s
-		, verein AS v
-		, wettkampf AS w
-    LEFT JOIN runde AS r 
-        ON (s.xWettkampf = r.xWettkampf) 
-	LEFT JOIN team AS t
-		ON a.xTeam = t.xTeam
-	LEFT JOIN region as re 
-		ON at.xRegion = re.xRegion
-	LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 
-		ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
-    LEFT JOIN meeting AS m ON (a.xMeeting = m.xMeeting)  
-    LEFT JOIN stadion AS sd ON (m.xStadion = sd.xStadion)  
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "
-	AND a.xAthlet = at.xAthlet
-	AND at.xVerein = v.xVerein
-	AND a.xKategorie = k.xKategorie
-	AND s.xAnmeldung = a.xAnmeldung
-	AND w.xWettkampf = s.xWettkampf
-	AND ck.xKategorie = w.xKategorie
-	AND d.xDisziplin = w.xDisziplin  
-	$club_clause  
-    $date_clause
-    $athlete_clause
-	$limitNrSQL
-	ORDER BY
-		$argument
-    
-");     
+  
+    $sql = "SELECT 
+                DISTINCT a.xAnmeldung
+                , a.Startnummer
+                , at.Name
+                , at.Vorname
+                , at.Jahrgang
+                , k.Kurzname
+                , k.Name
+                , v.Name
+                , t.Name
+                , d.Kurzname
+                , d.Name
+                , d.Typ
+                , s.Bestleistung
+                , if(at.xRegion = 0, at.Land, re.Anzeige)
+                , ck.Kurzname
+                , ck.Name
+                , s.Bezahlt
+                , w.Info
+                , d2.Kurzname
+                , d2.Name
+                , v.Sortierwert
+                , k.Anzeige
+                , w.Startgeld  
+                , m.Name   
+                , m.Ort 
+                , m.DatumVon  
+                , m.DatumBis
+                , sd.Name    
+                , m.Organisator    
+             FROM
+                anmeldung AS a
+                LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet
+                LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung)
+                LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d  ON (d.xDisziplin = w.xDisziplin)
+                LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie   )
+                LEFT JOIN kategorie AS ck ON (ck.xKategorie = w.xKategorie)   
+                LEFt JOIN verein AS v ON (at.xVerein = v.xVerein)    
+                LEFT JOIN runde AS r ON (s.xWettkampf = r.xWettkampf) 
+                LEFT JOIN team AS t ON a.xTeam = t.xTeam
+                LEFT JOIN region as re ON at.xRegion = re.xRegion
+                LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d2 ON (w.Typ = 1 AND w.Mehrkampfcode = d2.Code)
+                LEFT JOIN meeting AS m ON (a.xMeeting = m.xMeeting)  
+                LEFT JOIN stadion AS sd ON (m.xStadion = sd.xStadion)  
+            WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "     
+                $club_clause  
+                $date_clause
+                $athlete_clause
+                $limitNrSQL
+            ORDER BY
+                $argument";      
+        
+        $result = mysql_query($sql);    
  
 if(mysql_errno() > 0)		// DB error
 {
@@ -152,7 +140,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                        $doc->printLineClub($club); 
                        $l+=4; 
                        $first=false;
-                       printf("<tr><td colspan='4'>");    
+                       printf("<tr><td colspan='4'>");                               
                   } 
                                  
                   $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
@@ -236,11 +224,11 @@ else if(mysql_num_rows($result) > 0)  // data found
                        $doc->printLineClub($club); 
                        $l+=4; 
                        $first=false;
-                       printf("<tr><td colspan='4'>"); 
+                       printf("<tr><td colspan='4'>");                               
                   } 
                               
               $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
-              printf("</td></tr>");  
+              printf("</td></tr>");                      
               $tf=$tf+$fee;  
               $doc->printLineFooter($tf,$date, $place, true);   
          }
