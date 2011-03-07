@@ -13,7 +13,7 @@ if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none',$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo, $athleteCat, $withStartnr, $ranklistAll)
 {           
 require('./lib/cl_gui_page.lib.php');
-require('./lib/cl_print_page.lib.php');
+require('./lib/cl_print_page.lib.php');  
 require('./lib/cl_export_page.lib.php');
 
 require('./lib/common.lib.php');
@@ -44,19 +44,16 @@ $flagInfoLine2=false;
     $saison = "O";  //if no saison is set take outdoor
  }
  
-if($round > 0) {    // show a specific round  
-        
-       
-              
+if($round > 0) {    // show a specific round        
 
-         $eventMerged=false;          
+    $eventMerged=false;          
     $sqlEvents = AA_getMergedEventsFromEvent($event);
     if  ($sqlEvents!=''){              
          $selection = "w.xWettkampf IN " . $sqlEvents . " AND "; 
          $eventMerged=true; 
     }
-    else
-          $selection = "w.xWettkampf =" . $event . " AND ";     
+    else            
+          $selection = "r.xRunde =" . $round . " AND ";         
          
 }
 else if($category == 0) {        // show all disciplines for every category    
@@ -215,6 +212,7 @@ else {
             $list->printCover($GLOBALS['strResults'], $cover_timing);              
         }
     }
+    
     // export ranking
     elseif($formaction == "exportpress"){
         $list = new EXPORT_RankingListPress($_COOKIE['meeting'], 'txt');
@@ -248,7 +246,7 @@ else {
         $cRounds = 0;
         
         // check page  break
-        if(is_a($list, "PRINT_RankingList")    // page for printing
+        if((is_a($list, "PRINT_RankingList") )   // page for printing
             && ($cat != '')                        // not first result row
             && (($break == 'discipline')    // page break after each discipline
                 || (($break == 'category')    // or after new category
@@ -277,9 +275,9 @@ else {
                 , rt.Wertung
             FROM
                 runde
-                , rundentyp_" . $_COOKIE['language'] . " AS rt
-            WHERE runde.xRunde = $row[0]
-            AND rt.xRundentyp = runde.xRundentyp
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = runde.xRundentyp)
+            WHERE 
+                runde.xRunde = $row[0]             
         ");
 
         if(mysql_errno() > 0)        // DB error
@@ -316,10 +314,10 @@ else {
                                 r.xRunde
                             FROM
                                 wettkampf as w
-                                , runde as r
-                            WHERE    w.xWettkampf = $row[4]
-                            AND r.status = 4 
-                            AND    r.xWettkampf = w.xWettkampf");
+                                LEFT JOIN runde as r ON (r.xWettkampf = w.xWettkampf)
+                            WHERE    
+                                w.xWettkampf = $row[4]
+                                AND r.status = 4");
                 
                 if(mysql_errno() > 0){
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -535,7 +533,7 @@ else {
                              sf.Name;";   
                  
         }    
-            
+      
         $res = mysql_query($query);
         if(mysql_errno() > 0) {        // DB error   
        
@@ -1317,10 +1315,9 @@ else {
                 , rt.Wertung
             FROM
                 runde
-                , rundentyp_" . $_COOKIE['language'] . " AS rt
-            WHERE runde.xRunde = $row[0]
-            AND rt.xRundentyp = runde.xRundentyp
-        ");
+                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = runde.xRundentyp)
+            WHERE 
+                runde.xRunde = $row[0]");
 
         if(mysql_errno() > 0)        // DB error
         {
@@ -1355,15 +1352,18 @@ else {
             $combined = AA_checkCombined($row[4]);
             // not selectet a specific round
             if($round == 0 && $combined){
-                $res_c = mysql_query("SELECT 
+                
+                $sql = "SELECT 
                                 r.xRunde
                             FROM
                                 wettkampf as w
-                                , runde as r
-                            WHERE    w.xWettkampf = $row[4]
-                            AND r.status = 4 
-                            AND    r.xWettkampf = w.xWettkampf");
-                
+                                LEFT JOIN runde as r ON (r.xWettkampf = w.xWettkampf)
+                            WHERE    
+                                w.xWettkampf = $row[4]
+                                AND r.status = 4";     
+               
+                $res_c = mysql_query($sql);
+
                 if(mysql_errno() > 0){
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }else{
