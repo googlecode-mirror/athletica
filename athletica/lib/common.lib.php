@@ -180,6 +180,37 @@ require('./config.inc.php');
 		}
 		
 	}
+    
+    /**
+    
+    check if xControl of the meeting is set
+    
+    @return 1 if xControl is given and result upload is wished
+        2 if no result upload will be made
+        0 if xControl is 0 but the result upload is activated
+    
+    */
+    function AA_checkControl_UKC(){
+        
+        if(AA_checkMeetingID()){
+            
+            $res = mysql_query("SELECT Nummer FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id']);
+            if(mysql_errno() > 0){
+                AA_printErrorPage(mysql_errno().": ".mysql_error());
+            }else{
+                $row = mysql_fetch_array($res);
+                if($row[0] > 0){
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+        }
+            
+    }
+        
+   
 
 /*
  * ------------------------------------------------------
@@ -204,10 +235,9 @@ require('./config.inc.php');
 				DISTINCT w.xKategorie
 			FROM
 				wettkampf AS w
-				, kategorie AS k
+				LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
 			WHERE
-				w.xMeeting=" . $_COOKIE['meeting_id'] . "
-				AND w.xKategorie = k.xKategorie
+				w.xMeeting=" . $_COOKIE['meeting_id'] . " 				
 			ORDER BY
 				k.Anzeige
 		");
@@ -276,14 +306,19 @@ require('./config.inc.php');
 				
 			}
 			
-		}elseif($round > 0){
+		}elseif($round > 0){    
 			
-			$res = mysql_query("SELECT Typ FROM
-						wettkampf as w
-						, runde as r
-					WHERE	r.xRunde = $round
-					AND	r.xWettkampf = w.xWettkampf
-					AND	w.xMeeting = ".$_COOKIE['meeting_id']);
+            $sql ="SELECT 
+                        Typ 
+                   FROM
+                        wettkampf as w
+                        LEFT JOIN runde as r ON (r.xWettkampf = w.xWettkampf)
+                   WHERE    
+                        r.xRunde = " .$round ."                    
+                        AND w.xMeeting = ".$_COOKIE['meeting_id'];    
+            
+            $res = mysql_query($sql);
+
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
@@ -332,14 +367,19 @@ require('./config.inc.php');
 				
 			}
 			
-		}elseif($round > 0){
+		}elseif($round > 0){   
 			
-			$res = mysql_query("SELECT Typ FROM
-						wettkampf as w
-						, runde as r
-					WHERE	r.xRunde = $round
-					AND	r.xWettkampf = w.xWettkampf
-					AND	w.xMeeting = ".$_COOKIE['meeting_id']);
+            $sql = "SELECT 
+                        Typ 
+                    FROM
+                        wettkampf as w
+                        LEFT JOIN runde as r ON (r.xWettkampf = w.xWettkampf)
+                    WHERE    
+                        r.xRunde = $round  
+                        AND w.xMeeting = ".$_COOKIE['meeting_id'];     
+             
+            $res = mysql_query($sql);
+
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
@@ -398,7 +438,7 @@ require('./config.inc.php');
                      }else{
                           $row = mysql_fetch_array($res);
                           $code = explode('_',$row[0]);
-                          if ($code[0] < 23) {            // only Nat. A, B and C
+                          if ($code[0] < 32) {            // only Nat. A, B and C
                             return true;
                           }
                           else {
@@ -446,14 +486,19 @@ require('./config.inc.php');
 				
 			}
 			
-		}elseif($round > 0){
+		}elseif($round > 0){     
 			
-			$res = mysql_query("SELECT Typ FROM
-						wettkampf as w
-						, runde as r
-					WHERE	r.xRunde = $round
-					AND	r.xWettkampf = w.xWettkampf
-					AND	w.xMeeting = ".$_COOKIE['meeting_id']);
+            $sql = "SELECT 
+                        Typ 
+                    FROM
+                        wettkampf as w
+                        LEFT JOIN runde as r ON (r.xWettkampf = w.xWettkampf)
+                    WHERE    
+                        r.xRunde = $round                     
+                        AND w.xMeeting = ".$_COOKIE['meeting_id'];  
+            
+            $res = mysql_query($sql);
+
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
@@ -545,12 +590,17 @@ require('./config.inc.php');
 	{
 		$relay = FALSE;
 		if($event > 0)
-		{
-			$result = mysql_query("SELECT d.Staffellaeufer"
-										. " FROM disziplin_" . $_COOKIE['language'] . " AS d "
-										. ", wettkampf"
-										. " WHERE wettkampf.xWettkampf = " . $event
-										. " AND wettkampf.xDisziplin = d.xDisziplin");
+		{          			
+            $sql ="SELECT 
+                        d.Staffellaeufer
+                   FROM 
+                        disziplin_" . $_COOKIE['language'] . " AS d 
+                        LEFT JOIN wettkampf as w ON (w.xDisziplin = d.xDisziplin)
+                   WHERE 
+                        w.xWettkampf = " . $event;     
+            
+            $result = mysql_query($sql);      
+
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -563,14 +613,20 @@ require('./config.inc.php');
 			}
 		}
 		elseif($round > 0)
-		{
-			$result = mysql_query("SELECT d.Staffellaeufer"
-										. " FROM disziplin_" . $_COOKIE['language'] . " AS d "  
-										. ", wettkampf"
-										. ", runde"
-										. " WHERE wettkampf.xWettkampf = runde.xWettkampf"
-										. " AND runde.xRunde = $round"
-										. " AND wettkampf.xDisziplin = d.xDisziplin");
+		{            			
+             $sql = "SELECT
+                            d.Staffellaeufer
+                     FROM 
+                            disziplin_" . $_COOKIE['language'] . " AS d   
+                            , wettkampf
+                            , runde
+                     WHERE 
+                            wettkampf.xWettkampf = runde.xWettkampf
+                            AND runde.xRunde = " . $round ." 
+                            AND wettkampf.xDisziplin = d.xDisziplin";     
+          
+            $result = mysql_query($sql);
+
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -595,18 +651,18 @@ require('./config.inc.php');
 		require('./config.inc.php');
 
 		$status = 0;
-		$result = mysql_query("
-			SELECT
-				d.Typ
-				, wettkampf.Windmessung
-			FROM
-				runde
-				, wettkampf
-				, disziplin_" . $_COOKIE['language'] ." AS d
-			WHERE runde.xRunde = $round
-			AND wettkampf.xWettkampf = runde.xWettkampf
-			AND d.xDisziplin = wettkampf.xDisziplin
-		");
+		
+        $sql = "SELECT
+                        d.Typ
+                        , w.Windmessung
+                FROM
+                        runde AS r
+                        LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON (d.xDisziplin = w.xDisziplin)
+                WHERE 
+                        r.xRunde = " . $round;     
+         
+         $result = mysql_query($sql);    
 
 		if(mysql_errno() > 0)		// DB error
 		{
