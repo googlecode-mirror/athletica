@@ -234,7 +234,7 @@ function AA_meeting_addEvent()
 							$type = $rowT[0];
 						}
 					}
-					//$mkcode = $rowT[1];
+					$mkcode = $rowT[1];      
 					$svmcat = $rowT[2];
 				}else{
 					$mkcode = 0;
@@ -373,19 +373,8 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		}
 		$tt = ''; 	
 		if(isset($cfgCombinedDef[$tmp])){
-			if ($tmp == 403 ) {
-               $tt = $cfgCombinedDef[$tmp];  
-               if ($row_k['Code'] != '') {
-                    $tt .= "_" .$row_k['Code'];  
-               }
-               else {
-                    $tt .= "_" .$row_k['Kurzname'];  
-               }
-              
-            }
-            else {
-                $tt = $cfgCombinedDef[$tmp]; 
-            }
+			
+            $tt = $cfgCombinedDef[$tmp];    
 			
 			$k = 0;
             if (isset($cfgCombinedWO[$tt])){
@@ -434,13 +423,13 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				
 			}
 			
-             if ($val != 100) { 
+           
 			    // set conversion table               
 			    $_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
 			    $_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
 			    $_POST['conv_changed'] = 'yes';
 			    AA_meeting_changeCategory($t);
-             }
+           
 			}
             else {
                 // setup a placeholder disciplin (take first disciplin of combined definition 'MAN')
@@ -497,7 +486,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 	
 	$sqlCombtype = "";
 	if($byCombtype > 0){
-		$sqlCombtype = "AND wettkampf.Mehrkampfcode = $byCombtype";
+		$sqlCombtype = "AND w.Mehrkampfcode = $byCombtype";
 	}
 	
 	mysql_query("
@@ -508,6 +497,7 @@ function AA_meeting_changeCategory($byCombtype = 0)
 			, start READ
 			, resultat WRITE
 			, wettkampf WRITE
+            , wettkampf AS w WRITE
 			, runde READ
 			, r READ
 			, w READ
@@ -542,17 +532,16 @@ function AA_meeting_changeCategory($byCombtype = 0)
 		// read all events for this category
 		$result = mysql_query("
 			SELECT
-				wettkampf.xWettkampf
+				w.xWettkampf
 				, d.Kurzname
-				, wettkampf.Mehrkampfcode
+				, w.Mehrkampfcode
 				, d.Typ
                 , d.Code
 			FROM
-				wettkampf
-				, disziplin_" . $_COOKIE['language'] . " AS d
-			WHERE wettkampf.xKategorie = " . $_POST['cat'] . "
-			AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
-			AND d.xDisziplin = wettkampf.xDisziplin
+				wettkampf AS w
+				LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+			WHERE w.xKategorie = " . $_POST['cat'] . "
+			AND w.xMeeting = " . $_COOKIE['meeting_id'] . "  			
 			$sqlCombtype
 			$sqlSetCombinedOnly
 		");     
@@ -961,27 +950,25 @@ function AA_meeting_resetResults($event, $formula, $conv = '')
     global $strConvtableRankingPointsU20; 
 	
 	require('./lib/common.lib.php');
-	require('./lib/utils.lib.php');
+	require('./lib/utils.lib.php');      
 	
-	$result = mysql_query("
-		SELECT
-			resultat.xResultat
-			, resultat.Leistung
-			, resultat.Info
-			, athlet.Geschlecht
-		FROM
-			resultat
-			, serienstart
-			, start
-			, anmeldung
-			, athlet
-		WHERE serienstart.xSerienstart = resultat.xSerienstart
-		AND start.xStart = serienstart.xStart
-		AND start.xWettkampf = $event 
-		AND resultat.Info != 'XXX'
-		AND start.xAnmeldung = anmeldung.xAnmeldung
-		AND anmeldung.xAthlet = athlet.xAthlet
-	");
+    $sql = "
+        SELECT
+            re.xResultat
+            , re.Leistung
+            , re.Info
+            , at.Geschlecht
+        FROM
+            resultat AS re
+            LEFT JOIN serienstart AS ss ON (ss.xSerienstart = re.xSerienstart)
+            LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+            LEFT JOIN anmeldung AS a ON (st.xAnmeldung = a.xAnmeldung)
+            LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+        WHERE        
+            st.xWettkampf = $event 
+            AND re.Info != 'XXX'";  
+     
+    $result = mysql_query($sql);       
 		
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1173,8 +1160,8 @@ function AA_meeting_getLG($club){
 function AA_meeting_addSVMEvent($disfee, $penalty){
     
     include('./convtables.inc.php');
-    require('./lib/common.lib.php');      
-      
+    require('./lib/common.lib.php');   
+                                            
     if(!empty($_POST['svmcategory'])){  
         $svm = $_POST['svmcategory'];
         
@@ -1187,7 +1174,7 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
          if(mysql_errno() > 0) {
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());                   
             }   
-                 
+        
         if(isset($cfgSVM[$svmCode])){
             $arrSVM = $cfgSVM[$svmCode];  
             $k = 0;
@@ -1233,13 +1220,17 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
                     $_POST['item'] = $event; 
                      if (isset($cfgSVM[$svmCode."_T"][$k-1])) {           // fix timetable
                         $st = $cfgSVM[$svmCode."_T"][$k-1]; 
+                          
                         AA_meeting_addTime($st, $wTyp,$event, $dTyp);
+                         
                      } 
                      else {
                            if ($d >= 88 && $d <=99){                       // relays
                                   // dummy round for relays
                                   $st = '00:00:00';
+                                  
                                   AA_meeting_addTime($st, $wTyp,$event, $dTyp);
+                                  
                            }
                          
                      }
@@ -1250,14 +1241,14 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
             $_POST['type'] = $wTyp;
             $_POST['conv'] = $cfgSVM[$svmCode."_F"];             
             $_POST['conv_changed'] = 'yes';
-           
+              
             AA_meeting_changeCategory('');    
+               
             
         }else{    
            $GLOBALS['AA_ERROR'] = $GLOBALS['strErrDiscNotDefSVM'];    
         }    
-    }   
-     
+    }            
 }     // end function AA_meeting_addSVMEvent
 
 //
@@ -1339,14 +1330,20 @@ function AA_meeting_addTime($st , $wTyp, $item, $dTyp)  {
     $stdEtime = strtotime($row[1]); // hold standard delay for enrolement time
     $stdMtime = strtotime($row[2]); // and manipulation time
     
-    $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
-    $tmp = $tmp - $stdEtime;
-    $_POST['etime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+    if ($_POST['hr'] && $_POST['min']) {
+          $_POST['etime']  = '00';
+          $_POST['mtime']  = '00'; 
+    }
+    else {            
     
-    $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
-    $tmp = $tmp - $stdMtime;
-    $_POST['mtime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
-      
+        $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
+        $tmp = $tmp - $stdEtime;
+        $_POST['etime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+        
+        $tmp = strtotime($_POST['hr'].":".$_POST['min'].":00");
+        $tmp = $tmp - $stdMtime;
+        $_POST['mtime'] = floor($tmp / 3600).":".floor(($tmp % 3600) / 60);
+    }  
      
     if($_POST['round'] > 0 ){
         $tt = new Timetable();  
