@@ -86,7 +86,7 @@ function removePassword(){
 							<input name='language' type='hidden' value='change'>
 							<table class='admin'>
 								<tr class='odd'>
-									<td width="80"><?=$strLanguage?></td>
+									<td width="80"><?php echo $strLanguage; ?></td>
 									<td class='forms'>
 										<?php
 										$dropdown = new GUI_Select('lang', 1, 'document.lang.submit()');
@@ -101,7 +101,7 @@ function removePassword(){
 										$dropdown->printList();
 										?>
 									</td>
-									<td class="forms"><input type="button" value="<?=$strVersionCheck?>" onclick="document.location.href = 'admin_version.php';"/></td>
+									<td class="forms"><input type="button" value="<?php echo $strVersionCheck;?>" onclick="document.location.href = 'admin_version.php';"/></td>
 								</tr>
 							</table>
 						</form>
@@ -113,13 +113,13 @@ function removePassword(){
 				?>
 				<table class='dialog' width="475">
 					<tr>
-						<th class='insecure'><?=$strProtectMeeting?></th>
+						<th class='insecure'><?php echo $strProtectMeeting; ?></th>
 					</tr>
 					<tr>
 						<td>
 							<table class='admin'>
 								<tr class="odd">
-									<td width="70" rowspan="2" style="text-align: center;"><img src="img/password.gif" border="0" alt="<?=$strProtectMeeting?>" title="<?=$strProtectMeeting?>"/></td>
+									<td width="70" rowspan="2" style="text-align: center;"><img src="img/password.gif" border="0" alt="<?php echo $strProtectMeeting; ?>" title="<?php echo $strProtectMeeting; ?>"/></td>
 									<td><?php echo $strProtectMeetingInfo ?></td>
 								</tr>
 								<tr class='even'>
@@ -150,7 +150,7 @@ function removePassword(){
 				?>
 				<table class='dialog' width="475">			
 					<tr>
-						<th class='dialog'><?=$strDatabase?> - <?=$strBackup?></th>
+						<th class='dialog'><?php echo $strDatabase; ?> - <?php echo $strBackup; ?></th>
 					</tr>
 					<tr>
 						<td>
@@ -160,9 +160,9 @@ function removePassword(){
 									<input type='hidden' name='arg' value='backup'/>
 								<tr>
 									<td width="70" rowspan="4" style="text-align: center;">
-										<img src="img/db_save.gif" border="0" alt="<?=$strBackupOK?>" title="<?=$strBackupOK?>"/>
+										<img src="img/db_save.gif" border="0" alt="<?php echo $strBackupOK; ?>" title="<?php echo $strBackupOK;?>"/>
 									</td>
-									<td><?=$strBackupInfo?></tr>
+									<td><?php echo $strBackupInfo; ?></tr>
 								</tr>
 								<tr>
 									<td>								
@@ -176,11 +176,11 @@ function removePassword(){
 									</td>
 								</tr>
 								<tr>
-									<td><input type="checkbox" value="included"  name="base" checked="checked" /><?=$strBasdataIncluded?></tr>
+									<td><input type="checkbox" value="included"  name="base" checked="checked" /><?php echo $strBasdataIncluded; ?></tr>
 								</tr>
 								<tr class="even">
 									<td>
-										<button name='backup' type='submit'><?=$strBackupOK?>
+										<button name='backup' type='submit'><?php echo $strBackupOK; ?>
 										</button>
 									</td>
 								</tr>
@@ -194,20 +194,20 @@ function removePassword(){
 			?>
 			<table class='dialog' width="475">			
 				<tr>
-					<th class='dialog'><?=$strDatabase?> - <?=$strRestore?></th>
+					<th class='dialog'><?php echo $strDatabase; ?> - <?php echo $strRestore; ?></th>
 				</tr>
 				<tr>
 					<td>
 						<table class='admin'>
 							<form action='admin_backup.php' method='post' name='db2' enctype='multipart/form-data'>
 							<tr class='odd'>
-								<td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?=$strRestore?>" title="<?=$strRestore?>"/></td>
-								<td><?=$strBackupRestoreInfo?></td>
+								<td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?php echo $strRestore; ?>" title="<?php echo $strRestore; ?>"/></td>
+								<td><?php echo $strBackupRestoreInfo; ?></td>
 							</tr>
 							<tr class="even">
 								<td>
 									<input type='hidden' name='arg' value='restore'/>
-										<?=$strBackupFile?>:&nbsp;
+										<?php echo $strBackupFile; ?>:&nbsp;
 									</input>
 									<input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
 									<input name='bkupfile' type='file' accept='text/sql' maxlength="619430400">
@@ -215,7 +215,7 @@ function removePassword(){
 							</tr>
 							<tr class="even">
 								<td>
-									<button name='backup' onclick="return warn()" type='button'><?=$strRestore?>
+									<button name='backup' onclick="return warn()" type='button'><?php echo $strRestore; ?>
 									</button>
 								</td>
 							</tr>
@@ -227,20 +227,20 @@ function removePassword(){
             
            <table class='dialog' width="475">            
                 <tr>
-                    <th class='dialog_zlv'><?=$strOnlineReg?> </th>
+                    <th class='dialog_zlv'><?php echo $strOnlineReg; ?> </th>
                 </tr>
                 <tr>
                     <td>
                         <table class='admin'>
                             <form action='admin_onlineRegZLV.php' method='post' name='onlineReg' enctype='multipart/form-data'>
                             <tr class='odd'>
-                                <td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?=$strRestore?>" title="<?=$strRestore?>"/></td>
-                                <td><?=$strOnlineRegInfo?></td>
+                                <td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?php echo $strRestore; ?>" title="<?php echo $strRestore; ?>"/></td>
+                                <td><?php echo $strOnlineRegInfo; ?></td>
                             </tr>
                             <tr class="even">
                                 <td>
                                     <input type='hidden' name='arg' value='restore'/>
-                                        <?=$strXmlFile?>:&nbsp;
+                                        <?php echo $strXmlFile; ?>:&nbsp;
                                     </input>
                                     <input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
                                     <input name='xmlfile' type='file' accept='*.xml' maxlength="619430400">
@@ -248,7 +248,7 @@ function removePassword(){
                             </tr>
                             <tr class="even">
                                 <td>
-                                    <button name='backup' type='submit' class="dialog_zlv"><?=$strXmlRestore?>
+                                    <button name='backup' type='submit' class="dialog_zlv"><?php echo $strXmlRestore; ?>
 
                                     </button>
                                 </td>
@@ -259,41 +259,74 @@ function removePassword(){
                 </tr>
             </table><br/>
             
+             <table class='dialog' width="475">            
+                <tr>
+                    <th class='dialog_ukc'><?php echo $strOnlineRegUKC; ?> </th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class='admin'>
+                            <form action='admin_onlineRegUKC.php' method='post' name='onlineReg' enctype='multipart/form-data'>
+                            <tr class='odd'>
+                                <td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?php echo $strRestore; ?>" title="<?php echo $strRestore; ?>"/></td>
+                                <td><?php echo $strOnlineRegInfo; ?></td>
+                            </tr>
+                            <tr class="even">
+                                <td>
+                                    <input type='hidden' name='arg' value='restore'/>
+                                        <?php echo $strXmlFile; ?>:&nbsp;
+                                    </input>
+                                    <input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
+                                    <input name='xmlfile' type='file' accept='*.xml' maxlength="619430400">
+                                </td>
+                            </tr>
+                            <tr class="even">
+                                <td>
+                                    <button name='backup' type='submit' class="dialog_ukc"><?php echo $strXmlRestore; ?>
+
+                                    </button>
+                                </td>
+                            </tr>
+                        </form>    
+                        </table>
+                    </td>
+                </tr>
+            </table><br/>     
             
+             <table class='dialog' width="475">
+                <tr>
+                    <th class='dialog'><?php echo $strLinks; ?></th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class='admin'>
+                            <tr class='odd'>
+                                <td>&bull;
+                                    <a href='<?php echo $cfgURLDocumentation; ?>index.html' target='_blank'>
+                                    <?php echo $strDocumentation; ?> (HTML)</a>
+                                </td>
+                            <tr class='even'>
+                                <td>&bull;
+                                    <a href='<?php echo $cfgURLDocumentation; ?>athletica.pdf' target='_blank'>
+                                    <?php echo $strDocumentation; ?> (PDF)</a>
+                                </td>
+                            </tr>
+                            <tr class='odd'>
+                                <td>&bull;
+                                    <a href='LICENSE.txt' target='_blank'><?php echo $strLicense; ?></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>       
 			
-			<table class='dialog' width="475">
-				<tr>
-					<th class='dialog'><?php echo $strLinks; ?></th>
-				</tr>
-				<tr>
-					<td>
-						<table class='admin'>
-							<tr class='odd'>
-								<td>&bull;
-									<a href='<?php echo $cfgURLDocumentation; ?>index.html' target='_blank'>
-									<?php echo $strDocumentation; ?> (HTML)</a>
-								</td>
-							<tr class='even'>
-								<td>&bull;
-									<a href='<?php echo $cfgURLDocumentation; ?>athletica.pdf' target='_blank'>
-									<?php echo $strDocumentation; ?> (PDF)</a>
-								</td>
-							</tr>
-							<tr class='odd'>
-								<td>&bull;
-									<a href='LICENSE.txt' target='_blank'><?php echo $strLicense; ?></a>
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
-			</table>
 		</td>
 		<td width="10"></td>
 		<td style="vertical-align: top;">
 			<table class='dialog' width="475">
 				<tr>
-					<th class='bestlistupdate'><?=$strEmptyCache?></th>
+					<th class='bestlistupdate'><?php echo $strEmptyCache; ?></th>
 				</tr>
 				<tr>
 					<td>
@@ -303,11 +336,11 @@ function removePassword(){
 								<col width="50%"/>
 							</colgroup>
 							<tr class='odd'>
-								<td colspan="2"><?=$strEmptyCacheInfo?></td>
+								<td colspan="2"><?php echo $strEmptyCacheInfo; ?></td>
 							</tr>
 							<tr class='even'>
 								<td>
-									<input type="button" value="<?=$strEmptyCache?>" class="uploadbutton" onclick="javascript:document.location.href='admin_base.php?arg=empty'">
+									<input type="button" value="<?php echo $strEmptyCache; ?>" class="uploadbutton" onclick="javascript:document.location.href='admin_base.php?arg=empty'">
 								</td>
 								<td style="text-align: right;">&nbsp;</td>
 							</tr>
@@ -318,7 +351,7 @@ function removePassword(){
 			
 			<table class='dialog' width="475">
 				<tr>
-					<th class='baseupdate'><?=$strBaseUpdate?></th>
+					<th class='baseupdate'><?php echo $strBaseUpdate; ?></th>
 				</tr>
 				<tr>
 					<td>
@@ -328,14 +361,14 @@ function removePassword(){
 								<col width="50%"/>
 							</colgroup>
 							<tr class='odd'>
-								<td colspan="2"><?=$strBaseRemark?></td>
+								<td colspan="2"><?php echo $strBaseRemark; ?></td>
 							</tr>
 							<tr class='even'>
 								<td>
-									<input type="button" value="<?=$strNext?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'">
+									<input type="button" value="<?php echo $strNext; ?>" class="baseupdatebutton" onclick="javascript:document.location.href='admin_base.php'">
 								</td>
 								<td style="text-align: right;">
-									<input type="button" value="<?=$strReset?>" class="baseresetbutton" onclick="javascript:document.location.href='admin_base.php?arg=reset'">
+									<input type="button" value="<?php echo $strReset; ?>" class="baseresetbutton" onclick="javascript:document.location.href='admin_base.php?arg=reset'">
 								</td>
 							</tr>
 						</table>
@@ -348,17 +381,17 @@ function removePassword(){
 				<br/><br/>
 				<table class='dialog' width="475">
 					<tr>
-						<th class='sync'><?=$strMeetingSync?></th>
+						<th class='sync'><?php echo $strMeetingSync; ?></th>
 					</tr>
 					<tr>
 						<td>
 							<table class='admin'>
 								<tr class='odd'>
-									<td><?=$strMeetingSyncRemark?></td>
+									<td><?php echo $strMeetingSyncRemark; ?></td>
 								</tr>
 								<tr class='even'>
 									<td>
-										<input type="button" value="<?=$strNext?>" class="syncbutton" onclick="javascript:document.location.href='admin_registration.php'">
+										<input type="button" value="<?php echo $strNext; ?>" class="syncbutton" onclick="javascript:document.location.href='admin_registration.php'">
 									</td>
 								</tr>
 							</table>
@@ -367,16 +400,16 @@ function removePassword(){
 				</table><br/><br/>
 				<table class='dialog' width="475">
 					<tr>
-						<th class='bestlistupdate'><?=$strBestlistUpdate?></th>
+						<th class='bestlistupdate'><?php echo $strBestlistUpdate; ?></th>
 					</tr>
 					<tr>
 						<td>
 							<table class='admin'>
 								<tr class='odd'>
-									<td><?=$strBestlistRemark?></td>
+									<td><?php echo $strBestlistRemark; ?></td>
 								</tr>
 								<tr class='even'>
-									<td><input type="button" value="<?=$strNext?>" class="uploadbutton" onclick="javascript:document.location.href='admin_results.php'"></td>
+									<td><input type="button" value="<?php echo $strNext; ?>" class="uploadbutton" onclick="javascript:document.location.href='admin_results.php'"></td>
 								</tr>
 							</table>
 						</td>
@@ -384,7 +417,29 @@ function removePassword(){
 				</table><br/><br/>
 				<?php
 			}
-			?>
+			?>                 
+            
+           <table class='dialog' width="475">
+                    <tr>
+                        <th class='dialog_ukc'><?php echo $strUploadUKC; ?></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class='admin'>
+                                <tr class='odd'>
+                                    <td><?php echo $strBestlistRemark; ?></td>
+                                </tr>
+                                <tr class='even'>
+                                    <td><input type="button" value="<?php echo $strNext; ?>" class="dialog_ukc" onclick="javascript:document.location.href='admin_results_UKC.php'"></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+          
+          
+          
+            
 		</td>
 	</tr>
 </table>
