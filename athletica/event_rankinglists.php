@@ -163,7 +163,7 @@ $menu->printMenu();
 	   e = document.getElementById("combined"); 
 	   e.checked=true; 
 	}
-	
+           
    
 //-->
 </script>
@@ -365,7 +365,7 @@ if (isset($eventTypeCat['combined'])){?>
 				<?php
 				for ($i=1;$i<=99;$i++){
 					?>
-					<option value="<?=$i?>"><?=$i?></option>
+					<option value="<?php echo $i?>"><?php echo $i?></option>
 					<?php
 				}
 				?>
@@ -513,11 +513,11 @@ if($tage>1){
 	<tr>
 		<td class='dialog'>
 			<select name='date'>
-				<option value="%">- <?=$strAll?> -</option>
+				<option value="%">- <?php echo $strAll; ?> -</option>
 				<?php
 				while($row = mysql_fetch_assoc($query)){
 					?>
-					<option value="<?=$row['Datum']?>"><?=date('d.m.Y', strtotime($row['Datum']))?></option>
+					<option value="<?php echo $row['Datum']?>"><?php echo date('d.m.Y', strtotime($row['Datum']))?></option>
 					<?php
 				}
 				?>
@@ -566,7 +566,7 @@ if($tage>1){
 		<button name='print' type='submit' onClick='setPrint()'>
 			<?php echo $strPrint; ?>
 		</button>
-	</td>
+	</td>         
 </tr>
 </table>
 
