@@ -755,7 +755,7 @@ $strErrNoControl2  = "<b>Attention:</b> Ceci ne peut pas être annulé.";
 $strCatLicense = "Catégories avec licence";
 $strActiv_statistic = "Active, U23, U20, U18";
 $strU16 = "U16";  
-$strU14 = "U14, U123, U10";
+$strU14 = "U14, U12, U10";
 $strActivCHF = "CHF 4.--  par début";
 $strU16CHF = "CHF 2.--  par début";  
 $strU14CHF = "CHF 1.--  par début";      
@@ -804,9 +804,10 @@ $strMan = "Hommes";
 $strWom = "Femmes";  
 $strGenChange = "Changement global  ";
 
-$strRanklistAll = "Liste de résultats globale";
+$strRanklistAll = "Liste de résultats globale";   
 
-
+$strNoDoubleFill = "On ne peut remplir que les cases selon le sexe ou que les cases selon la catégorie.";    
 $strTnMk = "P-CM"; 
+
 
 ?>
