@@ -85,13 +85,13 @@ if($login){
 	$local = dirname($_SERVER['SCRIPT_FILENAME'])."/tmp/results.xml.gz";
 	$remote = date("Ymd")."_".$eventnr.".gz";
 	
-	$nbr_effort = $xml->gen_result_xml($local);
+	$nbr_effort = $xml->gen_result_xml($local);          
 	
 	// upload result file
 	if($nbr_effort>0){ //upload only if file contains at least one results
-		$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
-		$success = $ftp->put_file($local, $remote);
-		$ftp->close_connection();
+		//$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
+		//$success = $ftp->put_file($local, $remote);
+		//$ftp->close_connection();
 	} else {
 		$success=true;
 	} 
@@ -127,8 +127,8 @@ if($login){
 		return;
 	}elseif($cControl == 2){
 		?>
-		<p><?=$strErrNoControl3?></p><br/>
-		<!--<img src="img/nosync_<?=$_COOKIE['language']?>.gif" alt="" style="border: solid 1px #000000;"/>  -->
+		<p><?php echo $strErrNoControl3; ?></p><br/>
+		<!--<img src="img/nosync_<?php echo $_COOKIE['language']; ?>.gif" alt="" style="border: solid 1px #000000;"/>  -->
 		<?php
 		return;
 	}
@@ -148,7 +148,7 @@ if($login){
               }else{
                     if(mysql_num_rows($res_results) > 0){
                         ?>
-                        <p class="st_res_work" ><?=$strErrResultsInProgress?></p><br/> 
+                        <p class="st_res_work" ><?php echo $strErrResultsInProgress; ?></p><br/> 
                        <?php  
                     return; 
                     } 
