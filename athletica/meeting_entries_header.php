@@ -31,6 +31,7 @@ $page->printPageTitle($strEntries . ": " . $_COOKIE['meeting']);
 
 $menu = new GUI_Menulist();
 $menu->addButton("meeting_entry_add.php", $strNewEntry, "detail");
+$menu->addButton("meeting_entry_add_UKC.php", $strNewEntryUKC, "detail");   
 $menu->addButton("meeting_entries_efforts.php", $strUpdateEfforts, "detail");
 $menu->addButton("meeting_entries_startnumbers.php", "$strStartnumbers", "detail");
 $menu->addButton("meeting_entries_setteams.php", "$strTeamsAutoAssign", "detail");
