@@ -51,6 +51,7 @@ class GUI_Select
 	var $options;
 	var $size;
     var $multiple;
+    var $ukc;
 
 	function GUI_Select($name, $size, $action='',$multiple)
 	{     
@@ -142,7 +143,7 @@ class GUI_Select
        if ($this->multiple == 'multiple'){
             ?>      
             <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>[]'  size='<?php echo $this->size; ?>' <?php echo $this->multiple; ?>       
-            <?php if ($this->action != '') { ?> onChange='<?php echo $this->action; ?>'<?php }; ?> id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
+            <?php if ($this->action != '') { ?> onChange='<?php echo $this->action; ?>'<?php }; ?> id='<?php echo $this->name; ?>selectbox'<?php echo $dis; ?>>
         
      
      <?php
@@ -151,7 +152,7 @@ class GUI_Select
        else { 
 ?>      
 	 <select class='<?php echo $manual_club; ?>'  name='<?php echo $this->name; ?>'  size='<?php echo $this->size; ?>' <?php echo $this->multiple; ?>       
-		<?php if ($this->action != '') { ?> onChange='<?php echo $this->action; ?>'<?php }; ?> id='<?php echo $this->name; ?>selectbox'<?=$dis?>>
+		<?php if ($this->action != '') { ?> onChange='<?php echo $this->action; ?>'<?php }; ?> id='<?php echo $this->name; ?>selectbox'<?php echo $dis;?>>
         
      
 <?php
@@ -216,40 +217,40 @@ class GUI_CategorySelect
 			if(!$bAthleteCat){
 				$this->select->addOptionsFromDB("
 					SELECT DISTINCT
-						wettkampf.xKategorie
-						, kategorie.Kurzname
+						w.xKategorie
+						, k.Kurzname
 					FROM
-						wettkampf
-						, kategorie
-					WHERE wettkampf.xKategorie = kategorie.xKategorie   
-					AND wettkampf.xMeeting = " . $_COOKIE['meeting_id'] . "
+						wettkampf AS w
+						LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+					WHERE    
+					   w.xMeeting = " . $_COOKIE['meeting_id'] . "
 					ORDER BY
-						kategorie.Anzeige
+						k.Anzeige
 				");
 			}else{
 				$this->select->addOptionsFromDB("
 					SELECT DISTINCT
-						anmeldung.xKategorie
-						, kategorie.Kurzname
+						a.xKategorie
+						, k.Kurzname
 					FROM
-						anmeldung
-						, kategorie
-					WHERE anmeldung.xKategorie = kategorie.xKategorie 
-					AND anmeldung.xMeeting = " . $_COOKIE['meeting_id'] . "
+						anmeldung AS a
+						LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)  
+					WHERE  
+					    a.xMeeting = " . $_COOKIE['meeting_id'] . "
 					ORDER BY
-						kategorie.Anzeige
+						k.Anzeige
 				");
 			}
 		}else{
 			$this->select->addOptionsFromDB("
 				SELECT DISTINCT
-					kategorie.xKategorie
-					, kategorie.Kurzname
+					k.xKategorie
+					, k.Kurzname
 				FROM
-					kategorie
+					kategorie AS k
 				WHERE aktiv = 'y' 
 				ORDER BY
-					kategorie.Anzeige
+					k.Anzeige
 			");
 		}
 
@@ -340,9 +341,8 @@ class GUI_ClubSelect
 							at.xAthlet
 						FROM
 							anmeldung AS a
-							, athlet AS at
-						WHERE at.xVerein = $row[0]
-						AND a.xAthlet = at.xAthlet
+							LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+						WHERE at.xVerein = $row[0]  						
 						AND a.xMeeting = " . $_COOKIE['meeting_id']
 					);
 					if(mysql_errno() > 0) {		// DB error
@@ -931,32 +931,30 @@ class GUI_EventCombinedSelect
 
 		if($this->category < 1)	{		// no selection
 			$cat_argument = "";
-			$displ = "CONCAT(kategorie.Kurzname, ', ', d.Name)";
+			$displ = "CONCAT(k.Kurzname, ', ', d.Name)";
 		}
 		else {
-			$cat_argument = " AND wettkampf.xKategorie = " . $this->category;
+			$cat_argument = " AND w.xKategorie = " . $this->category;
 			$displ = "d.Name";
 		}
 		
 		// get items from DB
 		$this->select->addOptionsFromDB("
 			SELECT
-				CONCAT(wettkampf.xKategorie, '_', wettkampf.Mehrkampfcode)
+				CONCAT(w.xKategorie, '_', w.Mehrkampfcode)
 				, $displ
 			FROM
-				wettkampf
-				, kategorie
-				, disziplin_" . $_COOKIE['language'] . " AS d
-			WHERE wettkampf.xMeeting = " . $_COOKIE['meeting_id']  
-			. $cat_argument. "
-			AND wettkampf.xKategorie = kategorie.xKategorie
-			AND wettkampf.Mehrkampfcode = d.Code
-			AND wettkampf.Mehrkampfcode > 0
+				wettkampf AS w
+				LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+				LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.Mehrkampfcode = d.Code)
+			WHERE w.xMeeting = " . $_COOKIE['meeting_id']  
+			. $cat_argument. "			
+			AND w.Mehrkampfcode > 0
 			GROUP BY
-				wettkampf.xKategorie
-				, wettkampf.Mehrkampfcode
+				w.xKategorie
+				, w.Mehrkampfcode
 			ORDER BY
-				kategorie.Anzeige
+				k.Anzeige
 				, d.Anzeige
 		");
 
@@ -1012,9 +1010,8 @@ class GUI_HeatSelect
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 			FROM
 				runde AS r
-				, serie AS s
-			WHERE r.xRunde = " . $this->round . "
-			AND s.xRunde = r.xRunde
+				LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+			WHERE r.xRunde = " . $this->round . " 			
 			ORDER BY
 				heatid
 		");
@@ -1070,9 +1067,8 @@ class GUI_HeatSelectFrom
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 			FROM
 				runde AS r
-				, serie AS s
-			WHERE r.xRunde = " . $this->round . "
-			AND s.xRunde = r.xRunde
+				LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+			WHERE r.xRunde = " . $this->round . " 			
 			ORDER BY
 				heatid
 		");
@@ -1129,9 +1125,8 @@ class GUI_HeatSelectTo
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 			FROM
 				runde AS r
-				, serie AS s
-			WHERE r.xRunde = " . $this->round . "
-			AND s.xRunde = r.xRunde
+				LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+			WHERE r.xRunde = " . $this->round . "			
 			ORDER BY
 				heatid
 		");
@@ -1188,9 +1183,8 @@ class GUI_InstallationSelect
 				, a.Bezeichnung
 			FROM
 				anlage AS a
-				, meeting AS m
-			WHERE m.xMeeting = " . $_COOKIE['meeting_id'] . "
-			AND a.xStadion = m.xStadion
+				LEFT JOIN meeting AS m ON (a.xStadion = m.xStadion)
+			WHERE m.xMeeting = " . $_COOKIE['meeting_id'] . " 			
 			ORDER BY
 				a.Bezeichnung
 		");
@@ -1221,9 +1215,10 @@ class GUI_RegionSelect
 	 *	-----------
 	 *		
 	 */
-	function GUI_RegionSelect($action='')
+	function GUI_RegionSelect($action='', $ukc='n')
 	{
 		$this->select = new GUI_Select('region', 1, $action);
+        $this->ukc = $ukc;
 		//$this->select->addOptionNone();				// empty item
 	}
 
@@ -1237,16 +1232,32 @@ class GUI_RegionSelect
 	{
 		require('./config.inc.php');
 		
-		// read all clubs
-		$res = mysql_query("
-			SELECT
-				xRegion
-				, Name
-			FROM
-				region
-			ORDER BY
-				Sortierwert
-		"); 
+        if ($this->ukc=='y'){
+		    // read all clubs
+		    $res = mysql_query("
+			    SELECT
+				    xRegion
+				    , Name
+			    FROM
+				    region
+			    ORDER BY
+				    Sortierwert
+		    "); 
+        }
+        else {
+            // read all clubs without UBS Kids Club
+            $res = mysql_query("
+                SELECT
+                    xRegion
+                    , Name
+                FROM
+                    region
+                WHERE
+                    UKC = 'n'
+                ORDER BY
+                    Sortierwert
+            "); 
+        }
 		if(mysql_errno() > 0)		// DB error
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
