@@ -1070,7 +1070,7 @@ function printLineTax($col1, $col2, $col3, $col4="", $col5="", $assTax='', $span
         }
         if(!empty($col5) || $col5 == '0'){
             ?>
-        <th class='statistic_total' colspan='<?php echo $span; ?>'><?php echo $col5.".00"; ?></th>
+        <th class='statistic_total' colspan='<?php echo $span; ?>'><?php if ($span == 1) {echo $col5;} else {echo $col5.".00";} ?></th>
             <?php
         }
         if ($span==1){
