@@ -315,8 +315,8 @@ class GUI_RegionDropDown
 			selection:	preselect an item
 			action:		javascript function to process on change
 	*/
-	function GUI_RegionDropDown($selection="-", $action="", $dis = false){
-		$select = new GUI_RegionSelect($action);
+	function GUI_RegionDropDown($selection="-", $action="", $dis = false, $ukc){
+		$select = new GUI_RegionSelect($action, $ukc);
 		echo "<td class='forms'>";
 		$select->printList($selection, $dis);
 		echo "</td>";
