@@ -458,6 +458,19 @@ th.dialog_zlv {
     background-color: #FFFF67;   
 } 
 
+th.dialog_ukc {
+    background-color: #F8A848;
+    border-width:1px;
+    border-style:solid;
+    border-color: #08B030;
+   
+} 
+
+.dialog_ukc {
+    background-color: #F8A848;  
+       
+} 
+
 .baseupdatebutton {
 	background-color: #79EC68;
 }
