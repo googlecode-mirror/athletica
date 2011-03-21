@@ -716,7 +716,7 @@ $strCatLicense = "Categorie con licenza";
 
 $strActiv_statistic = "Attivi, U23, U20, U18";
 $strU16 = "U16";  
-$strU14 = "U14, U123, U10";  
+$strU14 = "U14, U12, U10";  
 $strActivCHF = "CHF 4.--  per disciplina";
 $strU16CHF = "CHF 2.--  per disciplina";  
 $strU14CHF = "CHF 1.--  per disciplina";  
@@ -742,8 +742,21 @@ $strXmlNoClub = "<br>&nbsp;&nbsp;La società %NAME% non esiste in Athletica.";
 
 $strOver1000m = "Solo per oltre 1000 m s/m";  
 
+$strConvtableRankingPointsU20 = "Punti per rango U20";  
+$strErrAthletesSeeded  = "Gli atleti sono già ripartiti nelle batterie";
+$strBaseTeamNotFound  = "La squadra %name% (%id%) non è stata trovata nella banca dati"; 
+$strBaseRelayNotFound = "La staffetta %name% non è stata trovata nella banca dati";
 
+$strProgramModeFieldRank = "Spostata con classifica";  
+$strWarnRestore  = "Attenzione: la protezione esistente è stata sostituita.";
 
+$strRegie  = "Regia";
+$strRegieMonitor = "Schermo di regia";
+
+$strUserInfo = "<b>Informazione per l'utilizzatore:</b> terminare la prova con il <span class='highlight_yellow'>tasto ENTER </span> o schiacciando il tasto <span class='highlight_yellow'>OK </span>";                                                                                                                                                   
+               
+
+$strNumberEffort  = "Numero risultati";     
 
 
 
@@ -752,8 +765,10 @@ $strRest = "Rimanenti";
 $strMan  =  "Uomini";
 $strWom  =   "Donne";
 $strGenChange  =  "Cambiamento totale";
-$strRanklistAll = "Lista completa dei risultati";
+$strRanklistAll = "Classifica con tutte le serie";
 
- $strTnMk = "P-GM";     
+
+$strNoDoubleFill = "Si possono soltanto riempire le caselle secondo il sesso o secondo la categoria.";  
+$strTnMk = "P-GM";     
 
 ?>
