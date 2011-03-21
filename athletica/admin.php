@@ -414,11 +414,11 @@ function removePassword(){
 							</table>
 						</td>
 					</tr>
-				</table><br/><br/>
+				</table><br/>
 				<?php
 			}
 			?>                 
-            
+                <br/>
            <table class='dialog' width="475">
                     <tr>
                         <th class='dialog_ukc'><?php echo $strUploadUKC; ?></th>
