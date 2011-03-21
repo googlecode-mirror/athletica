@@ -763,7 +763,7 @@ $strErrNoControl2 = "<b>Achtung:</b> Dies kann nicht wieder rückgängig gemacht w
 $strCatLicense = "Kategorien mit Lizenz";
 $strActiv_statistic = "Aktive, U23, U20, U18";
 $strU16 = "U16";  
-$strU14 = "U14, U123, U10"; 
+$strU14 = "U14, U12, U10"; 
 $strActivCHF = "CHF 4.-- pro Start";
 $strU16CHF = "CHF 2.-- pro Start";  
 $strU14CHF = "CHF 1.-- pro Start";   
@@ -814,6 +814,27 @@ $strGenChange = "Pauschale Änderung";
 $strRanklistAll = "Rangliste über alle Serien";
 
 $strNoDoubleFill = "Es können nur entweder die Felder nach Geschlecht oder die Felder nach Kategorie ausgefüllt werden.";
-$strTnMk = "TN-MK";
+$strTnMk = "TN-MK";    
+
+$strAthleteTeam = "Bitte ordnen Sie %ARTIKEL% Athleten eine Mannschaft zu:";
+$strEinz = "dem";
+$strMehrz = "den";   
+$strOnlineRegUKC = "Online Anmeldedaten UBS Kids Cup einspielen";  
+$strNewEntryUKC = "Neue Anmeldung UBS Kids Cup"; 
+$strAddress = "Adresse";
+$strPlz = "PLZ"; 
+$strCity = "Ort"; 
+$strEmail = "E-Mail";    
+$strXmlNoAthClub = "<br>&nbsp;&nbsp;Der Athlet %NAME% hat keinen Verein.";
+$strErrPlzField = "Postleitzahl ist nicht numerisch!"; 
+$strErrEmailField = "E-Mail Adresse ist ungültig!";    
+$strKt = "Kanton";    
+$strErrMergedRoundSpeaker = "Diese Runde wurde zusammengefasst und kann nur in der Hauptrunde angezeigt werden!";   
+$strXmlNoCatAge = "<br>&nbsp;&nbsp;Für diesen Jahrgang %NAME% ist keine Kategorie erfasst.";    
+$strImportUKC_Title = "UBS Kids Cup Anmeldedaten";
+$strImportUKC = "Die Anmeldedaten wurden erfolgreich importiert";         
+$strUploadUKC  = "Upload Kids Cup Resultate";      
+$strErrNoContro3 = "Bitte Wettkampf-Nummer eingeben! Diese ist für den Upload der Resultate notwendig."; 
+$strBaseRelayNotFound = "Staffel %id% wurde in Stammdaten nicht gefunden"; 
 
 ?>
