@@ -86,7 +86,7 @@ class XML_data{
                         , team WRITE,  kategorie READ, wettkampf AS w READ,
                         , disziplin_de AS d READ, disziplin_fr AS d READ, disziplin_it AS d READ, anmeldung AS an READ, anmeldung WRITE
                         , kategorie AS k READ, start WRITE, runde WRITE");
-            break;
+            break;              
 		}
 		//mysql_query("START TRANSACTION");
 		
@@ -150,7 +150,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 			
 			fclose($fp);
 		}
-		
+                       		
 		//mysql_query("COMMIT");
 		mysql_query("UNLOCK TABLES");
 		
@@ -162,10 +162,12 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		$updateType = $value;
 	}
 	
+    
+      
 	function gen_result_xml($file){  
 		//function returns containing number of results in xml-file
-		$nbr_effort=0;
-        $notStarted = false;    
+		$nbr_effort=0;              
+        $notStartedMK = array(); 
 
 		//global	$opentags;
 		global	$cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
@@ -183,7 +185,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		//
 		// output contest data
 		//
-		$global_rankadd = "";
+		$global_rankadd = "";   
+        $indoor = '';
 		$query = "
 			SELECT
 				m.*
@@ -191,7 +194,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 				, s.Ueber1000m
 				, s.Halle
 			FROM 
-				meeting as m LEFT JOIN stadion as s ON m.xStadion = s.xStadion 
+				meeting as m 
+                LEFT JOIN stadion as s ON m.xStadion = s.xStadion 
 			WHERE xMeeting = ".$_COOKIE['meeting_id'];
 		$res = mysql_query($query);
 		if(mysql_errno() > 0){
@@ -209,39 +213,38 @@ document.getElementById("progress").width="<?php echo $width ?>";
 			$this->write_xml_finished("amountSpectators"," ");
 			
 			if($row['Ueber1000m'] == 'y'){ $global_rankadd = "A"; }
-			//if($row['Halle'] == 'y'){ $global_rankadd .= "i"; }
-            if($row['Saison'] == 'I'){ $global_rankadd .= "i"; }   
+			//if($row['Halle'] == 'y'){ $global_rankadd .= "i"; }                
+            if($row['Saison'] == 'I'){ $indoor = "i"; }   
 		}
 		
 		//
 		// output all athletica generated teams (relays, svm)
 		//
-		$this->write_xml_open("accounts");
+		$this->write_xml_open("accounts");      
+                
+         $query = "
+            SELECT 
+                s.xStaffel
+                , s.Name
+                , v.xCode as Verein
+                , k.Code as Kat
+                , d.Code as Dis
+            FROM
+                staffel as s
+                LEFT JOIN verein as v ON (s.xVerein = v.xVerein)
+                LEFT JOIN kategorie as k ON (k.xKategorie = s.xKategorie  )
+                LEFT JOIN start as st ON (st.xStaffel = s.xStaffel)
+                LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf )
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (d.xDisziplin = w.xDisziplin)
+            WHERE 
+                Athleticagen = 'y'    
+                AND w.Mehrkampfcode != 403         
+                AND s.xMeeting = ".$_COOKIE['meeting_id']."
+            ORDER BY 
+                v.xVerein";        
 		
-		$query = "
-			SELECT 
-				s.xStaffel
-				, s.Name
-				, v.xCode as Verein
-				, k.Code as Kat
-				, d.Code as Dis
-			FROM
-				staffel as s
-				, verein as v 
-				, kategorie as k
-				, start as st
-				, wettkampf as w
-				, disziplin_" . $_COOKIE['language'] . " as d
-			WHERE Athleticagen = 'y'
-			AND s.xVerein = v.xVerein 
-			AND k.xKategorie = s.xKategorie
-			AND st.xStaffel = s.xStaffel
-			AND w.xWettkampf = st.xWettkampf
-			AND d.xDisziplin = w.xDisziplin
-			AND s.xMeeting = ".$_COOKIE['meeting_id']."
-			ORDER BY 
-				v.xVerein";
-		$res_teams = mysql_query($query);
+        $res_teams = mysql_query($query);       
+        
 		if(mysql_errno() > 0){
 			echo(mysql_errno().": ".mysql_error());
 		}else{
@@ -272,28 +275,30 @@ document.getElementById("progress").width="<?php echo $width ?>";
 			}
 			
 		}
-		
-		$query = "
-			SELECT 
-				t.xTeam
-				, t.Name
-				, v.xCode as Verein
-				, k.Code as Kat
-			FROM
-				team as t
-				, verein as v 
-				, kategorie_svm as k
-				, wettkampf as w
-			WHERE Athleticagen = 'y'
-			AND t.xVerein = v.xVerein
-			AND t.xKategorie = w.xKategorie
-			AND w.xKategorie_svm = k.xKategorie_svm
-			AND w.xMeeting = ".$_COOKIE['meeting_id']."
-			GROUP BY
-				t.xTeam
-			ORDER BY 
-				v.xVerein";
-		$res_teams = mysql_query($query);
+		          	
+                
+        $query = "
+            SELECT 
+                t.xTeam
+                , t.Name
+                , v.xCode as Verein
+                , k.Code as Kat
+            FROM
+                team as t
+                LEFT JOIN verein as v ON (t.xVerein = v.xVerein) 
+                LEFT JOIN wettkampf as w ON (t.xKategorie = w.xKategorie)
+                LEFT JOIN kategorie_svm as k ON (w.xKategorie_svm = k.xKategorie_svm)   
+            WHERE 
+                Athleticagen = 'y'   
+                AND w.Mehrkampfcode != 403                 
+                AND w.xMeeting = ".$_COOKIE['meeting_id']."
+            GROUP BY
+                t.xTeam
+            ORDER BY 
+                v.xVerein";      
+                
+        $res_teams = mysql_query($query);     
+        
 		if(mysql_errno() > 0){
 			echo(mysql_errno().": ".mysql_error());
 		}else{
@@ -324,37 +329,38 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		//
 		// get all disciplines
 		//
-		$this->write_xml_open("disciplines");
+		$this->write_xml_open("disciplines");     		
 		
-		$res = mysql_query("
-				SELECT
-					w.Typ,
-					w.Windmessung,
-					d.Typ,
-					d.Code,
-					k.Code,
-					w.xWettkampf,
-					d.Kurzname,
-					w.Mehrkampfcode,
-					w.xKategorie,
-					d.Staffellaeufer,  
+		$sql = "SELECT
+                    w.Typ,
+                    w.Windmessung,
+                    d.Typ,
+                    d.Code,
+                    k.Code,
+                    w.xWettkampf,
+                    d.Kurzname,
+                    w.Mehrkampfcode,
+                    w.xKategorie,
+                    d.Staffellaeufer,  
                     r.xRunde
-				FROM 
-					wettkampf as w 
-				    LEFT JOIN runde as r ON (w.xWettkampf = r.xWettkampf)  
-				LEFT JOIN
-					disziplin_" . $_COOKIE['language'] . " as d ON d.xDisziplin = w.xDisziplin
-				LEFT JOIN
-					kategorie as k ON k.xKategorie = w.xKategorie     
-				WHERE r.xRunde > 0 AND  
-                	w.xMeeting = ".$_COOKIE['meeting_id']."  				
-				ORDER BY
-					k.Code
-					, w.xKategorie
-					, w.Mehrkampfcode
-					, w.Mehrkampfreihenfolge
-			");	// the order "k.Code, w.xKategorie" makes sense if there are multiple self made categories (without any code)
-		    
+                FROM 
+                    wettkampf as w 
+                    LEFT JOIN runde as r ON (w.xWettkampf = r.xWettkampf)  
+                LEFT JOIN
+                    disziplin_" . $_COOKIE['language'] . " as d ON d.xDisziplin = w.xDisziplin
+                LEFT JOIN
+                    kategorie as k ON k.xKategorie = w.xKategorie     
+                WHERE r.xRunde > 0 
+                      AND w.Mehrkampfcode != 403         
+                      AND w.xMeeting = ".$_COOKIE['meeting_id']."                  
+                ORDER BY
+                    k.Code
+                    , w.xKategorie
+                    , w.Mehrkampfcode
+                    , w.Mehrkampfreihenfolge";
+                // the order "k.Code, w.xKategorie" makes sense if there are multiple self made categories (without any code)        
+        $res = mysql_query($sql);  
+           
 		if(mysql_errno() > 0){
 			echo(mysql_errno().": ".mysql_error());
 		}else{
@@ -386,13 +392,17 @@ document.getElementById("progress").width="<?php echo $width ?>";
 				//
 				// generate results for combined events
 				//
+                
 				if($current_xcat != $row[8] || $combined_dis != $row[7]){ // cat or combcode changed, print combined results
-					if(!empty($combined) && $combined_dis < 9000){ // combined codes 9000 and above are self made disciplines
+					//if(!empty($combined) && $combined_dis < 9000){ // combined codes 9000 and above are self made disciplines
+                    //if(!empty($combined) && $combined_dis < 796){ // combined codes 9000 and above are self made disciplines      
+                    if(!empty($combined) && $combined_dis < 9000 && $combined_dis != 796 && $combined_dis != 797 && $combined_dis != 798 && $combined_dis != 799) {                
 						$this->write_xml_open("discipline", array('sportDiscipline'=>$combined_dis, 'licenseCategory'=>$combined_cat));
 						$this->write_xml_open("athletes");
 						
 						// calc points
 						foreach($combined as $xathlet => $disc){
+                            
 							$points = 0;
 							$eDetails = "";
 							$tmp_fe = $fetched_events; // temp array for fetched events
@@ -431,6 +441,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							$eDetails = substr($eDetails, 0, -1);
 							$combined[$xathlet]['points'] = $points;
 							$combined[$xathlet]['edetails'] = $eDetails;
+                            
 						}
 						// sort for points
 						usort($combined, array($this, "sort_combined"));
@@ -451,6 +462,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							}else{
 								$rank[$curr_athlete_cat]++;
 							}*/
+                            
+                           
 							$cRank++;
 							if($lp != $disc['points']){
 								$rank = $cRank;
@@ -469,37 +482,40 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							// filter athletes not from switzerland and athletes without license
 							if($tmp['accountCode'] == '' || $tmp['accountCode'] == '999999' || $tmp['licenseType'] == 3){
 								continue;
-							}
+							}   
+                           
+                            if (!$notStartedMK[$tmp['xAthlet']]) {     // Athlet is not started for one disziplin --> not send the combined event points to AES    
 							
-							$this->write_xml_open("athlete", array('license'=>$tmp['license'], 'licensePaid'=>$tmp['licensePaid']
-									, 'licenseCat'=>'', 'inMasterData'=>$tmp['inMasterData']));
-							
-							if(!$tmp['inMasterData']){
-								$this->write_xml_finished("lastName", $tmp['lastName']);
-								$this->write_xml_finished("firstName", $tmp['firstName']);
-								
-								$this->write_xml_finished("birthDate", $tmp['birthDate']);
-								$this->write_xml_finished("sex", $tmp['sex']);
-								$this->write_xml_finished("nationality", $tmp['nationality']);
-								$this->write_xml_finished("accountCode", $tmp['accountCode']);
-								$this->write_xml_finished("secondaccountCode", " ");
-							}
-							
-							$nbr_effort++;
-							$this->write_xml_open("efforts");
-							$this->write_xml_open("effort");
-							$this->write_xml_finished("DateOfEffort",$tmp['DateOfEffort']);
-							$this->write_xml_finished("scoreResult",AA_alabusScore($disc['points']));
-							$this->write_xml_finished("wind"," ");
-							$this->write_xml_finished("kindOfLap"," ");	// round type combined (D)
-							$this->write_xml_finished("lap"," ");		// heat name (A_, B_, 01, 02 ..)
-							//$this->write_xml_finished("place",$rank[$curr_athlete_cat]);
-							$this->write_xml_finished("place",$rank);
-							$this->write_xml_finished("placeAddon",$tmp['placeAddon']);
-							$this->write_xml_finished("relevant","1");
-							$this->write_xml_finished("effortDetails",$disc['edetails']);
-							$this->write_xml_close("effort");
-							
+							    $this->write_xml_open("athlete", array('license'=>$tmp['license'], 'licensePaid'=>$tmp['licensePaid']
+									    , 'licenseCat'=>'', 'inMasterData'=>$tmp['inMasterData']));
+							    
+							    if(!$tmp['inMasterData']){
+								    $this->write_xml_finished("lastName", $tmp['lastName']);
+								    $this->write_xml_finished("firstName", $tmp['firstName']);
+								    
+								    $this->write_xml_finished("birthDate", $tmp['birthDate']);
+								    $this->write_xml_finished("sex", $tmp['sex']);
+								    $this->write_xml_finished("nationality", $tmp['nationality']);
+								    $this->write_xml_finished("accountCode", $tmp['accountCode']);
+								    $this->write_xml_finished("secondaccountCode", " ");
+							    }
+							    
+							    $nbr_effort++;
+							    $this->write_xml_open("efforts");
+							    $this->write_xml_open("effort");
+							    $this->write_xml_finished("DateOfEffort",$tmp['DateOfEffort']);
+							    $this->write_xml_finished("scoreResult",AA_alabusScore($disc['points']));
+							    $this->write_xml_finished("wind"," ");
+							    $this->write_xml_finished("kindOfLap"," ");	// round type combined (D)
+							    $this->write_xml_finished("lap"," ");		// heat name (A_, B_, 01, 02 ..)
+							    //$this->write_xml_finished("place",$rank[$curr_athlete_cat]);
+							    $this->write_xml_finished("place",$rank);
+							    $this->write_xml_finished("placeAddon",$tmp['placeAddon']);    
+                                $this->write_xml_finished("indoor",$tmp['indoor']);   
+							    $this->write_xml_finished("relevant","1");
+							    $this->write_xml_finished("effortDetails",$disc['edetails']);
+							    $this->write_xml_close("effort");
+                            }
 						}
 						
 						$this->close_open_tags("disciplines");
@@ -627,56 +643,53 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							. $order_perf;                         
 				}
 				else {						// relay event
-					$query = "
-						SELECT
-							ss.xSerienstart
-							, ss.Rang
-							, ss.Qualifikation
-							, r.Leistung
-							, r.Info
-							, s.Bezeichnung
-							, s.Wind
-							, r.Punkte
-							, v.Name
-							, sf.Name
-							, sf.xStaffel
-							, ru.Datum
-							, rt.Code as Typ
-							, st.xStart
-							, ru.xRunde
-							, s.Handgestoppt
-						FROM
-							runde as ru
-							, serie AS s USE INDEX (Runde)
-							, serienstart AS ss
-							, resultat AS r
-							, start AS st
-							, staffel AS sf
-							, verein AS v
-							, rundentyp_" . $_COOKIE['language'] . " as rt
-						WHERE ru.xWettkampf = $row[5]
-						AND s.xRunde = ru.xRunde
-						AND ss.xSerie = s.xSerie
-						AND r.xSerienstart = ss.xSerienstart
-						AND st.xStart = ss.xStart
-						AND sf.xStaffel = st.xStaffel
-						AND v.xVerein = sf.xVerein
-						AND ru.xRundentyp = rt.xRundentyp
-						AND ru.Status = ".$cfgRoundStatus['results_done']."
-						AND ru.StatusUpload = 0
-						AND r.Leistung > 0
-						AND v.xCode != ''
-						AND v.xCode != '999999'
-						$valid_result
-						GROUP BY
-							r.xSerienstart
-						ORDER BY
-							st.xStaffel
-							, ss.Rang
-							 "
-							. $order_perf;
-				}
-				
+					                                   
+                    $query = "
+                        SELECT
+                            ss.xSerienstart
+                            , ss.Rang
+                            , ss.Qualifikation
+                            , r.Leistung
+                            , r.Info
+                            , s.Bezeichnung
+                            , s.Wind
+                            , r.Punkte
+                            , v.Name
+                            , sf.Name
+                            , sf.xStaffel
+                            , ru.Datum
+                            , rt.Code as Typ
+                            , st.xStart
+                            , ru.xRunde
+                            , s.Handgestoppt
+                        FROM
+                            runde as ru
+                            LEFT JOIN serie AS s ON (s.xRunde = ru.xRunde)
+                            LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie  )
+                            LEFT JOIN resultat AS r  ON (r.xSerienstart = ss.xSerienstart)
+                            LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                            LEFT JOIN staffel AS sf ON (sf.xStaffel = st.xStaffel)
+                            LEFT JOIN verein AS v ON (v.xVerein = sf.xVerein)
+                            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " as rt ON (ru.xRundentyp = rt.xRundentyp )
+                        WHERE 
+                            ru.xWettkampf = $row[5]   
+                            AND ru.Status = ".$cfgRoundStatus['results_done']."
+                            AND ru.StatusUpload = 0
+                            AND r.Leistung > 0
+                            AND v.xCode != ''
+                            AND v.xCode != '999999'
+                            $valid_result
+                        GROUP BY
+                            r.xSerienstart
+                        ORDER BY
+                            st.xStaffel
+                            , ss.Rang
+                             "
+                            . $order_perf;    
+                    
+                        $res_teams = mysql_query($query);   
+				}            
+                
 				$res_results = mysql_query($query);
                 
 				if(mysql_errno() > 0){
@@ -696,9 +709,12 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					$id = 0;	// athletes id
 					$ru = 0;	// round id
                    
-					while($row_results = mysql_fetch_assoc($res_results)){
-                        if ($row_results['Leistung'] == -1){
-                            $notStarted = true; 
+					while($row_results = mysql_fetch_assoc($res_results)){    
+                        if ($row['Mehrkampfcode'] >= 796 && $row['Mehrkampfcode'] <= 798 )   {                    // ...sprung / ...lauf / ...wurf     --> not send to AES
+                             continue; 
+                        }
+                        if ($row_results['Leistung'] == -1){    
+                            $notStartedMK[$row_results['xAthlet']] = true;  
                             continue;
                         }
 						// store round ids for later purpose
@@ -828,31 +844,35 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							$this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);	// round type
 							$this->write_xml_finished("lap",$row_results['Bezeichnung']);		// heat name (A_, B_, 01, 02 ..)
 							$this->write_xml_finished("place",$row_results['Rang']);
-							$this->write_xml_finished("placeAddon",$rankadd);
+							$this->write_xml_finished("placeAddon",$rankadd);  
+                            $this->write_xml_finished("indoor",$indoor); 
 							$this->write_xml_finished("relevant",$relevant);   
 							
 							// get athletes for effort details
 							$cRelayAt = 4;
 							if($row[9] > 0){ // staffelläufer count of discipline
 								$cRelayAt = $row[9];
-							}
+							}    
+                            
+                            $query = "
+                                SELECT 
+                                    at.Name, 
+                                    at.Vorname, 
+                                    st.Position 
+                                FROM
+                                    staffelathlet as st
+                                    LEFT JOIN start as s  ON (st.xAthletenstart = s.xStart)
+                                    LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)
+                                    LEFT JOIN athlet as at ON (a.xAthlet = at.xAthlet)
+                                WHERE 
+                                    st.xStaffelstart = ".$row_results['xStart']."
+                                    AND st.xRunde = ".$row_results['xRunde']."                                  
+                                ORDER BY
+                                    st.Position ASC
+                                LIMIT $cRelayAt";       
 							
-							$query = "
-								SELECT at.Name, at.Vorname, st.Position FROM
-									staffelathlet as st
-									, start as s
-									, anmeldung as a
-									, athlet as at
-								WHERE st.xStaffelstart = ".$row_results['xStart']."
-								AND st.xRunde = ".$row_results['xRunde']."
-								AND st.xAthletenstart = s.xStart
-								AND s.xAnmeldung = a.xAnmeldung
-								AND a.xAthlet = at.xAthlet
-								ORDER BY
-									st.Position ASC
-								LIMIT $cRelayAt";
-							
-							$res_relayat = mysql_query($query);
+                            $res_relayat = mysql_query($query);       
+                            
 							if(mysql_errno() > 0){
 								echo mysql_error();
 							}else{
@@ -901,13 +921,13 @@ document.getElementById("progress").width="<?php echo $width ?>";
 										$rank = " ";
 										$row_results['Bezeichnung'] = " ";
 										//
-										//add points for combined contests 
+										//add points for combined contests                                            
                                         if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
 											
 											$combined[$row_results['xAthlet']][$row[3]] = array('kindOfLap'=>" ".$row_results['Typ'],
-												'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 
+												'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'indoor'=>$indoor,
 												'points'=>$row_results['Punkte'],
-												'discipline'=>$row[6], 'license'=>$row_results['Lizenznummer'],
+												'discipline'=>$row[6], 'license'=>$row_results['Lizenznummer'],  'xAthlet'=>$row_results['xAthlet'],
 												'DateOfEffort'=>$row_results['Datum'],
 												'lastName'=>$row_results['Name'], 'firstName'=>$row_results['Vorname'], 
 												'birthDate'=>$birthday, 'sex'=>$row_results['Geschlecht'], 
@@ -1015,24 +1035,25 @@ document.getElementById("progress").width="<?php echo $width ?>";
 								$rank = " ";
 								$row_results['Bezeichnung'] = " ";
 								//
-								//add points for combined contests								 
+								//add points for combined contests	 
                                 if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
-									
-									$combined[$row_results['xAthlet']][$row[3]] = array('wind'=>$wind, 'kindOfLap'=>" ".$row_results['Typ'],
-										'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'points'=>$row_results['Punkte'],
-										'effort'=>$perfRounded, 'discipline'=>$row[6], 'license'=>$row_results['Lizenznummer'],
-										'inMasterData'=>$inMasterData, 'licensePaid'=>$licensePaid, 'DateOfEffort'=>$row_results['Datum'],
-										'lastName'=>$row_results['Name'], 'firstName'=>$row_results['Vorname'], 
-										'birthDate'=>$birthday, 'sex'=>$row_results['Geschlecht'], 'nationality'=>$row_results['Land'], 
-										'accountCode'=>$row_results['Vereincode'], 'priority'=>$combinedPriority, 
-										'licenseType'=>$row_results['Lizenztyp']);
-									
-									// category of athlete, used for calculating the rankings
-									$combined[$row_results['xAthlet']]['catathlete']= $row_results['Katathlet'];
-								}
+									        
+									        $combined[$row_results['xAthlet']][$row[3]] = array('wind'=>$wind, 'kindOfLap'=>" ".$row_results['Typ'],
+										        'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'indoor'=>$indoor, 'points'=>$row_results['Punkte'],
+										        'effort'=>$perfRounded, 'discipline'=>$row[6], 'license'=>$row_results['Lizenznummer'], 'xAthlet'=>$row_results['xAthlet'], 
+										        'inMasterData'=>$inMasterData, 'licensePaid'=>$licensePaid, 'DateOfEffort'=>$row_results['Datum'],
+										        'lastName'=>$row_results['Name'], 'firstName'=>$row_results['Vorname'], 
+										        'birthDate'=>$birthday, 'sex'=>$row_results['Geschlecht'], 'nationality'=>$row_results['Land'], 
+										        'accountCode'=>$row_results['Vereincode'], 'priority'=>$combinedPriority, 
+										        'licenseType'=>$row_results['Lizenztyp']);
+									        
+									        // category of athlete, used for calculating the rankings
+									        $combined[$row_results['xAthlet']]['catathlete']= $row_results['Katathlet'];
+								}   
+                                
 							}else{
 								$rank = $row_results['Rang'];
-							}
+							}    
 							
 							// check on relevant for bestlist
 							$relevant = 1; 							
@@ -1046,7 +1067,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 							$this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);	// round type
 							$this->write_xml_finished("lap",$row_results['Bezeichnung']);	// heat name (A_, B_, 01, 02 ..)  
                             $this->write_xml_finished("place",$rank);
-							$this->write_xml_finished("placeAddon",$rankadd);
+							$this->write_xml_finished("placeAddon",$rankadd); 
+                            $this->write_xml_finished("indoor",$indoor);
 							$this->write_xml_finished("relevant",$relevant);
 							$this->write_xml_finished("effortDetails"," ");
 							$this->write_xml_finished("accountinfo", " ".$row_results['Vereinsinfo']);
@@ -1087,7 +1109,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 											$this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);	// round type
 											$this->write_xml_finished("lap",$row_results['Bezeichnung']);	// heat name (A_, B_, 01, 02 ..)
 											$this->write_xml_finished("place"," ");
-											$this->write_xml_finished("placeAddon",$rankadd);
+											$this->write_xml_finished("placeAddon",$rankadd); 
+                                            $this->write_xml_finished("indoor",$indoor);
 											$this->write_xml_finished("relevant",$relevant);
 											$this->write_xml_finished("effortDetails"," ");
 											$this->write_xml_close("effort");
@@ -1108,9 +1131,9 @@ document.getElementById("progress").width="<?php echo $width ?>";
 				
 			}
 			
-			// check on last combined event
-            if (!$notStarted) {    // if athlet with one discipline not started --> not upload the results for combined event points
-			    if(!empty($combined) && $combined_dis < 9000){ // combined codes 9000 and above are self made disciplines
+			// check on last combined event                   
+		   // if(!empty($combined) && $combined_dis < 9000){ // combined codes 9000 and above are self made disciplines
+           if(!empty($combined) && $combined_dis < 9000 && $combined_dis != 796 && $combined_dis != 797 && $combined_dis != 798 && $combined_dis != 799) {                   
 				    $this->write_xml_open("discipline", array('sportDiscipline'=>$combined_dis, 'licenseCategory'=>$combined_cat));
 				    $this->write_xml_open("athletes");
 				    
@@ -1193,44 +1216,48 @@ document.getElementById("progress").width="<?php echo $width ?>";
 					    // filter athletes not from switzerland and athletes without license
 					    if($tmp['accountCode'] == '' || $tmp['accountCode'] == '999999' || $tmp['licenseType'] == 3){
 						    continue;
-					    }
+					    }    
+                            
+                        if (!$notStartedMK[$tmp['xAthlet']]) {     // Athlet is not started for one disziplin --> not send the combined event points     
 					    
-					    $this->write_xml_open("athlete", array('license'=>$tmp['license'], 'licensePaid'=>$tmp['licensePaid']
-							    , 'licenseCat'=>'', 'inMasterData'=>$tmp['inMasterData']));
-					    
-					    if(!$tmp['inMasterData']){
-						    $this->write_xml_finished("lastName", $tmp['lastName']);
-						    $this->write_xml_finished("firstName", $tmp['firstName']);
-						    
-						    $this->write_xml_finished("birthDate", $tmp['birthDate']);
-						    $this->write_xml_finished("sex", $tmp['sex']);
-						    $this->write_xml_finished("nationality", $tmp['nationality']);
-						    $this->write_xml_finished("accountCode", $tmp['accountCode']);
-						    $this->write_xml_finished("secondaccountCode", " ");
-					    }
-					    
-					    $this->write_xml_open("efforts");
-					    
-					    $nbr_effort;
-					    $this->write_xml_open("effort");
-					    $this->write_xml_finished("DateOfEffort",$tmp['DateOfEffort']);
-					    $this->write_xml_finished("scoreResult",AA_alabusScore($disc['points']));
-					    $this->write_xml_finished("wind"," ");
-					    $this->write_xml_finished("kindOfLap"," ");	// round type combined (D)
-					    $this->write_xml_finished("lap"," ");		// heat name (A_, B_, 01, 02 ..)
-					    //$this->write_xml_finished("place",$rank[$curr_athlete_cat]);
-					    $this->write_xml_finished("place",$rank);
-					    $this->write_xml_finished("placeAddon",$tmp['placeAddon']);
-					    $this->write_xml_finished("relevant","1");
-					    $this->write_xml_finished("effortDetails",$disc['edetails']);
-					    $this->write_xml_close("effort");
+					        $this->write_xml_open("athlete", array('license'=>$tmp['license'], 'licensePaid'=>$tmp['licensePaid']
+							        , 'licenseCat'=>'', 'inMasterData'=>$tmp['inMasterData']));
+					        
+					        if(!$tmp['inMasterData']){
+						        $this->write_xml_finished("lastName", $tmp['lastName']);
+						        $this->write_xml_finished("firstName", $tmp['firstName']);
+						        
+						        $this->write_xml_finished("birthDate", $tmp['birthDate']);
+						        $this->write_xml_finished("sex", $tmp['sex']);
+						        $this->write_xml_finished("nationality", $tmp['nationality']);
+						        $this->write_xml_finished("accountCode", $tmp['accountCode']);
+						        $this->write_xml_finished("secondaccountCode", " ");
+					        }
+					        
+					        $this->write_xml_open("efforts");
+					        
+					        $nbr_effort;
+					        $this->write_xml_open("effort");
+					        $this->write_xml_finished("DateOfEffort",$tmp['DateOfEffort']);
+					        $this->write_xml_finished("scoreResult",AA_alabusScore($disc['points']));
+					        $this->write_xml_finished("wind"," ");
+					        $this->write_xml_finished("kindOfLap"," ");	// round type combined (D)
+					        $this->write_xml_finished("lap"," ");		// heat name (A_, B_, 01, 02 ..)
+					        //$this->write_xml_finished("place",$rank[$curr_athlete_cat]);
+					        $this->write_xml_finished("place",$rank);
+					        $this->write_xml_finished("placeAddon",$tmp['placeAddon']);
+                             $this->write_xml_finished("indoor",$tmp['indoor']);   
+					        $this->write_xml_finished("relevant","1");
+					        $this->write_xml_finished("effortDetails",$disc['edetails']);
+					        $this->write_xml_close("effort");
+                        
+                        }
 					    
 				    }
 				    
 				    $this->close_open_tags("disciplines");
 			    }
-                $notStarted = false;
-            }
+               
 			$combined = array();
 			
 			// get the svm results
@@ -1293,6 +1320,643 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		
 		return $nbr_effort;
 	}
+    
+// generate results UBS kidscup for upload
+//
+function gen_result_xml_UKC($file){ 
+         //function returns containing number of results in xml-file
+        $nbr_effort=0;
+        $notStarted = false;     
+       
+        global $cfgDisciplineType, $cfgEventType, $strEventTypeSingleCombined, 
+            $strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
+            $strDiscTypeRelay, $strDiscTypeDistance, $cfgRoundStatus,
+            $strDiscTypeJump, $strDiscTypeJumpNoWind, $strDiscTypeThrow, $strDiscTypeHigh,
+            $cfgCombinedWO, $cfgCombinedDef;
+        
+        $this->gzip_open($file);
+        
+        // begin xml
+        $this->write_xml_open("kidDataset", array('version'=>date('y-m-d')));
+        $this->write_xml_open("event");
+        
+        //
+        // output contest data
+        //                     
+        $query = "
+            SELECT
+                m.*
+                , s.Name as Stadion
+                , s.Ueber1000m
+                , s.Halle
+            FROM 
+                meeting as m 
+                LEFT JOIN stadion as s ON m.xStadion = s.xStadion 
+            WHERE xMeeting = ".$_COOKIE['meeting_id'];
+        $res = mysql_query($query);
+        if(mysql_errno() > 0){
+            echo(mysql_errno().": ".mysql_error());
+        }else{
+            $row = mysql_fetch_assoc($res);
+            mysql_free_result($res);
+            
+            $this->write_xml_finished("eventNumber",$row['Nummer']);                      // not xControl for UBS kidscup
+            $this->write_xml_finished("name",str_replace('&', '&amp;', $row['Name']));
+            $this->write_xml_finished("eventStart",$row['DatumVon']);
+            $this->write_xml_finished("eventEnd",$row['DatumBis']);
+            $this->write_xml_finished("location",$row['Ort']);
+            $this->write_xml_finished("stadium",$row['Stadion']);
+            $this->write_xml_finished("amountSpectators"," ");
+            
+            $this->write_xml_open("athletes");  
+            
+            if($row['Ueber1000m'] == 'y'){ $global_rankadd = "A"; }               
+            if($row['Saison'] == 'I'){ $indoor = "i"; }   
+        }
+                        
+        //
+        // get all disciplines
+        //  
+        $sql="  SELECT
+                    w.Typ,
+                    w.Windmessung,
+                    d.Typ,
+                    d.Code,
+                    k.Code,
+                    w.xWettkampf,
+                    d.Kurzname,
+                    w.Mehrkampfcode,
+                    w.xKategorie,
+                    d.Staffellaeufer,  
+                    r.xRunde
+                FROM 
+                    wettkampf as w 
+                    LEFT JOIN runde as r ON (w.xWettkampf = r.xWettkampf)  
+                LEFT JOIN
+                    disziplin_" . $_COOKIE['language'] . " as d ON d.xDisziplin = w.xDisziplin
+                LEFT JOIN
+                    kategorie as k ON k.xKategorie = w.xKategorie     
+                WHERE r.xRunde > 0 AND  
+                    w.xMeeting = ".$_COOKIE['meeting_id']."                  
+                ORDER BY
+                    k.Code
+                    , w.xKategorie
+                    , w.Mehrkampfcode
+                    , w.Mehrkampfreihenfolge";     
+               // the order "k.Code, w.xKategorie" makes sense if there are multiple self made categories (without any code)        
+        $res = mysql_query($sql);
+        
+        if(mysql_errno() > 0){
+            echo(mysql_errno().": ".mysql_error());
+        }else{
+            
+            $current_type = "";
+            $combined = "";
+            $current_cat = "";
+            $current_xcat = 0;
+            $fetched_events = array(); // used for combined events
+                        // if an athlete has no result for one discipline of a combined event,
+                        // the detail text has to include a 'null' result
+            $GLOBALS['rounds'] = array();
+            
+            while($row = mysql_fetch_array($res)){    
+                //
+                // generate results for combined events
+                //
+                if($current_xcat != $row[8] || $combined_dis != $row[7]){ // cat or combcode changed, print combined results    
+                   
+                    if(!empty($combined) && $combined_dis == 403) {         // only UBS kidscup   
+                        
+                        // calc points
+                        foreach($combined as $xathlet => $disc){
+                            $points = 0;
+                            $eDetails = "";
+                            $tmp_fe = $fetched_events; // temp array for fetched events
+                            
+                            foreach($disc as $xdisc => $tmp){
+                                if($xdisc == "catathlete"){ continue; }
+                                
+                                // check if there are events missing for the current athlete and add 'null' entries
+                                while($tmp_fe[0][3] != $xdisc){                                             
+                                    $eDetails .= "0/";
+                                    array_shift($tmp_fe);
+                                }
+                                array_shift($tmp_fe);
+                                
+                                $points += $tmp['points'];
+                                if($tmp['wind'] == " "){
+                                    $tmp['wind'] = "";
+                                }else{
+                                    if($tmp['wind'] >= 0){
+                                        $tmp['wind'] = "+".$tmp['wind'];
+                                    }else{
+                                        $tmp['wind'] = $tmp['wind'];
+                                    }
+                                }                                       
+                               $eDetails .= $tmp['effort']."/";   
+                                
+                            }
+                            
+                            // check if last events are missing
+                            while(isset($tmp_fe[0][3])){
+                                $eDetails .= "0/";
+                                array_shift($tmp_fe);
+                            }
+                            
+                            $eDetails = substr($eDetails, 0, -1);
+                            $combined[$xathlet]['points'] = $points;
+                            $combined[$xathlet]['edetails'] = $eDetails;
+                        }
+                        // sort for points
+                        usort($combined, array($this, "sort_combined"));
+                        
+                        // write                                   
+                        $rank = 0;    // athletes rank
+                        $cRank = 0;    // rank counter
+                        $lp = 0;    // remembers points of last athlete
+                        foreach($combined as $xathlet => $disc){    
+                            
+                            // count place for each athlete category    
+                            $cRank++;
+                            if($lp != $disc['points']){
+                                $rank = $cRank;
+                                $lp = $disc['points'];
+                            }
+                            
+                            // get information for athlete, remove not needed information and sort per DateOfEffort
+                            $tmp = $disc;
+                            $tmp['points'] = null;
+                            $tmp['edetails'] = null;
+                            $tmp['catathlete'] = null;
+                            $tmp = array_values($tmp);
+                            usort($tmp, array($this, "sort_perdate"));
+                            $tmp = $tmp[0];       
+                            
+                            $this->write_xml_open("athlete", array('license'=>$tmp['license'], 'kidID'=>$tmp['kidID'] ));    
+                            
+                            $nbr_effort++;                                    
+                            
+                            list ($run, $jump, $throw ) = split('[/]', $disc['edetails']);
+                            
+                            $this->write_xml_open("efforts");      
+                            $this->write_xml_finished("run",$run); 
+                            $this->write_xml_finished("throw",$throw); 
+                            $this->write_xml_finished("jump",$jump);   
+                            $this->write_xml_finished("totalPoints",AA_alabusScore($disc['points']));   
+                            $this->write_xml_finished("position",$rank);    
+                            $this->write_xml_close("efforts");              
+                            
+                            if(!$tmp['inMasterData']){
+                                $this->write_xml_open("personalData");
+                                 
+                                $this->write_xml_finished("lastName", $tmp['lastName']);
+                                $this->write_xml_finished("firstName", $tmp['firstName']);
+                                
+                                $this->write_xml_finished("ageGroup", $tmp['birthDate']);
+                                $this->write_xml_finished("sex", $tmp['sex']);
+                                $this->write_xml_finished("adress", $tmp['adress']);
+                                $this->write_xml_finished("plz", $tmp['plz']);
+                                $this->write_xml_finished("city", $tmp['city']); 
+                                $this->write_xml_finished("club", $tmp['accountName']);  
+                                $this->write_xml_finished("email", $tmp['email']); 
+                                $this->write_xml_finished("canton", $tmp['canton']);
+                                
+                                $this->write_xml_close("personalData");    
+                            }                                                                      
+                             $this->write_xml_close("athlete");  
+                        }    
+                    }
+                    $combined = array();
+                    $fetched_events = array();
+                    $combined_dis = $row[7];
+                    $combined_cat = $row[4];
+                    $current_cat = $row[4];
+                    $current_xcat = $row[8];
+                }           
+                
+                // keep events rows of combined events to check on missing results after
+                if($row[0] == $cfgEventType[$strEventTypeSingleCombined]){
+                    $fetched_events[] = $row;
+                }              
+                               
+                //
+                // first of all, print all single results (athletes and relays)
+                //         
+                $order_perf = "";
+                $valid_result = "";                
+                
+                if(($row[2] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                    || ($row[2] == $cfgDisciplineType[$strDiscTypeThrow]))
+                {
+                    $order_perf = "DESC";                          
+                }
+                else if($row[2] == $cfgDisciplineType[$strDiscTypeJump])
+                {
+                    if ($row[1] == 1) {            // with wind
+                        //$order_perf = "DESC, r.Info ASC";
+                        $order_perf = "DESC";
+                    }
+                    else {                            // without wind
+                        $order_perf = "DESC";
+                    }                             
+                }
+                else if($row[2] == $cfgDisciplineType[$strDiscTypeHigh])
+                {
+                    $order_perf = "DESC";
+                    $valid_result =    " AND (r.Info LIKE '%O%') ";    
+                }
+                else
+                {
+                    $order_perf = "ASC";                              
+                }
+                
+            
+                // check if merged rounds                     
+                $sqlEvents = AA_getMergedEventsFromEvent($row[5]);
+                if (empty($sqlEvents)) {
+                           $sqlSeparate = "ru.xRunde = " . $row[10];
+                }
+                else {
+                          $sqlSeparate = "ss.RundeZusammen = " . $row[10];
+                }
+                // by merged rounds the result must be uploded separate 
+                $query = "
+                        SELECT
+                            ss.xSerienstart
+                            , ss.Rang
+                            , ss.Qualifikation
+                            , r.Leistung
+                            , r.Info
+                            , s.Bezeichnung
+                            , s.Wind
+                            , r.Punkte
+                            , v.Name
+                            , at.Name
+                            , at.Vorname
+                            , at.Jahrgang
+                            , at.Land
+                            , at.xAthlet
+                            , at.Lizenznummer
+                            , ru.Datum
+                            , rt.Code as Typ
+                            , at.Bezahlt
+                            , at.Geburtstag
+                            , at.Geschlecht
+                            , v.xCode as Vereincode
+                            , k.Code as Katathlet
+                            , ru.xRunde
+                            , s.Handgestoppt
+                            , at.Lizenztyp
+                            , a.Vereinsinfo
+                            , rt.Typ
+                            , ba.license_paid 
+                            , if (ss.RundeZusammen > 0,ss.RundeZusammen,ru.xRunde) as spezRound     
+                            , a.kidID
+                            , at.Adresse
+                            , at.Plz
+                            , at.Ort
+                            , at.Email  
+                            , re.Name as Kanton   
+                            , v.Name as Vereinname
+                        FROM
+                            runde as ru
+                            LEFT JOIN serie AS s ON (ru.xRunde = s.xRunde)
+                            LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                            LEFT JOIN resultat AS r ON (r.xSerienstart = ss.xSerienstart)
+                            LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                            LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                            LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                            LEFT JOIN verein AS v  ON (v.xVerein = at.xVerein  )
+                            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (ru.xRundentyp = rt.xRundentyp)
+                            LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)
+                            LEFT JOIN base_athlete AS ba ON (ba.license = at.Lizenznummer)
+                             LEFT JOIN region AS re ON (re.xRegion = at.xRegion) 
+                        WHERE $sqlSeparate
+                        AND ru.Status = ".$cfgRoundStatus['results_done']."
+                        AND ru.StatusUpload = 0
+                        AND r.Leistung >= " . $GLOBALS['cfgInvalidResult']['DNS']['code'] . "
+                        
+                        $valid_result
+                        ORDER BY 
+                            at.xAthlet
+                            , ru.xRunde
+                            , r.Leistung "
+                            . $order_perf;        
+            
+                $res_results = mysql_query($query);      
+                
+                if(mysql_errno() > 0){
+                    echo mysql_Error();
+                }else{                        
+                
+                    $id = 0;    // athletes id
+                    $ru = 0;    // round id
+                   
+                    while($row_results = mysql_fetch_assoc($res_results)){
+                                                                               
+                        if ($row_results['Leistung'] == -1){
+                            $notStarted = true; 
+                            continue;
+                        }
+                        // store round ids for later purpose
+                        $GLOBALS['rounds'][] = $row_results['xRunde'];   
+                       
+                       //
+                       // athlete results
+                       //
+                       if($ru == $row_results['xRunde'] && $id == $row_results['xAthlet']){
+                                continue;
+                       }
+                       $ru = $row_results['xRunde'];    
+                            
+                       if($id != $row_results['xAthlet']){
+                                // new athlete
+                                $id = $row_results['xAthlet'];
+                                                             
+                                if(empty($row_results['Adresse'])){
+                                    $inMasterData = 1;
+                                    $licensePaid = 1;
+                                }else{                                    
+                                    $inMasterData = 0;
+                                    if($row_results['Bezahlt'] == 'y'){
+                                        $licensePaid = 1;
+                                    }else{
+                                        $licensePaid = 0;
+                                    }
+                                }   
+                       }
+                              
+                       $perf = 0; // result for alabus
+                       $wind = "";
+                       $perfRounded = 0; // result for combined detail text
+                            
+                       $nbr_effort++;     
+                            
+                        // add effort parameters   
+                            
+                        $wind = "";
+                        if(($row[2] == $cfgDisciplineType[$strDiscTypeJump])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeThrow])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeHigh])) {
+                                $perf = AA_alabusDistance($row_results['Leistung']);
+                                $perfRounded = AA_formatResultMeter($row_results['Leistung']);      
+                                $wind = strtr($row_results['Info'],",",".");
+                        }else{
+                                $perf = AA_alabusTime($row_results['Leistung']);                                    
+                                $perfRounded = AA_formatResultTime($row_results['Leistung'], true);  
+                                $wind = strtr($row_results['Wind'],",",".");
+                        }                            
+                            
+                        if($row[1] == 0 || $wind == "-" || $wind == ""){
+                                $wind = " ";
+                        }
+                               
+                        if(is_numeric($row_results['Bezeichnung'])){
+                                $row_results['Bezeichnung'] = sprintf("%02s",$row_results['Bezeichnung']);
+                        }else{
+                                if(strlen($row_results['Bezeichnung']) == 1){
+                                    $row_results['Bezeichnung'] .= "_";
+                                }
+                        }
+                            
+                        if($row[0] == $cfgEventType[$strEventTypeSingleCombined]){
+                                
+                                $rank = " ";
+                                $row_results['Bezeichnung'] = " ";
+                                //
+                                //add points for combined contests                                 
+                                if($combined[$row_results['xAthlet']][$row[3]]['points'] < $row_results['Punkte']){
+                                    
+                                    $license = $row_results['Lizenznummer'];
+                                    if ($row_results['Lizenznummer'] == 0){
+                                        $license = '';
+                                    }
+                                    
+                                    $kidsID_upload = $row_results['kidID'];
+                                    if ($row_results['kidID'] == 0){
+                                        $kidsID_upload = '';
+                                    }
+                                    
+                                    $combined[$row_results['xAthlet']][$row[3]] = array('wind'=>$wind, 'kindOfLap'=>" ".$row_results['Typ'],
+                                        'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'indoor'=>$indoor, 'points'=>$row_results['Punkte'],
+                                        'effort'=>$perfRounded, 'discipline'=>$row[6], 'license'=>$license, 'kidID'=>$kidsID_upload,
+                                        'inMasterData'=>$inMasterData, 'licensePaid'=>$licensePaid, 'DateOfEffort'=>$row_results['Datum'],
+                                        'lastName'=>$row_results['Name'], 'firstName'=>$row_results['Vorname'], 
+                                        'birthDate'=>$row_results['Jahrgang'], 'sex'=>$row_results['Geschlecht'], 'nationality'=>$row_results['Land'], 
+                                        'adress'=>$row_results['Adresse'],  'plz'=>$row_results['Plz'],  'city'=>$row_results['Ort'],
+                                         'email'=>$row_results['Email'],   'canton'=>$row_results['Kanton'], 
+                                        'accountName'=>$row_results['Vereinname'], 'priority'=>$combinedPriority, 
+                                        'licenseType'=>$row_results['Lizenztyp']);
+                                    
+                                    // category of athlete, used for calculating the rankings
+                                    $combined[$row_results['xAthlet']]['catathlete']= $row_results['Katathlet'];
+                                }
+                        }
+                            
+                        // check on relevant for bestlist
+                        $relevant = 1;                             
+                               
+                        if ($row_results['Typ'] == '0'){                 // (ohne)                                      
+                                   $row_results['Bezeichnung'] = '';
+                        }
+                            
+                        // output result data
+                            
+                        if($wind > "2" && $row[2] == $cfgDisciplineType[$strDiscTypeJump]){
+                                // since we get only the best result per xSerienstart,
+                                // here we'll get the next with valid wind
+                                $res_wind = mysql_query("
+                                        SELECT Info, Leistung FROM
+                                            resultat
+                                        WHERE
+                                            xSerienstart = ".$row_results['xSerienstart']."
+                                        ORDER BY
+                                            Leistung DESC");
+                                if(mysql_errno() > 0) {        // DB error
+                                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                }else{
+                                    while($row_wind = mysql_fetch_array($res_wind)){
+                                        
+                                        if($row_wind[0] <= 2){   
+                                            
+                                            $perf = AA_alabusDistance($row_wind[1]);
+                                             if ($perf == -98){                             // -98 = Fehlversuch
+                                               break; 
+                                            }
+                                            $nbr_effort++;
+                                           
+                                            break;
+                                        }
+                                        
+                                    }
+                                }
+                        }// end if wind > 2      
+                        
+                    } // end while res_results    
+                }         
+            }
+            
+            // check on last combined event
+            if (!$notStarted) {    // if athlet with one discipline not started --> not upload the results for combined event points
+                if(!empty($combined) && $combined_dis < 9000){ // combined codes 9000 and above are self made disciplines                   
+                    
+                    // calc points
+                    foreach($combined as $xathlet => $disc){
+                        $points = 0;
+                        $eDetails = "";
+                        $tmp_fe = $fetched_events;
+                        
+                        foreach($disc as $xdisc => $tmp){
+                            if($xdisc == "catathlete"){ continue; }
+                            
+                            // check if there are events missing for the current athlete and add 'null' entries
+                            while($tmp_fe[0][3] != $xdisc){                                        
+                                $eDetails .= "0/";
+                                array_shift($tmp_fe);
+                            }
+                            array_shift($tmp_fe);
+                            
+                            $points += $tmp['points'];
+                            if($tmp['wind'] == " "){
+                                $tmp['wind'] = "";
+                            }else{
+                               
+                                if($tmp['wind'] >= 0){
+                                    $tmp['wind'] = "+".$tmp['wind'];
+                                }else{
+                                    $tmp['wind'] = $tmp['wind'];
+                                }
+                            }
+                           
+                            $eDetails .= $tmp['effort'].$tmp['wind']."/";
+                        }
+                        
+                        // check if last events are missing
+                        while(isset($tmp_fe[0][3])){
+                            $eDetails .= "0/";
+                            array_shift($tmp_fe);
+                        }
+                        
+                        $eDetails = substr($eDetails, 0, -1);
+                        $combined[$xathlet]['points'] = $points;
+                        $combined[$xathlet]['edetails'] = $eDetails;
+                    }
+                    // sort for points
+                    usort($combined, array($this, "sort_combined"));
+                    
+                    // write                         
+                    $rank = 0;    // athletes rank
+                    $cRank = 0;    // rank counter
+                    $lp = 0;    // remembers points of last athlete
+                    foreach($combined as $xathlet => $disc){   
+                        
+                        $cRank++;
+                        if($lp != $disc['points']){
+                            $rank = $cRank;
+                            $lp = $disc['points'];
+                        }
+                        
+                        // get information for athlete
+                        $tmp = $disc;
+                        $tmp['points'] = null;
+                        $tmp['edetails'] = null;
+                        $tmp['catathlete'] = null;
+                        $tmp = array_values($tmp);
+                        usort($tmp, array($this, "sort_perdate"));
+                        $tmp = $tmp[0];          
+                                                                 
+                        $this->write_xml_open("athlete", array('license'=>$tmp['license'], 'kidID'=>$tmp['kidID']));
+                        
+                        if(!$tmp['inMasterData']){   
+                            $this->write_xml_finished("lastName", $tmp['lastName']);
+                            $this->write_xml_finished("firstName", $tmp['firstName']);
+                            
+                            $this->write_xml_finished("ageGroup", $tmp['birthDate']);
+                            $this->write_xml_finished("sex", $tmp['sex']);
+                            $this->write_xml_finished("street", $tmp['adress']);
+                            $this->write_xml_finished("zipCode", $tmp['plz']);
+                            $this->write_xml_finished("city", $tmp['city']);  
+                            $this->write_xml_finished("club", $tmp['accountName']);  
+                            $this->write_xml_finished("email", $tmp['email']);  
+                            $this->write_xml_finished("canton", $tmp['canton']);  
+                        }     
+                         
+                        list ($run, $jump, $throw) = split('[/]', $disc['edetails']);   
+                          
+                        $this->write_xml_open("efforts");      
+                        $this->write_xml_finished("run",$run); 
+                        $this->write_xml_finished("throw",$throw); 
+                        $this->write_xml_finished("jump",$jump);   
+                        $this->write_xml_finished("totalPoints",AA_alabusScore($disc['points']));   
+                        $this->write_xml_finished("position",$rank);    
+                        $this->write_xml_close("efforts");
+                        $this->write_xml_close("athlete"); 
+                    }    
+                }
+                $notStarted = false;
+            }
+            $combined = array();
+            
+            // get the svm results
+            mysql_free_result($res);
+            $res = mysql_query("
+                SELECT
+                    w.Typ,
+                    w.Windmessung,
+                    d.Typ,
+                    d.Code,
+                    k.Code,
+                    w.xWettkampf,
+                    d.Kurzname,
+                    w.Mehrkampfcode,
+                    w.xKategorie,
+                    ks.Code,
+                    MAX(r.Datum)
+                FROM 
+                    runde as r
+                LEFT JOIN 
+                    wettkampf as w USING(xWettkampf) 
+                LEFT JOIN
+                    disziplin_" . $_COOKIE['language'] . " as d ON d.xDisziplin = w.xDisziplin
+                LEFT JOIN
+                    kategorie as k ON k.xKategorie = w.xKategorie
+                LEFT JOIN
+                    kategorie_svm as ks ON ks.xKategorie_svm = w.xKategorie_svm
+                WHERE    xMeeting = ".$_COOKIE['meeting_id']."
+                GROUP BY w.xKategorie
+                ORDER BY
+                    w.xWettkampf
+            ");
+            
+            if(mysql_errno() > 0){
+                echo(mysql_errno().": ".mysql_error());
+            }else{
+                
+                while($row = mysql_fetch_array($res)){
+                    //
+                    // open rankinlist_team lib for calculating the svm points
+                    //
+                    if($row[0] > $cfgEventType[$strEventTypeSingleCombined]){
+                        $this->write_xml_open("discipline", array('sportDiscipline'=>$row[9], 'licenseCategory'=>$row[4]));
+                        $this->write_xml_open("teams");
+                        
+                        $GLOBALS['doe'] = $row[10]; // date of team effort (last round date)
+                        $GLOBALS['rankadd'] = $global_rankadd;
+                        AA_rankinglist_Team($row[8], 'xml', "", false, $this);        
+                    }
+                }
+            }
+            
+            // close last tags
+            $this->close_open_tags();
+        }
+        
+        $this->gzip_close();
+        
+        return $nbr_effort;
+    }
+    
 	
 	function gzip_open($file){
 		global $gzfp, $strErrFileOpenFailed;
@@ -1411,6 +2075,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		return ($a['priority'] > $b['priority']) ? 1 : -1;
 	}*/
 }
+
+
 
 /* error function ****************************************************************************************************************/
 // IMPORTANT: if a db error occurs, rollback an die! else we'll have inconsitent data
@@ -2008,7 +2674,9 @@ function XML_base_end($parser, $name){
 				foreach($relay as $row){
 					if(empty($row['ID'])){ continue; } //prevent from empty entrys
 					if($row['ISATHLETICAGENERATED'] == 0){ $row['ISATHLETICAGENERATED']='n'; }else{ $row['ISATHLETICAGENERATED']='y'; }
-					$row['RELAYNAME'] = str_replace(array("\r\n", "\n", "\r"), "", $row['RELAYNAME']);
+					$row['RELAYNAME'] = mysql_real_escape_string(str_replace("\r", "\n", trim($row['RELAYNAME']))); 
+                    $row['LICESECATEGORY'] = mysql_real_escape_string(str_replace("\r", "\n", trim($row['LICESECATEGORY']))); 
+                    $row['SPORTDISCIPLINE'] = mysql_real_escape_string(str_replace("\r", "\n", trim($row['SPORTDISCIPLINE'])));                  
 					mysql_query("	INSERT IGNORE INTO
 								base_relay (
 									id_relay
@@ -2024,7 +2692,8 @@ function XML_base_end($parser, $name){
 									,'".$row['LICESECATEGORY']."'
 									,'".$row['SPORTDISCIPLINE']."'
 									,'".$xVerein."')");
-					if(mysql_errno() > 0){
+                   
+					if(mysql_errno() > 0){                            
 						XML_db_error(mysql_errno().": ".mysql_error());
 					}else{
 						// ok
@@ -2032,7 +2701,9 @@ function XML_base_end($parser, $name){
 				}
 				foreach($svm as $row){
 					if(empty($row['ID'])){ continue; } //prevent from empty entrys
-					if($row['ISATHLETICAGENERATED'] == 0){ $row['ISATHLETICAGENERATED']='n'; }else{ $row['ISATHLETICAGENERATED']='y'; }
+					if($row['ISATHLETICAGENERATED'] == 0){ $row['ISATHLETICAGENERATED']='n'; }else{ $row['ISATHLETICAGENERATED']='y'; }                     
+                    $row['SVMCATEGORY']= mysql_real_escape_string(str_replace("\r", "\n", trim($row['SVMCATEGORY'])));    
+                    $row['SVMNAME']= mysql_real_escape_string(str_replace("\r", "\n", trim($row['SVMNAME'])));                                                                                                                   
 					mysql_query("	INSERT IGNORE INTO
 								base_svm (
 									id_svm
@@ -2046,8 +2717,10 @@ function XML_base_end($parser, $name){
 									,'".addslashes($row['SVMNAME'])."'
 									,'".$row['SVMCATEGORY']."'
 									,'".$xVerein."')");
-					if(mysql_errno() > 0){
+                  
+					if(mysql_errno() > 0){                               
 						XML_db_error(mysql_errno().": ".mysql_error());
+                       
 					}else{
 						// ok
 					}
@@ -2112,7 +2785,9 @@ function XML_reg_start($parser, $name, $attr){
 		$strEventTypeClubCombined, $strDiscTypeTrack, $strDiscTypeTrackNoWind, 
 		$strDiscTypeRelay, $strDiscTypeDistance, $strErrNoSuchDisCode, $strNoSuchCategory;
 	global $cfgCombinedDef, $cfgCombinedWO, $appnbr;   
-    global $cfgSVM, $relay_id, $relay_pos, $relay_round, $relay_xStart, $category, $team_type;
+    global $cfgSVM, $relay_id, $relay_pos, $relay_round, $relay_xStart, $category, $team_type, $paid;
+    
+    global $arr_noCat;
 	//
 	// get approval number
 	//
@@ -2151,7 +2826,7 @@ function XML_reg_start($parser, $name, $attr){
 	//
 	// start of discipline
 	//
-	if($name == "DISCIPLINE"){           
+	if($name == "DISCIPLINE"){      
        
         $discode = $attr['DISCODE'];
         $catcode = $attr['CATCODE'];
@@ -2161,6 +2836,7 @@ function XML_reg_start($parser, $name, $attr){
         $disfee = 0;
         $disfee = $attr['DISFEE']/100;
         $disid = $attr['DISID'];
+        $type = $attr['TYPE'];    
                                     
         $relay_id = 0;
         $relay_pos = 0;
@@ -2199,35 +2875,40 @@ function XML_reg_start($parser, $name, $attr){
 		    // combined event
 		    if(isset($cfgCombinedDef[$discode])){
 			    $bCombined = true;
-			    // check if this combined event exists
-			    $res = mysql_query("	
-						    SELECT * FROM
-							    wettkampf as w
-							    , kategorie as k
-							    , disziplin_" . $_COOKIE['language'] . " as d
-						    WHERE	w.xKategorie = k.xKategorie
-						    AND	w.xDisziplin = d.xDisziplin
-						    AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-						    AND	k.Code = '$catcode'
-						    AND	w.Mehrkampfcode = $discode");   
+			    // check if this combined event exists   
+                 
+                 $query = "SELECT * 
+                           FROM
+                                wettkampf as w
+                                LEFT JOIN kategorie as k  ON (w.xKategorie = k.xKategorie)
+                                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.xDisziplin = d.xDisziplin)
+                            WHERE  
+                                w.xMeeting = ".$_COOKIE['meeting_id']."
+                                AND k.Code = '$catcode'
+                                AND w.Mehrkampfcode = $discode";     
+               
+                $res = mysql_query($query);   
+                             
 		    }else{
 			    $bCombined = false;
 			    // check if this discipline exists
 			    //	important: Mehrkampfcode has to be 0, else the query will also select 
-			    //		the already defined combined events (if the same discipline)
-			    $res = mysql_query("	
-						    SELECT * FROM
-							    wettkampf as w
-							    , kategorie as k
-							    , disziplin_" . $_COOKIE['language'] . " as d
-						    WHERE	w.xKategorie = k.xKategorie
-						    AND	w.xDisziplin = d.xDisziplin
-						    AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-						    AND	k.Code = '$catcode'
-						    AND	d.Code = $discode
-						    AND	w.Mehrkampfcode = 0
-						    $SQLdisSpecial 
-						    $SQLdisInfo ");   
+			    //		the already defined combined events (if the same discipline)     
+                            
+                 $query = "SELECT * 
+                           FROM
+                                wettkampf as w
+                                LEFT JOIN kategorie as k  ON ( w.xKategorie = k.xKategorie)
+                                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (w.xDisziplin = d.xDisziplin)
+                            WHERE  
+                               w.xMeeting = ".$_COOKIE['meeting_id']."
+                               AND k.Code = '$catcode'
+                               AND d.Code = $discode
+                               AND w.Mehrkampfcode = 0
+                               $SQLdisSpecial 
+                               $SQLdisInfo ";    
+              
+                $res = mysql_query($query);   
             }
 		    if(mysql_errno() > 0){
 			    XML_db_error("1-".mysql_errno().": ".mysql_error());
@@ -2254,17 +2935,21 @@ function XML_reg_start($parser, $name, $attr){
 			    if($bCombined){ // create combined disciplines
 				    if(mysql_num_rows($res) == 0){            					
 					    
-					    // select again to get all generated xWettkampf ids
-					    $res = mysql_query("	
-								    SELECT w.xWettkampf FROM
-									    wettkampf as w
-									    , kategorie as k
-									    , disziplin_" . $_COOKIE['language'] . " as d
-								    WHERE	w.xKategorie = k.xKategorie
-								    AND	w.xDisziplin = d.xDisziplin
-								    AND	w.xMeeting = ".$_COOKIE['meeting_id']."
-								    AND	k.Code = '$catcode'
-								    AND	w.Mehrkampfcode = $discode");
+					    // select again to get all generated xWettkampf ids  
+                                    
+                          $query = "SELECT 
+                                        w.xWettkampf 
+                                    FROM
+                                        wettkampf as w
+                                        LEFT JOIN kategorie as k ON (w.xKategorie = k.xKategorie)
+                                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON ( w.xDisziplin = d.xDisziplin)
+                                    WHERE  
+                                        w.xMeeting = ".$_COOKIE['meeting_id']."
+                                        AND    k.Code = '$catcode'
+                                        AND    w.Mehrkampfcode = $discode";                                       
+                        
+                            $res = mysql_query($query);                               
+                                    
 					    while($row_dis = mysql_fetch_assoc($res)){
 						    $xDis[] = $row_dis['xWettkampf'];
 					    }
@@ -2292,10 +2977,11 @@ function XML_reg_start($parser, $name, $attr){
 								    , '$disid'
 							    FROM
 								    disziplin_" . $_COOKIE['language'] . " as d
-								    , kategorie as k
+								    , (kategorie as k)
 							    WHERE	d.Code = $discode
 							    AND	k.Code = '$catcode'";
-							    mysql_query($sql);
+							    mysql_query($sql);   
+                                
 					    if(mysql_errno() > 0){
 						    XML_db_error("3-".mysql_errno().": ".mysql_error());
 					    }else{
@@ -2307,20 +2993,26 @@ function XML_reg_start($parser, $name, $attr){
 				    }
 			    }  
 		    }
-		    
+        
+        
     }
 	//
 	// start of an athlete
 	//
-	if($name == "ATHLETE" && count($xDis) != 0){
+	if($name == "ATHLETE" && count($xDis) != 0){       
 		$license = $attr['LICENSE'];
-		$paid = $attr['PAID'];
-		$effort = $attr['NOTIFICATIONEFFORT'];
+        if (isset($attr['PAID'])){  
+		    $paid = $attr['PAID'];
+        }
         
+		$effort = $attr['NOTIFICATIONEFFORT'];
+                                              
         if ($relay_id > 0){
              $relay_pos++;
         }
         $team_id = 0;
+        $xTeam = 0;
+        
         if (isset($attr['TEAMID'])){
              $team_id =  $attr['TEAMID'];  
              
@@ -2559,7 +3251,7 @@ function XML_reg_start($parser, $name, $attr){
 			
 			if($xAthlete > 0){
 				// check if already registered
-				$result = mysql_query("SELECT xAnmeldung FROM anmeldung WHERE xAthlet = $xAthlete AND xMeeting = ".$_COOKIE['meeting_id']."");
+				$result = mysql_query("SELECT xAnmeldung, xTeam FROM anmeldung WHERE xAthlet = $xAthlete AND xMeeting = ".$_COOKIE['meeting_id']."");
 				if(mysql_errno() > 0){
 					XML_db_error("9-".mysql_errno().": ".mysql_error());
 				}else{
@@ -2609,7 +3301,17 @@ function XML_reg_start($parser, $name, $attr){
 					}else{ // registered
 						$row = mysql_fetch_array($result);
 						$xReg = $row[0];
+                        $xTeam = $row[1];   
+                        
+                        if ($xTeam != $team_id && $team_id > 0){
+                           
+                            $arr_noCat[$xAthlete][0] = $xTeam;
+                            $arr_noCat[$xAthlete][1] = $team_id;   
+                        }    
+                        
 					}
+                    
+                   
 					
 					if($bCombined){
 						// effort are points, saved on registration
@@ -2641,11 +3343,13 @@ function XML_reg_start($parser, $name, $attr){
 							// it is nessesary to determinate distype and discode for each discipline
 							// (catcode won't change)
 							$res_distype = mysql_query("
-										SELECT d.Typ, d.Code FROM 
+										SELECT 
+                                            d.Typ, d.Code 
+                                        FROM 
 											disziplin_" . $_COOKIE['language'] . " as d
-											, wettkampf as w 
-										WHERE w.xWettkampf = $xDis1 
-										AND w.xDisziplin = d.xDisziplin");
+											LEFT JOIN wettkampf as w ON (w.xDisziplin = d.xDisziplin)
+										WHERE 
+                                            w.xWettkampf = $xDis1");
 							if(mysql_errno() > 0){
 								XML_db_error("13-".mysql_errno().": ".mysql_error());
 							}else{
@@ -2754,7 +3458,11 @@ function XML_reg_start($parser, $name, $attr){
 					} // end xReg > 0
 				}
 			} // end xAthlete > 0
-		}  
+		} 
+        
+     
+        
+         
 	}
     
 	
@@ -2763,7 +3471,7 @@ function XML_reg_start($parser, $name, $attr){
 	//
 	if($name == "RELAY" && count($xDis) != 0){
         
-		$id = $attr['RELAYID'];
+		$id = $attr['ID'];
 		$paid = $attr['PAID'];
         $notificationEffort = $attr['NOTIFICATIONEFFORT'];  
 		$relay_id = 0;
@@ -2792,31 +3500,38 @@ function XML_reg_start($parser, $name, $attr){
 					XML_db_error(mysql_errno().": ".mysql_error());
 				}else{
 					
-					$row = mysql_fetch_array($result);
-					$cat = $row[0];
-					
-					mysql_query("
-						INSERT IGNORE INTO staffel
-							(xStaffel, Name, xVerein
-							, xMeeting, xKategorie, Athleticagen)
-						SELECT
-							id_relay, relay_name, account_code
-							, ".$_COOKIE['meeting_id'].", '$cat',is_athletica_gen 
-						FROM
-							base_relay
-						WHERE
-							id_relay = '$id'");
-					
-					if(mysql_errno() > 0){
-						XML_db_error(mysql_errno().": ".mysql_error());
-					}else{                 
-						
-						$relay_id = $id; // do not use mysql_insert_id() - it will return 0
-						// like this i will notice if the insert succeeded or not
-						if(mysql_affected_rows() == 0){
-							echo "Fehler: Staffel ID $id";
-						}
-					}
+                    if(mysql_num_rows($res) > 0){   
+					    $row = mysql_fetch_array($result);
+					    $cat = $row[0];
+					    
+					    mysql_query("
+						    INSERT IGNORE INTO staffel
+							    (xStaffel, Name, xVerein
+							    , xMeeting, xKategorie, Athleticagen)
+						    SELECT
+							    id_relay, relay_name, account_code
+							    , ".$_COOKIE['meeting_id'].", '$cat',is_athletica_gen 
+						    FROM
+							    base_relay
+						    WHERE
+							    id_relay = '$id'");
+					    
+					    if(mysql_errno() > 0){
+						    XML_db_error(mysql_errno().": ".mysql_error());
+					    }else{                 
+						    
+						    $relay_id = $id; // do not use mysql_insert_id() - it will return 0
+						    // like this i will notice if the insert succeeded or not
+						    if(mysql_affected_rows() == 0){
+							    echo "Fehler: Staffel ID $id";
+						    }
+					    }
+                    }
+                    else {
+                          
+                            $strBaseRelayNotFound = str_replace('%id%', $id, $strBaseRelayNotFound);   
+                            echo "<p>$strBaseRelayNotFound: </p>\n";    
+                    }
 				}
 			}else{
 				//
@@ -2947,7 +3662,7 @@ function XML_reg_start($parser, $name, $attr){
 	}
     
   
-    if($name == "TEAM"){    
+    if($name == "TEAM"){            
         $id = $attr['TEAMID'];
         $team_type = $attr['TYPE'];
         $team_name = $attr['NAME'];  
@@ -2976,7 +3691,7 @@ function XML_reg_start($parser, $name, $attr){
                                                 LEFT JOIN base_svm as b ON (k.Code = b.svm_category)
                                             WHERE 
                                                     b.id_svm = '$id'";
-                                                    
+                   
                     $result = mysql_query($sql);        
                     if(mysql_errno() > 0){
                         XML_db_error(mysql_errno().": ".mysql_error());
@@ -2987,8 +3702,15 @@ function XML_reg_start($parser, $name, $attr){
                             $svmCode = $row[0];                              
                             $cat = 0;
                             if (isset($cfgSVM[$svmCode."_C"])){   
-                                $cat = $cfgSVM[$svmCode."_C"]; 
+                                $cat_code = $cfgSVM[$svmCode."_C"]; 
                             }
+                            $sql = "SELECT xKategorie FROM kategorie WHERE Code = '" . $cat_code. "'";
+                            $res = mysql_query($sql);                            
+                            if(mysql_errno() > 0){
+                                XML_db_error(mysql_errno().": ".mysql_error());
+                            }
+                            $row_cat = mysql_fetch_row($res); 
+                            $cat = $row_cat[0]; 
                             
                             $sql = "SELECT xTeam FROM team WHERE xKategorie = " . $cat ." AND Name = '" . $team_name ."' AND xMeeting = " .$_COOKIE['meeting_id'];
                             $res = mysql_query($sql);
@@ -3068,13 +3790,22 @@ function XML_reg_start($parser, $name, $attr){
                         XML_db_error(mysql_errno().": ".mysql_error());
                     }else{
                         
-                        $row = mysql_fetch_array($result);        
-                                               
+                        $row = mysql_fetch_array($result);    
+                        
+                        $svmCode = $row[0];        
                         $cat = 0;
                         if (isset($cfgSVM[$svmCode."_C"])){   
-                            $cat = $cfgSVM[$svmCode."_C"]; 
+                            $cat_code = $cfgSVM[$svmCode."_C"]; 
                         }
-                         $_POST['cat'] =  $cat;
+                        
+                         $sql = "SELECT xKategorie FROM kategorie WHERE Code = '" . $cat_code. "'";
+                         $res = mysql_query($sql);                            
+                         if(mysql_errno() > 0){
+                                XML_db_error(mysql_errno().": ".mysql_error());
+                         }
+                         $row_cat = mysql_fetch_row($res); 
+                         $cat = $row_cat[0];                          
+                         $_POST['cat'] =  $row_cat[0]; 
                          $_POST['svmcategory'] = $row[4];
                          
                          
@@ -3402,9 +4133,10 @@ function XML_regZLV_start($parser, $name, $attr){
                                                     $res_distype = mysql_query("
                                                     SELECT d.Typ, d.Code, d.Appellzeit, d.Stellzeit FROM 
                                                             disziplin_" . $_COOKIE['language'] . " as d
-                                                            , wettkampf as w 
-                                                    WHERE w.xWettkampf = $xDis1 
-                                                        AND w.xDisziplin = d.xDisziplin");
+                                                            LEFT JOIN wettkampf as w ON (w.xDisziplin = d.xDisziplin)
+                                                    WHERE 
+                                                        w.xWettkampf = $xDis1"); 
+                                                        
                                                 if(mysql_errno() > 0){   
                                                     AA_printErrorMsg("xml-13-".mysql_errno().": ".mysql_error());
                                                 }else{
@@ -3471,16 +4203,16 @@ function XML_regZLV_start($parser, $name, $attr){
                                                             }
                                         
                                                             mysql_query("INSERT INTO start SET
-                                                                            xWettkampf = $xDis1
+                                                                            xWettkampf = $xDis1   
                                                                             , Bezahlt = '$paid'
-                                                                            , xAnmeldung = $xReg
+                                                                            , xAnmeldung = $xReg   
                                                                             , Bestleistung = '".$perf."' 
                                                                             , BaseEffort = 'y'");
                                                             if(mysql_errno() > 0){ 
                                                                 AA_printErrorMsg("xml-16-".mysql_errno().": ".mysql_error());
                                                             }
                                                         } 
-                                                    }
+                                                    }  
                                                 }
                                                                            
                                                 // update group in round for every event  
@@ -3735,9 +4467,8 @@ function XML_regZLV_start($parser, $name, $attr){
                                     $res_distype = mysql_query("
                                                     SELECT d.Typ, d.Code, d.Appellzeit, d.Stellzeit FROM 
                                                             disziplin_" . $_COOKIE['language'] . " as d
-                                                            , wettkampf as w 
-                                                    WHERE w.xWettkampf = $xDis1 
-                                                        AND w.xDisziplin = d.xDisziplin");
+                                                            LEFT JOIN wettkampf as w  ON (w.xDisziplin = d.xDisziplin)
+                                                    WHERE w.xWettkampf = $xDis1");
                                     if(mysql_errno() > 0){
                                                     AA_printErrorMsg("xml-26-".mysql_errno().": ".mysql_error());
                                     }else{
@@ -4005,4 +4736,4 @@ function XML_regZLV_end($parser, $name){
 }
 
 function XML_regZLV_data($parser, $data){  
-}
+}    
