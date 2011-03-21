@@ -1791,31 +1791,7 @@ function meeting_get_disciplines(){
     $order = "ASC";
     if ($athletesex == 'w'){
          $order = "DESC";  
-    }
-                       
-	$sql_old = "SELECT
-            d.Kurzname as DiszKurzname
-            , d.Typ as DiszTyp
-            , w.xWettkampf
-            , w.Typ
-            , k.Kurzname as KatKurzname
-            , k.Name
-            , d.Code as DiszCode
-            , k.Code as KatCode
-            , k.xKategorie
-            , w.Info
-            , w.Mehrkampfcode
-            , k.Geschlecht
-            , k.Alterslimite
-        FROM
-            disziplin_" . $_COOKIE['language'] . " AS d
-            , wettkampf as w
-            , kategorie as k
-        WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."         
-        AND w.xDisziplin = d.xDisziplin
-        AND w.xKategorie = k.xKategorie
-        ORDER BY
-             k.Geschlecht $order, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige";
+    }  
     
      $sql = "SELECT
             d.Kurzname as DiszKurzname
@@ -1838,20 +1814,9 @@ function meeting_get_disciplines(){
         WHERE 
             w.xMeeting = " . $_COOKIE['meeting_id'] ."         
         ORDER BY
-             k.Geschlecht $order, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige";
-             
-    $result_old = mysql_query($sql_old);
-$result = mysql_query($sql);
-if (mysql_num_rows($result_old) != mysql_num_rows($result) ) {
-    echo "<br>6b. Select unterschiedlich";
-    echo "<br><br>sql_old =$sql_old";
-     echo "<br><br>sql =$sql"; 
-}
-else {
-       echo "<br>6b. Select ok"; 
-      echo "<br><br>sql_old =$sql_old";
-     echo "<br><br>sql =$sql"; 
-}
+             k.Geschlecht $order, k.Alterslimite, k.Kurzname, w.Mehrkampfcode, d.Anzeige";    
+   
+    $result = mysql_query($sql);
    
 	if(mysql_errno() > 0)
 	{
