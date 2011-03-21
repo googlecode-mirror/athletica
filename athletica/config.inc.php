@@ -16,7 +16,7 @@
  * Application Info
  */
 $cfgApplicationName = 'Athletica';
-$cfgApplicationVersion = '4.1';
+$cfgApplicationVersion = '5.0';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
@@ -78,7 +78,8 @@ $cfgBackupCompatibles = array(
     '3.5_Beta',
     '3.5',
     '4.0', 
-    '4.1'  
+    '4.1',  
+    '5.0'  
 );
 
 
@@ -414,7 +415,7 @@ $cfgSVM = array(    '29_01' => array(40,50,70,90,140,271,301,560,310,320,330,340
             , '35_07' => array(30,100,497,310,352,387)   
             , '35_07_F' => 1
             , '35_07_ET' => 9  
-            , '35_06_C' => 'U14M'         
+            , '35_07_C' => 'U14M'         
             
             , '35_08' => array(30,100,499,331,386)  
             , '35_08_F' => 1   
