@@ -1759,7 +1759,7 @@ else if ($_POST['arg'] == 'restore')
                    mysql_query("UPDATE `rundentyp_it` SET Name = '(senza)' WHERE Typ = '0'");
              }
              
-             if ($shortVersion < 4.2)  {
+             if ($shortVersion < 5.0)  {
               // special categories athletic cup
                  mysql_query("INSERT IGNORE INTO kategorie (Kurzname, Name, Anzeige, Alterslimite , Code, Geschlecht, aktiv, UKC) VALUES 
                             ( 'M15', 'U16 M15', 21, 15, 'M15' , 'm', 'y', 'y'),
@@ -1779,7 +1779,8 @@ else if ($_POST['arg'] == 'restore')
                             ( 'W10', 'U12 W10', 36, 10, 'W10' , 'w', 'y', 'y'),
                             ( 'W09', 'U10 W09', 37, 9, 'W09' , 'w', 'y', 'y'), 
                             ( 'W08', 'U10 W08', 38, 8, 'W08' , 'w', 'y', 'y'), 
-                            ( 'W07', 'U08 W07', 39, 7, 'W07' , 'w', 'y', 'y')");   
+                            ( 'W07', 'U08 W07', 39, 7, 'W07' , 'w', 'y', 'y'),
+                            ( 'U12X', 'U12 MIX', 19, 7, 'U12X' , 'm', 'y', 'n')");   
                             
                 mysql_query("ALTER TABLE wettkampf CHANGE Info Info varchar(50)");            ;
                 mysql_query("INSERT INTO `kategorie_svm` VALUES (36, '32.07 Regionalliga B Männer', '32_07')");
@@ -1805,7 +1806,26 @@ else if ($_POST['arg'] == 'restore')
                 mysql_query("ALTER TABLE athlet DROP KEY `Athlet`;"); 
                 mysql_query("ALTER TABLE athlet ADD UNIQUE KEY `Athlet` (`Name`,`Vorname`,`Geburtstag`,`xVerein`)"); 
                 mysql_query("UPDATE region SET Name = 'Graubünden' WHERE xRegion = 10"); 
-                mysql_query("UPDATE region SET Name = 'Zürich' WHERE xRegion = 26");         
+                mysql_query("UPDATE region SET Name = 'Zürich' WHERE xRegion = 26");     
+                   
+                mysql_query("UPDATE disziplin_de SET Name = '50 m Hürden 76.2  U18 W' WHERE Code = 236");
+                mysql_query("UPDATE disziplin_de SET Name = '60 m Hürden 76.2  U18 W' WHERE Code = 256");   
+                mysql_query("UPDATE disziplin_de SET Name = 'Fünfkampf Halle  W / U20 W' WHERE Code = 394");   
+                mysql_query("UPDATE disziplin_de SET Name = 'Siebenkampf Halle  M' WHERE Code = 396");   
+                mysql_query("UPDATE disziplin_de SET Name = 'Fünfkampf  W / U20 W' WHERE Code = 416");   
+                mysql_query("DELETE FROM disziplin_de WHERE Code = 417");   
+                mysql_query("UPDATE disziplin_fr SET Name = '50 m haies 76.2  U18 W' WHERE Code = 236");   
+                mysql_query("UPDATE disziplin_fr SET Name = '60 m haies 76.2  U18 W' WHERE Code = 256");   
+                mysql_query("UPDATE disziplin_fr SET Name = 'Pentathlon hall  F / U20 W' WHERE Code = 394");   
+                mysql_query("UPDATE disziplin_fr SET Name = 'Heptathlon hall  M' WHERE Code = 396"); 
+                mysql_query("UPDATE disziplin_fr SET Name = 'Pentathlon hall  F / U20 W' WHERE Code = 416"); 
+                mysql_query("DELETE FROM disziplin_fr WHERE Code = 417"); 
+                mysql_query("UPDATE disziplin_it SET Name = '50 m ostacoli 76.2  U18 W' WHERE Code = 236");   
+                mysql_query("UPDATE disziplin_it SET Name = '60 m ostacoli 76.2  U18 W' WHERE Code = 256"); 
+                mysql_query("UPDATE disziplin_it SET Name = 'Pentathlon hall  F / U20 W' WHERE Code = 394"); 
+                mysql_query("UPDATE disziplin_it SET Name = 'Heptathlon hall  M' WHERE Code = 396"); 
+                mysql_query("UPDATE disziplin_it SET Name = 'Pentathlon F / U20 W' WHERE Code = 416");   
+                mysql_query("DELETE FROM disziplin_it WHERE Code = 417");      
                  
              }   
 			// security updates
