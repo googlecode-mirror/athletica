@@ -147,22 +147,83 @@ if(!empty($_POST['slvsid'])){
 		// get xml for registrations
 		
 		$post = "sid=".$_POST['slvsid']."&meetingid=".$_POST['control'];
-		$result = $http->send_post($webserverDomain, '/meetings/athletica/export_meeting.php', $post, 'file', 'reg.xml');        
+		$result = $http->send_post($webserverDomain, '/meetings/athletica/export_meeting.php', $post, 'file', 'reg.xml');            
+     
 		if(!$result){
 			AA_printErrorMsg($strErrLogin);
 		}else{
 			$login = true;
 			$reg = true;
 			$xml = new XML_data();
-			$xml->load_xml($result, 'reg', $_POST['mode']);
+			$arr = $xml->load_xml($result, 'reg', $_POST['mode']);
 			
 			// save eventnr
 			mysql_query("update meeting set xControl = ".$_POST['control']." where xMeeting = ".$_COOKIE['meeting_id']);
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}
+            
+            if (!empty($arr)){   
+            
+                    if (count($arr) == 1) {
+                         $val = $strEinz;
+                    }
+                    else {
+                           $val = $strMehrz;
+                    }
+                    $mess = str_replace('%ARTIKEL%', $val, $strAthleteTeam);      
+                
+                ?> 
+                <br><br><strong><?php echo $mess; ?></strong> 
+                
+                <form method="post" action="admin_registration.php" target="_self"> 
+                <table class='dialog'>    
+               <?php 
+               foreach ($arr as $key => $val) { 
+                   
+                    $sql = "SELECT Name, Vorname FROM athlet WHERE xAthlet = " .$key;
+                    $res = mysql_query($sql);
+                    if(mysql_errno() > 0){
+                        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                    }                            
+                    $row = mysql_fetch_row($res);   
+                    ?>          
+                    <tr class="odd">
+                            <td><?php echo $row[1] ." " .$row[0]; ?> 
+                            </td>                                        
+                            <td>
+                                <select class="" name="team_<?php echo $key; ?>" size="1" id="team_<?php echo $key; ?>">  
+                                    <option value="<?php echo $arr[$key][0]; ?>"><?php echo $arr[$key][0]; ?></option>
+                                    <option value="<?php echo $arr[$key][1]; ?>"><?php echo $arr[$key][1]; ?></option> 
+                                </select> 
+                            </td>
+                    </tr>   
+                    <input type="hidden" value="<?php echo $key; ?>" name="athlet[]">   
+                    <?php 
+               }                  
+               ?>
+                
+                <input type="hidden" value="save" name="arg"> 
+                
+                <tr>
+                <td></td>
+                <td><button type="submit"><?php echo $strSave; ?></button>     
+                </td></tr>
+
+                </table>   
+               </form>   
+               <?php 
+            }
+            else {
+                 //show succes on reg xml                                                     
+                 echo "<p>$strBaseRegOk</p>";
+            }
+            
+            
 		}
 	}
+   
+       
 }
 
 //
@@ -198,8 +259,8 @@ if($list){
 <tr>
 	<td>
 	<br/>
-	<?=$strBaseMeetingAct?><br/>
-	<b><?=$_SESSION['meeting_infos']['Name']?></b><br/><br/>
+	<?php echo$strBaseMeetingAct; ?><br/>
+	<b><?php echo $_SESSION['meeting_infos']['Name']; ?></b><br/><br/>
 	
 	<input type="submit" value="<?php echo $strNext ?>">
 	</td>
@@ -214,13 +275,32 @@ if($list){
 //
 // show succes on reg xml
 //
+/*
 if($reg){
 	
 	echo "<p>$strBaseRegOk</p>";
 	
 }
-
-if(!$login){
+*/
+  // athlet with duplicate teams --> user has to choose and this is to save 
+ if($_POST['arg'] == "save"){ 
+        
+     
+             foreach ($_POST['athlet'] as $key => $val){
+                    
+                     $team_p = "team_" . $val; 
+                     $sql = "Update anmeldung SET xTEam = " . $_POST[$team_p]  . " WHERE xAthlet = " .$val;
+                     $res = mysql_query($sql);
+                     if(mysql_errno() > 0){
+                            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                     }
+             }
+            
+              //show succes on reg xml                                                     
+                 echo "<p>$strBaseRegOk</p>";  
+        
+    }
+elseif(!$login){
 	
 	// show login form
 
@@ -232,19 +312,19 @@ if(!$login){
 				<table class="dialog" width="260">
 					<tbody><tr>
 
-						<th><?=$strConfiguration?></th>
+						<th><?php echo $strConfiguration; ?></th>
 					</tr>
 					<tr>
 						<td>
-						  <p><?=$strEffortsUpdateInfo4?></p>
+						  <p><?php echo$strEffortsUpdateInfo4; ?></p>
 						  <p>
 							<label>
 							  <input type="radio" name="mode" value="overwrite" id="mode_0" checked="checked" />
-							  <?=$strOverwrite;?></label>
+							  <?php echo $strOverwrite; ?></label>
 							<br />
 							<label>
 							  <input type="radio" name="mode" value="skip" id="mode_1" />
-							  <?=$strLeaveBehind ;?></label>
+							  <?php echo $strLeaveBehind ;?></label>
 							<br />
 						  </p></td>
 					</tr>
