@@ -353,11 +353,11 @@ document.getElementById("progress").width="150";
 		<?php
 		
 		// if no error: insert global last change date into base_log
-		$time = date('Y-d-m h:i:s');
-		mysql_query("INSERT INTO base_log (type, update_time, global_last_change) VALUES ('base_$filetype','$time','$newglc')");
+		$time = date('Y-m-d h:i:s');
+		mysql_query("INSERT INTO base_log (type, update_time, global_last_change) VALUES ('base_$filetype','$time','$newglc')");     
 		if(mysql_errno() > 0){
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
-		}
+                                                                     		}
 		
 	}else{ // base data is up to date
 		echo "<p>$strBaseUptodate</p>\n";
