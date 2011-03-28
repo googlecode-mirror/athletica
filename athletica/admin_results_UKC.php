@@ -89,7 +89,7 @@ if($login){
 	
 	// upload result file
 	if($nbr_effort>0){ //upload only if file contains at least one results
-		$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
+		$ftp->open_connection($cfgSLVhostUKC, $cfgSLVuser, $cfgSLVpass);
 		$success = $ftp->put_file($local, $remote);
 		$ftp->close_connection();
 	} else {
@@ -123,7 +123,7 @@ if($login){
 }else{
 	$cControl = AA_checkControl_UKC();
 	if($cControl == 0){
-		echo "<p>$strErrNoContro3</p>";
+		echo "<p>$strErrNoControl4</p>";
 		return;
 	}
     
