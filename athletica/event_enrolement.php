@@ -321,7 +321,7 @@ if($_GET['arg'] == 'change')
 //
 else if($_GET['arg'] == 'terminate')
 {
-	mysql_query("LOCK TABLES rundenset READ, runde WRITE, wettkampf READ");
+	mysql_query("LOCK TABLES rundenset READ, runde AS r WRITE, runde WRITE, wettkampf AS w READ");
     
     $mergedEvents=AA_getMergedEvents($round); 
     if ($mergedEvents!='')
@@ -347,38 +347,46 @@ else if($_GET['arg'] == 'terminate')
 				runde.Datum ASC
 				, runde.Startzeit ASC
 		");*/
+        
+        $sql_group = "";
+        if  (!empty($mk_group)) {
+              $sql_group = " AND r.Gruppe =  " .$mk_group; 
+        }
 		
 		$sql = "SELECT
-					runde.xRunde
+					r.xRunde
 				FROM
-					runde
+					runde AS r
 				LEFT JOIN
-					wettkampf USING(xWettkampf)
+					wettkampf AS w USING(xWettkampf)
 				WHERE
-					wettkampf.xKategorie = ".$cCat."
+					w.xKategorie = ".$cCat."
 				AND
-					wettkampf.xMeeting = ".$_COOKIE['meeting_id']."
+					w.xMeeting = ".$_COOKIE['meeting_id']."
 				AND
-					wettkampf.Mehrkampfcode = ".$cCode."
+					w.Mehrkampfcode = ".$cCode."
 				AND
-					(runde.Status = ".$cfgRoundStatus['enrolement_pending']." 
-				OR	runde.Status = ".$cfgRoundStatus['open'].")
+					(r.Status = ".$cfgRoundStatus['enrolement_pending']." 
+				OR	r.Status = ".$cfgRoundStatus['open'].")
+                " .$sql_group ."
 				ORDER BY
-					  runde.Datum ASC
-					, runde.Startzeit ASC;";
+					  r.Datum ASC
+					, r.Startzeit ASC;";   
+        
 		$result = mysql_query($sql); 
+        
 	}else{		// normal single event
 		$result = mysql_query("
 			SELECT
 				xRunde
 			FROM
-				runde
-			WHERE xWettkampf  $SqlEvents
-			AND (Status = " . $cfgRoundStatus['enrolement_pending'] . "
-			OR Status = " . $cfgRoundStatus['open'] . ")
+				runde AS r
+			WHERE r.xWettkampf  $SqlEvents
+			AND (r.Status = " . $cfgRoundStatus['enrolement_pending'] . "
+			OR r.Status = " . $cfgRoundStatus['open'] . ")
 			ORDER BY
-				Datum ASC
-				, Startzeit ASC
+				r.Datum ASC
+				, r.Startzeit ASC
 		");        
 	}
 	if(mysql_errno() > 0)		// DB error
@@ -616,12 +624,12 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			$sqlEventComb = '';        // the whole combined event
 			$sqlCat = " w.xKategorie = " .$cCat ." AND ";    
             $sqlMk = " w.Mehrkampfcode = ".$cCode;   
-		} 
+		}   
         
-        $sqlGroup = '';
-       // if ($mk_group != '') {
-       //     $sqlGroup = " AND r.Gruppe = '" .$mk_group ."'";
-       // }      		 
+        $sql_group = "";
+        if  (!empty($mk_group)) {
+              $sql_group = " AND r.Gruppe =  " .$mk_group; 
+        }    		 
 	  
 		$sql = "SELECT
 					xRunde
@@ -633,17 +641,17 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					. $sqlEventComb
 				   	. $sqlCat 	
 				   	. $sqlMk 
-                    . $sqlGroup ." 
+                    . $sql_group ."                          
 				AND
 					w.xMeeting = ".$_COOKIE['meeting_id']."
 				AND
 					(r.Status = ".$cfgRoundStatus['enrolement_pending']."
 				OR
-					r.Status = ".$cfgRoundStatus['open'].")
+					r.Status = ".$cfgRoundStatus['open'].")  
 				ORDER BY
 					  r.Datum ASC
 					, r.Startzeit ASC;";
-	   
+	    
 		$result = mysql_query($sql);
 	   
 	}else{ // normal single event
@@ -850,7 +858,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			 else
 			  $sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];   
 	
-			$sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";   
+			$sqlGroupBy = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";   
 	}
 	elseif ($catFrom > 0){   $sqlDate = ", r.Datum ";    
 				  $getSortCat = AA_getSortCat($catFrom,$catTo);          // sort display from category  
@@ -864,7 +872,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				  else                    
 				 	$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id']; 
 					 
-				  $sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
+				  $sqlGroupBy = " GROUP BY at.Name, at.Vorname, d.xDisziplin ";  
 	}
 	elseif ($discFrom > 0) {    $sqlDate = ", r.Datum ";    
 					$getSortDisc = AA_getSortDisc($discFrom,$discTo);         // sort display from dicipline              
@@ -878,7 +886,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					 else 
 						$sqlEvents.=" w.xMeeting = ". $_COOKIE['meeting_id'];  
 			
-					$sqlGroup = " GROUP BY at.Name, at.Vorname, d.xDisziplin "; 
+					$sqlGroupBy = " GROUP BY at.Name, at.Vorname, d.xDisziplin "; 
 	}
 	if ($mDate > 0){    $sqlDate = ", r.Datum ";   
 		   	 if ($sqlEvents!='')  {
@@ -901,37 +909,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			// single event
            
 		if($comb > 0 || $event > 0){ // combined, select entries over each discipline
-			/*$query = "SELECT s.xStart"
-					. ", s.Anwesend"
-					. ", a.Startnummer"
-					. ", at.Name"
-					. ", at.Vorname"
-					. ", at.Jahrgang"
-					. ", v.Name"
-					. ", a.xAnmeldung"
-					. " FROM anmeldung AS a"
-					. ", athlet AS at"
-					. ", start AS s"
-					. ", verein AS v"
-					. ", wettkampf AS w"
-					. " WHERE s.xWettkampf = w.xWettkampf"
-					. " AND w.xKategorie = $cCat"
-					. " AND w.Mehrkampfcode = $cCode"
-					. " AND w.xMeeting = ".$_COOKIE['meeting_id']
-					. " AND s.xAnmeldung = a.xAnmeldung"
-					. " AND a.xAthlet = at.xAthlet"
-					. " AND at.xVerein = v.xVerein"
-					. " ORDER BY " . $argument;*/   
 			
-            $sqlGroup2='' ;
-            $sqlTable='';                                
-            if ($comb > 0) {
-                if ($mk_group != ''){                    // combined event with groups   
-                    // $sqlGroup2=" r.Gruppe = a.Gruppe AND r.xRunde = " .$round. " AND "; 
-                     $sqlTable=" LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf) ";  
-                } 
-            }
-           
             $sql_event = "SELECT 
                                 r.xWettkampf
                           FROM
@@ -967,45 +945,70 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
                      $sqlCat = " AND w.xKategorie IN $sqlCats ";  
                 } 
             }
-                        
-			$sql = "SELECT
-						  s.xStart
-						, s.Anwesend
-						, a.Startnummer
-						, at.Name
-						, at.Vorname
-						, at.Jahrgang                          
-						, if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))    
-						, a.xAnmeldung
-						, s.Bezahlt                         
-					FROM
-						anmeldung AS a
-					LEFT JOIN
-						athlet AS at USING(xAthlet)
-					LEFT JOIN 
-						start AS s ON(s.xAnmeldung = a.xAnmeldung)
-					LEFT JOIN 
-						verein AS v ON(at.xVerein = v.xVerein)
-                    LEFT JOIN
-                        team AS t ON(a.xTeam = t.xTeam)
-					LEFT JOIN
-						wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
-                    LEFT JOIN
-                        disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin   = d.xDisziplin) "
-                    . $sqlTable ."
-					WHERE        "
-						. $sqlEventComb   						
-						. $sqlCat      					
-						. $sqlMk 
-                        . $sqlGroup ."    
-					AND "
-                        . $sqlGroup2 ."  
-                       
-						 w.xMeeting = ".$_COOKIE['meeting_id']."
-					ORDER BY
-						".$argument.", a.xAnmeldung;";
-			
-			$query = $sql; 
+             if  (!empty($mk_group)) {   
+                $sql = "SELECT
+                              s.xStart
+                            , s.Anwesend
+                            , a.Startnummer
+                            , at.Name
+                            , at.Vorname
+                            , at.Jahrgang                          
+                            , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))    
+                            , a.xAnmeldung
+                            , s.Bezahlt 
+                            , a.Gruppe                          
+                        FROM
+                            anmeldung AS a
+                        LEFT JOIN
+                            athlet AS at USING(xAthlet)
+                        LEFT JOIN 
+                            start AS s ON(s.xAnmeldung = a.xAnmeldung)
+                        LEFT JOIN 
+                            verein AS v ON(at.xVerein = v.xVerein)
+                        LEFT JOIN
+                            team AS t ON(a.xTeam = t.xTeam)  
+                        WHERE a.Gruppe = " .$mk_group ."
+                        GROUP BY a.xAnmeldung                          
+                        ORDER BY
+                            ".$argument.", a.xAnmeldung;";
+             }
+             else {
+                      
+			    $sql = "SELECT
+						      s.xStart
+						    , s.Anwesend
+						    , a.Startnummer
+						    , at.Name
+						    , at.Vorname
+						    , at.Jahrgang                          
+						    , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))    
+						    , a.xAnmeldung
+						    , s.Bezahlt                           
+					    FROM
+						    anmeldung AS a
+					    LEFT JOIN
+						    athlet AS at USING(xAthlet)
+					    LEFT JOIN 
+						    start AS s ON(s.xAnmeldung = a.xAnmeldung)
+					    LEFT JOIN 
+						    verein AS v ON(at.xVerein = v.xVerein)
+                        LEFT JOIN
+                            team AS t ON(a.xTeam = t.xTeam)  
+					    LEFT JOIN
+						    wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
+                        LEFT JOIN
+                            disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin   = d.xDisziplin) "
+                        . $sqlTable ."                                       
+					    WHERE        "
+						    . $sqlEventComb   						
+						    . $sqlCat      					
+						    . $sqlMk ."
+                             AND w.xMeeting = ".$_COOKIE['meeting_id'] 
+                        . $sqlGroupBy ."  
+					    ORDER BY
+						    ".$argument.", a.xAnmeldung;";
+			    } 
+			$query = $sql;                      
            
 		}else{  
 			// no combined
@@ -1040,7 +1043,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)      
 					WHERE   					
 						".$sqlEvents." AND d.Staffellaeufer = 0 AND w.Mehrkampfcode = 0 
-						".$sqlGroup ." 
+					".$sqlGroupBy ." 
 					ORDER BY
 						".$argument.")
 						
@@ -1081,7 +1084,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)     
 					WHERE      					
 						".$sqlEvents." AND d.Staffellaeufer > 0  
-					".$sqlGroup ."  
+					".$sqlGroupBy ."  
 					ORDER BY
 						".$argument.")";    
 			$query = $sql;                         
@@ -1091,103 +1094,40 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 		//
 		// get each athlete from all registered relays
 		//
-		/*$query = "SELECT s2.xStart"
-				. ", s2.Anwesend"
-				. ", st.Name"
-				. ", v.Name"
-				. ", a.Startnummer"
-				. ", at.Name"
-				. ", at.Vorname"
-				. ", at.Jahrgang"
-				. " FROM staffel AS st"
-				. ", start AS s"
-				. ", verein AS v"
-				. ", staffelathlet as stat"
-				. ", start as s2"
-				. ", anmeldung as a"
-				. ", athlet as at"
-				. " WHERE " //s.xWettkampf = " . $event
-				. $sqlEvents
-				. " AND s.xStaffel = st.xStaffel"
-				. " AND st.xVerein = v.xVerein"
-				. " AND stat.xStaffelstart = s.xStart"
-				. " AND s2.xStart = stat.xAthletenstart"
-				. " AND a.xAnmeldung = s2.xAnmeldung"
-				. " AND at.xAthlet = a.xAthlet"
-				. " GROUP BY stat.xAthletenstart"
-				. " ORDER BY " . $argument;*/
-				
-	/*	 	
-		$sql = "SELECT
-					  s2.xStart
-					, s2.Anwesend
-					, st.Name
-					, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo) 
-					, a.Startnummer
-					, at.Name
-					, at.Vorname
-					, at.Jahrgang
-					, s2.Bezahlt
-					, d.Name 
-                    , st.Startnummer   					
-				FROM
-					staffel AS st
-				LEFT JOIN 
-					start AS s USING(xStaffel)
-				LEFT JOIN 
-					verein AS v ON(st.xVerein = v.xVerein)
-				LEFT JOIN
-					staffelathlet AS stat ON(stat.xStaffelstart = s.xStart)
-				LEFT JOIN
-					start AS s2 ON(s2.xStart = stat.xAthletenstart)
-				LEFT JOIN
-					anmeldung AS a USING(xAnmeldung)
-				LEFT JOIN
-					athlet AS at USING(xAthlet)
-				LEFT JOIN
-					wettkampf AS w ON(s.xWettkampf = w.xWettkampf)
-				LEFT JOIN
-					disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin = d.xDisziplin)
-				WHERE        					
-					".$sqlEvents."
-				GROUP BY 
-					 st.Startnummer
-				ORDER BY
-					".$argument.";";
-    */
-    $sql = "SELECT 
-                    s.xStart 
-                    , s.Anwesend 
-                    , st.Name 
-                    , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
-                    , a.Startnummer 
-                    , at.Name 
-                    , at.Vorname 
-                    , at.Jahrgang  
-                    , s.Bezahlt 
-                    , d.Name 
-                    , st.Startnummer                      
-            FROM 
-                staffel AS st 
-                LEFT JOIN start AS s USING(xStaffel) 
-                LEFT JOIN verein AS v ON(st.xVerein = v.xVerein)
-               
-                LEFT JOIN staffelathlet AS stat ON(stat.xStaffelstart = s.xStart) 
-                LEFT JOIN start AS s2 ON(s2.xStart = stat.xAthletenstart)
-                LEFT JOIN anmeldung AS a ON (s2.xAnmeldung=a.xAnmeldung) 
-                 
-                LEFT JOIN athlet AS at USING(xAthlet) 
-                LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
-                LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(w.xDisziplin = d.xDisziplin) 
-                LEFT JOIN team AS t ON (st.xTeam = t.xTeam) 
-            WHERE                            
-                    ".$sqlEvents." 
-            GROUP BY 
-                     st.Startnummer
-            ORDER BY
-                    ".$argument.";";
-                    
-		$query = $sql;          
+		
+        $sql = "SELECT 
+                        s.xStart 
+                        , s.Anwesend 
+                        , st.Name 
+                        , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
+                        , a.Startnummer 
+                        , at.Name 
+                        , at.Vorname 
+                        , at.Jahrgang  
+                        , s.Bezahlt 
+                        , d.Name 
+                        , st.Startnummer                      
+                FROM 
+                    staffel AS st 
+                    LEFT JOIN start AS s USING(xStaffel) 
+                    LEFT JOIN verein AS v ON(st.xVerein = v.xVerein)
+                   
+                    LEFT JOIN staffelathlet AS stat ON(stat.xStaffelstart = s.xStart) 
+                    LEFT JOIN start AS s2 ON(s2.xStart = stat.xAthletenstart)
+                    LEFT JOIN anmeldung AS a ON (s2.xAnmeldung=a.xAnmeldung) 
+                     
+                    LEFT JOIN athlet AS at USING(xAthlet) 
+                    LEFT JOIN wettkampf AS w ON(s.xWettkampf = w.xWettkampf) 
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(w.xDisziplin = d.xDisziplin) 
+                    LEFT JOIN team AS t ON (st.xTeam = t.xTeam) 
+                WHERE                            
+                        ".$sqlEvents." 
+                GROUP BY 
+                         st.Startnummer
+                ORDER BY
+                        ".$argument.";";
+                        
+		    $query = $sql;          
 	}                   
 	
 	$result = mysql_query($query);
