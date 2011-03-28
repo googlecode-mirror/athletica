@@ -275,7 +275,7 @@ function AA_timetable_display($arg = 'monitor')
                     case($cfgRoundStatus['enrolement_pending']):
                         $class = "st_enrlmt_pend";
                         if($combined){  
-                            $href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]_$row[21]&round=$row[0]";    
+                            $href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]_$row[21]&round=$row[0]&group=$row[15]";    
                         }else{
                             $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]";    
                         }
