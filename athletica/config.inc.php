@@ -739,6 +739,7 @@ $cfgCharWidth = array(
  *
  */
 $cfgSLVhost = "www.swiss-athletics.ch";
+$cfgSLVhostUKC = "ubs-kidscup.ch"; 
 $cfgSLVuser = "athletica";
 $cfgSLVpass = "impBOSS";
 $cfgSrvHashU = "f3e99337796d868e3ae43ff87196fa92";
