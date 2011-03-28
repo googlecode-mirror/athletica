@@ -186,7 +186,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 		// output contest data
 		//
 		$global_rankadd = "";   
-        $indoor = '';
+        $indoor = '0';
 		$query = "
 			SELECT
 				m.*
@@ -214,7 +214,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
 			
 			if($row['Ueber1000m'] == 'y'){ $global_rankadd = "A"; }
 			//if($row['Halle'] == 'y'){ $global_rankadd .= "i"; }                
-            if($row['Saison'] == 'I'){ $indoor = "i"; }   
+            if($row['Saison'] == 'I'){ $indoor = "1"; }                           // 1 = inddor , 0 = outdoor
 		}
 		
 		//
@@ -1342,7 +1342,8 @@ function gen_result_xml_UKC($file){
         
         //
         // output contest data
-        //                     
+        //   
+        $indoor = '0';                    
         $query = "
             SELECT
                 m.*
@@ -1371,7 +1372,7 @@ function gen_result_xml_UKC($file){
             $this->write_xml_open("athletes");  
             
             if($row['Ueber1000m'] == 'y'){ $global_rankadd = "A"; }               
-            if($row['Saison'] == 'I'){ $indoor = "i"; }   
+            if($row['Saison'] == 'I'){ $indoor = "1"; }                      // 1 = inddor , 0 = outdoor 
         }
                         
         //
