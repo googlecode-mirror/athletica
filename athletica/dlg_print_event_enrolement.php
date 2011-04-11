@@ -61,6 +61,12 @@ if(isset($_GET['mDate'])){
     $mDate = $_GET['mDate'];
 }
 
+$mk_group = '';
+if(!empty($_GET['group'])) {
+    $mk_group = $_GET['group']; 
+   
+}
+
 
 $page = new GUI_Page('dlg_print_event_enrolement');
 $page->startPage();
@@ -84,6 +90,7 @@ $menu->printMenu();*/
 <input type="hidden" name="discFrom" value="<?php echo $discFrom ?>"> 
 <input type="hidden" name="discTo" value="<?php echo $discTo ?>"> 
 <input type="hidden" name="mDate" value="<?php echo $mDate ?>"> 
+<input type="hidden" name="group" value="<?php echo $mk_group ?>">
 
 <table class='dialog'>
 	<tr>
