@@ -229,7 +229,8 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'HWOMU18_F' => 4  
             
             , 'UKC' => array(30,331,386)
-            , 'UKC_F' => 1    
+            , 'UKC_F_m' => 1  
+            , 'UKC_F_w' => 2
            
 			);
 
