@@ -192,9 +192,15 @@ if(!empty($_POST['slvsid'])){
                             <td><?php echo $row[1] ." " .$row[0]; ?> 
                             </td>                                        
                             <td>
-                                <select class="" name="team_<?php echo $key; ?>" size="1" id="team_<?php echo $key; ?>">  
-                                    <option value="<?php echo $arr[$key][0]; ?>"><?php echo $arr[$key][0]; ?></option>
-                                    <option value="<?php echo $arr[$key][1]; ?>"><?php echo $arr[$key][1]; ?></option> 
+                                <select class="" name="team_<?php echo $key; ?>" size="1" id="team_<?php echo $key; ?>"> 
+                                   <?php                                     
+                                   foreach ($val as $k => $v) {
+                                   ?> 
+                                    <option value="<?php echo $arr[$key][$k]; ?>"><?php echo $arr[$key][$k]; ?></option>
+                                   
+                                    <?php 
+                                    }
+                                    ?> 
                                 </select> 
                             </td>
                     </tr>   
