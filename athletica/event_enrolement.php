@@ -421,7 +421,7 @@ $page->startPage();
 $page->printPageTitle($strEnrolement . ": " . $_COOKIE['meeting']);
               
 $menu = new GUI_Menulist();
-$menu->addButton("dlg_print_event_enrolement.php?category=$category&event=$event&comb=$comb&catFrom=$catFrom&catTo=$catTo&discFrom=$discFrom&discTo=$discTo&mDate=$mDate", $strPrint." ...", '_self');
+$menu->addButton("dlg_print_event_enrolement.php?category=$category&event=$event&comb=$comb&catFrom=$catFrom&catTo=$catTo&discFrom=$discFrom&discTo=$discTo&mDate=$mDate&group=$mk_group", $strPrint." ...", '_self');
 $menu->addButton($cfgURLDocumentation . 'help/event/enrolement.html', $strHelp, '_blank');
 $menu->printMenu();
 
@@ -1062,8 +1062,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					    ".$sqlDate."  
 						, s.Bezahlt    						
 					FROM
-						 staffel as staf  
-						,anmeldung AS a
+						  
+						anmeldung AS a
 					LEFT JOIN
 						athlet AS at USING(xAthlet)
 					LEFT JOIN 
@@ -1077,9 +1077,10 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					LEFT JOIN
 						disziplin_" . $_COOKIE['language'] . " AS d ON(w.xDisziplin   = d.xDisziplin)
 					LEFT JOIN 
-						start AS s1 On (s1.xStaffel= staf.xStaffel)  
+						staffel AS staf On (staf.xStaffel = s.xStaffel ) 
+                         
 					 LEFT JOIN
-						staffelathlet AS stat ON(stat.xStaffelstart = s1.xStart) 
+						staffelathlet AS stat ON(stat.xStaffelstart = s.xStart) 
 					 LEFT JOIN runde AS r ON(r.xWettkampf = w.xWettkampf)
 					 LEFT JOIN kategorie AS k ON(w.xKategorie = k.xKategorie)     
 					WHERE      					
@@ -1087,7 +1088,8 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 					".$sqlGroupBy ."  
 					ORDER BY
 						".$argument.")";    
-			$query = $sql;                         
+			$query = $sql;      
+         
 		}
 	}
 	else {							// relay event
@@ -1127,13 +1129,14 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
                 ORDER BY
                         ".$argument.";";
                         
-		    $query = $sql;          
+		    $query = $sql;   
+          
 	}                   
 	
 	$result = mysql_query($query);
 	
 	if(mysql_errno() > 0)		// DB error
-	{
+	{   
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else if(mysql_num_rows($result) > 0)  // data found
