@@ -1510,7 +1510,8 @@ else {
                              w.Punkteformel,
                              w.info,
                              a.Startnummer,
-                             ".$sql_leistung_order." AS leistung_order 
+                             ".$sql_leistung_order." AS leistung_order, 
+                             r.Leistung
                         FROM serie AS s USE INDEX(Runde)
                    LEFT JOIN serienstart AS ss USING(xSerie) 
                    LEFT JOIN resultat AS r USING(xSerienstart) 
@@ -1529,9 +1530,9 @@ else {
                        ".$valid_result." 
                        ".$sqlSeparate." 
                        ".$selectionHeats."  
-                    ORDER BY leistung_order " 
+                    ORDER BY rank, leistung_order " 
                              .$order_perf;  
-              
+                  
         }
         else {                        // relay event
                                 
@@ -1617,8 +1618,8 @@ else {
                            if ($formaction == 'print') {
                                  $list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]);                         
                            }
-                           else {
-                                $list->printSubTitle($row1_keep, $row2_keep, $roundName, $row_res[24]);                         
+                           else {                                              
+                                $list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]);                                               
                            }
                             
                         }   
