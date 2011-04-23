@@ -95,6 +95,9 @@ function XML_regUKC($xml_simple){
         $clubName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($account->accountName))));               
         $clubNameShort =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($account->accountShort))));      
         
+        $laenge = strlen($clubName);
+        $laengeShort = strlen($clubNameShort); 
+               
         $result = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club."'");
         if (mysql_errno() > 0){
                     AA_printErrorMsg("xml-19-".mysql_errno() . ": " . mysql_error());
@@ -151,11 +154,11 @@ function XML_regUKC($xml_simple){
             }           
            
             $meetingDate = ''; 
-            $discode = 0;   
+            $discode = 0;                
             
             $lastName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->lastName))));               
             $firstName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->firstName))));    
-            
+                       
             $birthDate =  $athlete->birthDate;
             $arr_birth = explode(".",$birthDate);
             $birthdate = $arr_birth[2] . "-" .  $arr_birth[0] . "-" . $arr_birth[1]; 
@@ -212,7 +215,7 @@ function XML_regUKC($xml_simple){
                         }  
                         else {
                            
-                            $_POST['combinedtype'] = 403;
+                            $_POST['combinedtype'] = 408;
                             $_POST['cat'] = $xCat;   
                             AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);  
                                                     
@@ -250,7 +253,13 @@ function XML_regUKC($xml_simple){
                         if(is_numeric($clubnr)) { 
                                            
                             // if athlet exist
-                            $sql = "SELECT * FROM athlet WHERE Name= '" .  $lastName ."' AND Vorname = '" .  $firstName ."' AND Geburtstag = '" . $birthdate ."'";
+                            if ($license > 0){
+                                      $sql = "SELECT * FROM athlet WHERE Lizenznummer= " .  $license; 
+                            }
+                            else {                                   
+                                   $sql = "SELECT * FROM athlet WHERE Name= '" .  $lastName ."' AND Vorname = '" .  $firstName ."' AND Geburtstag = '" . $birthdate ."'";  
+                            }
+                            
                             $res = mysql_query($sql);  
                            
                             if(mysql_errno() > 0){  
@@ -264,7 +273,7 @@ function XML_regUKC($xml_simple){
                                     }
                                     else {
                                          $licenseType = 3;   
-                                    }
+                                    }                                      
                                    
                                     $sql = "INSERT IGNORE INTO athlet SET
                                                                         Name = '" .  $lastName ."',
@@ -281,21 +290,36 @@ function XML_regUKC($xml_simple){
                                                                    
                                     mysql_query($sql);
                                    
-                                    if(mysql_errno() > 0){    
+                                    if(mysql_errno() > 0){   
+                                      
                                         AA_printErrorMsg("xml-21-".mysql_errno().": ".mysql_error());
                                     }else{
                                             $xAthlete = mysql_insert_id();   
                                     }
                                 }
                                 else {
-                                       $sql = "UPDATE athlet SET  
+                                       if ($license > 0){                                       
+                                    
+                                                $sql = "UPDATE athlet SET  
+                                                            Name = '" .  $lastName ."',  
+                                                            Vorname = '" .  $firstName ."',  
+                                                            Geburtstag = '" .  $birthdate ."',
                                                             Land = '" .  $nationality ."',  
                                                             xVerein = '" .  $clubnr ."',    
                                                             Bezahlt = '" .  $licensePaid ."'      
-                                                            WHERE Name= '" .  $name ."' AND Vorname = '" .  $firstname ."' AND Geburtstag = '" . $birthdate ."'";     
+                                                            WHERE Lizenznummer= " .  $license;  
+                                       }
+                                       else {
+                                              $sql = "UPDATE athlet SET  
+                                                            Land = '" .  $nationality ."',  
+                                                            xVerein = '" .  $clubnr ."',    
+                                                            Bezahlt = '" .  $licensePaid ."'      
+                                                            WHERE Name= '" .  $lastName ."' AND Vorname = '" .  $firstName ."' AND Geburtstag = '" . $birthdate ."'";  
+                                       }   
                                       
                                         mysql_query($sql);
                                         if(mysql_errno() > 0){  
+                                            
                                             AA_printErrorMsg("xml-22-".mysql_errno().": ".mysql_error());
                                         }else{
                                                 $xAthlete = $row[0];   
