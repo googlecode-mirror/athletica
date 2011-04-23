@@ -3505,6 +3505,26 @@ function AA_getCurrAthlete($xSerie){
     return $heatStart;                          // no activ athlete
 }
 
+
+function AA_checkRelayDisc($disc){
+    
+     $sql = "SELECT * FROM disziplin_" . $_COOKIE['language'] . " AS d 
+             WHERE d.Code = " .  $disc . " AND d.Typ = 3 AND d.Strecke > 0";
+             
+     $res = mysql_query($sql);
+     if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    else {  
+         if (mysql_num_rows($res) > 0) {
+             return true;
+         }
+         else {
+                return false;
+         }
+    }
+}
+
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

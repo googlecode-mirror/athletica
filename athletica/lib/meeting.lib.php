@@ -358,9 +358,12 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 		$t = $_POST['combinedtype'];
 		
 		// get short name
-		$res = mysql_query("SELECT Kurzname FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $t");
+		$res = mysql_query("SELECT Kurzname, Name FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $t");
 		$row = mysql_fetch_array($res);
 		$sName = $row[0];
+        if ($t == 408){                 // UBS Kids Cup
+            $sName = $row[1];  
+        }
 		
 		// check if combined type has predefined disciplines
 		$sql_k = "SELECT Geschlecht, Code , Kurzname FROM kategorie WHERE xKategorie = ".$_POST['cat'].";";
@@ -387,10 +390,11 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				$d = $row[0];
 				$combEnd = 0;
 				
-				if($k == count($cfgCombinedWO[$tt]) && $tmp != 403){
+				if($k == count($cfgCombinedWO[$tt]) && $tmp != 408){
 					$combEnd = 1;
-				}
-                if ($val == 100 && $tmp == 403) {         // code 100 = 1000m (a single event inside the UBS Kids Cup)
+				}      
+               
+                if ($val == 100 && $tmp == 408) {         // code 100 = 1000m (a single event inside the UBS Kids Cup)
                          mysql_query("INSERT INTO wettkampf SET
                         Typ = ".$cfgEventType[$strEventTypeSingle]."
                         , Haftgeld = '$penalty'
@@ -400,8 +404,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
                         , xDisziplin = $d
                         , xMeeting = ".$_COOKIE['meeting_id']);
                 }
-                else {
-                    
+                else {                       
                 
 				mysql_query("INSERT INTO wettkampf SET
 						Typ = ".$cfgEventType[$strEventTypeSingleCombined]."
@@ -424,11 +427,7 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 			}
 			
            
-			    // set conversion table               
-			    $_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
-			    $_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
-			    $_POST['conv_changed'] = 'yes';
-			    AA_meeting_changeCategory($t);
+			   
            
 			}
             else {
@@ -457,6 +456,21 @@ function AA_meeting_addCombinedEvent($disfee, $penalty){
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 		} 
+        
+         // set conversion table               
+                $_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
+                
+                if ($t == 408){
+                       //$row_k['Geschlecht']
+                        $_POST['conv'] = $cfgCombinedWO[$tt."_F_".$row_k['Geschlecht'] ];             
+                }
+                else {
+                      $_POST['conv'] = $cfgCombinedWO[$tt."_F"];             
+                }
+               
+                $_POST['conv_changed'] = 'yes';
+                AA_meeting_changeCategory($t);
+        
 		 
 	}
 	
@@ -488,6 +502,10 @@ function AA_meeting_changeCategory($byCombtype = 0)
 	if($byCombtype > 0){
 		$sqlCombtype = "AND w.Mehrkampfcode = $byCombtype";
 	}
+    $sqlSVM = '';
+    if (isset($_POST['svm'])){
+        $sqlSVM =  " AND w.xKategorie_svm = " . $_POST['svm'] . " "; 
+    }
 	
 	mysql_query("
 		LOCK TABLES
@@ -541,11 +559,12 @@ function AA_meeting_changeCategory($byCombtype = 0)
 				wettkampf AS w
 				LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
 			WHERE w.xKategorie = " . $_POST['cat'] . "
+            $sqlSVM
 			AND w.xMeeting = " . $_COOKIE['meeting_id'] . "  			
 			$sqlCombtype
 			$sqlSetCombinedOnly
-		");     
-        
+		");                
+      
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -602,16 +621,26 @@ function AA_meeting_changeCategory($byCombtype = 0)
 				$setType = $type;
 				if($type == $cfgEventType[$strEventTypeSingleCombined] && $row[2] == 0){
 					$setType = $cfgEventType[$strEventTypeSingle];
-				}
-				
-				mysql_query("
-					UPDATE wettkampf SET
-						Typ='$setType'
-						$setConv
-						$setFormula
-						$setWeight
-					WHERE xWettkampf = $row[0]
-				");
+				}    
+                
+				if($_POST['conv_changed'] == 'yes') {
+				        mysql_query("
+					        UPDATE wettkampf SET
+						        Typ='$setType'
+						        $setConv
+						        $setFormula
+						        $setWeight
+					        WHERE xWettkampf = $row[0]
+				        ");
+                }
+                else {
+                      mysql_query("
+                            UPDATE wettkampf SET
+                                Typ='$setType'                                
+                                $setWeight
+                            WHERE xWettkampf = $row[0]
+                        ");
+                }
 
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1168,7 +1197,9 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
         // get short name
         $res = mysql_query("SELECT ks.code FROM kategorie_svm AS ks WHERE ks.xKategorie_svm = $svm");  
         $row = mysql_fetch_array($res);
-        $svmCode = $row[0];  
+       
+        $svmCode = $row[0];                
+       
         $_POST['svmCode']=$svmCode;               
           
          if(mysql_errno() > 0) {
@@ -1195,6 +1226,8 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
                 $sql="SELECT xWettkampf FROM wettkampf WHERE  xDisziplin = " . $d ." AND xKategorie_svm = " .$svm . " AND xMeeting = " .$_COOKIE['meeting_id'];
                 $res = mysql_query($sql);
                 $num = mysql_num_rows($res);
+                
+                $info = $cfgSVM[$svmCode."_D"];
                
                 if (mysql_num_rows($res) == 0) {    
                     
@@ -1202,14 +1235,13 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
                         Typ = ".$wTyp."
                         , Haftgeld = '$penalty'
                         , Startgeld = '$disfee' 
-                        , Info = ''                         
+                        , Info = '$info'                         
                         , xKategorie = ".$_POST['cat']."
                         , xDisziplin = $d
                         , xMeeting = ".$_COOKIE['meeting_id']." 
-                        , xKategorie_svm = $svm";                   
-                
+                        , xKategorie_svm = $svm";   
                   
-                    mysql_query($sql);
+                    mysql_query($sql);     
                     
                     if(mysql_errno() > 0) {
                         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -1248,7 +1280,8 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
         }else{    
            $GLOBALS['AA_ERROR'] = $GLOBALS['strErrDiscNotDefSVM'];    
         }    
-    }            
+    }
+           
 }     // end function AA_meeting_addSVMEvent
 
 //
@@ -1355,6 +1388,30 @@ function AA_meeting_addTime($st , $wTyp, $item, $dTyp)  {
     
 }    // end function AA_meeting_addTime
 
+
+    
+//
+// check meeting if UBS Kids Cup
+//
+function AA_checkMeeting_UKC()  {
+    
+    if (empty($_COOKIE['meeting_id'])){
+        return '';
+    }
+    $sql = "SELECT UKC FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id'];
+     
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0){
+        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+    }else{
+        
+        $row = mysql_fetch_array($res);           
+        return $row[0];
+    
+    }
+    
+    return 0;
+}
 
 }		// AA_MEETING_LIB_INCLUDED
 ?>
