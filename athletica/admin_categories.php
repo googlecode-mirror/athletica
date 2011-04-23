@@ -13,14 +13,16 @@ require('./lib/cl_gui_button.lib.php');
 require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
-require('./lib/common.lib.php');
+require('./lib/common.lib.php');  
+require('./lib/meeting.lib.php'); 
 
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
 }
 
-
+ $ukc_meeting = AA_checkMeeting_UKC(); 
+ 
 //
 // Process add or change-request if required
 //
@@ -39,21 +41,32 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 	// OK: try to add item
 	else if ($_POST['arg']=="add")
 	{   
-        $row_activ = 'y'; 
-        if ($_POST['activ'] == 'i'){   
-            $row_activ = 'n'; 
-        }
-               
-		mysql_query("
-			INSERT INTO kategorie SET 
-				Kurzname=\"" . strtoupper($_POST['short']) . "\"
-				, Name=\"" . $_POST['name'] . "\"
-				, Geschlecht=\"" . $_POST['sex'] . "\"
-				, Anzeige=" . $_POST['order'] . "
-				, Alterslimite=" . $_POST['age'] ."
-                , aktiv='" . $row_activ . "'"    
-		);
+        if ($ukc_meeting == 'y'){
+             ?>
+            <script type="text/javascript">  
+
+            check = alert("<?php echo $strErrCatUkc; ?>");
+            </script>   
         
+            <?php    
+            
+        }
+        else {
+                $row_activ = 'y'; 
+                if ($_POST['activ'] == 'i'){   
+                    $row_activ = 'n'; 
+                }
+                       
+		        mysql_query("
+			        INSERT INTO kategorie SET 
+				        Kurzname=\"" . strtoupper($_POST['short']) . "\"
+				        , Name=\"" . $_POST['name'] . "\"
+				        , Geschlecht=\"" . $_POST['sex'] . "\"
+				        , Anzeige=" . $_POST['order'] . "
+				        , Alterslimite=" . $_POST['age'] ."
+                        , aktiv='" . $row_activ . "'"    
+		        );
+        }
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change")
@@ -276,7 +289,7 @@ if ($_GET['arg']=="cat") {
 	</form>	
 </tr>
 
-<?php
+<?php      
 
 $result = mysql_query("SELECT xKategorie"
 						. ", Kurzname"
@@ -287,7 +300,7 @@ $result = mysql_query("SELECT xKategorie"
 						. ", Code"
                         . ", aktiv"   
 						. " FROM kategorie ORDER BY " . $argument);
- 
+      
 $i = 0;
 $btn = new GUI_Button('', '');	// create button object
 

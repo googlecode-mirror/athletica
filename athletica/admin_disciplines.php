@@ -15,13 +15,15 @@ require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
 require('./lib/common.lib.php');
+require('./lib/meeting.lib.php'); 
 
 if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
 }
        
-  
+ $ukc_meeting = AA_checkMeeting_UKC();  
+   
 //
 // Process add or change-request if required
 //
@@ -38,73 +40,88 @@ if ($_POST['arg']=="add" || $_POST['arg']=="change")
 	// OK: try to add item
 	else if ($_POST['arg']=="add") {
 		
-		// self made combined events must have an unique code
-		$code = 0;
-		if($_POST['type'] == $cfgDisciplineType[$strDiscCombined]){
-			$res = mysql_query("SELECT MAX(Code) FROM disziplin _" . $_COOKIE['language'] . " WHERE Typ = ".$cfgDisciplineType[$strDiscCombined]);
-			$maxrow = mysql_fetch_array($res);
-			if($maxrow[0] < 9000){	// define codes
-				$code = 9000;
-			}else{
-				$code = $maxrow[0]+1;
-			}
-		}
         
-        $row_activ = 'y'; 
-		if ($_POST['activ'] == 'i'){   
-            $row_activ = 'n'; 
-        }
-        // new disciplin de
-		mysql_query("
-			INSERT INTO disziplin_de SET 
-				Kurzname=\"" . strtoupper($_POST['short']) . "\"
-				, Name=\"" . $_POST['name'] . "\"
-				, Anzeige=" . $_POST['order'] . "
-				, Seriegroesse=" . $_POST['heat'] . "
-				, Staffellaeufer=" . $_POST['relay'] . "
-				, Typ=" . $_POST['type'] . "
-				, Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
-				, Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
-				, Code = $code
-                , aktiv='" . $row_activ . "'    
-		");
-        if(mysql_errno() > 0) {
-                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-                 }         
-        // new disciplin fr
-        mysql_query("
-            INSERT INTO disziplin_fr SET 
-                Kurzname=\"" . strtoupper($_POST['short']) . "\"
-                , Name=\"" . $_POST['name'] . "\"
-                , Anzeige=" . $_POST['order'] . "
-                , Seriegroesse=" . $_POST['heat'] . "
-                , Staffellaeufer=" . $_POST['relay'] . "
-                , Typ=" . $_POST['type'] . "
-                , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
-                , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
-                , Code = $code
-                , aktiv='" . $row_activ . "'    
-        ");
-        if(mysql_errno() > 0) {
-                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-                 }         
-        // new disciplin it
-        mysql_query("
-            INSERT INTO disziplin_it SET 
-                Kurzname=\"" . strtoupper($_POST['short']) . "\"
-                , Name=\"" . $_POST['name'] . "\"
-                , Anzeige=" . $_POST['order'] . "
-                , Seriegroesse=" . $_POST['heat'] . "
-                , Staffellaeufer=" . $_POST['relay'] . "
-                , Typ=" . $_POST['type'] . "
-                , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
-                , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
-                , Code = $code
-                , aktiv='" . $row_activ . "'    
-        ");
-        if(mysql_errno() > 0) {
-                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
-                 }         
+              if ($ukc_meeting == 'y'){
+                     ?>
+                    <script type="text/javascript">  
+
+                    check = alert("<?php echo $strErrDisUkc; ?>");
+                    </script>   
+                
+                    <?php    
+            
+             }
+             else {
+        
+		            // self made combined events must have an unique code
+		            $code = 0;
+		            if($_POST['type'] == $cfgDisciplineType[$strDiscCombined]){
+			            $res = mysql_query("SELECT MAX(Code) FROM disziplin _" . $_COOKIE['language'] . " WHERE Typ = ".$cfgDisciplineType[$strDiscCombined]);
+			            $maxrow = mysql_fetch_array($res);
+			            if($maxrow[0] < 9000){	// define codes
+				            $code = 9000;
+			            }else{
+				            $code = $maxrow[0]+1;
+			            }
+		            }
+                    
+                    $row_activ = 'y'; 
+		            if ($_POST['activ'] == 'i'){   
+                        $row_activ = 'n'; 
+                    }
+                    // new disciplin de
+		            mysql_query("
+			            INSERT INTO disziplin_de SET 
+				            Kurzname=\"" . strtoupper($_POST['short']) . "\"
+				            , Name=\"" . $_POST['name'] . "\"
+				            , Anzeige=" . $_POST['order'] . "
+				            , Seriegroesse=" . $_POST['heat'] . "
+				            , Staffellaeufer=" . $_POST['relay'] . "
+				            , Typ=" . $_POST['type'] . "
+				            , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+				            , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+				            , Code = $code
+                            , aktiv='" . $row_activ . "'    
+		            ");
+                    if(mysql_errno() > 0) {
+                                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                             }         
+                    // new disciplin fr
+                    mysql_query("
+                        INSERT INTO disziplin_fr SET 
+                            Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                            , Name=\"" . $_POST['name'] . "\"
+                            , Anzeige=" . $_POST['order'] . "
+                            , Seriegroesse=" . $_POST['heat'] . "
+                            , Staffellaeufer=" . $_POST['relay'] . "
+                            , Typ=" . $_POST['type'] . "
+                            , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                            , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                            , Code = $code
+                            , aktiv='" . $row_activ . "'    
+                    ");
+                    if(mysql_errno() > 0) {
+                                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                             }         
+                    // new disciplin it
+                    mysql_query("
+                        INSERT INTO disziplin_it SET 
+                            Kurzname=\"" . strtoupper($_POST['short']) . "\"
+                            , Name=\"" . $_POST['name'] . "\"
+                            , Anzeige=" . $_POST['order'] . "
+                            , Seriegroesse=" . $_POST['heat'] . "
+                            , Staffellaeufer=" . $_POST['relay'] . "
+                            , Typ=" . $_POST['type'] . "
+                            , Appellzeit=SEC_TO_TIME(". ($_POST['time']*60) .")
+                            , Stellzeit=SEC_TO_TIME(". ($_POST['mtime']*60) .")
+                            , Code = $code
+                            , aktiv='" . $row_activ . "'    
+                    ");
+                    if(mysql_errno() > 0) {
+                                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                             }   
+                
+        }      
 	}
 	// OK: try to change item
 	else if ($_POST['arg']=="change") {
