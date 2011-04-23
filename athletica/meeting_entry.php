@@ -319,18 +319,42 @@ if ($_POST['arg']=="change")
             LOCK TABLES
                 wettkampf READ
                 , kategorie READ
+                , kategorie AS k READ 
                 , meeting READ
                 , team READ
                 , anmeldung WRITE
                 , athlet WRITE
         ");
+        if ($ukc == 'y'){
+              $age = 0;
+              $currYear = date('Y');  
+              $age = $currYear -  $_POST['year'];
+              if ($age < 7){
+                    $age = 7;
+              }
+              
+              // get category                              
+              $sql_cat = "SELECT xKategorie, Code FROM kategorie AS k WHERE k.alterslimite = " . $age . " AND k.Geschlecht = '" .$_POST['sex'] . "' AND k.UKC = 'y' AND k.aktiv = 'y'";
+              $res_cat = mysql_query($sql_cat);
+             
+              if(mysql_errno() > 0) {   
+                                    AA_printErrorMsg("xml-1-".mysql_errno() . ": " . mysql_error());  
+              }
+              else{
+                    if (mysql_num_rows($res_cat) > 0)  {
+                            $row_cat =  mysql_fetch_row($res_cat);                             
+                            $xCat = $row_cat[0];   
+                    }
+              }
+            
+        }
         
         $sqlSex = "";
         if(!empty($_POST['sex'])){
             $sqlSex = ", Geschlecht = '".$_POST['sex']."'";
         }
 
-        if(AA_checkReference("kategorie", "xKategorie", $_POST['category']) == 0)    // Category does not exist (anymore)
+        if(AA_checkReference("kategorie", "xKategorie", $xCat) == 0)    // Category does not exist (anymore)
         {
             AA_printErrorMsg($strCategory . $strErrNotValid);
         }
@@ -399,19 +423,50 @@ if ($_POST['arg']=="change")
                 
                 if ($ukc == 'y'){
                      // Basic athlet data UBS Kids Club
+                     $address = '';
+                     $plz = 0;  
+                     $city = '';  
+                     $email = '';                         
+                     
+                     if (isset($_POST['address'])){
+                            $address = $_POST['address'];
+                     }
+                     if (isset($_POST['plz']) && !empty($_POST['plz'])){
+                            $plz = $_POST['plz'];
+                     }
+                      if (isset($_POST['city'])){
+                            $city = $_POST['city'];
+                     }
+                      if (isset($_POST['email'])){
+                            $email = $_POST['email'];
+                     }
                       mysql_query("
                             UPDATE athlet SET 
                                 Name='" . ($_POST['name']) . "'
                                 , Vorname='" . $_POST['first'] . "'
                                 , Jahrgang='" . $_POST['year'] . "'
                                 , Geburtstag='" . $birthday . "'
-                                , Adresse ='" . $_POST['address'] . "'
-                                , Plz =" . $_POST['plz'] . " 
-                                , Ort ='" . $_POST['city'] . "' 
-                                , Email ='" . $_POST['email'] . "'   
+                                , Adresse ='" . $address . "'
+                                , Plz =" . $plz . " 
+                                , Ort ='" . $city . "' 
+                                , Email ='" . $email . "'   
                                 $sqlSex
+                            WHERE xAthlet=" . $_POST['athlete'] . "
+                       ");                               
+                     
+                       if(mysql_errno() > 0) {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                       }
+                                                          
+                       mysql_query("
+                            UPDATE anmeldung SET 
+                                xKategorie = " .$xCat . "
                             WHERE xAthlet='" . $_POST['athlete'] . "'
-                       ");
+                       "); 
+                       
+                        if(mysql_errno() > 0) {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                       }  
                     
                 }
                 else {
@@ -481,35 +536,38 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
             WHERE    base_athlete.license = ".$_POST['license']."
             AND    base_performance.id_athlete = base_athlete.id_athlete
             AND    base_performance.discipline = ".$cCode);*/
-        $res = mysql_query("SELECT 
-                    season_effort, notification_effort 
-                FROM 
-                    base_performance 
-                LEFT JOIN base_athlete USING(id_athlete) 
-                WHERE base_athlete.license = ".$_POST['license']." 
-                AND base_performance.discipline = ".$cCode." 
-                AND season = '".$saison."';");
-         
-        if(mysql_num_rows($res) > 0){
-            $row = mysql_fetch_array($res);
-           
-            $bestMK =$row[1];           // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
-            
-            mysql_query("UPDATE 
-                            anmeldung 
-                        SET 
-                            BestleistungMK = '".$bestMK."' 
-                            , BaseEffortMK = 'y'
-                        WHERE 
-                            xAnmeldung = ".$_POST['item']);
-        }else{
-            mysql_query("UPDATE 
-                            anmeldung 
-                        SET 
-                            BestleistungMK = 0 
-                            , BaseEffortMK = 'y'
-                        WHERE 
-                            xAnmeldung = ".$_POST['item']);
+        
+        if ($ukc_meeting == 'n') {
+                $res = mysql_query("SELECT 
+                            season_effort, notification_effort 
+                        FROM 
+                            base_performance 
+                        LEFT JOIN base_athlete USING(id_athlete) 
+                        WHERE base_athlete.license = ".$_POST['license']." 
+                        AND base_performance.discipline = ".$cCode." 
+                        AND season = '".$saison."';");
+                 
+                if(mysql_num_rows($res) > 0){
+                    $row = mysql_fetch_array($res);
+                   
+                    $bestMK =$row[1];           // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                    
+                    mysql_query("UPDATE 
+                                    anmeldung 
+                                SET 
+                                    BestleistungMK = '".$bestMK."' 
+                                    , BaseEffortMK = 'y'
+                                WHERE 
+                                    xAnmeldung = ".$_POST['item']);
+                }else{
+                    mysql_query("UPDATE 
+                                    anmeldung 
+                                SET 
+                                    BestleistungMK = 0 
+                                    , BaseEffortMK = 'y'
+                                WHERE 
+                                    xAnmeldung = ".$_POST['item']);
+                }
         }
     }
     
@@ -1590,6 +1648,7 @@ else
         , at.plz
         , at.ort  
         , a.Bezahlt
+        , at.Email
     FROM
         anmeldung AS a
         LEFT JOIN athlet AS at  ON (a.xAthlet = at.xAthlet)
@@ -1873,11 +1932,17 @@ $dis = '';
     </td>
     <?php
        if ($ukc == 'y') {
-            if ($row[33] == 'n'){
-                  $licensePrinted = $strNo;            
+          
+            if ($lt == 3) {
+                   $licensePrinted = $strNo;
             }
             else {
-                   $licensePrinted =$strYes;  
+                if ($row[33] == 'n'){
+                      $licensePrinted = $strNo;            
+                }
+                else {
+                       $licensePrinted =$strYes;  
+                }
             }
        }
        else {          
@@ -1887,13 +1952,14 @@ $dis = '';
                else {
                     $licensePrinted =$strYes;
                }
-        }   
+        } 
+         
     ?>
      <th class='dialog'><?php echo $strLicensePrinted; ?></th>
     <td class='forms'><input name='licensePrinted' type='text' size='4'
          value='<?php echo $licensePrinted; ?>'  disabled   /></td>
-</tr>
-
+    </tr>
+    
 <tr>
 <th class='dialog'><?php echo $strFirstname; ?></th>
     <td class='forms' colspan='3'>
@@ -1946,7 +2012,13 @@ else {
         <input type="radio" name="sex" value="w" <?php echo $sexw ?> onChange='document.data.submit()'<?php echo $dis; ?>><?php echo $strSexWShort ?>
     </td>
         <?php
-    if ($ukc == 'y'){   
+    if ($ukc == 'y'){ 
+    
+         $plzShow = $row[31];
+         if ($row[31] == 0){
+             $plzShow = '';
+         }
+      
         ?>
       <tr>  
      <th class='dialog'><?php echo $strAddress; ?></th>
@@ -1957,17 +2029,25 @@ else {
      <th class='dialog'><?php echo $strPlz ." / " . $strCity; ?></th>
     <td class='forms' >
     <input name='plz' type='text'
-        maxlength='4' value='<?php echo $row[31]; ?>'
+        maxlength='4' value='<?php echo $plzShow; ?>'
        size="4" onChange='document.data.submit()'<?php echo $dis; ?>/>
         <input class='text' name='city' type='text'
-        maxlength='25' value='<?php echo $row[32]; ?>' onChange='document.data.submit()'<?php echo $dis; ?>/></td>            
-       </tr>
+        maxlength='25' value='<?php echo $row[32]; ?>' onChange='document.data.submit()'<?php echo $dis; ?>/></td>    
+       
+    <th class='dialog'><?php echo $strEmail ?></th>
+    <td class='forms'><input type="text"  name="email" type='text'
+        maxlength='60' value='<?php echo $row[34]; ?>' onChange='document.data.submit()'<?php echo $dis; ?>/>  </td>    
+        
+         </tr>               
+       
     <?php
     }          
     ?>
     
     </form>
 </tr>
+
+
 
 <tr>
     <th class='dialog'><?php echo $strCategory; ?></th>
@@ -1980,7 +2060,29 @@ else {
             $dd = new GUI_CategoryDropDown($row[1], 'document.data_cat.submit()', true, false, '' ,false);
 ?>
     </form>
-    <td colspan='2'></td>
+     <?php
+      if ($ukc == 'y'){   
+      
+            ?>    
+                <th class='dialog'><?php echo $strKt; ?></th>  
+                
+                  <form action='meeting_entry.php' method='post' name='data_region'>
+        <input name='arg' type='hidden' value='change_region' />
+        <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
+        <input name='xathlete' type='hidden' value='<?php echo $row[3]; ?>' />
+<?php
+            $dd = new GUI_RegionDropDown($row[22], 'document.data_region.submit()', false, $ukc);
+?>
+    </form>
+            </tr>    
+               <?php
+      }
+      else {
+            ?>
+            <td colspan='2'></td>
+            <?php
+      }
+     ?> 
 </tr>
          <?php
     if ($ukc == 'y'){ 
@@ -1998,30 +2100,13 @@ else {
             }  
             $dd = new GUI_ClubDropDown($clubSelected, true, 'document.data_club.submit()', $dis2, false, $manual_club);      
             ?> 
-            </form>  
-            <?php if ($ukc == 'y') {  
-                ?>
-                <th class='dialog'><?php echo $strKt; ?></th>    
-               <?php
-            }
-            else {
-                ?>
-                    <th class='dialog'><?php echo $strRegion; ?></th>    
-                <?php
-            }
-           ?>
-    <form action='meeting_entry.php' method='post' name='data_region'>
-        <input name='arg' type='hidden' value='change_region' />
-        <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
-        <input name='xathlete' type='hidden' value='<?php echo $row[3]; ?>' />
-<?php
-            $dd = new GUI_RegionDropDown($row[22], 'document.data_region.submit()', false, $ukc);
-?>
-    </form>
-            </tr>
-      <?php      
+              </form>        
+         
+         <?php   
+         
     }
-    else { 
+    else {    
+        
         ?>
 <tr>
     <th class='dialog'><?php echo $strCountry; ?></th>
@@ -2337,16 +2422,27 @@ else {
                 $start_row = mysql_fetch_array($r);         
             
                 //check if performance from base or manually entered
-                ($start_row['BaseEffort']=='y' || $start_row['Bestleistung']=='0')?$manual='':$manual=" manual"; 
-                 
-                
+                ($start_row['BaseEffort']=='y' || $start_row['Bestleistung']=='0')?$manual='':$manual=" manual";                    
+               
                 // check if this is a valid selection (age on category)     
-                if($event_row[5] < $agelimit || $event_row[11] != $sex){
-                    $span = "<span class='highlight_red'>";
-                    $span_end = "</span>";
-                }else{
-                    $span = "";
-                    $span_end = "";
+                if ($ukc_meeting == 'n') {
+                        if($event_row[5] < $agelimit || $event_row[11] != $sex){
+                            $span = "<span class='highlight_red'>";
+                            $span_end = "</span>";
+                        }else{
+                            $span = "";
+                            $span_end = "";
+                        }
+                }
+                else {
+                      if($event_row[5] != $agelimit || $event_row[11] != $sex){  
+                          $span = "<span class='highlight_red'>";
+                            $span_end = "</span>";
+                      }
+                      else {
+                           $span = "";
+                            $span_end = "";
+                      }
                 }
                 
                 if(($event_row[2] == $cfgDisciplineType[$strDiscTypeTrack])
@@ -2407,6 +2503,8 @@ else {
                             
                             //check if performance from base or manually entered
                             ($row[26]=='y' || $row[26]=='0')? $manualMK='':$manualMK=' manual'; 
+                                   
+                            
                             ?>
                             <td nowrap="nowrap" class='dialog-top' colspan='2'><?php echo $span ?>
                                 <input type="checkbox" value="<?php echo $event_row[8]."_".$comb ?>" name="combined[]"
@@ -2420,7 +2518,7 @@ else {
                             <td class='dialog' colspan='2' id='td_<?php echo $event_row[8]."_".$comb ?>'>
                                 <table>
                             <?php
-                        }
+                        }    
                         
                         if($start_row[0] != 0) { // start of each discipline, athlete can choose for optional disciplines                           
                             printf("<tr><td class=\"dialog-top\" nowrap=\"nowrap\"><input name='events[]' type='checkbox' id='$event_row[0]'
