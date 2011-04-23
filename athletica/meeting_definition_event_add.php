@@ -39,6 +39,9 @@ $date_keep = '';
 if(!empty($_POST['date_1'] )){
     $date_keep = $_POST['date_1'];
 }
+
+
+$ukc_meeting = AA_checkMeeting_UKC() ;
   
 // add a new event
 if ($_POST['arg']=="add_event")
@@ -230,8 +233,10 @@ $result = mysql_query("
 		xKategorie
 		, Kurzname
 	FROM
-		kategorie
+		kategorie AS k
+        LEFT JOIN meeting AS m ON (m.UKC = k.UKC)     
     WHERE aktiv = 'y'
+        AND m.xMeeting = " . $_COOKIE['meeting_id'] . "   
 	ORDER BY
 		Anzeige
 ");
@@ -268,16 +273,23 @@ else		// no DB error
 	<input type="button" onclick="create_combined()" value="<?php echo $strCreateCombined ?>">
 	</td>
 </tr>
-
+     <?php
+  if ($ukc_meeting == 'n') {
+      ?>
 <tr>
 	<th class='dialog'><?php echo $strDiscipline; ?></th>
 <?php
-		$dd = new GUI_DisciplineDropDown(0, true, false, $keys, 'check_discipline()');
+		$dd = new GUI_DisciplineDropDown(0, true, false, $keys, 'check_discipline()', '' ,$ukc_meeting);
 ?>
 <td>
+
    <input type="button" onclick="create_svm()" value="<?php echo $strCreateSVM ?>">  
+  
    </td>
 </tr>
+ <?php
+  }
+  ?>
 
 <tr>
 	<th class='dialog'><?php echo $strWind; ?></th>

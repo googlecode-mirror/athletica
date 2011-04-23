@@ -12,6 +12,7 @@ require('./lib/cl_gui_menulist.lib.php');
 require('./lib/cl_gui_page.lib.php');
 
 require('./lib/common.lib.php');
+require('./lib/meeting.lib.php');  
 
 if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 	return;		// abort
@@ -20,6 +21,8 @@ if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
+
+$ukc_meeting = AA_checkMeeting_UKC() ;  
 
 //
 //	Display data
@@ -30,8 +33,14 @@ $page->startPage();
 $page->printPageTitle($strEntries . ": " . $_COOKIE['meeting']);
 
 $menu = new GUI_Menulist();
-$menu->addButton("meeting_entry_add.php", $strNewEntry, "detail");
-$menu->addButton("meeting_entry_add_UKC.php", $strNewEntryUKC, "detail");   
+if ($ukc_meeting == 'n'){
+      $menu->addButton("meeting_entry_add.php", $strNewEntry, "detail"); 
+}
+else {
+     $menu->addButton("meeting_entry_add_UKC.php", $strNewEntryUKC, "detail");   
+}
+
+
 $menu->addButton("meeting_entries_efforts.php", $strUpdateEfforts, "detail");
 $menu->addButton("meeting_entries_startnumbers.php", "$strStartnumbers", "detail");
 $menu->addButton("meeting_entries_setteams.php", "$strTeamsAutoAssign", "detail");
