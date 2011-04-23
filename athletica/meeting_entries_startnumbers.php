@@ -154,7 +154,39 @@ if($_GET['arg'] == 'assign')
 					, start AS s READ
 					, team AS t READ
 			");  
-          
+            
+            if ($sex){
+                      $sql="SELECT 
+                            DISTINCT (a.xAnmeldung) ,
+                            w.xKategorie , 
+                            at.xVerein , 
+                            a.xTeam, 
+                            at.Name, 
+                            at.Vorname,
+                            t.Name,  
+                            t.Name,
+                            tat.xTeamsm,
+                            tsm.Name, 
+                            at.Geschlecht                      
+                        FROM 
+                            anmeldung AS a
+                            LEFT JOIN athlet AS at ON a.xAthlet = at.xAthlet        
+                            LEFT JOIN verein AS v ON at.xVerein = v.xVerein 
+                            LEFT JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
+                            LEFT JOIN wettkampf AS w USING (xWettkampf)
+                            LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d On (w.xdisziplin = d.xDisziplin)
+                            LEFT JOIN kategorie AS k ON k.xKategorie = w.xKategorie
+                            LEFT JOIN team AS t ON t.xTeam = a.xTeam 
+                            LEFT JOIN teamsmathlet AS tat ON ( tat.xAnmeldung = a.xAnmeldung )
+                            LEFT JOIN teamsm AS tsm ON tsm.xTeamsm = tat.xTeamsm
+                        WHERE 
+                            a.xMeeting = " . $_COOKIE['meeting_id'] . " 
+                            
+                            ORDER BY      
+                                 $argument3 $argument1 $argument,  tat.xTeamsm, $argument2";    
+                     
+            }
+            else {
             $sql="SELECT 
                     DISTINCT (a.xAnmeldung) ,
                     w.xKategorie , 
@@ -187,7 +219,8 @@ if($_GET['arg'] == 'assign')
                     $groupby
                     ORDER BY      
                          $argument3 $argument1 $argument, discSort, tat.xTeamsm, $argument2";    
-           
+            
+            }
             $result = mysql_query($sql);  
            
 			if(mysql_errno() > 0)		// DB error
@@ -877,10 +910,7 @@ if($_GET['arg'] == 'assign')	// refresh list
                         a.xAnmeldung
                     FROM 
                         anmeldung AS a  
-                        LEFT JOIN athlet AS at On (at.xAthlet = a.xAthlet)
-                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
-                        LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
-                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
+                        LEFT JOIN athlet AS at On (at.xAthlet = a.xAthlet)                            
                     WHERE 
                         a.xMeeting = ".$_COOKIE['meeting_id']." 
                         AND at.Geschlecht = 'm'    
@@ -899,14 +929,11 @@ if($_GET['arg'] == 'assign')	// refresh list
                         a.xAnmeldung
                     FROM 
                         anmeldung AS a  
-                        LEFT JOIN athlet AS at On (at.xAthlet = a.xAthlet)
-                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
-                        LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
-                        LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
+                        LEFT JOIN athlet AS at On (at.xAthlet = a.xAthlet)   
                     WHERE 
                         a.xMeeting = ".$_COOKIE['meeting_id']." 
                         AND at.Geschlecht = 'w'    
-                    GROUP BY a.xAnmeldung
+                    GROUP BY a.xAnmeldung   
                     ");     
       
           if(mysql_errno() > 0){
@@ -976,8 +1003,7 @@ if(mysql_errno() > 0){
            $max_startnr_tech = 0;
            
            $sql=" SELECT 
-                        DISTINCT a.xAnmeldung,  
-                        count(w.xKategorie)
+                        a.xAnmeldung                       
                   FROM 
                         anmeldung AS a 
                         LEFT JOIN start AS s ON s.xAnmeldung = a.xAnmeldung 
@@ -986,18 +1012,16 @@ if(mysql_errno() > 0){
                   WHERE 
                         a.xMeeting = ".$_COOKIE['meeting_id'] ."
                         AND w.xKategorie = " .$row[0] ."
-                   GROUP BY w.xKategorie  
-                   ";   
-          
+                  GROUP BY a.xAnmeldung";   
+        
           $res_count=mysql_query($sql);
           if(mysql_errno() > 0){
             AA_printErrorMsg(mysql_errno().": ".mysql_error());
-          }else{
-                $row_count = mysql_fetch_array($res_count);
-                $max_startnr=$row_count[1];
+          }else{                 
+                if (mysql_num_rows($res_count)>0){  
+                    $max_startnr=mysql_num_rows($res_count);   
+                }
           }  
-          
-        
           
           // check track disziplines in this meeting under 400 m
           $selection_disciplines="(" . $cfgDisciplineType[$strDiscTypeTrack] . ","  
@@ -1005,7 +1029,7 @@ if(mysql_errno() > 0){
                              
         
           $res_track1 = mysql_query("SELECT           
-                        a.xAnmeldung
+                        a.xAnmeldung                        
                     FROM 
                         anmeldung AS a  
                         LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
@@ -1022,7 +1046,9 @@ if(mysql_errno() > 0){
                 AA_printErrorMsg(mysql_errno().": ".mysql_error());
           }else{
                 if (mysql_num_rows($res_track1)>0){ 
-                    $max_startnr_track1=mysql_num_rows($res_track1); 
+                    
+                    $max_startnr_track1=mysql_num_rows($res_track1);   
+                    
                 }
           } 
           
@@ -1049,7 +1075,7 @@ if(mysql_errno() > 0){
          if(mysql_errno() > 0){
                 AA_printErrorMsg(mysql_errno().": ".mysql_error());
          }else{
-                if (mysql_num_rows($res_track2)>0){ 
+                if (mysql_num_rows($res_track2)>0){  
                     $max_startnr_track2=mysql_num_rows($res_track2);
                 }
          } 
@@ -1079,7 +1105,7 @@ if(mysql_errno() > 0){
         if(mysql_errno() > 0){
             AA_printErrorMsg(mysql_errno().": ".mysql_error());
         }else{
-                if (mysql_num_rows($res_tech)>0){ 
+                if (mysql_num_rows($res_tech)>0){  
                     $max_startnr_tech=mysql_num_rows($res_tech); 
                 }
         }   
