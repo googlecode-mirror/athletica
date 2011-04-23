@@ -16,6 +16,7 @@ include('./lib/cl_protect.lib.php');
 require('./lib/cl_http_data.lib.php');
 
 require('./lib/common.lib.php');
+require('./lib/meeting.lib.php');
 
 if(AA_connectToDB() == FALSE)	{		// invalid DB connection
 	return;
@@ -38,6 +39,9 @@ if($_POST['arg'] == "del_password"){
 	$p->unsecureMeeting($_COOKIE['meeting_id']);
 	
 }
+
+
+$ukc_meeting = AA_checkMeeting_UKC() ; 
 
 //
 //	Display administration
@@ -146,7 +150,8 @@ function removePassword(){
 				</table><br/>
 			<?php  
 			}
-			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 &&  $_SESSION['meeting_infos']!='noMeeting'){                                                                            
+			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 &&  $_SESSION['meeting_infos']!='noMeeting'){
+               
 				?>
 				<table class='dialog' width="475">			
 					<tr>
@@ -190,6 +195,7 @@ function removePassword(){
 					</tr>
 				</table><br/>
 				<?php
+                
 			}  
 			?>
 			<table class='dialog' width="475">			
@@ -259,40 +265,9 @@ function removePassword(){
                 </tr>
             </table><br/>
             
-             <table class='dialog' width="475">            
-                <tr>
-                    <th class='dialog_ukc'><?php echo $strOnlineRegUKC; ?> </th>
-                </tr>
-                <tr>
-                    <td>
-                        <table class='admin'>
-                            <form action='admin_onlineRegUKC.php' method='post' name='onlineReg' enctype='multipart/form-data'>
-                            <tr class='odd'>
-                                <td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?php echo $strRestore; ?>" title="<?php echo $strRestore; ?>"/></td>
-                                <td><?php echo $strOnlineRegInfo; ?></td>
-                            </tr>
-                            <tr class="even">
-                                <td>
-                                    <input type='hidden' name='arg' value='restore'/>
-                                        <?php echo $strXmlFile; ?>:&nbsp;
-                                    </input>
-                                    <input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
-                                    <input name='xmlfile' type='file' accept='*.xml' maxlength="619430400">
-                                </td>
-                            </tr>
-                            <tr class="even">
-                                <td>
-                                    <button name='backup' type='submit' class="dialog_ukc"><?php echo $strXmlRestore; ?>
-
-                                    </button>
-                                </td>
-                            </tr>
-                        </form>    
-                        </table>
-                    </td>
-                </tr>
-            </table><br/>     
-            
+             <?php
+             if ($ukc_meeting == 'n'){
+                                 ?>
              <table class='dialog' width="475">
                 <tr>
                     <th class='dialog'><?php echo $strLinks; ?></th>
@@ -320,6 +295,9 @@ function removePassword(){
                     </td>
                 </tr>
             </table>       
+            <?php
+             }
+             ?>
 			
 		</td>
 		<td width="10"></td>
@@ -347,8 +325,11 @@ function removePassword(){
 						</table>
 					</td>
 				</tr>
-			</table><br/><br/>
-			
+			</table><br/>
+            <?php
+            
+            if ($ukc_meeting == 'n'){
+			   ?>
 			<table class='dialog' width="475">
 				<tr>
 					<th class='baseupdate'><?php echo $strBaseUpdate; ?></th>
@@ -376,9 +357,10 @@ function removePassword(){
 				</tr>
 			</table>
 			 <?php
+            
 			if(isset($_SESSION['meeting_infos']) && count($_SESSION['meeting_infos'])>0 && ($_SESSION['meeting_infos']!='meetingNotChosen' &&  $_SESSION['meeting_infos']!='noMeeting')){
 				?>
-				<br/><br/>
+				<br/>
 				<table class='dialog' width="475">
 					<tr>
 						<th class='sync'><?php echo $strMeetingSync; ?></th>
@@ -397,7 +379,7 @@ function removePassword(){
 							</table>
 						</td>
 					</tr>
-				</table><br/><br/>
+				</table><br/>
 				<table class='dialog' width="475">
 					<tr>
 						<th class='bestlistupdate'><?php echo $strBestlistUpdate; ?></th>
@@ -417,7 +399,45 @@ function removePassword(){
 				</table><br/>
 				<?php
 			}
-			?>                 
+            }
+            
+            if ($ukc_meeting == 'y'){
+			?>   
+            
+               <table class='dialog' width="475">            
+                <tr>
+                    <th class='dialog_ukc'><?php echo $strOnlineRegUKC; ?> </th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class='admin'>
+                            <form action='admin_onlineRegUKC.php' method='post' name='onlineReg' enctype='multipart/form-data'>
+                            <tr class='odd'>
+                                <td width="70" rowspan="3" style="padding-left: 0px; text-align: center;"><img src="img/db_restore.gif" border="0" alt="<?php echo $strRestore; ?>" title="<?php echo $strRestore; ?>"/></td>
+                                <td><?php echo $strOnlineRegInfo; ?><br/><?php echo $strOnlineRegInfo2; ?></td>
+                            </tr>
+                            <tr class="even">
+                                <td>
+                                    <input type='hidden' name='arg' value='restore'/>
+                                        <?php echo $strXmlFile; ?>:&nbsp;
+                                    </input>
+                                    <input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
+                                    <input name='xmlfile' type='file' accept='*.xml' maxlength="619430400">
+                                </td>
+                            </tr>
+                            <tr class="even">
+                                <td>
+                                    <button name='backup' type='submit' class="dialog_ukc"><?php echo $strXmlRestore; ?>
+
+                                    </button>
+                                </td>
+                            </tr>
+                        </form>    
+                        </table>
+                    </td>
+                </tr>
+            </table>
+               
                 <br/>
            <table class='dialog' width="475">
                     <tr>
@@ -436,8 +456,40 @@ function removePassword(){
                         </td>
                     </tr>
                 </table>
+                  <br/>       
+                
+             <table class='dialog' width="475">
+                <tr>
+                    <th class='dialog'><?php echo $strLinks; ?></th>
+                </tr>
+                <tr>
+                    <td>
+                        <table class='admin'>
+                            <tr class='odd'>
+                                <td>&bull;
+                                    <a href='<?php echo $cfgURLDocumentation; ?>index.html' target='_blank'>
+                                    <?php echo $strDocumentation; ?> (HTML)</a>
+                                </td>
+                            <tr class='even'>
+                                <td>&bull;
+                                    <a href='<?php echo $cfgURLDocumentation; ?>athletica.pdf' target='_blank'>
+                                    <?php echo $strDocumentation; ?> (PDF)</a>
+                                </td>
+                            </tr>
+                            <tr class='odd'>
+                                <td>&bull;
+                                    <a href='LICENSE.txt' target='_blank'><?php echo $strLicense; ?></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>       
+           
           
-          
+              <?php
+            }
+            ?>
           
             
 		</td>
