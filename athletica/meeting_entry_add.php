@@ -69,6 +69,8 @@ elseif(!empty($_GET['athleteId'])){
     $athlete_id = $_GET['athleteId']; // store athleteid from search request
 }  
 
+$ukc_meeting = AA_checkMeeting_UKC() ;           
+
 $AthReg = false;
 
 if ($athlete_id > 0){
@@ -79,8 +81,8 @@ if ($athlete_id > 0){
                FROM
                     base_athlete AS ba
                WHERE
-                    ba.id_athlete = $athlete_id";
-                    
+                    ba.id_athlete = $athlete_id";        
+                                        
     $result_ba = mysql_query($sql_ba);
     if(!$result_ba){
                 AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -349,7 +351,7 @@ $nbr = 0;
 
 // search request for license number
 if(isset($_POST['searchfield'])){
-	if(is_numeric($_POST['searchfield'])) {    // search request for license number
+	    if(is_numeric($_POST['searchfield'])) {    // search request for license number
         
 		//remove trailing 0 and check-digit (barcode-reader will transmit this chars)
 		$licensenr = ltrim(substr($_POST['searchfield'],0,11),'0');
@@ -421,7 +423,7 @@ if(isset($_POST['searchfield'])){
 						//
 						// get category id
 						//
-						$result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."' AND k.aktiv = 'y'");
+						$result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."' AND k.UKC = 'n' AND k.aktiv = 'y'");
                        
 						if(mysql_errno() > 0){
 						AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
@@ -580,7 +582,7 @@ if($_POST['arg']=="change_athlete"){
 						//
 						// get category id
 						//  
-						$result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."' AND k.aktiv = 'y'"); 
+						$result = mysql_query("select k.xKategorie from kategorie as k where k.Code = '".$row_athlete['license_cat']."' AND k.UKC = 'n' AND k.aktiv = 'y'"); 
 						if(mysql_errno() > 0){
 							AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 						}else{
@@ -1200,6 +1202,9 @@ if ($_POST['arg']=="add")
 														id_athlete = $athlete_id");  
 										}else{ // add from manually entered data
 											// check athleticagen
+                                            if(!isset($_POST['licensenr'])){
+                                                 $_POST['licensenr'] = 0;
+                                            }
 											$agen = 'y';
 											if($_POST['licensetype'] == 1){ // normal license with number
 												$agen = 'n';
@@ -1898,10 +1903,12 @@ $page->printPageTitle($strNewEntryFromBase);
 	$sql = "SELECT xKategorie, 
 				   Alterslimite, 
 				   Geschlecht
-			  FROM kategorie 
+			  FROM kategorie AS k
+          WHERE k.ukc = 'n'
 		  ORDER BY Geschlecht ASC, 
 				   Alterslimite ASC;";
 	$query = mysql_query($sql);
+  
 	
 	$cats = array();
 	while($row_cat = mysql_fetch_assoc($query)){
