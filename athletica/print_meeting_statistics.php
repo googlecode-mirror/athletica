@@ -285,7 +285,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             ";
                                                                                                          
             $res_mk = mysql_query($sql_mk);  
-            
+           
             $cEnrol=0; 
             $cPresent=0;  
             $statusStarted=0; 
@@ -465,7 +465,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
             if(mysql_errno() > 0)        // DB error
                 {
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-            }
+            }               
             else if(mysql_num_rows($result) > 0)  // data found
                     {
                     $e = 0;        // total entries per category
@@ -539,7 +539,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
     }
     $doc->endList();
     
-    
+ 
     //                          
     //    Statistic 3: Fees and deposits 
     // ------------------------------
@@ -610,8 +610,13 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                  AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)    
              ORDER BY athlet.xVerein, athlet.Name ,athlet.Vorname, 
                      wettkampf.mehrkampfcode,wettkampf.xKategorie,r.Startzeit ,r.Status"; 
-    echo "<br>sql=$sql";
-    $res = mysql_query($sql);    
+   
+    $res = mysql_query($sql);  
+    
+     if(mysql_errno() > 0)        // DB error
+                {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }                 
    
     $club=''; 
     $deposit=0;
@@ -631,6 +636,14 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                     $starts=1; 
                 }
              }
+             $startTime = $row[5]; 
+             if (empty($row[5])){
+                 $startTime = '00:00:00';
+             }
+              $status = $row[11]; 
+              if (empty($row[11])){
+                 $status = 0;
+             }
             
              $sql_mk="INSERT INTO result_tmp1 SET  
                                     clubnr = $row[0]
@@ -638,14 +651,14 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                   , ReductionAmount = '$row[2]'   
                                   ,    Name =\"" .$row[3]. "\"
                                   ,    Vorname =\"" .$row[4]. "\"  
-                                  ,    Startzeit = '$row[5]' 
+                                  ,    Startzeit = '$startTime' 
                                   ,    started = $starts   
                                   ,    anwesend = $row[7]
                                   ,    Haftgeld = '$row[8]'  
                                   ,    Startgeld = '$row[9]' 
                                   ,    enrolement = $enrolment
                                   ,    Mehrkampfcode = '$row[10]' 
-                                  ,    Status = '$row[11]' 
+                                  ,    Status = '$status' 
                                   ,    StartgeldReduktion = '$row[12]'
                                   ,    Sortierwert = \"" .$row[14]. "\"                                    
                                   , kKurzname = \"" .$row[15]. "\"  
@@ -824,7 +837,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                          AND d.Staffellaeufer = 0  
               GROUP BY athlet.xVerein, athlet.xAthlet
               ORDER BY v.Sortierwert"; 
-              echo "<br><br>2. sql=$sql";
+             
               $res = mysql_query($sql); 
                           
               while($row = mysql_fetch_array($res)){                   
@@ -894,9 +907,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             AND (t.Startzeit is Null Or t.Startzeit= r.Startzeit)   
                       GROUP BY st.xVerein
                       ORDER BY v.Sortierwert"; 
-                echo "<br><br>neu sql=$sql";
-                $res = mysql_query($sql); 
-            
+               
+                $res = mysql_query($sql);                        
                 $reductionAmount = 0;
               
                 while($row = mysql_fetch_array($res)){ 
@@ -935,7 +947,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                            ORDER BY t1.Sortierwert ,t1.clubnr, t1.kAnzeige, t1.Name, t1.Vorname, t1.Mehrkampfcode";       
                
                 $res_temp = mysql_query($sql_temp);  
-                echo "<br>sql_temp=$sql_temp";             
+               
                 $arr_kat = array();
                 $assTax1 = 0;
                 $assTax2 = 0;  
