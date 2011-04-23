@@ -781,42 +781,50 @@ else if (mysql_num_rows($result) > 0)
 		<input name='team' type='hidden' value='<?php echo $row[10]; ?>' />
 		<input name='relay' type='hidden' value='<?php echo $row[5]; ?>' />
 		<input name='event' type='hidden' value='<?php echo $row[8]; ?>' />
-		<?php
+		<?php   
+        
+        
 		$dropdown = new GUI_Select("athlete", 1);
 		$dropdown->addOption($strUnassignedAthletes, 0);
-		$dropdown->addOptionsFromDB("
-			SELECT
-				st.xStart
-				, CONCAT(a.Startnummer
-				, '. ' 
-				, at.Name
-				, ' ' 
-				, at.Vorname
-				, ' ( ' 
-				, at.Jahrgang
-				, ' )') 
-			FROM
-				anmeldung AS a
-				LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet  )
-				LEFT JOIN start AS st ON (a.xAnmeldung = st.xAnmeldung)
-			    LEFT JOIN staffelathlet AS sa ON st.xStart = sa.xAthletenstart
-			WHERE 
-                sa.xAthletenstart IS NULL  			
-			AND st.xWettkampf = $row[8]
-			AND at.xVerein = $row[7]
-			AND a.xTeam = $row[10]
-			ORDER BY
-				at.Name
-				, at.Vorname
-		");
-
-		if(!empty($GLOBALS['AA_ERROR']))
-		{
-			AA_printErrorMsg($GLOBALS['AA_ERROR']);
-		}
-		//$dropdown->printList('forms', 4);
-		$dropdown->printList();
-		?>
+        
+        $sql = "SELECT
+                st.xStart,
+                a.Startnummer,
+                at.Name,   
+                at.Vorname,  
+                at.Jahrgang               
+                
+            FROM
+                anmeldung AS a
+                LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet  )
+                LEFT JOIN start AS st ON (a.xAnmeldung = st.xAnmeldung)
+                LEFT JOIN staffelathlet AS sa ON st.xStart = sa.xAthletenstart
+            WHERE 
+                sa.xAthletenstart IS NULL              
+            AND st.xWettkampf = $row[8]
+            AND at.xVerein = $row[7]
+            AND a.xTeam = $row[10]
+            ORDER BY
+                at.Name
+                , at.Vorname";
+      
+        $res = mysql_query($sql);
+        if(!empty($GLOBALS['AA_ERROR']))
+        {
+            AA_printErrorMsg($GLOBALS['AA_ERROR']);
+        }
+        
+        while ($ath_row = mysql_fetch_row($res))
+            {     
+                $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )"; 
+                $dropdown->addOption($ath_concat, $ath_row[0]);  
+            }
+        mysql_free_result($res);
+            
+        $dropdown->printList(false);
+        
+       ?>
+      
 	</td>
 	<td class='forms'><input name='position' class='nbr' type='text'
 		maxlength='2' value='' onchange='document.add_pos.submit()'/>
@@ -838,16 +846,12 @@ else if (mysql_num_rows($result) > 0)
                
 		$res = mysql_query("
 			SELECT
-				a.xAnmeldung
-				, CONCAT(a.Startnummer
-					, '. ' 
-					, at.Name
-					, ' ' 
-					, at.Vorname
-					, ' ( ' 
-					, at.Jahrgang
-					, ' )') 
-				, a.xTeam
+				a.xAnmeldung,
+				a.Startnummer,
+                at.Name,   
+                at.Vorname,  
+                at.Jahrgang,                 
+				a.xTeam
 			FROM
 				anmeldung AS a
 				LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
@@ -901,9 +905,10 @@ else if (mysql_num_rows($result) > 0)
 				 {
 					// Athlete not in even or team       
 					if((mysql_num_rows($r) == 0) 	
-						|| ($ath_row[2] != $row[10]))
+						|| ($ath_row[5] != $row[10]))
 					{
-						$dropdown->addOption($ath_row[1], $ath_row[0]);                        
+						 $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";    
+                        $dropdown->addOption($ath_concat, $ath_row[0]);                        
 					}
                    
 				}	// ET DB Error
@@ -931,16 +936,13 @@ else if (mysql_num_rows($result) > 0)
 		//
 		$res = mysql_query("
 			SELECT
-				a.xAnmeldung
-				, CONCAT(a.Startnummer
-					, '. ' 
-					, at.Name
-					, ' ' 
-					, at.Vorname
-					, ' ( ' 
-					, at.Jahrgang
-					, ' )') 
-				, a.xTeam
+				a.xAnmeldung, 
+                a.Startnummer,
+                at.Name,   
+                at.Vorname,  
+                at.Jahrgang, 				
+				a.xTeam
+                
 			FROM
 				anmeldung AS a
 				LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
@@ -949,7 +951,8 @@ else if (mysql_num_rows($result) > 0)
 			"/*AND at.xVerein = $row[7]*/."
 			ORDER BY at.Name, at.Vorname
 		");
-
+         
+             
 		if(mysql_errno() > 0)
 		{
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -970,7 +973,9 @@ else if (mysql_num_rows($result) > 0)
 			$dropdown->addOption($strAllRegisteredAthletes, 0);
 
 			while ($ath_row = mysql_fetch_row($res))
-			{
+			{          
+            
+                $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";
 				/*$r = mysql_query("
 					SELECT
 						st.xStart
@@ -989,7 +994,7 @@ else if (mysql_num_rows($result) > 0)
 					if((mysql_num_rows($r) == 0) 	
 						|| ($ath_row[2] != $row[10]))
 					{*/
-						$dropdown->addOption($ath_row[1], $ath_row[0]);
+						$dropdown->addOption($ath_concat, $ath_row[0]);
 					/*}
 				}	// ET DB Error
 				mysql_free_result($r);*/
@@ -1011,16 +1016,12 @@ else if (mysql_num_rows($result) > 0)
         //
         $res = mysql_query("
             SELECT
-                a.xAnmeldung
-                , CONCAT(a.Startnummer
-                    , '. ' 
-                    , at.Name
-                    , ' ' 
-                    , at.Vorname
-                    , ' ( ' 
-                    , at.Jahrgang
-                    , ' )') 
-                , a.xTeam
+                a.xAnmeldung,
+                a.Startnummer,
+                at.Name,   
+                at.Vorname,  
+                at.Jahrgang,                 
+                a.xTeam
             FROM
                 anmeldung AS a
                 LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
@@ -1051,8 +1052,8 @@ else if (mysql_num_rows($result) > 0)
             $dropdown->addOption($strAllRegisteredRelayTeam, 0);
 
             while ($ath_row = mysql_fetch_row($res))
-            {  
-               $dropdown->addOption($ath_row[1], $ath_row[0]);  
+            {   $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";    
+               $dropdown->addOption($ath_concat, $ath_row[0]);  
             }
             mysql_free_result($res);  
             $dropdown->printList(false);
