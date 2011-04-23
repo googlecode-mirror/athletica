@@ -168,11 +168,11 @@ class GUI_DisciplineDropDown
 	 *		keys:		list of disciplines not to be displayed
 	 *		action:	javascript action to execute onChange
 	 */
-	function GUI_DisciplineDropDown($key= 0, $new = false, $relay=false, $keys='', $action='', $event=false)
+	function GUI_DisciplineDropDown($key= 0, $new = false, $relay=false, $keys='', $action='', $event=false, $ukc_meeting)
 	{
 		$select = new GUI_DisciplineSelect($new, $action);
 		echo "<td class='forms'>";
-		$select->printList($key, $relay, $keys , $event);
+		$select->printList($key, $relay, $keys , $event, $ukc_meeting);
 		echo "</td>";
 	}
 
@@ -409,7 +409,7 @@ class GUI_StadiumDropDown
 
 } // END CLASS Gui_StadiumDropDown
 
-
+   
 
 /********************************************
  * CLASS GUI_TeamDropDown

@@ -107,7 +107,7 @@ class GUI_Select
 	function addOptionsFromDB($query)
 	{
 		require('./lib/utils.lib.php');
-		$GLOBALS['AA_ERROR'] = '';
+		$GLOBALS['AA_ERROR'] = '';      
 
 		$res = mysql_query($query);
 		if(mysql_errno() > 0) {		// DB error
@@ -210,7 +210,8 @@ class GUI_CategorySelect
 		// change name for select box if $bAthleteCat is set
 		if($bAthleteCat){
 			$this->select->name = "athletecat";
-		}
+		}            
+       
 		
 		// get items from DB
 		if(!$bAll){
@@ -222,8 +223,10 @@ class GUI_CategorySelect
 					FROM
 						wettkampf AS w
 						LEFT JOIN kategorie AS k ON (w.xKategorie = k.xKategorie)
+                        LEFT JOIN meeting AS m ON (m.UKC = k.UKC)    
 					WHERE    
 					   w.xMeeting = " . $_COOKIE['meeting_id'] . "
+                       
 					ORDER BY
 						k.Anzeige
 				");
@@ -234,7 +237,8 @@ class GUI_CategorySelect
 						, k.Kurzname
 					FROM
 						anmeldung AS a
-						LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie)  
+						LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie) 
+                        LEFT JOIN meeting AS m ON (m.UKC = k.UKC)    
 					WHERE  
 					    a.xMeeting = " . $_COOKIE['meeting_id'] . "
 					ORDER BY
@@ -248,7 +252,9 @@ class GUI_CategorySelect
 					, k.Kurzname
 				FROM
 					kategorie AS k
+                    LEFT JOIN meeting AS m ON (m.UKC = k.UKC)    
 				WHERE aktiv = 'y' 
+                      AND m.xMeeting = " . $_COOKIE['meeting_id'] . "  
 				ORDER BY
 					k.Anzeige
 			");
@@ -753,7 +759,7 @@ class GUI_DisciplineSelect
 	 *		keys:		list of disciplines not to be displayed
      *      event:  set to true if you only want to see disciplines from events       
 	 */
-	function printList($key=0, $relay=false, $keys='', $event=false)
+	function printList($key=0, $relay=false, $keys='', $event=false, $ukc_meeting)
 	{
 		require('./config.inc.php');
 
@@ -770,8 +776,14 @@ class GUI_DisciplineSelect
            $table = " INNER JOIN wettkampf as w ON (d.xDisziplin = w.xDisziplin) ";
            $dist = " DISTINCT ";
         }
-
-
+        
+         if  ($ukc_meeting == 'y'){
+               $sql_ukc = " AND d.Code = 408 ";
+         }
+         else {
+               $sql_ukc = " AND d.Code != 408 ";  
+         }
+        
 		// get items from DB
 		$this->select->addOptionsFromDB("
 			SELECT $dist 
@@ -781,12 +793,13 @@ class GUI_DisciplineSelect
 				disziplin_" . $_COOKIE['language'] . "  AS d
                 $table  
 			WHERE d.Typ != ".$cfgDisciplineType[$strDiscCombined]."
-            AND aktiv = 'y' 
+            AND d.aktiv = 'y' 
+             $sql_ukc  
 			$where
 			ORDER BY
 				Anzeige
 		");
-        
+          
 		if(!empty($GLOBALS['AA_ERROR']))
 		{   
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
@@ -1497,7 +1510,7 @@ class GUI_StadiumSelect
 	}
 } // END CLASS Gui_StadiumSelect
 
-
+    
 
 
 /********************************************
