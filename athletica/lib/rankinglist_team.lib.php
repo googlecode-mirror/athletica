@@ -966,8 +966,7 @@ function processCombined($xCategory, $category, $type)
                                             )";
                             mysql_query($sql);
                            
-                            if(mysql_errno() > 0) {        // DB error
-                               echo "<br>sql=$sql"; 
+                            if(mysql_errno() > 0) {        // DB error                                 
                                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                             }   
                     }
@@ -1106,8 +1105,7 @@ function processCombined($xCategory, $category, $type)
                 }
                
                  $p = $team['points'];            // keep current points     
-                 $t++; 
-                // echo "<br>team Rank = " . $team['rank'];
+                 $t++;                            
                  $team['rank'] = $t;
             }
         $key_1 = array();   
@@ -1259,7 +1257,7 @@ function check_samePoints($xCategory) {
     
     $res = mysql_query($sql); 
     if (mysql_errno() > 0) {
-        echo "ERROR";
+       AA_printErrorMsg(mysql_errno() . ": " . mysql_error());  
     }
     else {
         $disc = 0;
