@@ -78,7 +78,7 @@ if (isset($_POST['arg']) && $_POST['arg']=="add")
 	// Error: Empty fields
 	if(empty($_POST['name']) || empty($_POST['place'])
 		|| empty($_POST['from_day']) || empty($_POST['from_month'])
-		|| empty($_POST['from_year']))
+		|| empty($_POST['from_year'])|| empty($_POST['ukc']))
 	{
 		AA_printErrorMsg($strErrEmptyFields);
 	}
@@ -118,7 +118,8 @@ if (isset($_POST['arg']) && $_POST['arg']=="add")
 					, Online = '$online'
 					, Organisator = '".$_POST['organisator']."'
 					, xStadion=" . $_POST['stadium'] . "
-					, Saison='" . $_POST['saison'] ."'"
+					, Saison='" . $_POST['saison'] ."'
+                    , UKC='" . $_POST['ukc'] ."'" 
 			);
 		}
 		// Check if any error returned from DB
@@ -211,6 +212,7 @@ if (isset($_GET['arg']) && $_GET['arg']=="name") {
 			</a></th>
 		<th class='dialog'><?php echo $strDateTo; ?></a></th>
 		<th class='dialog'><?php echo $strSaison; ?></a></th>
+        <th class='dialog'><?php echo $strEventType; ?></a></th>
 	</tr>
 
 <?php
@@ -239,6 +241,7 @@ $sql = "SELECT
 			, DATE_FORMAT(m.DatumBis, '".$cfgDBdateFormat."') as DatumBis
 			, s.Name as Stadion
 			, m.Saison
+            , m.UKC
 		FROM
 			meeting AS m
 		LEFT JOIN
@@ -267,7 +270,8 @@ while ($row = mysql_fetch_array($result))
 		<td><?php echo $row['Stadion']; ?></td>
 		<td><?php echo $row['DatumVon']; ?></td>
 		<td><?php echo $row['DatumBis']; ?></td>
-		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td>
+		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td
+        <td><?php if ($row['UKC']=="y"){ echo $strUKC;} else {echo $strMeetingTitle; }?></td>
 		<td>
 		<?php
 		$btn = new GUI_Button('meeting_delete.php', "$strDelete ...");
@@ -296,6 +300,7 @@ while ($row = mysql_fetch_array($result))
 		<td><?php echo $row['DatumVon']; ?></td>
 		<td><?php echo $row['DatumBis']; ?></td>
 		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td>
+         <td><?php if ($row['UKC']=="y"){ echo $strUKC;} else {echo $strMeetingTitle; }?></td>  
 	</tr>
 		<?php
 	}		// ET meeting active	
@@ -326,6 +331,7 @@ $year=substr($date, 0, 4);
 			<th class='dialog'><?php echo $strOrganizer; ?></th>
 			<th class='dialog'><?php echo $strStadium; ?></th>
 			<th class='dialog'><?php echo $strSaison; ?></th>
+            <th class='dialog'><?php echo $strEventType; ?></a></th>    
 		</tr>
 		<tr>
 			<td class='forms'>
@@ -345,6 +351,15 @@ $year=substr($date, 0, 4);
 			<?php
 				$dd = new GUI_SeasonDropDown();
 			?>
+            
+                <td class='forms'>
+                <select name="ukc" onchange="document.ukc.submit()">
+                 <option value="-">-</option>
+                    <option value="n"><?php echo $strMeetingTitle; ?></option>     
+                    <option value="y"><?php echo $strUKC; ?></option>
+                 </select>
+                </td>
+           
 		</tr>
 	</table>
 	<table>
