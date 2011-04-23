@@ -75,7 +75,7 @@ $sql = "SELECT
                 base_athlete AS b 
                 LEFT JOIN kategorie AS k ON ( b.license_cat = k.Code OR ( $today  - substring( b.birth_date, 1, 4 ) ) <= k.Alterslimite ) 
           WHERE ".$sqlName." ".$sqlFirstname." ".$sqlYear." ".$sqlId."  
-                AND b.sex = k.Geschlecht and k.aktiv = 'y'  
+                AND b.sex = k.Geschlecht and k.aktiv = 'y' AND k.UKC = 'n' 
                 
           GROUP BY b.id_athlete
           ORDER BY lastname DESC, 
@@ -106,7 +106,7 @@ if(mysql_errno > 0){
                     WHERE
                         k.Alterslimite = ". $row['min_agelimit'].
                         " AND k.Geschlecht ='". $row['sex']."' ".
-                        "AND k.aktiv = 'y'";
+                        "AND k.aktiv = 'y' and k.UKC = 'n'";
         
          $res_k = mysql_query($sql_k);  
          if(mysql_errno > 0){
