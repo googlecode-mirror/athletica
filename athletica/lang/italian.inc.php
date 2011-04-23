@@ -769,6 +769,40 @@ $strRanklistAll = "Classifica con tutte le serie";
 
 
 $strNoDoubleFill = "Si possono soltanto riempire le caselle secondo il sesso o secondo la categoria.";  
-$strTnMk = "P-GM";     
+$strTnMk = "P-GM";   
+
+$strAthleteTeam = "Si prega di assegnare %ARTIKEL% atleti ad una squadra:";
+$strEinz = "il";
+$strMehrz = "la";   
+$strOnlineRegUKC = "Registrare i dati d'iscrizione UBS Kids Cup online";  
+$strNewEntryUKC = "Nuova iscrizione UBS Kids Cup"; 
+$strAddress = "Via";
+$strPlz = "CAP"; 
+$strCity = "Città"; 
+$strEmail = "E-mail";    
+$strXmlNoAthClub = "<br>&nbsp;&nbsp;l'atleta %NAME% non ha la società.";
+$strErrPlzField = "Il codice postale non è numerico!"; 
+$strErrEmailField = "L'indirizzo E-mail non è valevole!";    
+$strKt = "Cantone";    
+$strErrMergedRoundSpeaker = "Questo turno è stato raggruppato e può essere visualizzato solo nel turno principale!";   
+$strXmlNoCatAge = "<br>&nbsp;&nbsp;per questo anno di nascita  %NAME% non è registrata nessuna categoria.";    
+$strImportUKC_Title = "Dati d'iscrizione UBS Kids Cup";
+$strImportUKC = "I dati d'iscrizione sono stati importati con sussesso";         
+$strUploadUKC  = "Trasferimento dei risultati UBS Kids Cup";      
+$strErrNoControl4 = "Voglaite inserire il numero di gara! Questo è indispensabile per trasferire i risultati."; 
+$strBaseRelayNotFound = "La stafetta%id% non è stata trovata nella banca dati";   
+
+$strErrAgeNotUKC = "Questo anno di nascità non può essere inserito in un meeting UBS Kids Cup.";   
+$strUKC = "UBS Kids Cup";    
+$strErrCatUkc = "In un meeting UBS Kids Cup non è possibile inserire categorie proprie.";
+$strErrDisUkc = "In un meeting UBS Kids Cup non è possibile inserire discipline proprie.";  
+
+
+$strOnlineRegInfo2 = '<b>Importante:</b> Vogliare reimportare il file XML aggiornato prima del meeting.';  
+$strVersionForbidden = "Caricare un file di backup Athletica 4.0 o 4.1 non è consentito per motivi di compatibilità.";
+
 
 ?>
+
+
+

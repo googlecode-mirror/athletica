@@ -833,8 +833,16 @@ $strErrMergedRoundSpeaker = "Diese Runde wurde zusammengefasst und kann nur in d
 $strXmlNoCatAge = "<br>&nbsp;&nbsp;Für diesen Jahrgang %NAME% ist keine Kategorie erfasst.";    
 $strImportUKC_Title = "UBS Kids Cup Anmeldedaten";
 $strImportUKC = "Die Anmeldedaten wurden erfolgreich importiert";         
-$strUploadUKC  = "Upload Kids Cup Resultate";      
-$strErrNoContro3 = "Bitte Wettkampf-Nummer eingeben! Diese ist für den Upload der Resultate notwendig."; 
-$strBaseRelayNotFound = "Staffel %id% wurde in Stammdaten nicht gefunden"; 
+$strUploadUKC  = "Upload UBS Kids Cup Resultate";      
+$strErrNoControl4 = "Bitte <b>Wettkampf-Nummer</b> eingeben! Diese ist für den Upload der Kids Cup Resultate notwendig."; 
+$strBaseRelayNotFound = "Staffel %id% wurde in Stammdaten nicht gefunden";              
+
+$strErrAgeNotUKC = "Dieser Jahrgang kann nicht für ein UBS Kids Cup Meeting erfasst werden.";  
+$strUKC = "UBS Kids Cup";   
+$strErrCatUkc = "In einem UBS Kids Cup Meeting können keine eigenen Kategorien erfasst werden.";
+$strErrDisUkc = "In einem UBS Kids Cup Meeting können keine eigenen Disziplinen erfasst werden.";   
+
+$strOnlineRegInfo2 = '<b>Wichtig:</b> Spielen Sie kurz vor dem Meeting nochmals ein aktuelles XML-File ein.';  
+$strVersionForbidden = "Einspielen einer Sicherungsdatei der Athletica Version 4.0 bis 4.1 ist aus Kompatibilititätsgründen nicht frei gegeben.";
 
 ?>

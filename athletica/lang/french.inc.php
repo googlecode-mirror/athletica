@@ -809,5 +809,37 @@ $strRanklistAll = "Liste de résultats globale";
 $strNoDoubleFill = "On ne peut remplir que les cases selon le sexe ou que les cases selon la catégorie.";    
 $strTnMk = "P-CM"; 
 
+$strAthleteTeam  = "Veuillez affecter %ARTIKEL% athlètes  à une équipe";
+$strEinz  = "le"; 
+$strMehrz = "les"; 
+$strOnlineRegUKC  = "Enregistrer les données d'inscription UBS Kids Cup online"; 
+$strNewEntryUKC = "Nouvelle inscription UBS Kids Cup"; 
+$strAddress   = "Adresse"; 
+$strPlz   = "NPA"; 
+$strCity  = "Lieu"; 
+$strEmail = "E-mail";   
+$strXmlNoAthClub  = "<br>&nbsp;&nbsp;l'athlète %NAME% n'a pas de société."; 
+$strErrPlzField   = "Le code postal n'est pas numérique!"; 
+$strErrEmailField  = "L'adresse E-mail n'est pas valable!";  
+$strKt  = "Canton";    
+$strErrMergedRoundSpeaker = "Ce tour a été regroupé et ne peut être affiché qu'au tour principal!"; 
+$strXmlNoCatAge  = "<br>&nbsp;&nbsp;pour cette année de naissance  %NAME% aucune catégorie "; 
+$strImportUKC_Title = "Données d'inscription UBS Kids Cup"; 
+$strImportUKC  = "Les données d'inscription ont été importées avec succsè ";        
+$strUploadUKC  = "Téléchargement des résultats UBS Kids Cup";      
+$strErrNoControl4  = "Veuillez entrer le numéro du concours! Celui-ci est indispensable pour télécharger"; 
+$strBaseRelayNotFound  = "Le relais %id% n'a pas été trouvé dans les donneés de base "; 
+         
+$strErrAgeNotUKC = "Cette année de naissance ne peut pas être enregistrée pour un meeting UBS Kids Cup.";  
+$strUKC = "UBS Kids Cup";           
+$strErrCatUkc = "Dans un meeting UBS Kids Cup il n'est pas possible d'enregistrer ses propres catégories.";
+$strErrDisUkc = "Dans un meeting  UBS Kids Cup il n'est pas possible d'enregistrer ses propres disciplines."; 
+
+ $strOnlineRegInfo2 = "<b>Important:</b> Veuillez reimporter le fichier XML actualisé juste avant le meeting.";  
+$strVersionForbidden = "Le chargement d'un fichier de sauvegarde Athletica 4.0 ou 4.1 n'est pas autorisé pour des raisons de comapatibilité.";
+
+
+ 
+
 
 ?>
