@@ -44,7 +44,7 @@ class HTTP_data{
 		$totalbytes = 0;
 		while ($str = trim(fgets($sock, 4096))){
 			$headers .= "$str\n";
-			/*if(strpos($str, "400") !== false || strpos($str, "404") !== false || strpos($str, "403") !== false){
+			/*if(strpos($str, "400") !== false || strpos($str, "404") !== false || strpos($str, "408") !== false){
 				fclose($sock); // server return error (not found / bad request)
 				AA_printErrorMsg($strErrHttpBad);
 				return false;
@@ -140,7 +140,7 @@ document.getElementById("progress").width="150";
 		$totalbytes = 0;
 		while ($str = trim(fgets($sock, 4096))){
 			$headers .= "$str\n";
-			if(strpos($str, "400") !== false || strpos($str, "404") !== false || strpos($str, "403") !== false || strpos($str, "503") !== false){
+			if(strpos($str, "400") !== false || strpos($str, "404") !== false || strpos($str, "408") !== false || strpos($str, "503") !== false){
 				fclose($sock); // server return error (not found / bad request)
 				AA_printErrorMsg($strErrHttpBad);
 				return false;
