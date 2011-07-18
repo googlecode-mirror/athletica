@@ -378,8 +378,10 @@ Name=$fileHeat
 						 LEFT JOIN anmeldung AS a USING(xAnmeldung) 
 						 LEFT JOIN athlet AS at USING(xAthlet) 
 						 LEFT JOIN verein AS v USING(xVerein) 
-							 WHERE s.xSerie = ".$rowHeat[0].";";
+							 WHERE s.xSerie = ".$rowHeat[0] . "
+                               ORDER BY ss.Position";
 					$res = mysql_query($sql);
+                   
 					if(mysql_errno() > 0){
 						AA_printErrorMsg(mysql_errno().": ".mysql_error());
 					}else{
@@ -435,8 +437,10 @@ Name=$fileHeat
 						 LEFT JOIN start AS st USING(xStart) 
 						 LEFT JOIN staffel AS sf USING(xStaffel) 
 						 LEFT JOIN verein AS v USING(xVerein) 
-							 WHERE s.xSerie = ".$rowHeat[0].";";
+							 WHERE s.xSerie = ".$rowHeat[0]."
+                             ORDER BY ss.Position";
 					$res = mysql_query($sql);
+                     
 					if(mysql_errno() > 0){
 						AA_printErrorMsg(mysql_errno().": ".mysql_error());
 					}else{
