@@ -107,24 +107,27 @@ global $cfgEventType, $strEventTypeSingleCombined, $strEventTypeClubMA,
 	$strEventTypeClubTeam, $strEventTypeClubCombined, $strEventTypeTeamSM;
 	 
 $results = mysql_query("
-	SELECT
+	SELECT Distinct
 	  	k.xKategorie
 	  	, k.Name
 		, w.Typ
+        , ks.xKategorie_svm
+        , ks.Code
   	FROM
 	  	wettkampf AS w
 	  	LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+        LEFT JOIN kategorie_svm AS ks ON (ks.xKategorie_svm = w.xKategorie_svm)
   	WHERE 
         w.xMeeting = " . $_COOKIE['meeting_id'] ."
 	    " . $selection . "   
         AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."   
 	    AND w.Typ <  " . $cfgEventType[$strEventTypeTeamSM] ."
-	GROUP BY
-		k.xKategorie
+	
 	ORDER BY
-		k.Anzeige
+		k.Anzeige, ks.Code
 ");
-     
+        
+    
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -154,7 +157,7 @@ else
 		// Club rankinglist: Single
 		else
 		{    
-			processSingle($row[0], $row[1]);
+			processSingle($row[0], $row[1],$row[3], $row[4]);
 		}
 	} 
     
@@ -171,7 +174,7 @@ $GLOBALS[$list]->endPage();	// end HTML page for printing
 //	process club single events
 //
 
-function processSingle($xCategory, $category)
+function processSingle($xCategory, $category, $xCat_svm, $cat_svm)
 {         	
     $GLOBALS[$rFrom];
     $GLOBALS[$rTo]; 
@@ -196,15 +199,21 @@ function processSingle($xCategory, $category)
 
 	// get all teams for this category
 	$results = mysql_query("
-		SELECT
+		SELECT  Distinct
 			t.xTeam
 			, t.Name
-			, v.Name
+			, v.Name                  
+            ,t.xKategorie   
+              
+            ,t.xKategorie_svm  
 		FROM
 			team AS t
 			LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
+            LEFT JOIN wettkampf AS w ON (w.xKategorie = t.xKategorie)
+            LEFT JOIN kategorie AS k ON (t.xKategorie = k.xKategorie)
 		WHERE t.xMeeting = " . $_COOKIE['meeting_id'] ."
-		AND t.xKategorie = $xCategory");
+		AND t.xKategorie = $xCategory AND t.xKategorie_svm = '$xCat_svm'
+        Order By w.xKategorie_svm");            
      
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -222,7 +231,13 @@ function processSingle($xCategory, $category)
 	while($row = mysql_fetch_row($results))
 	{
         
-        
+        $catMkMw = $cfgSVM[$cat_svm."_D"]; 
+        if  ($catMkMw  == 'MK' || $catMkMw  == 'MW'){
+                     $catMkMw = " $catMkMw";
+        }
+        else {
+              $catMkMw = "";
+        }
 
         
 		// store previous before processing new team
@@ -745,8 +760,12 @@ function processSingle($xCategory, $category)
 			, "id"=>$tm              
 		);
 	}
-
-	$GLOBALS[$list]->printSubTitle($category, "", "");
+    
+    if (!empty($teamList)){
+        
+    
+    $category .= $catMkMw; 
+	$GLOBALS[$list]->printSubTitle($category, "", "", $catMkMw);
 	$GLOBALS[$list]->startList();
 	$GLOBALS[$list]->printHeaderLine();
     
@@ -756,7 +775,7 @@ function processSingle($xCategory, $category)
 	$r = 0;										// start value for ranking
 	$p = 0;  
     
-   
+    }
     foreach($teamList as $team)
                 {
                     $r++;
@@ -833,7 +852,7 @@ function processCombined($xCategory, $category, $type)
         ORDER BY
             t.xTeam
     ";                        
-     
+  
     $results = mysql_query($sql);    
    
 	if(mysql_errno() > 0) {		// DB error
@@ -925,7 +944,7 @@ function processCombined($xCategory, $category, $type)
                     , w.Windmessung
                     , st.xAnmeldung
                     , d.xDisziplin
-                     
+                    , w.Typ 
                 FROM
                     start AS st USE INDEX (Anmeldung)
                     LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart   )
@@ -943,8 +962,8 @@ function processCombined($xCategory, $category, $type)
                 ORDER BY
                     ru.Datum
                     , ru.Startzeit
-            ";           
-             
+            ";          
+          
             $res = mysql_query($sql);      
            
 			if(mysql_errno() > 0) {		// DB error
@@ -1112,6 +1131,7 @@ function processCombined($xCategory, $category, $type)
         $key_2 = array();  
         $p = 0;     
         $i = 0;  
+       
         foreach($teamList as $team)
             {
                 $r++;
