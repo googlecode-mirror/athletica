@@ -1223,7 +1223,8 @@ function AA_meeting_addSVMEvent($disfee, $penalty){
                 
                 $wTyp=$_POST['wTyp'];    
                 
-                $sql="SELECT xWettkampf FROM wettkampf WHERE  xDisziplin = " . $d ." AND xKategorie_svm = " .$svm . " AND xMeeting = " .$_COOKIE['meeting_id'];
+                $sql="SELECT xWettkampf FROM wettkampf WHERE  xDisziplin = " . $d ." AND xKategorie_svm = " .$svm . " AND xKategorie = " . $_POST['cat'] . " AND xMeeting = " .$_COOKIE['meeting_id'];
+               
                 $res = mysql_query($sql);
                 $num = mysql_num_rows($res);
                 
