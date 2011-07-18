@@ -29,6 +29,13 @@ else if(!empty($_GET['cat'])) {
 	$category = $_GET['cat'];	// store selected category
 }
 
+if(!empty($_POST['category_svm'])) {
+    $category_svm = $_POST['category_svm'];    // store selected category
+}
+else if(!empty($_GET['category_svm'])) {
+    $category_svm = $_GET['category_svm'];    // store selected category
+}
+
 $club = 0;
 if(!empty($_POST['club'])) {
 	$club = $_POST['club'];	// store selected category
@@ -62,6 +69,7 @@ if ($_POST['arg']=="add")
 				, staffel READ
 				, base_svm READ
 				, base_relay READ
+                , kategorie_svm AS ks READ   
 		");
 		
 		// get the eventnumber of this meeting for generating a team id in the form eventnumber999 (xxxxxx999)
@@ -121,7 +129,7 @@ if ($_POST['arg']=="add")
 			{
 				if(AA_checkReference("verein", "xVerein", $_POST['club']) == 0)	// Club does not exist (anymore)
 				{
-					AA_printErrorMsg($strClub . $strErrNotValid);
+					        AA_printErrorMsg($strClub . $strErrNotValid);
 				}
 				else
 				// OK, try to add team
@@ -130,18 +138,19 @@ if ($_POST['arg']=="add")
 						// svm is added from base
 						
 						$xTeamSQL = ", xTeam = ".$_POST['id'].", Athleticagen ='n' ";
-					}
+					}    
 					
 					mysql_query("
 						INSERT INTO team SET 
 							Name=\"". $_POST['name'] ."\"
 							, xMeeting=" . $_COOKIE['meeting_id'] ."
-							, xKategorie = $category
-							, xVerein=" . $_POST['club']
+							, xKategorie = " . $category  ."
+							, xVerein=" . $_POST['club'] ." 
+                            , xKategorie_svm = '" . $category_svm. "'" 
 							.$xTeamSQL
 					);
 					
-					if(mysql_errno() > 0) {
+					if(mysql_errno() > 0) {                           
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}
 					else {
@@ -226,11 +235,14 @@ else {
 	<td class='forms'>
 		<?php AA_printCategoryEntries("meeting_team_add.php", $category, $club, TRUE); ?>
 	</td>
+    <td class='forms'>
+        <?php AA_printCategorySvmEntries("meeting_team_add.php", $category_svm, $category, $club, TRUE); ?>
+    </td>
 </tr>
 </table>
 <?php
 
-if((!empty($category)) && (!empty($club)))		// category & club selected
+if((!empty($category)) && (!empty($club)) && (!empty($category_svm)) )		// category & club selected
 {
 	?>
 <br>
@@ -301,6 +313,7 @@ if((!empty($category)) && (!empty($club)))		// category & club selected
 	<td class='forms'>
 		<input name='arg' type='hidden' value='add' />
 		<input name='category' type='hidden' value='<?php echo $category; ?>' />
+        <input name='category_svm' type='hidden' value='<?php echo $category_svm; ?>' />      
 		<input name='club' type='hidden' value='<?php echo $club; ?>' />
 		<input class='text' name='name' type='text' maxlength='40'
 			value='' />
