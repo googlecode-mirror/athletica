@@ -274,6 +274,115 @@ class GUI_CategorySelect
 
 
 /********************************************
+ * CLASS GUI_CategorySvmSelect
+ * Prints a category drop down list by using the GUI_Select class.
+ *******************************************/
+
+class GUI_CategorySvmSelect
+{
+    var $select;
+    var $optNone;   
+    
+    /*
+     *    Constructor
+     *    -----------
+     */
+    function GUI_CategorySvmSelect($action = '',$optNone=true)
+    {    
+        $this->select = new GUI_Select('category_svm', 1, $action);
+        $this->optNone = $optNone;
+        if ($this->optNone)
+            $this->select->addOptionNone();                // empty item
+    }
+
+    /*    printList()
+     *    -----------
+     * Finally, print the <SELECT> list
+     * To preselect an item, provide its DB primary key
+     *        key:        primary key of db table
+     */
+    function printList($key=0, $bAll = false, $bAthleteCat = false, $dis = false, $category)
+    {
+        require('./config.inc.php');
+        
+        // change name for select box if $bAthleteCat is set
+        if($bAthleteCat){
+            $this->select->name = "athletecat";
+        }            
+       
+      
+        // get items from DB
+        if(!$bAll){
+            
+                $sql="SELECT 
+                         k.Kurzname
+                    FROM                          
+                         kategorie AS k  
+                    WHERE
+                        k.xKategorie = " . $category;
+                
+                $res = mysql_query($sql);
+                if(mysql_errno() > 0) {        // DB error
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }
+                else {
+                     if (mysql_num_rows($res) == 1){
+                          $row = mysql_fetch_row($res);
+                          $catName = $row[0];
+                     }
+                }
+           
+                $query="SELECT 
+                         ks.xKategorie_svm,                         
+                         ks.Name,
+                         ks.Code
+                    FROM                          
+                         kategorie_svm AS ks  
+                    ORDER BY
+                        ks.Code";     
+                
+                $res = mysql_query($query);
+                if(mysql_errno() > 0) {        // DB error
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }
+                else {
+                    while ($row = mysql_fetch_row($res))
+                    {
+                        if ($cfgSVM[$row[2]."_C"] ==  $catName ){                         
+                            $this->select->options[$row[0]] = $row[1];
+                        }
+                    }
+                    mysql_free_result($res);
+                    }   
+            
+       }
+        else{
+            $this->select->addOptionsFromDB("
+                SELECT DISTINCT
+                    k.xKategorie_svm
+                    , k.Name  
+                FROM
+                    kategorie_svm AS k  
+                ORDER BY
+                    k.Code
+            ");
+        }
+
+        if(!empty($GLOBALS['AA_ERROR']))
+        {
+            AA_printErrorMsg($GLOBALS['AA_ERROR']);
+        }
+        if($key == 0) {
+            $key = '-';
+        }
+        $this->select->selectOption($key);
+        $this->select->printList($dis);
+    }
+} // END CLASS Gui_CategorySelect
+
+
+
+/********************************************
  * CLASS GUI_ClubSelect
  * Prints a club drop down list by using the GUI_Select class.
  *******************************************/

@@ -39,6 +39,26 @@ class GUI_CategoryDropDown
 
 
 /********************************************
+ * CLASS GUI_CategorySvmDropDown
+ *******************************************/
+
+class GUI_CategorySvmDropDown
+{
+    /*
+     *    Constructor
+     *    -----------
+     *    optNone:  set false if you want no option '-' to the <SELECT> list
+     */
+    function GUI_CategorySvmDropDown($key, $action = '', $category, $bAll = false, $bAthleteCat = false, $dis = false,$optNone=true )
+    {    
+        $select = new GUI_CategorySvmSelect($action,$optNone);
+        echo "<td class='forms'>";
+        $select->printList($key, $bAll, $bAthleteCat, $dis, $category);
+        echo "</td>";
+    }
+} // END CLASS Gui_CategoryDropDown
+
+/********************************************
  * CLASS GUI_ClubDropDown
  * Prints a club drop down.
  *******************************************/
