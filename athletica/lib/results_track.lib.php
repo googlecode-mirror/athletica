@@ -21,7 +21,7 @@ require('./lib/common.lib.php');
 require('./lib/heats.lib.php');
 require('./lib/results.lib.php');
 require('./lib/utils.lib.php');
-require('./lib/timing.lib.php');
+include_once('./lib/timing.lib.php');
 
 $presets = AA_results_getPresets($round);	// read GET/POST variables
 
@@ -113,7 +113,7 @@ if($_GET['arg'] == 'results_done')
 		  ORDER BY ".$heatorder."
 				   r.Leistung ASC;";
 	$result = mysql_query($sql);
-
+   
 	if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -446,9 +446,9 @@ if(($_GET['arg'] == 'results_done')
             , serienstart AS ss WRITE    
 	");
 	// if this is a combined event, rank all rounds togheter
-	
-	$heatorder = "s.xSerie, ";              
-	
+	         	
+	$heatorder = "s.xSerie, ";   
+                   
 	$roundSQL = "";
    
 	if($combined){
@@ -463,7 +463,7 @@ if(($_GET['arg'] == 'results_done')
 	}     
 	
     $sql = "
-        SELECT 
+        SELECT DISTINCT
             r.Leistung
             , ss.xSerienstart
             , ss.xSerie
@@ -480,7 +480,7 @@ if(($_GET['arg'] == 'results_done')
             $heatorder
             r.Leistung ASC
     ";          
-    
+   
     $result = mysql_query($sql);  
    
 	if(mysql_errno() > 0) {        // DB error
