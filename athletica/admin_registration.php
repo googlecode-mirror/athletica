@@ -44,7 +44,7 @@ $menu->printMenu();
 <p/>
 
 <?php
-
+           
 $http = new HTTP_data();
 $webserverDomain = $cfgSLVhost; // domain of swiss-athletics webserver
 
@@ -147,7 +147,7 @@ if(!empty($_POST['slvsid'])){
 		// get xml for registrations
 		
 		$post = "sid=".$_POST['slvsid']."&meetingid=".$_POST['control'];
-		$result = $http->send_post($webserverDomain, '/meetings/athletica/export_meeting.php', $post, 'file', 'reg.xml');            
+		$result = $http->send_post($webserverDomain, '/meetings/athletica/export_meeting.php', $post, 'file', 'reg.xml');      
      
 		if(!$result){
 			AA_printErrorMsg($strErrLogin);
@@ -163,6 +163,7 @@ if(!empty($_POST['slvsid'])){
 				AA_printErrorMsg(mysql_errno().": ".mysql_error());
 			}
             
+            $save = false;
             if (!empty($arr)){   
             
                     if (count($arr) == 1) {
@@ -173,13 +174,20 @@ if(!empty($_POST['slvsid'])){
                     }
                     $mess = str_replace('%ARTIKEL%', $val, $strAthleteTeam);      
                 
-                ?> 
-                <br><br><strong><?php echo $mess; ?></strong> 
                 
-                <form method="post" action="admin_registration.php" target="_self"> 
-                <table class='dialog'>    
-               <?php 
                foreach ($arr as $key => $val) { 
+                   
+                    if (count($key) == 1) {
+                         continue;
+                    }
+                     
+                    $save = true;                  
+                    ?> 
+                    <br><br><strong><?php echo $mess; ?></strong> 
+                    
+                    <form method="post" action="admin_registration.php" target="_self"> 
+                    <table class='dialog'>    
+                   <?php 
                    
                     $sql = "SELECT Name, Vorname FROM athlet WHERE xAthlet = " .$key;
                     $res = mysql_query($sql);
@@ -206,25 +214,24 @@ if(!empty($_POST['slvsid'])){
                     </tr>   
                     <input type="hidden" value="<?php echo $key; ?>" name="athlet[]">   
                     <?php 
-               }                  
-               ?>
-                
-                <input type="hidden" value="save" name="arg"> 
-                
-                <tr>
-                <td></td>
-                <td><button type="submit"><?php echo $strSave; ?></button>     
-                </td></tr>
+               }  
+               if ($save){                
+                   ?>
+                    
+                    <input type="hidden" value="save" name="arg"> 
+                    
+                    <tr>
+                    <td></td>
+                    <td><button type="submit"><?php echo $strSave; ?></button>     
+                    </td></tr>
 
-                </table>   
-               </form>   
-               <?php 
+                    </table>   
+                   </form>   
+                   <?php 
+               }
             }
-            else {
-                 //show succes on reg xml                                                     
-                 echo "<p>$strBaseRegOk</p>";
-            }
-            
+           
+            echo "<p>$strBaseRegOk</p>";   
             
 		}
 	}
