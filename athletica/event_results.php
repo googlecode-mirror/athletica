@@ -14,6 +14,7 @@ require('./lib/results_track.lib.php');
 require('./lib/results_tech.lib.php');
 require('./lib/results_high.lib.php');
 require('./lib/utils.lib.php');
+require('./lib/timing.lib.php');  
 
 
 if(AA_connectToDB() == FALSE)	{			// invalid DB connection
@@ -219,7 +220,8 @@ else if($_POST['arg'] == 'add_start') {	// add new athlete/relay
 	AA_heats_addStart($round);
 	if(!empty($GLOBALS['AA_ERROR'])) {
 		AA_printErrorMsg($GLOBALS['AA_ERROR']);
-	}
+	}            
+    AA_timing_setStartInfo($round, false);   
 }
 
 else if($_GET['arg'] == 'del_start') {	// delete athlete/relay  
@@ -227,6 +229,7 @@ else if($_GET['arg'] == 'del_start') {	// delete athlete/relay
 	if(!empty($GLOBALS['AA_ERROR'])) {
 		AA_printErrorMsg($GLOBALS['AA_ERROR']);
 	}
+     AA_timing_setStartInfo($round, false);   
 }
 
 elseif($_GET['arg'] == "del_results"){ // delete all results
