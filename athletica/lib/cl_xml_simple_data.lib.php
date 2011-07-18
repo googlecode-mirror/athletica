@@ -93,7 +93,11 @@ function XML_regUKC($xml_simple){
         
         $club =  $account->accountCode; 
         $clubName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($account->accountName))));               
-        $clubNameShort =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($account->accountShort))));      
+        $clubNameShort =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($account->accountShort))));   
+        
+        if (empty($clubNameShort)){
+               $clubNameShort = $clubName;
+        }   
         
         $laenge = strlen($clubName);
         $laengeShort = strlen($clubNameShort); 
@@ -128,6 +132,13 @@ function XML_regUKC($xml_simple){
             $xDis = array(); 
             $xAthlete = 0;
             $xReg = 0;
+            
+            $street = '';     
+            $zipCode = 0;     
+            $city = '';     
+            $clubName = '';     
+            $email = '';     
+            $canton ='';     
         
             foreach ($athlete->attributes() as $attr=>$value) {
                    
@@ -157,18 +168,49 @@ function XML_regUKC($xml_simple){
             $discode = 0;                
             
             $lastName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->lastName))));               
-            $firstName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->firstName))));    
-                       
+            $firstName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->firstName))));   
+                                                                                                                        
             $birthDate =  $athlete->birthDate;
             $arr_birth = explode(".",$birthDate);
             $birthdate = $arr_birth[2] . "-" .  $arr_birth[0] . "-" . $arr_birth[1]; 
             $birthYear = $arr_birth[2];
             if (!empty($athlete->accountCode) ) {
                   $club = $athlete->accountCode;   
-            }
+            }     
             
             $sex = $athlete->sex;   
-            $nationality = $athlete->nationality;      
+            $nationality = $athlete->nationality;                 
+            
+            $street = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->street))));    
+            $zipCode = $athlete->personalData->zipCode;  
+            $city = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->city))));   
+            $clubName = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->club))));   
+            $email = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->email))));   
+            $canton = $athlete->personalData->canton;  
+            
+            // get region
+            $region = 0; 
+            if (!empty($canton)) {                
+                $sql_reg = "SELECT xRegion FROM region WHERE Anzeige = '" . $canton ."'";
+                $res_reg = mysql_query($sql_reg);             
+                if(mysql_errno() > 0) {   
+                            AA_printErrorMsg("xml-1-".mysql_errno() . ": " . mysql_error());  
+                    }
+                else {
+                    if (mysql_num_rows($res_reg) == 1) {
+                        $row = mysql_fetch_row($res_reg);
+                        $region = $row[0]; 
+                    }
+                }
+            }
+            else {
+                 $canton = 0;
+            }
+           
+            
+            if (empty($zipCode)){
+                $zipCode = 0;
+            }
             
             // get category
             $currYear = date('Y');
@@ -245,13 +287,32 @@ function XML_regUKC($xml_simple){
                                   }                                   
                             }   
                         }
-                        if (empty($club) && $license == 0) {
+                        elseif (!empty($clubName)) {                                                          // selfmade club
+                                $result2 = mysql_query("SELECT xVerein FROM verein WHERE Name = '" . $clubName ."'");
+                                if (mysql_errno() > 0){
+                                    AA_printErrorMsg("xml-19-".mysql_errno() . ": " . mysql_error());
+                                }else{
+                                      if (mysql_num_rows($result2) > 0) {
+                                            $rowClub1 = mysql_fetch_array($result2);
+                                            $clubnr = $rowClub1[0]; 
+                                      }                                                                              // insert club
+                                      else {
+                                            $sql = "INSERT into verein SET
+                                                            Name = '" .  $clubName ."',
+                                                            Sortierwert = '" .  $clubName ."'";
+                                            mysql_query($sql);                 
+                                            $clubnr = mysql_insert_id();               
+                                      }                                   
+                                }   
+                        }
+                        
+                        if (empty($club) && empty($clubName) && $license == 0) {
                             $clubnr = 999999;
                         }
                       
                         // if club is valid, insert athlete  
                         if(is_numeric($clubnr)) { 
-                                           
+                                                                                   
                             // if athlet exist
                             if ($license > 0){
                                       $sql = "SELECT * FROM athlet WHERE Lizenznummer= " .  $license; 
@@ -286,12 +347,17 @@ function XML_regUKC($xml_simple){
                                                                         Athleticagen = 'n',   
                                                                         Bezahlt = '" .  $licensePaid ."', 
                                                                         xVerein = '" .  $clubnr ."',                                                                  
-                                                                        Lizenztyp = " . $licenseType;  
-                                                                   
+                                                                        Lizenztyp = " . $licenseType . ",
+                                                                        xRegion = " . $region . ",   
+                                                                        Adresse = '" . $street . "',  
+                                                                        Plz = " . $zipCode . ",  
+                                                                        Ort = '" . $city . "',  
+                                                                        Email = '" . $email ."'"; 
+                                                                        
+                                   
                                     mysql_query($sql);
                                    
-                                    if(mysql_errno() > 0){   
-                                      
+                                    if(mysql_errno() > 0){                                                                            
                                         AA_printErrorMsg("xml-21-".mysql_errno().": ".mysql_error());
                                     }else{
                                             $xAthlete = mysql_insert_id();   
@@ -300,26 +366,32 @@ function XML_regUKC($xml_simple){
                                 else {
                                        if ($license > 0){                                       
                                     
-                                                $sql = "UPDATE athlet SET  
-                                                            Name = '" .  $lastName ."',  
-                                                            Vorname = '" .  $firstName ."',  
-                                                            Geburtstag = '" .  $birthdate ."',
+                                                $sql = "UPDATE athlet SET                                                             
                                                             Land = '" .  $nationality ."',  
                                                             xVerein = '" .  $clubnr ."',    
-                                                            Bezahlt = '" .  $licensePaid ."'      
+                                                            Bezahlt = '" .  $licensePaid ."',      
+                                                            xRegion = " . $region . ",   
+                                                            Adresse = '" . $street . "',  
+                                                            Plz = " . $zipCode . ",  
+                                                            Ort = '" . $city . "',  
+                                                            Email = '" . $email ."'
                                                             WHERE Lizenznummer= " .  $license;  
                                        }
                                        else {
                                               $sql = "UPDATE athlet SET  
                                                             Land = '" .  $nationality ."',  
                                                             xVerein = '" .  $clubnr ."',    
-                                                            Bezahlt = '" .  $licensePaid ."'      
+                                                            Bezahlt = '" .  $licensePaid ."',  
+                                                            xRegion = " . $region . ",   
+                                                            Adresse = '" . $street . "',  
+                                                            Plz = " . $zipCode . ",  
+                                                            Ort = '" . $city . "',  
+                                                            Email = '" . $email ."'    
                                                             WHERE Name= '" .  $lastName ."' AND Vorname = '" .  $firstName ."' AND Geburtstag = '" . $birthdate ."'";  
                                        }   
                                       
                                         mysql_query($sql);
-                                        if(mysql_errno() > 0){  
-                                            
+                                        if(mysql_errno() > 0){ 
                                             AA_printErrorMsg("xml-22-".mysql_errno().": ".mysql_error());
                                         }else{
                                                 $xAthlete = $row[0];   
