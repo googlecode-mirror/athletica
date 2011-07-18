@@ -1,6 +1,6 @@
 <?php
 /**
- *	Italiano
+ *    Italiano
  **/
 
 
@@ -420,10 +420,10 @@ $strDontShowAgain = "Non più mostrare";
 $strDoubleCombinedEvent = "Nella stessa categoria non é possibile avere due volte la stessa gara multipla!";
 $strEdit = "Elaborazione";
 $strErrNoControl = "Attenzione: la vostra manifestazione non é ancora stata annunciata online.<br>
-			Questa é la condizione preliminare richiesta per la preparazione delle staffette,<br>
-			delle squadre e per l’aggiornamento delle liste stagionali!<br>Se non desiderate avere<br>
-			aggiornamenti nelle liste stagionali, disattivate il punto: “Eseguire più tardi l’aggiornament<br>
-			dei risultati della manifestazione” nel menu definizione della manifestazione.";
+            Questa é la condizione preliminare richiesta per la preparazione delle staffette,<br>
+            delle squadre e per l’aggiornamento delle liste stagionali!<br>Se non desiderate avere<br>
+            aggiornamenti nelle liste stagionali, disattivate il punto: “Eseguire più tardi l’aggiornament<br>
+            dei risultati della manifestazione” nel menu definizione della manifestazione.";
 $strErrNoControl2 = "L’aggiornamento dei risultati non é possibile per questa manifestazione!";
 $strExport = "Esportare";
 $strFaq = "Domande più frequenti";
@@ -447,8 +447,8 @@ $strRemoveGroups = "Disattivare i gruppi";
 $strRegion = "Regione";
 $strReset = "Riinizializzare";
 $strResetDo = "State modificando la struttura dei dati base. Questo provocherà un aggiornamento completo<br>
-		che richiederà un po’ di tempo e potrebbe provocare qualche problema ai dati base.<br>
-		Volete continuare?";
+        che richiederà un po’ di tempo e potrebbe provocare qualche problema ai dati base.<br>
+        Volete continuare?";
 $strResetDone = "I dati base sono stati modificati. Desiderate un aggiornamento.";
 $strSeparateU23 = "Categoria U23 separata";
 $strSex = "Sesso";
@@ -768,10 +768,10 @@ $strGenChange  =  "Cambiamento totale";
 $strRanklistAll = "Classifica con tutte le serie";
 
 
-$strNoDoubleFill = "Si possono soltanto riempire le caselle secondo il sesso o secondo la categoria.";  
-$strTnMk = "P-GM";   
+$strNoDoubleFill = "Si possono soltanto riempire le caselle secondo il sesso o secondo la categoria.";
 
-$strAthleteTeam = "Si prega di assegnare %ARTIKEL% atleti ad una squadra:";
+ $strTnMk = "P-GM";
+  $strAthleteTeam = "Si prega di assegnare %ARTIKEL% atleti ad una squadra:";
 $strEinz = "il";
 $strMehrz = "la";   
 $strOnlineRegUKC = "Registrare i dati d'iscrizione UBS Kids Cup online";  
@@ -786,23 +786,18 @@ $strErrEmailField = "L'indirizzo E-mail non è valevole!";
 $strKt = "Cantone";    
 $strErrMergedRoundSpeaker = "Questo turno è stato raggruppato e può essere visualizzato solo nel turno principale!";   
 $strXmlNoCatAge = "<br>&nbsp;&nbsp;per questo anno di nascita  %NAME% non è registrata nessuna categoria.";    
-$strImportUKC_Title = "Dati d'iscrizione UBS Kids Cup";
+$strImportUKC_Title = "Dati d'iscrizione UBS Kids Cu";
 $strImportUKC = "I dati d'iscrizione sono stati importati con sussesso";         
 $strUploadUKC  = "Trasferimento dei risultati UBS Kids Cup";      
 $strErrNoControl4 = "Voglaite inserire il numero di gara! Questo è indispensabile per trasferire i risultati."; 
-$strBaseRelayNotFound = "La stafetta%id% non è stata trovata nella banca dati";   
+$strBaseRelayNotFound = "La stafetta%id% non è stata trovata nella banca dati";
 
-$strErrAgeNotUKC = "Questo anno di nascità non può essere inserito in un meeting UBS Kids Cup.";   
-$strUKC = "UBS Kids Cup";    
+$strErrAgeNotUKC = "Questo anno di nascità non può essere inserito in un meeting UBS Kids Cup.";  
+$strUKC = "UBS Kids Cup";   
 $strErrCatUkc = "In un meeting UBS Kids Cup non è possibile inserire categorie proprie.";
-$strErrDisUkc = "In un meeting UBS Kids Cup non è possibile inserire discipline proprie.";  
+$strErrDisUkc = "In un meeting UBS Kids Cup non è possibile inserire discipline proprie.";
 
-
-$strOnlineRegInfo2 = '<b>Importante:</b> Vogliare reimportare il file XML aggiornato prima del meeting.';  
-$strVersionForbidden = "Caricare un file di backup Athletica 4.0 o 4.1 non è consentito per motivi di compatibilità.";
-
+$strOnlineRegInfo2 = "<b>Importante:</b> Vogliare reimportare il file XML aggiornato prima del meeting.";
+$strVersionForbidden = "Caricare un file di backup Athletica 4.0 o 4.1 non è consentito per motivi di compatibilità.";     
 
 ?>
-
-
-
