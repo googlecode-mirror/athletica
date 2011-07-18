@@ -16,7 +16,7 @@
  * Application Info
  */
 $cfgApplicationName = 'Athletica';
-$cfgApplicationVersion = '5.0';
+$cfgApplicationVersion = '5.1';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
@@ -79,7 +79,8 @@ $cfgBackupCompatibles = array(
     '3.5',
     '4.0', 
     '4.1',  
-    '5.0'  
+    '5.0',  
+    '5.1'    
 );
 
 
@@ -160,10 +161,10 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
 				, 412 => 'MANU18'
                 , 413 => '10WOM'    // Zehnkampf W
                 , 414 => '10MASM'   // Zehnkampf MM
-				, 402 => 'U16M'
+				, 402 => '6U16M'    // Sechskampf U16M
 				, 400 => 'WOM'
 				, 401 => 'U18W'
-                , 406 => 'U16M'     // Fünfkampf U16 M   
+                , 406 => '5U16M'     // Fünfkampf U16 M   
                 , 407 => 'U23M'     // Fünfkampf U23 M
                 , 424 => 'HU18M'    // Fünfkampf Halle U18 M
                 , 392 => '5MAN'     // Fünfkampf M
@@ -179,13 +180,10 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
                 , 405 => '5MANU18'  // Fünfkampf U18 M
                 , 416 => '5WOM'     // Fünfkampf W
                 , 417 => '5WOMU20'  // Fünfkampf U20 W
-                , 418 => '5WOMU18'  // Fünfkampf U18 W
-                , 796 => '..La'     // ...lauf  
-                , 797 => '..Sp'     // ...sprung  
-                , 798 => '..Wu'     // ...wurf  
+                , 418 => '5WOMU18'  // Fünfkampf U18 W                    
                 , 799 => '..Ka'     // ...kampf
-				);
-                                 
+				);        
+              
 
 /**	
  *	WO-combined contests, inclusive point table
@@ -198,8 +196,8 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'MANU20_F' => 3
 			, 'MANU18' => array(40,330,347,310,70,268,358,320,389,110)
 			, 'MANU18_F' => 3
-			, 'U16M' => array(261,330,349,310,357,100)
-			, 'U16M_F' => 1
+			, '6U16M' => array(261,330,349,310,357,100)
+			, '6U16M_F' => 1                
 			, 'WOM' => array(261,310,349,50,330,388,90)
 			, 'WOM_F' => 4
 			, 'U18W' => array(259,330,388,50,310,352,90)
@@ -235,15 +233,14 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
             
             , 'UKC' => array(30,331,386)
             , 'UKC_F_m' => 1  
-            , 'UKC_F_w' => 2
-            
+            , 'UKC_F_w' => 2             
             
             , 'HU18M' => array(30,330,347,310,100) 
             , 'HU18M_F' => 1   
             , 'U23M' => array(40,330,351,310,100) 
             , 'U23M_F' => 1   
-            , 'U16M' => array(35,330,349,310,100) 
-            , 'U16M_F' => 1   
+            , '5U16M' => array(35,330,349,310,100) 
+            , '5U16M_F' => 1   
             , '10WOM' =>  array(40,330,349,310,70, 261,357,320,388,110)
             , '10WOM_F' => 2               
             , '10MASM_F' => 1   
@@ -456,13 +453,13 @@ $cfgSVM = array(    '29_01' => array(40,50,70,90,140,271,301,560,310,320,330,340
             , '35_07_F' => 1
             , '35_07_ET' => 9  
             , '35_07_C' => 'U14M' 
-            , '35_07_D' => 'MK'             
+            , '35_07_D' => 'MW'             
             
             , '35_08' => array(30,100,499,331,386)  
             , '35_08_F' => 1   
             , '35_08_ET' => 9   
             , '35_08_C' => 'U12M'  
-            , '35_08_D' => 'MK'             
+            , '35_08_D' => 'MW'             
             
             , '36_01' => array(40,100,110,140,560,310,330,340,349,357,388)   
             , '36_01_F' => 2
@@ -504,19 +501,19 @@ $cfgSVM = array(    '29_01' => array(40,50,70,90,140,271,301,560,310,320,330,340
             , '36_07_F' => 2
             , '36_07_ET' => 9  
             , '36_07_C' => 'U14W'  
-            , '36_07_D' => 'MK'             
+            , '36_07_D' => 'MW'             
             
             , '36_08' => array(30,100,499,331,386)  
             , '36_08_F' => 2   
             , '36_08_ET' => 9 
             , '36_08_C' => 'U12W'
-            , '36_08_D' => 'MK'             
+            , '36_08_D' => 'MW'             
              
             , '36_09' => array(30,100,499,331,386)   
             , '36_09_F' => 1
             , '36_09_ET' => 11 
-            , '36_09_C' => 'U12X'   
-            , '36_09_D' => 'Mix'             
+            , '36_09_C' => 'U12M'   
+            , '36_09_D' => 'MIX'             
            
             );
             
