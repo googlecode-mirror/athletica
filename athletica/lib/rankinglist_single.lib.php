@@ -183,7 +183,7 @@ $results = mysql_query("
                 , r.Datum
                 , r.Startzeit
 ");  
-  
+   
 }        
    
 if(mysql_errno() > 0) {        // DB error      
@@ -555,7 +555,7 @@ else {
             $nr = 0;
            
                $atCat = '';  
-            
+           
             // process every result
             while($row_res = mysql_fetch_array($res))
             {   
@@ -1162,8 +1162,8 @@ else {
     }    // END WHILE event rounds
     mysql_free_result($results);
     
-          //*******************************          
-            
+          //************** rankinglist over all series 
+           
             if ($ranklistAll) {
                 
                 if (($catMerged & !$heatSeparate) || ($eventMerged & !$heatSeparate)) { 
@@ -1200,7 +1200,7 @@ else {
                             , r.Datum
                             , r.Startzeit
                     ");   
-                            
+                    
                 }
                 else {      
                      // heats separate
@@ -1239,7 +1239,7 @@ else {
                                 , r.Datum
                                 , r.Startzeit
                 ");  
-          
+                
                 }        
  
 if(mysql_errno() > 0) {        // DB error             
@@ -1343,7 +1343,7 @@ else {
             mysql_free_result($res);
         }
          
-        $flagSubtitle=true;       // set flag to print the subtitle later    
+        $flagSubtitle=false;  // set flag to print the subtitle later    
          
         if($evnt != $row[4])        // new event -> repeat title
         {    
@@ -1376,7 +1376,7 @@ else {
                 }
             }
             
-            // set up category and discipline title information 
+            // set up category and discipline title information         
             $flagSubtitle=true;       // set flag to print the subtitle later      
         
             if(($formaction == 'speaker')     // speaker display page
@@ -1530,7 +1530,7 @@ else {
                        ".$valid_result." 
                        ".$sqlSeparate." 
                        ".$selectionHeats."  
-                    ORDER BY rank, leistung_order " 
+                    ORDER BY leistung_order " 
                              .$order_perf;  
                   
         }
@@ -1594,7 +1594,7 @@ else {
             $r = '';
             $count_rank=0;
             $perf_save = '';  
-            //$list->startList();
+            $list->startList();
             $nr = 0;
            
             $atCat = '';        
@@ -1605,21 +1605,22 @@ else {
                 if ($flagSubtitle ){     
                     $nr = 0;    
                     if ($heatSeparate) {
-                        if ($relay)
-                            $list->printSubTitle($row_res[16], $row2_keep, $roundName, $row_res[24]); 
+                        if ($relay) {       
+                            $list->printSubTitle($row_res[16], $row2_keep, $roundName, $row_res[24]);                                
+                        }
                         else {
                              if (!$athleteCat){  
-                                  $list->printSubTitle($row_res[19], $row2_keep, $roundName, $row_res[24]); 
+                                  $list->printSubTitle($row_res[19], $row2_keep, $roundName, $row_res[24]);                                 
                              } 
                         }  
                     }
                     else {
                         if (!$athleteCat){  
                            if ($formaction == 'print') {
-                                 $list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]);                         
+                                 $list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]); 
                            }
                            else {                                              
-                                $list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]);                                               
+                                $list->printSubTitle($row[1], $row[2], $roundName, $row_res[24]);   
                            }
                             
                         }   
@@ -1648,7 +1649,7 @@ else {
                             
                 $nr=0;
                         
-                         $title = trim($title);     
+                $title = trim($title);     
                  
                 if($row_res[0] != $id)    // athlete not processed yet
                 {  
@@ -1708,7 +1709,8 @@ else {
                         if ($athleteCat && !$relay){                         
                           if($formaction == 'print') {   
                                 if ($row_res[20]!=$atCatName){                        
-                                          $list->printSubTitle($row_res[20], $row2_keep, $roundName, $row_res[24]);                                    
+                                        $list->printSubTitle($row_res[20], $row2_keep, $roundName, $row_res[24]);  
+                                          
                                        $atCatName_keep=$atCatName; 
                                        if ($flagInfoLine1){   
                                         $list->printInfoLine($info_save1);
@@ -1722,7 +1724,7 @@ else {
                               }                            
                            }     
                        
-                           $list->startList();  
+                       //  $list->startList();  
                             
                         if ($saison == "I"){
                             $heatwind = '';
@@ -1730,12 +1732,12 @@ else {
                         
                         
                        $list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval, $withStartnr);
-                        
+                      
                           
                          if ($athleteCat && !$relay){                         
                             if($formaction == 'view') {
                                  if ($row_res[20]!=$atCatName){                        
-                                              $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);                                    
+                                           $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);                                                  
                                            
                                            $atCatName_keep=$atCatName;
                                            if ($flagInfoLine1){   
@@ -2097,7 +2099,7 @@ else {
                     }
                     
                     $list->printLine($count_show, $name, $year, $row_res[8], $perf, $wind, $points, $qual, $ioc, $sb, $pb,$qual_mode,$athleteCat,$remark, '', $withStartnr, $row_res[25]);
-                 
+                   
                     if($secondResult){
                         $list->printLine("","","","",$perf2,$wind2,"","","","","",$qual_mode,"","", $secondResult);
                     }
