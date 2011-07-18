@@ -62,6 +62,8 @@ if(!empty($category)) {		// show every category
 // evaluation per category      
 
 mysql_query("DROP TABLE IF EXISTS tempresult");
+mysql_query("DROP TABLE IF EXISTS sheet_tmp");     
+  
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -204,16 +206,18 @@ function AA_sheets_processSingle($xCategory, $category)
            
 			// single events
 			// -------------    
-            $sql = "
-                SELECT
-                    d.Name
-                    , d.Typ
+           
+            
+                        
+              $query_tmp="CREATE TEMPORARY TABLE sheet_tmp SELECT  
+                    d.Name AS dName
+                    , d.Typ AS dTyp
                     , at.Name
                     , at.Vorname
                     , at.Jahrgang
-                    , MAX(r.Leistung)
-                    , r.Info
-                    , MAX(r.Punkte) AS pts
+                    , r.Leistung
+                    , IF(d.Typ = 6 && r.info = '-','XXX', r.info) AS info 
+                    , r.Punkte AS pts
                     , w.Typ
                     , s.Wind
                     , w.Windmessung
@@ -221,6 +225,8 @@ function AA_sheets_processSingle($xCategory, $category)
                     , at.Geschlecht
                     , ss.Bemerkung
                     , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land 
+                    , st.xStart
+                    , d.Anzeige    
                 FROM
                     anmeldung AS a
                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
@@ -235,13 +241,44 @@ function AA_sheets_processSingle($xCategory, $category)
                 WHERE 
                     w.xMeeting = " . $_COOKIE['meeting_id'] ."
                     AND w.xKategorie = $xCategory                    
-                    AND a.xTeam = " . $team['xTeam'] . "                 
-                    AND r.Info != '$cfgResultsHighOut'   
-                GROUP BY
-                    st.xStart
+                    AND a.xTeam = " . $team['xTeam'] . "   
                 ORDER BY
                     d.Anzeige
-                    , pts DESC";         
+                    , pts DESC";        
+                     
+            $results = mysql_query($query_tmp);      
+           
+            if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+            else {
+                   $sql = "
+                SELECT
+                    t.dName
+                    , t.dTyp
+                    , t.Name
+                    , t.Vorname
+                    , t.Jahrgang
+                    , MAX(t.Leistung)
+                    , t.Info
+                    , MAX(t.pts) AS pts
+                    , t.Typ
+                    , t.Wind
+                    , t.Windmessung
+                    , t.Code
+                    , t.Geschlecht
+                    , t.Bemerkung
+                    , t.Land   
+                FROM
+                    sheet_tmp AS t  
+                WHERE                      
+                     t.info != '$cfgResultsHighOut'                     
+                GROUP BY
+                    t.xStart
+                ORDER BY
+                    t.Anzeige
+                    , pts DESC";   
+            }     
             
             $results = mysql_query($sql);      
            
@@ -946,6 +983,8 @@ function AA_sheets_processSingle($xCategory, $category)
 			}
 
 			mysql_query("DROP TABLE IF EXISTS tempresult");
+            mysql_query("DROP TABLE IF EXISTS sheet_tmp");               
+            
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
@@ -1282,8 +1321,7 @@ function AA_sheets_printRelayAthletes($relay)
 		mysql_free_result($at_res);
 	}
 }
-
-
+             
 
 
 }	// AA_RANKINGLIST_SHEET_LIB_INCLUDED
