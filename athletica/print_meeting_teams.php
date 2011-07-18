@@ -126,7 +126,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 				ORDER BY
 					at.Name
 					, at.Vorname
-			");
+			");                
+           
 		}
 		else									 // Print discipline list
 		{
@@ -153,7 +154,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                     d.Anzeige
                     , at.Name
                     , at.Vorname";     
-          
+           
             $list_res = mysql_query($sql);      
 		}      
 
@@ -245,6 +246,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                 , s.Name
                 , d.Kurzname
                 , d.Name
+                , s.Startnummer
             FROM
                 staffel AS s
                 LEFT JOIN start AS st ON (st.xStaffel = s.xStaffel)   
@@ -253,7 +255,7 @@ else if(mysql_num_rows($result) > 0)  // data found
             WHERE s.xTeam = $row[0] 
             ORDER BY
                 d.Anzeige";        
-        
+         
         $rel_res = mysql_query($sql);      
 
 		if(mysql_errno() > 0)		// DB error
@@ -271,7 +273,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 				}
 				$r++;
 				if($_GET['list'] == 'team') {	// athlete list
-					$doc->printLine('', $rel_row[1], '', $rel_row[2]);
+					$doc->printLine($rel_row[4], $rel_row[1], '', $rel_row[2]);
 				}
 				else {		// discipline list
 					$doc->printLine($rel_row[3], '', $rel_row[1], '');
