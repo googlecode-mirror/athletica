@@ -95,12 +95,13 @@ if($_GET['arg'] == 'backup')
 	{
 		if(mysql_num_rows($result) > 0)	// any table
 		{
-			// print http header
+			
+            // print http header
 			header('Content-type: application/octetstream');
 			header('Content-Disposition: inline; filename="'. $filename . '"');
 			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 			header('Pragma: public');
-
+           
 			echo "$idstring";
 			echo "# Database Dump:\n";
 			echo "# Date/time: " . date("d.M.Y, H:i:s") . "\n";
@@ -318,7 +319,7 @@ else if ($_POST['arg'] == 'restore')
 		}else{
 			$shortVersion = substr($backupVersion, 0, 3);            
 		}
-        
+       
 		if($shortVersion >= 4.0 && $shortVersion <= 4.1){
             ?>
                 <tr>
@@ -329,7 +330,8 @@ else if ($_POST['arg'] == 'restore')
             </tr>
             <?php
             return;
-        }   
+        }  
+         
 		// since version 1.9 the backup contains a termination line
 		if($shortVersion >= 1.9){
 			$term = substr($content, -9);
@@ -2233,11 +2235,27 @@ else if ($_POST['arg'] == 'restore')
                   mysql_query("UPDATE disziplin_it SET Code = 406 , Anzeige = 419 WHERE Code = 423");   
                   
                   mysql_query("ALTER TABLE athlet CHANGE Name Name varchar(50)");  
-                  mysql_query("ALTER TABLE athlet CHANGE Vorname Vorname varchar(50)");                      
-                                       
-                                                                                                             
-                                     
+                  mysql_query("ALTER TABLE athlet CHANGE Vorname Vorname varchar(50)");   
+                                                                                                              
+                 
              }   
+             
+            if ($shortVersion < 5.1){
+                  mysql_query("UPDATE disziplin_de SET Typ = 2 WHERE Code = 796");
+                  mysql_query("UPDATE disziplin_de SET Typ = 4 WHERE Code = 797");  
+                  mysql_query("UPDATE disziplin_de SET Typ = 8 WHERE Code = 798");  
+                  
+                  mysql_query("UPDATE disziplin_fr SET Typ = 2 WHERE Code = 796");
+                  mysql_query("UPDATE disziplin_fr SET Typ = 4 WHERE Code = 797");  
+                  mysql_query("UPDATE disziplin_fr SET Typ = 8 WHERE Code = 798");  
+                  
+                  mysql_query("UPDATE disziplin_it SET Typ = 2 WHERE Code = 796");
+                  mysql_query("UPDATE disziplin_it SET Typ = 4 WHERE Code = 797");  
+                  mysql_query("UPDATE disziplin_it SET Typ = 8 WHERE Code = 798");    
+                  
+                  mysql_query("DELETE FROM kategorie WHERE Code = 'U12X'");   
+                
+            } 
 			// security updates
 			mysql_query("UPDATE kategorie 
 							SET Code = 'U10M' 
