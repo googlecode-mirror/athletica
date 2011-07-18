@@ -1223,6 +1223,27 @@ require('./config.inc.php');
 	</table>
 <?php
 	}
+    
+    /**
+     * Drop-down list Category, with auto-update
+     *        arg. 1 = category ID
+     *        arg. 2 = teams only
+     *
+     */
+    function AA_printCategorySvmSelectionDropDown($cat_svm, $category)
+    {
+        require('./lib/cl_gui_dropdown.lib.php');
+?>
+    <table>
+        <tr>
+            <th class='dialog'><?php echo $GLOBALS['strSvmCategory']; ?></th>
+<?php
+        $dd = new GUI_CategorySvmDropDown($cat_svm, 'document.cat_svm_selection.submit()', $category);
+?>
+        </tr>
+    </table>
+<?php
+    }
 
 
 	/**
@@ -1255,13 +1276,34 @@ require('./config.inc.php');
 	{
 ?>
 <form action='<?php echo $form_action; ?>' method='post' name='cat_selection'>
-	<input name='club' type='hidden' value='<?php echo $club; ?>' />
+	<input name='club' type='hidden' value='<?php echo $club; ?>' /> 
 <?php
 		AA_printCategorySelectionDropDown($category, $teams);
 ?>
-</form>
+</form> 
 <?php
 	}
+    
+    /**
+     * Category SVM selection on entry form
+     *        arg. 1 = form_action
+     *        arg. 2 = category ID
+     *        arg. 3 = club ID
+     *        arg. 2 = team events only
+     */
+    function AA_printCategorySvmEntries($form_action, $cat_svm, $category, $club, $teams=FALSE)
+    {
+?>
+<form action='<?php echo $form_action; ?>' method='post' name='cat_svm_selection'>
+    <input name='club' type='hidden' value='<?php echo $club; ?>' />
+    <input name='category' type='hidden' value='<?php echo $category; ?>' />    
+    <input name='category_svm' type='hidden' value='<?php echo $cat_svm; ?>' />     
+<?php
+        AA_printCategorySvmSelectionDropDown($cat_svm, $category, $teams);
+?>
+</form>
+<?php
+    }
 
 
 
