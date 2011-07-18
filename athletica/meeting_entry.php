@@ -25,6 +25,8 @@ if(AA_checkMeetingID() == FALSE) {        // no meeting selected
     return;        // abort
 }
 
+$ukc_meeting = AA_checkMeeting_UKC() ;  
+
 $manual_club = '';
 
 //
@@ -347,6 +349,9 @@ if ($_POST['arg']=="change")
                     }
               }
             
+        }
+        else {
+               $xCat = $_POST['category'];
         }
         
         $sqlSex = "";
@@ -2094,11 +2099,24 @@ else {
                 <input name='item' type='hidden' value='<?php echo $row[0]; ?>' />
                 <input name='xathlete' type='hidden' value='<?php echo $row[3]; ?>' />
     <?php
+            
+             if ($_POST['club']=="new") {
+            ?>
+           <td class='forms'> <input class='text' name='clubNewText' type='text'
+            maxlength='25' value=''
+            onChange='document.data_club.submit()'<?php echo $dis; ?>/> </td>
+            <input name='newClub' type='hidden' value='newClub' />  
+        <?php 
+        }
+        else
+            {
+            
             $clubSelected=$row[9];
             if (!empty($_POST['clubNewText'])) {      
                 $clubSelected=$_POST['xVerein'];
             }  
-            $dd = new GUI_ClubDropDown($clubSelected, true, 'document.data_club.submit()', $dis2, false, $manual_club);      
+            $dd = new GUI_ClubDropDown($clubSelected, true, 'document.data_club.submit()', $dis2, false, $manual_club);  
+            }    
             ?> 
               </form>        
          
