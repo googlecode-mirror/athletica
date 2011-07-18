@@ -107,6 +107,9 @@ if (isset($_POST['arg']) && $_POST['arg']=="add")
 		else if ($_POST['saison']==""){
 			AA_printErrorMsg($strSaison . $strErrNotValid);
 		} 
+        else if ($_POST['ukc']=="-"){
+            AA_printErrorMsg($strEventType . $strErrNotValid);
+        } 
 		else if ($_POST['arg']=="add")
 		{
 			mysql_query("
@@ -270,7 +273,7 @@ while ($row = mysql_fetch_array($result))
 		<td><?php echo $row['Stadion']; ?></td>
 		<td><?php echo $row['DatumVon']; ?></td>
 		<td><?php echo $row['DatumBis']; ?></td>
-		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td
+		<td><?php if ($row['Saison']=="I"){ echo "Indoor";} if ($row['Saison']=="O"){ echo "Outdoor";}?></td>
         <td><?php if ($row['UKC']=="y"){ echo $strUKC;} else {echo $strMeetingTitle; }?></td>
 		<td>
 		<?php
