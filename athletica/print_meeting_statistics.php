@@ -124,7 +124,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
                      
  mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table    
-                         
+                           
  $query_tmp="CREATE TEMPORARY TABLE result_tmp SELECT  
                                             MIN(r.Startzeit) AS Startzeit, 
                                             r.xWettkampf, 
@@ -193,7 +193,8 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
             mysql_query("DROP TABLE IF EXISTS result_tmp2");    // temporary table    
             
             // read all events (incl. relays) without combined event and save in temporary table 
-            //
+            //              
+            
             $query_tmp2="CREATE TEMPORARY TABLE result_tmp2 SELECT
                             k.Name as kName
                             , d.Name as dName
@@ -550,7 +551,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
     // read all starts per club and add fee and deposit    
    
     mysql_query("DROP TABLE IF EXISTS result_tmp1");    // temporary table     
-                         
+                               
     mysql_query("CREATE TEMPORARY TABLE result_tmp1(              
                               clubnr int(11)
                               , club varchar(30)
@@ -880,24 +881,24 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             , t.Startzeit
                             , SUM(if ((r.Status=4 OR r.Status=3) AND s.Anwesend=0,1,0)) as started 
                             , SUM(s.Anwesend) as anwesend
-                            , SUM(if ((r.Status=4 OR r.Status=3) AND s.Anwesend=0,0,wettkampf.Haftgeld) )  AS Haftgeld   
-                            , SUM(wettkampf.Startgeld) AS Startgeld
+                            , SUM(if ((r.Status=4 OR r.Status=3) AND s.Anwesend=0,0,w.Haftgeld) )  AS Haftgeld   
+                            , SUM(w.Startgeld) AS Startgeld
                             , count(s.xWettkampf) as enrolement
-                            , wettkampf.mehrkampfcode
+                            , w.mehrkampfcode
                             , r.status
                             , StartgeldReduktion
                             , v.Sortierwert
-                            , wettkampf.xKategorie
+                            , w.xKategorie
                             , k.kurzname
                             , k.Anzeige
                             , k.Alterslimite
                             , st.xKategorie     
                       FROM
                             start as s
-                            INNER JOIN disziplin_" . $_COOKIE['language'] . " as d on (d.xDisziplin = wettkampf.xDisziplin)
-                            INNER JOIN staffel st ON (st.xStaffel = s.xStaffel) 
-                            INNER JOIN wettkampf ON (s.xWettkampf = wettkampf.xWettkampf) 
-                            INNER JOIN meeting ON (wettkampf.xMeeting = meeting.xMeeting) 
+                            INNER JOIN wettkampf AS w ON (s.xWettkampf = w.xWettkampf)  
+                            INNER JOIN disziplin_" . $_COOKIE['language'] . " as d on (d.xDisziplin = w.xDisziplin)
+                            INNER JOIN staffel st ON (st.xStaffel = s.xStaffel)                              
+                            INNER JOIN meeting AS m ON (w.xMeeting = m.xMeeting) 
                             LEFT JOIN verein AS v ON (st.xVerein=v.xVerein) 
                             LEFT JOIN runde AS r ON (r.xWettkampf = s.xWettkampf) 
                             LEFT JOIN result_tmp as t ON (s.xWettkampf = t.xWettkampf) 
@@ -1061,10 +1062,11 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
      $doc->printTotalLineTax($strTotal, '', '', '', $assTaxTotal,3); 
           
     mysql_free_result($result);
-
+   
     mysql_query("DROP TABLE IF EXISTS result_tmp"); 
     mysql_query("DROP TABLE IF EXISTS result_tmp1");  
     mysql_query("DROP TABLE IF EXISTS result_tmp2");  
+    
     
 $doc->endList();
 $doc->endPage();    // end HTML page
