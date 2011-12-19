@@ -695,30 +695,7 @@ if($i == 0){	// no rounds here
 	<?php
 }else{
 	// select any other rounds in same discipline but not current event
-	$mRounds = array();
-	/*$res = mysql_query("SELECT
-				k.Name
-				, rt.Name
-				, rs.xRundenset
-				, rs.Hauptrunde
-				, ru.xRunde
-				, TIME_FORMAT(ru.Startzeit, '$cfgDBtimeFormat')
-			FROM
-				wettkampf AS w
-				, runde AS ru
-				, rundentyp AS rt
-				, kategorie AS k
-				LEFT JOIN rundenset AS rs ON (rs.xRunde = ru.xRunde)
-			WHERE
-				w.xMeeting = ".$_COOKIE['meeting_id']."
-			AND	ru.xWettkampf = w.xWettkampf
-			AND	rt.xRundentyp = ru.xRundentyp
-			AND	k.xKategorie = w.xKategorie
-			AND	w.xWettkampf != $event
-			AND	w.xDisziplin = ".$xDiscipline."
-			ORDER BY
-				k.Anzeige
-			");*/
+	$mRounds = array();	
 			
 	$sql = "SELECT  k.Name
 				  , rt.Name
@@ -726,6 +703,7 @@ if($i == 0){	// no rounds here
 				  , rs.Hauptrunde
 				  , ru.xRunde
 				  , TIME_FORMAT(ru.Startzeit, '".$cfgDBtimeFormat."') 
+                  , w.Info
 			  FROM 
 			  	   wettkampf AS w 
 		 LEFT JOIN runde AS ru USING(xWettkampf) 
@@ -780,7 +758,7 @@ if($i == 0){	// no rounds here
 					?>
 					<tr>
 						<td class="dialog"><?php echo $mr[1]." (".$mr[5].")" ?></td>
-						<td class="dialog"><?php echo $mr[0] ?></td>
+						<td class="dialog"><?php echo $mr[0] ." (" . $mr[6] . ") "?></td>
 						<td class="forms">
 							<?php
 							if(intval($mr[2]) == intval($round[4]) && intval($round[4]) > 0){
@@ -803,7 +781,7 @@ if($i == 0){	// no rounds here
 						?>
 						<tr>
 							<td class="dialog"><?php echo $mr[1]." (".$mr[5].")" ?></td>
-							<td class="dialog"><?php echo $mr[0] ?></td>
+							<td class="dialog"><?php echo $mr[0] ." (" . $mr[6] . ") "?></td>
 							<td class="dialog"><?php
 							if($mr[3] > 0){
 								echo $strMergeMain;
