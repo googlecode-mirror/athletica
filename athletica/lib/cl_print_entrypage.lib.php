@@ -959,5 +959,117 @@ class PRINT_ReceiptEntryPage extends PRINT_Page
 
 } // end PRINT_EntryPage
 
+/********************************************
+ *
+ * PRINT_ClubEntryPayedPage
+ *
+ *    Class to print entry lists per club
+ *
+ *******************************************/
+
+
+class PRINT_ClubEntryPayedPage extends PRINT_EntryPage
+{
+    function printHeaderLine($max_count = 2)
+    {
+        if(($this->lpp - $this->linecnt) < 16)        // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+        }
+?>
+    <tr>
+        <th class='entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
+        <th class='entry_name'><?php echo $GLOBALS['strName']; ?></th>
+        <th class='entry_year'><?php echo $GLOBALS['strYearShort']; ?></th>        
+        <th class='entry_cat'><?php echo $GLOBALS['strCategoryShort']; ?></th>        
+        <th class='entry_disc' colspan="<?php echo $max_count; ?>"><?php echo $GLOBALS['strPayedShort'] . " / " . $GLOBALS['strDisciplines']; ?></th>
+    </tr>
+<?php
+        $this->linecnt++;
+    }
+
+
+    function printLine($nbr, $name, $year, $cat, $disc, $len)
+    {   $len = $len -1;
+    
+        if(($this->lpp - $this->linecnt) < 15)        // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+            $this->printHeaderLine();
+        }        
+   
+        $i = 0;
+        $c = 0;
+        
+        // print more lines if disciplines more than 5 (5 disciplines per line)
+         while ($len > 0){
+             $pos = strpos($disc, "</td>");
+             if ($i % 10 == 0){                
+               $c++;
+             }
+             $pos = $pos+5;
+             $arr_disc[$c] .= substr($disc, 0, $pos);
+             $disc = substr($disc, $pos);
+             $i++;
+             $len -= 1;
+         }
+         
+        foreach ($arr_disc as $key => $val){
+            
+            if ($key == 1){
+             ?>
+            <tr>
+                <td class='entry_nbr'><?php echo $nbr; ?></td>
+                <td class='entry_name'><?php echo $name; ?></td>
+                <td class='entry_year'><?php echo $year; ?></td>       
+                <td class='entry_cat'><?php echo $cat; ?></td>
+                <?php echo $val; ?>
+            </tr>
+            <?php
+            }
+            else {
+                 ?>
+                <tr>  
+                    <td class='entry_nbr' colspan="4"></td>             
+                    <?php echo $val; ?>
+                </tr>
+                <?php
+            }
+        }
+  
+        // count more lines if more than 4 disziplines
+        
+        if($len > 10){
+            $this->linecnt += 2;
+        }else{
+            $this->linecnt++;
+        }        
+    }
+    
+    function printSubTitle($title)
+    {
+        if(($this->lpp - $this->linecnt) < 9)        // page break check
+        {
+            printf("</table>");
+            $this->insertPageBreak();
+            printf("<table>");
+        }
+        $this->linecnt = $this->linecnt + 2;    // needs 2 lines (see style sheet)
+?>
+        <div class='hdr2'><?php echo $title; ?></div>
+        
+<?php
+    }
+    
+    
+    
+
+} // end PRINT_ClubEntryPage
+
+
 } // end AA_CL_PRINT_ENTRYPAGE_LIB_INCLUDED
 ?>

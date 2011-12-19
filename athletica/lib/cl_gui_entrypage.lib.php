@@ -87,7 +87,7 @@ class GUI_EntryPage extends GUI_ListPage
 	function printSubTitle($title)
 	{   
 		?>
-<h2><?php echo $title; ?></h2>
+<h2><?php echo $title; ?></h2> 
 		<?php
 	}
 
@@ -150,13 +150,14 @@ class GUI_ClubEntryPage extends GUI_EntryPage
 {
 	function printHeaderLine()
 	{
+        
 ?>
 	<tr>
 		<th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strDisciplines']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strDisciplines']; ?></th>
 	</tr>
 <?php
 	}
@@ -302,6 +303,62 @@ class GUI_ClubCatDiscEntryPage extends GUI_EntryPage
 	}
 
 } // end GUI_GUI_ClubCatDiscEntryPage
+
+
+/********************************************
+ *
+ * GUI_ClubEntryPayedPage
+ *
+ *    Class to print entry lists per club
+ *
+ *******************************************/
+
+
+class GUI_ClubEntryPayedPage extends GUI_EntryPage
+{
+    
+    function printSubTitle($title, $ckb_club)
+    {   
+      
+        ?>
+<table><tr><td><h2><?php  echo  $title; ?> </h2> </td><td><?php echo   $ckb_club .  "( ". $GLOBALS['strPayedClub'] .")" ; ?></td></tr></table> 
+        <?php
+    }
+    
+    
+    function printHeaderLine($max_count = 2)
+    {
+        $max_count = $max_count * 2;
+?>
+    <tr>
+        <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strYearShort']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th>        
+        <th class='dialog' colspan="<?php echo $max_count; ?>"><?php echo $GLOBALS['strPayedShort'] . " / " . $GLOBALS['strDisciplines']; ?></th>
+    </tr>
+<?php
+    }
+
+
+    function printLine($nbr, $name, $year, $cat, $disc)
+    {  
+       
+?>
+    <tr class='<?php echo $this->rowclass[0]; ?>'>
+        <td class='forms_right'><?php echo $nbr; ?></td>
+        <td><?php echo $name; ?></td>
+        <td class='forms_ctr'><?php echo $year; ?></td>
+        <td><?php echo $cat; ?></td>
+        <?php echo $disc; ?>
+       
+    </tr>
+<?php
+        $this->switchRowClass();
+    }
+
+} // end GUI_ClubEntryPage
+
 
 } // end AA_CL_GUI_ENTRYPAGE_LIB_INCLUDED
 ?>
