@@ -124,7 +124,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
 
                      
  mysql_query("DROP TABLE IF EXISTS result_tmp");    // temporary table    
-                           
+                      
  $query_tmp="CREATE TEMPORARY TABLE result_tmp SELECT  
                                             MIN(r.Startzeit) AS Startzeit, 
                                             r.xWettkampf, 
@@ -190,16 +190,16 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                 }  
              }         
               
-            mysql_query("DROP TABLE IF EXISTS result_tmp2");    // temporary table    
+            mysql_query("DROP TABLE IF EXISTS result_tmp3");    // temporary table    
             
             // read all events (incl. relays) without combined event and save in temporary table 
             //              
-            
-            $query_tmp2="CREATE TEMPORARY TABLE result_tmp2 SELECT
+            //
+            $query_tmp3="CREATE TEMPORARY TABLE result_tmp3 SELECT DISTINCT
                             k.Name as kName
                             , d.Name as dName
-                            , IF(s.xWettkampf IS NULL,0,COUNT(*))  as enrolment                             
-                            , SUM(s.Anwesend) as present
+                            , s.xWettkampf                             
+                            , s.Anwesend
                             , IF(w.Mehrkampfcode > 0, dd.Name,w.Info) as DiszInfo
                             , wk.Name   
                             , IF(s.xAnmeldung > 0, an.xKategorie, st.xKategorie) AS Cat
@@ -210,7 +210,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             , d.Anzeige As dAnzeige 
                             , k.Kurzname
                             , wk.Anzeige As wkAnzeige 
-                            , w.Typ                          
+                            , w.Typ                            
                     FROM
                             disziplin_" . $_COOKIE['language'] . " AS d
                             LEFT JOIN wettkampf AS w ON (d.xDisziplin= w.xDisziplin )
@@ -232,9 +232,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             AND ((d.Staffellaeufer = 0
                                     AND s.xAnmeldung > 0)
                                             OR (d.Staffellaeufer > 0
-                                             AND s.xStaffel > 0))
-                    GROUP BY
-                            Cat, s.xWettkampf
+                                             AND s.xStaffel > 0))                    
                     ORDER BY
                               k.Anzeige
                             , k.Kurzname DESC
@@ -247,18 +245,56 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             ,r.Datum
                              ";      
            
-            $res_tmp2 = mysql_query($query_tmp2); 
+            $res_tmp3 = mysql_query($query_tmp3); 
+                               
+            mysql_query("DROP TABLE IF EXISTS result_tmp2");    // temporary table    
+            
+            $query_tmp2="CREATE TEMPORARY TABLE result_tmp2 SELECT 
+                            t.kName
+                            , t.dName
+                            , IF(t.xWettkampf IS NULL,0,COUNT(*)) as enrolment 
+                            , SUM(t.Anwesend) as present                             
+                            , t.Anwesend
+                            , t.DiszInfo
+                            , t.Name   
+                            , t.Cat
+                            , t.Mehrkampfcode
+                            , t.Status                               
+                            , t.xAnmeldung 
+                            , t.kAnzeige
+                            , t.dAnzeige 
+                            , t.Kurzname
+                            , t.wkAnzeige 
+                            , t.Typ         
+                    FROM                           
+                            result_tmp3 as t 
+                    
+                    GROUP BY
+                            Cat, t.xWettkampf
+                    ORDER BY
+                              t.kAnzeige
+                            , t.Kurzname DESC
+                            , t.Typ
+                            , t.Mehrkampfcode 
+                            , t.wkAnzeige
+                             ";      
+               
+              $res_tmp2 = mysql_query($query_tmp2); 
+                                 
+              if(mysql_errno() > 0)        // DB error
+                {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }  
+                
                 
             // read all combined events and save in temporary table 
             $sql_mk=" SELECT DISTINCT k.Name ,   
                             s.Anwesend , 
                             dd.Name as DiszInfo , 
-                            wk.Name , 
-                           
+                            wk.Name ,                            
                             an.xKategorie AS Cat ,                              
                             w.Mehrkampfcode , 
-                            r.Status ,
-                            
+                            r.Status ,                            
                             an.xAnmeldung 
                             ,k.Anzeige
                             ,d.Anzeige
@@ -266,12 +302,11 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             , wk.Anzeige
                             , w.Typ
                      FROM 
-                            disziplin_" . $_COOKIE['language'] . " AS d , 
+                            disziplin_" . $_COOKIE['language'] . " AS d  
                             LEFT JOIN wettkampf AS w ON (d.xDisziplin= w.xDisziplin )
                             LEFT JOIN kategorie AS wk ON (wk.xKategorie = w.xKategorie)     
                             LEFT JOIN start AS s ON (w.xWettkampf = s.xWettkampf) 
-                            LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung) 
-                           
+                            LEFT JOIN anmeldung AS an ON (s.xAnmeldung = an.xAnmeldung)                            
                             LEFT JOIN kategorie AS k ON ( k.xKategorie = an.xKategorie) 
                             LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dd ON (w.Info = dd.Kurzname) 
                             LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
@@ -286,7 +321,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             ";
                                                                                                          
             $res_mk = mysql_query($sql_mk);  
-           
+          
             $cEnrol=0; 
             $cPresent=0;  
             $statusStarted=0; 
@@ -1066,6 +1101,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
     mysql_query("DROP TABLE IF EXISTS result_tmp"); 
     mysql_query("DROP TABLE IF EXISTS result_tmp1");  
     mysql_query("DROP TABLE IF EXISTS result_tmp2");  
+    mysql_query("DROP TABLE IF EXISTS result_tmp3");
     
     
 $doc->endList();
