@@ -11,8 +11,11 @@ if (!defined('AA_RANKINGLIST_SHEET_LIB_INCLUDED'))
 	define('AA_RANKINGLIST_SHEET_LIB_INCLUDED', 1);
 
 
-function AA_rankinglist_Sheets($category, $event, $formaction, $cover, $cover_timing=false, $heatSeparate)
+function AA_rankinglist_Sheets($category, $event, $formaction, $cover, $cover_timing=false, $heatSeparate, $catFrom,$catTo,$discFrom,$discTo)
 {  
+   // $heatSeparate=true (always show heat separate)
+  $heatSeparate = true;
+    
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
 
@@ -40,10 +43,12 @@ else {
 	}
 }
 $selection = ''; 
-if ($event!='')
+if ($event!=''){
     $mergedCat=AA_mergedCatEvent($category, $event);  
-else
+}
+else {
     $mergedCat=AA_mergedCat($category);   
+}
 
 if(!empty($category)) {		// show every category  
     if ($mergedCat=='') {
@@ -59,6 +64,31 @@ if(!empty($category)) {		// show every category
     }
 }
 
+if($catFrom > 0) {    //         
+     $getSortCat=AA_getSortCat($catFrom,$catTo);
+     if ($getSortCat[0]) {
+         if ($catTo > 0){
+            $selection = " AND k.Anzeige >=" . $getSortCat[$catFrom] . " AND k.Anzeige <=" . $getSortCat[$catTo];
+        }     
+        else {
+            $selection = " AND k.Anzeige =" . $getSortCat[$catFrom];
+        }
+     }
+}
+
+
+if($discFrom > 0) {    //          
+     $getSortDisc=AA_getSortDisc($discFrom, $discTo);
+     if ($getSortDisc[0]) {
+         if ($discTo > 0){
+            $selection2 .= " AND d.Anzeige >=" . $getSortDisc[$discFrom] . " AND d.Anzeige <=" . $getSortDisc[$discTo];
+        }     
+        else {
+            $selection2 .= " AND d.Anzeige =" . $getSortDisc[$discFrom];
+        }
+     }
+} 
+
 // evaluation per category      
 
 mysql_query("DROP TABLE IF EXISTS tempresult");
@@ -69,24 +99,23 @@ if(mysql_errno() > 0) {		// DB error
 }
 
     
-$results = mysql_query("
-	SELECT
-	  	k.xKategorie
-	  	, k.Name
-		, w.Typ
-  	FROM
-	  	kategorie AS k
-	  	LEFT JOIN wettkampf AS w ON (k.xKategorie = w.xKategorie)
-  	WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."   	
-	" . $selection . "    
-    " // AND w.Typ >=  " . $cfgEventType[$strEventTypeClubMA] ."        // old svm
-  	." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."  
+$sql = "SELECT
+          k.xKategorie
+          , k.Name
+        , w.Typ
+      FROM
+          kategorie AS k
+          LEFT JOIN wettkampf AS w ON (k.xKategorie = w.xKategorie)
+      WHERE w.xMeeting = " . $_COOKIE['meeting_id'] ."       
+    " . $selection 
+      ." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."  
     GROUP BY
-		k.xKategorie
-	ORDER BY
-		k.Anzeige
-");  
- 
+        k.xKategorie
+    ORDER BY
+        k.Anzeige";
+    
+ $results = mysql_query($sql);
+
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -106,7 +135,7 @@ else
 		// Team sheet: Single
 		else
 		{  
-			AA_sheets_processSingle($row[0], $row[1]);
+			AA_sheets_processSingle($row[0], $row[1], $selection2);
 		}
 
 	}
@@ -122,7 +151,7 @@ $GLOBALS[$list]->endPage();	// end HTML page for printing
 //	process club single events
 //
 
-function AA_sheets_processSingle($xCategory, $category)
+function AA_sheets_processSingle($xCategory, $category, $selection2)
 {  
 	require('./config.inc.php');
 
@@ -242,12 +271,13 @@ function AA_sheets_processSingle($xCategory, $category)
                     w.xMeeting = " . $_COOKIE['meeting_id'] ."
                     AND w.xKategorie = $xCategory                    
                     AND a.xTeam = " . $team['xTeam'] . "   
+                      " . $selection2 . "    
                 ORDER BY
                     d.Anzeige
                     , pts DESC";        
                      
-            $results = mysql_query($query_tmp);      
-           
+            $results = mysql_query($query_tmp);     
+                      
             if(mysql_errno() > 0) {        // DB error
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
             }
@@ -324,7 +354,7 @@ function AA_sheets_processSingle($xCategory, $category)
 						switch($pt_row[8]) {
 							case $cfgEventType[$strEventTypeSVMNL]: // new national league mode since 2007
 												// simply 2 athletes per disc and 1 relay
-								$a = 2;
+								$a = 1;
 								break;
 							case $cfgEventType[$strEventTypeClubBasic]:
 								$a = 1;
@@ -605,6 +635,7 @@ function AA_sheets_processSingle($xCategory, $category)
                     w.xMeeting = " . $_COOKIE['meeting_id'] ."
                     AND w.xKategorie = $xCategory  
                     AND st.xTeam = " . $team['xTeam'] . "
+                       " . $selection2 . "    
                 GROUP BY
                     s.xStart
                 ORDER BY
