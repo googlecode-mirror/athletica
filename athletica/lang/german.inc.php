@@ -845,4 +845,15 @@ $strErrDisUkc = "In einem UBS Kids Cup Meeting können keine eigenen Disziplinen 
 $strOnlineRegInfo2 = '<b>Wichtig:</b> Spielen Sie kurz vor dem Meeting nochmals ein aktuelles XML-File ein.';  
 $strVersionForbidden = "Einspielen einer Sicherungsdatei der Athletica Version 4.0 bis 4.1 ist aus Kompatibilititätsgründen nicht frei gegeben.";
 
+$strCountImportUKC = "Anzahl Anmeldungen: ";
+
+$strPreviousSeasonBest = "Vorjahreszeit";
+$strPayedAll = "Disziplinen alle bezahlt";
+$strPayedPart = "Disziplinen teilw. bezahlt";
+$strPayedNo = "Disziplinen unbezahlt";
+$strPaymentControl = "Startgeld Kontrolle";
+$strPayedShort = "Bez";
+$strPayedClub = "Bezahlt gesamter Verein";
+
+
 ?>
