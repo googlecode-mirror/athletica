@@ -557,10 +557,14 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
                    
                     $bestMK =$row[1];           // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
                     
+                   // $previousSeasonBestMK =$row[0];         // base_performance feld wird von alabus noch defniniert im 2012
+                    $previousSeasonBestMK = 0;         // base_performance feld wird von alabus noch defniniert im 2012
+                    
                     mysql_query("UPDATE 
                                     anmeldung 
                                 SET 
                                     BestleistungMK = '".$bestMK."' 
+                                    , VorjahrLeistungMK = '".$previousSeasonBestMK."' 
                                     , BaseEffortMK = 'y'
                                 WHERE 
                                     xAnmeldung = ".$_POST['item']);
@@ -569,6 +573,7 @@ else if ($_POST['arg']=="add_event" || $_POST['arg']=="add_combined")
                                     anmeldung 
                                 SET 
                                     BestleistungMK = 0 
+                                    , VorjahrLeistungMK = 0 
                                     , BaseEffortMK = 'y'
                                 WHERE 
                                     xAnmeldung = ".$_POST['item']);

@@ -405,6 +405,8 @@ if($round > 0)
 						, a.BestleistungMK
 						, IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
                         , r.xRunde  
+                        , st.VorjahrLeistung
+                        , a.VorjahrLeistungMK
 					FROM
 						runde AS r
 					LEFT JOIN 
@@ -431,7 +433,7 @@ if($round > 0)
                           heatid  ".$order ."
 						, ss.Position ASC;";
 			$query = $sql;
-              
+           
 		}
 		else {								// relay event
 			/*$query = ("SELECT r.Bahnen"
@@ -480,7 +482,8 @@ if($round > 0)
 						, LPAD(s.Bezeichnung, 5, '0') as heatid
 						, ss.Bahn
 						, s.Film
-						, sf.Startnummer 						
+						, sf.Startnummer 
+                        , st.VorjahrLeistung						
 					FROM
 						runde AS r
 					LEFT JOIN 
@@ -502,7 +505,8 @@ if($round > 0)
 					ORDER BY                             
 						  heatid ".$order ."  
 						, ss.Position ASC;";
-			$query = $sql;        
+			$query = $sql;   
+            
 		}
        
 		$result = mysql_query($query);
@@ -655,6 +659,7 @@ if($round > 0)
 		<th class='dialog'><?php echo $strYearShort; ?></th>
 		<th class='dialog'><?php echo $strCountry; ?></th>
 		<th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
+        <!--<th class='dialog'><?php //echo $strPreviousSeasonBest; ?></th>-->
 		<th class='dialog'><?php echo $strTopPerformance; ?></th>
 		<?php
 						if(($disctype == $cfgDisciplineType[$strDiscTypeTrack])
@@ -681,6 +686,7 @@ if($round > 0)
 		<th class='dialog'><?php echo $strNbr; ?></th>
 		<th class='dialog' colspan='2'><?php echo $strRelay; ?></th>
 		<th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
+        <!--<th class='dialog'><?php //echo $strPreviousSeasonBest; ?></th>-->
 		<th class='dialog'><?php echo $strTopPerformance; ?></th>
 		<th class='dialog' colspan='2'><?php echo $strTrack; ?></th>
 		<!--<th class='dialog' colspan="2"><?php echo $strHeat; ?></th>-->
@@ -724,7 +730,7 @@ if($round > 0)
 		<td><?php echo AA_formatYearOfBirth($row[12]); ?></td>
 		<td><?php echo (($row[18]!='' && $row[18]!='-') ? $row[18] : '&nbsp;');?></td>
 		<td><?php echo $row[13]; ?></td>
-		<td>
+		
 <?php
 				}
 				else {
@@ -732,9 +738,52 @@ if($round > 0)
 		<td><?php echo $row[14]; ?></td>
 		<td colspan='2'><?php echo $row[9]; ?></td>
 		<td><?php echo $row[10]; ?></td>
+        
+        <?php
+                }
+?>
+        <td>
+
+   <?php             
+                // show combined topperf if last combined discipline
+                
+                if($combined && $cLast == 1){
+                    $row[20] = $row[21];
+                    echo $row[20];
+                }
+                else{
+                     /*
+                    if($relay == TRUE) {
+                        $previousSeasonBest = $row[15];
+                    }
+                    else {
+                         $previousSeasonBest = $row[20];
+                    }
+                  
+                   
+                    if($previousSeasonBest == 0) {    // no season best set
+                        echo "-";
+                    }
+                    else if(($disctype == $cfgDisciplineType[$strDiscTypeJump])
+                            || ($disctype == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                            || ($disctype == $cfgDisciplineType[$strDiscTypeThrow])
+                            || ($disctype == $cfgDisciplineType[$strDiscTypeHigh])) {
+                        echo AA_formatResultMeter($previousSeasonBest);
+                       
+                    }
+                    else {
+                         echo AA_formatResultTime($previousSeasonBest);
+                       
+                    }
+                    */
+                }
+?>
+        </td>
+        
+        
 		<td>
 <?php
-				}
+				
 				
 				// show combined topperf if last combined discipline
 				if($combined && $cLast == 1){
@@ -747,15 +796,19 @@ if($round > 0)
 					else if(($disctype == $cfgDisciplineType[$strDiscTypeJump])
 							|| ($disctype == $cfgDisciplineType[$strDiscTypeJumpNoWind])
 							|| ($disctype == $cfgDisciplineType[$strDiscTypeThrow])
-							|| ($disctype == $cfgDisciplineType[$strDiscTypeHigh])) {
+							|| ($disctype == $cfgDisciplineType[$strDiscTypeHigh])) {                        
 						echo AA_formatResultMeter($row[8]);
 					}
-					else {
+					else {                        
 						echo AA_formatResultTime($row[8]);
 					}
 				}
 ?>
 		</td>
+        
+        
+        
+        
 		<?php
 						if(($disctype == $cfgDisciplineType[$strDiscTypeTrack])
 								|| ($disctype == $cfgDisciplineType[$strDiscTypeTrackNoWind])

@@ -85,7 +85,7 @@ if (isset($_POST['updateEfforts'])){
 			
 			$rowPerf = mysql_fetch_array($res);  
             $perf = $rowPerf['notification_effort'];       // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
-                                                                     					
+            $perfSeason = $rowPerf['season_effort'];        
 										
 			if(($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeTrack])
 				|| ($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
@@ -93,13 +93,19 @@ if (isset($_POST['updateEfforts'])){
 				|| ($row_start['Typ'] == $cfgDisciplineType[$strDiscTypeDistance])) {  // disciplines track
 				$pt = new PerformanceTime(trim($perf));
 				$perf = $pt->getPerformance();
+                
+                $ps = new PerformanceTime(trim($perfSeason));
+                $perfSeason = $ps->getPerformance();
 			}
-		   	else 				
+		   	else {				
 		   		$perf = (ltrim($perf,"0"))*100;  
-														  
+                $perfSeason = (ltrim($perfSeason,"0"))*100;  
+			}
+            											  
 			if($perf != NULL) {	// invalid performance
 				$sql = "UPDATE start SET 
 				  Bestleistung = $perf
+                 , VorjahrLeistung = $perfSeason
 				 , BaseEffort = 'y'
 				 WHERE xStart = ". $row_start['xStart'];
 				//echo " <br>$sql";
@@ -125,10 +131,12 @@ if (isset($_POST['updateEfforts'])){
                  $rowPerf = mysql_fetch_array($res); 
                  
                  $perf = $rowPerf['notification_effort'];       // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                 $seasonPerf = $rowPerf['season_effort'];       
                                                                                                                                        
                  if($perf != NULL) {    // invalid performance
                         $sql = "UPDATE anmeldung SET 
                                         BestleistungMK = $perf
+                                        , VorjahrLeistungMK = $seasonPerf
                                         , BaseEffortMK = 'y'
                                 WHERE xAnmeldung = ". $row_start['Enrolment'];
                  

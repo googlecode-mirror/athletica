@@ -1332,10 +1332,10 @@ if ($_POST['arg']=="add")
 													}
 													
 													// save combined top performance
-													if(!empty($_POST["topcomb_$cCat"."_".$cCode])){
-														
+													if(!empty($_POST["topcomb_$cCat"."_".$cCode])){													
 														mysql_query("UPDATE anmeldung SET
 																BestleistungMK = '".$_POST["topcomb_$cCat"."_".$cCode]."'
+                                                                , VorjahrLeistungMK = '".$_POST["hidden_topcomb_$cCat"."_".$cCode]."'
 															WHERE	xAnmeldung = $xAnmeldung");
 														
 													}
@@ -1356,7 +1356,7 @@ if ($_POST['arg']=="add")
 													if($athlete_id > 0){
 														// get cat and dis codes for this event
 														// only if not entered manually
-														if(empty($_POST[$p])){
+													//	if(empty($_POST[$p])){
                                                             
                                                             $saison = $_SESSION['meeting_infos']['Saison'];
                                                             if ($saison == ''){
@@ -1387,12 +1387,25 @@ if ($_POST['arg']=="add")
 																	AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());
 																}else{
 																	$row_p = mysql_fetch_array($res_p);
-																	
-                                                                    $_POST[$p] = $row_p[1];         // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
-                                                                      
+																	if (mysql_num_rows($res_p) > 0){
+                                                                        if(empty($_POST[$p])){
+                                                                        
+                                                                            $_POST[$p] = $row_p[1];         // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                                                                           // $previousSeasonBest = $row_p[0];   // base_performance feld wird von alabus noch defniniert im 2012
+                                                                             $previousSeasonBest = 0;
+                                                                        } 
+                                                                        else {
+                                                                             //$previousSeasonBest = $row_p[0];  // base_performance feld wird von alabus noch defniniert im 2012
+                                                                              $previousSeasonBest = 0;
+                                                                        }   
+                                                                    } 
+                                                                    else {
+                                                                        $previousSeasonBest = 0;
+                                                                        $perfSeason = 0;
+                                                                    } 
 																}
 															}
-														}
+														//}
 													}
 													
 													if(!empty($_POST[$p]))
@@ -1404,15 +1417,25 @@ if ($_POST['arg']=="add")
 															}
 															$pt = new PerformanceTime($_POST[$p], $secflag);
 															$perf = $pt->getPerformance();
+                                                            
+                                                            $ps = new PerformanceTime($previousSeasonBest, $secflag);
+                                                            $perfSeason = $ps->getPerformance();
 														}
 														else {
 															$pa = new PerformanceAttempt($_POST[$p]);
 															$perf = $pa->getPerformance();
+                                                            
+                                                            $ps = new PerformanceAttempt($previousSeasonBest);
+                                                            $perfSeason = $ps->getPerformance();
 														}
 														if($perf == NULL) {	// invalid performance
 															$perf = 0;
 														}
+                                                        if($perfSeason == NULL) {    // invalid performance
+                                                            $perfSeason = 0;
+                                                        }
 													} 
+                                                   
                                                     
 													if(isset($_POST['start_'.$event])){   
 														// add every event (no duplicates)
@@ -1421,6 +1444,7 @@ if ($_POST['arg']=="add")
 																xWettkampf = $event
 																, xAnmeldung = $xAnmeldung
 																, Bestleistung = $perf
+                                                                , VorjahrLeistung = $perfSeason
 														");
 		
 														if(mysql_errno() == 0) 		// no error
@@ -1749,9 +1773,14 @@ function meeting_get_disciplines(){
 						$row_perf_comb = mysql_fetch_array($res_perf_comb);   
                         
                         $val = $row_perf_comb['notification_effort'];        // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                      //  $seasonval = $row_perf_comb['season_effort'];     // base_performance feld wird von alabus noch defniniert im 2012   
+                        $seasonval = 0;     
                                                 						
 						$val = ltrim($val,"0:");
 						$val = (substr($val,-2)==".0")?substr($val,0,-2):$val;
+                        
+                        $seasonval = ltrim($seasonval,"0:");
+                        $seasonval = (substr($seasonval,-2)==".0")?substr($seasonval,0,-2):$seasonval;
 					}	
 				}
 				//--------------------------------------------------------------------------------------------------
@@ -1765,6 +1794,7 @@ function meeting_get_disciplines(){
 				</td>
 				<td class='dialog-top' nowrap="nowrap">
 					<input type="text" name="topcomb_<?php echo $event_row[8]."_".$comb ?>" id="topcomb<?php echo $event_row[8]."_".$comb ?>" size="5" value="<?php echo $val; ?>">
+                    <input type="hidden" name="hidden_topcomb_<?php echo $event_row[8]."_".$comb ?>" id="hidden_topcomb<?php echo $event_row[8]."_".$comb ?>"  value="<?php echo $seasonval; ?>">
 				</td>
 				<td class='dialog' nowrap="nowrap" colspan="4" id='td_<?php echo $event_row[8]."_".$comb ?>'>
 					<div id="div_<?php echo $event_row[8]; ?>_<?php echo $comb; ?>" style="position: relative; display: none;">
