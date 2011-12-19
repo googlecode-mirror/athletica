@@ -64,7 +64,7 @@ class XML_data{
     var $gzfp;
        
     function load_xml($file, $type, $mode=''){          
-        global $strErrXmlParse, $strErrFileNotFound,$arr_noCat, $cfgResDisc ;   
+        global $strErrXmlParse, $strErrFileNotFound,$arr_noCat, $cfgResDisc , $cfgSvmDiscFirst, $cfgSvmDiscLast;   
         
         if($type != "base" && $type != "result" && $type != "reg" && $type != "regZLV"){ // unknown type of data
             return false;
@@ -2840,7 +2840,7 @@ function XML_reg_start($parser, $name, $attr){
     global $cfgCombinedDef, $cfgCombinedWO, $appnbr;   
     global $cfgSVM, $relay_id, $relay_pos, $relay_round, $relay_xStart, $category, $team_type, $paid;
     
-    global $arr_noCat, $cfgResDisc;       
+    global $arr_noCat, $cfgResDisc, $cfgSvmDiscFirst, $cfgSvmDiscLast;          
   
     //
     // get approval number
@@ -2917,7 +2917,7 @@ function XML_reg_start($parser, $name, $attr){
             // check discode and return if it doesn't exists
             $res = mysql_query("SELECT xDisziplin FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = '$discode'");
             if(mysql_errno() == 0){
-                if(mysql_num_rows($res) == 0 && $discode != $cfgResDisc){
+                if(mysql_num_rows($res) == 0 && ($discode < $cfgResDisc && $discode > $cfgSvmDiscLast )){
                     echo "<p>$strErrNoSuchDisCode $disname ($discode)</p>";
                     return;
                 }
@@ -2964,25 +2964,47 @@ function XML_reg_start($parser, $name, $attr){
                              
             }else{
                 $bCombined = false;
-                // check if this discipline exists
-                //    important: Mehrkampfcode has to be 0, else the query will also select 
-                //        the already defined combined events (if the same discipline)     
-                            
-                 $query = "SELECT * 
-                           FROM
-                                wettkampf as w
-                                LEFT JOIN kategorie as k  ON ( w.xKategorie = k.xKategorie)
-                                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (w.xDisziplin = d.xDisziplin)
-                            WHERE  
-                               w.xMeeting = ".$_COOKIE['meeting_id']."
-                               AND k.Code = '$catcode'
-                               AND d.Code = $discode     
-                               AND xKategorie_svm = " . $xCatSvm ."                            
-                               AND w.Mehrkampfcode = 0
-                               $SQLdisSpecial 
-                               $SQLdisInfo ";            
-                                                
-                $res = mysql_query($query);   
+                
+                 if ($discode >= $cfgSvmDiscFirst && $discode <= $cfgSvmDiscLast) {  
+                         $query = "SELECT * 
+                                   FROM
+                                        wettkampf as w
+                                        LEFT JOIN kategorie as k  ON ( w.xKategorie = k.xKategorie)
+                                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (w.xDisziplin = d.xDisziplin)
+                                    WHERE  
+                                       w.xMeeting = ".$_COOKIE['meeting_id']."                                           
+                                       AND xKategorie_svm = " . $xCatSvm ."                            
+                                       AND w.Mehrkampfcode = 0
+                                       $SQLdisSpecial 
+                                       $SQLdisInfo ";            
+                        
+                        $res = mysql_query($query);  
+                          while($row_dis = mysql_fetch_assoc($res)){
+                            $xDis[] = $row_dis['xWettkampf'];
+                        }
+                 }
+                 else {   
+                        // check if this discipline exists                         
+                        //    important: Mehrkampfcode has to be 0, else the query will also select 
+                        //        the already defined combined events (if the same discipline)     
+                                    
+                         $query = "SELECT * 
+                                   FROM
+                                        wettkampf as w
+                                        LEFT JOIN kategorie as k  ON ( w.xKategorie = k.xKategorie)
+                                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d  ON (w.xDisziplin = d.xDisziplin)
+                                    WHERE  
+                                       w.xMeeting = ".$_COOKIE['meeting_id']."
+                                       AND k.Code = '$catcode'
+                                       AND d.Code = $discode     
+                                       AND xKategorie_svm = " . $xCatSvm ."                            
+                                       AND w.Mehrkampfcode = 0
+                                       $SQLdisSpecial 
+                                       $SQLdisInfo ";            
+                                                        
+                        $res = mysql_query($query);  
+                        
+                 } 
             }
             if(mysql_errno() > 0){
                 XML_db_error("1-".mysql_errno().": ".mysql_error());
@@ -3035,7 +3057,7 @@ function XML_reg_start($parser, $name, $attr){
                     }
                     
                 }else{ // create single disciplines
-                    if ($discode != $cfgResDisc) {
+                    if ($discode < $cfgResDisc || $discode > $cfgSvmDiscLast) {                       
                         if(mysql_num_rows($res) == 0 ){ //discipline does not exist
                             // insert
                             //    ($disname will be empty if this is not a "special" discipline)      
@@ -3068,6 +3090,7 @@ function XML_reg_start($parser, $name, $attr){
                             $xDis[] = $row_dis['xWettkampf'];
                         }
                     }
+                   
                 }  
             }
         
@@ -3076,9 +3099,10 @@ function XML_reg_start($parser, $name, $attr){
     //
     // start of an athlete
     //
-    if($name == "ATHLETE" && (count($xDis) != 0 || $discode == $cfgResDisc)){       
+    if($name == "ATHLETE" && (count($xDis) != 0 || $discode == $cfgResDisc || ($discode >= $cfgSvmDiscFirst && $discode <= $cfgSvmDiscLast))){        
+             
         $license = $attr['LICENSE'];       
-       
+        
         if (isset($attr['PAID'])){  
             $paid = $attr['PAID'];
         }   
@@ -3118,7 +3142,8 @@ function XML_reg_start($parser, $name, $attr){
                             birth_date, 
                             account_code, 
                             second_account_code,
-                            id_athlete 
+                            id_athlete ,
+                            account_info
                        FROM base_athlete 
                       WHERE license = '".$license."';";
             $query2 = mysql_query($sql2);
@@ -3128,6 +3153,9 @@ function XML_reg_start($parser, $name, $attr){
                 
                 $club = $row2['account_code'];
                 $club2 = $row2['second_account_code'];
+                
+                $vInfo = $row2['account_info'];
+                
                 $athlete_id = $row2['id_athlete'];
                 $result2 = mysql_query("SELECT xVerein FROM verein WHERE xCode = '".$club."'");
                 if(mysql_errno() > 0){
@@ -3370,6 +3398,7 @@ function XML_reg_start($parser, $name, $attr){
                                                     , xAthlet = $xAthlete
                                                     , xMeeting = ".$_COOKIE['meeting_id']."
                                                     , xKategorie = $xCat
+                                                    , Vereinsinfo = $vInfo
                                                     , xTeam = " .$team_id );
                                                     
                                         if(mysql_errno() > 0){                                             
@@ -3576,7 +3605,7 @@ function XML_reg_start($parser, $name, $attr){
         $relay_id = 0;
         $xDis1 = $xDis[0];
         $relay_pos = 0;   
-        
+       
         // check if relay is already in table staffel
         $res = mysql_query("SELECT xStaffel FROM staffel WHERE xStaffel = $id");
         if(mysql_errno() > 0){
@@ -3692,7 +3721,7 @@ function XML_reg_start($parser, $name, $attr){
                         $relay_xStart = mysql_insert_id();
                         
                         if ($team_type == "SVM"){
-                                
+                                 
                                  $sql = "SELECT 
                                             xRunde 
                                          FROM 
@@ -3709,19 +3738,19 @@ function XML_reg_start($parser, $name, $attr){
                                      $relay_round = $row[0]; 
                                  }
                         }
-                        else {
-                              $sql="SELECT 
-                                r.xRunde, w.xWettkampf , d.Code , d.Typ, m.DatumVon
-                             FROM
-                                wettkampf as w
-                                LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
-                                LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin)
-                                LEFT JOIN meeting as m ON (m.xMeeting = w.xMeeting)
-                             WHERE
-                                w.xKategorie = ". $category ."        
-                                AND w.xMeeting = ".$_COOKIE['meeting_id']." 
-                             ORDER BY d.Anzeige";
-                  
+                        else {     
+                                $sql="SELECT 
+                                        r.xRunde, w.xWettkampf , d.Code , d.Typ, m.DatumVon
+                                     FROM
+                                        wettkampf as w
+                                        LEFT JOIN runde as r On (w.xWettkampf = r.xWettkampf)
+                                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin)
+                                        LEFT JOIN meeting as m ON (m.xMeeting = w.xMeeting)
+                                     WHERE
+                                        w.xKategorie = ". $category ."        
+                                        AND w.xMeeting = ".$_COOKIE['meeting_id']." 
+                                     ORDER BY d.Anzeige";
+                             
                             $res= mysql_query($sql);
                             if(mysql_errno() > 0){
                                     XML_db_error(mysql_errno().": ".mysql_error());
@@ -3730,8 +3759,15 @@ function XML_reg_start($parser, $name, $attr){
                                     $row=mysql_fetch_row($res);
                                     
                                     // check if dummy round already exists
-                                    $sql = "SELECT * FROM runde WHERE xWettkampf =  " . $row[1]; 
-                                           
+                                    if ($relay_id > 0){                                        
+                                       $event =  $xDis1;   
+                                    }  
+                                    else {
+                                       $event =  $row[1];                    
+                                    } 
+                                   
+                                    $sql = "SELECT * FROM runde WHERE xWettkampf =  " . $event;      
+                                                         
                                     $res = mysql_query($sql); 
                                     if (mysql_num_rows($res) == 0) {
                                         
@@ -3739,7 +3775,7 @@ function XML_reg_start($parser, $name, $attr){
                                             $sql = "INSERT into runde SET
                                                     Datum = '" . $row[4]. "'    
                                                     , xRundentyp = 6 
-                                                    , xWettkampf = " . $row[1];
+                                                    , xWettkampf = " . $event;
                                                     
                                             $res = mysql_query($sql);
                                                
@@ -3946,7 +3982,7 @@ function XML_reg_start($parser, $name, $attr){
 }
 
 function XML_reg_end($parser, $name){
-    global $discode, $catcode, $xDis, $distype;    
+    global $discode, $catcode, $xDis, $distype, $relay_id;    
     
     // end of discipline
     if($name == "DISCIPLINE"){
@@ -3955,6 +3991,9 @@ function XML_reg_end($parser, $name){
         $xDis = array();
         $distype = "";
         $bCombined = false;
+    }
+     if($name == "RELAY"){
+        $relay_id = 0;
     }
 }
 
