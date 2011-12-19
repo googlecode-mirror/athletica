@@ -375,7 +375,7 @@ function AA_timetable_display($arg = 'monitor')
                     {    
                         $starts = "-";
                         // get number of athletes/relays with valid result
-                        if ($row[2] == 'S' || $row[2] == 'O'){                // round typ: S = Serie ,  O = ohne
+                        if ($row[2] == 'S' || $row[2] == '0'){                // round typ: S = Serie ,  0 = ohne
                            
                             $sql = "
                                 SELECT
@@ -532,11 +532,19 @@ function AA_timetable_display($arg = 'monitor')
                     {
                         $starts = $row[5];
                     }
+                    
+                    if ($row[2] == '0'){                // round typ:  0 = ohne
+                        $roundtype = " ";
+                    }
+                    else {
+                         $roundtype = $row[2];
+                    }
+                    
                     ?>
 <td class='monitor'>
     <div class='<?php echo $class; ?>'>
         <a href='<?php echo $href; ?>'>
-            <?php echo "&nbsp;$row[4]&nbsp;$row[2]$combGroup"; ?>
+            <?php echo "&nbsp;$row[4]&nbsp;$roundtype$combGroup"; ?>
         (<?php echo $starts; ?>) <?php echo $row[13]; ?></a>
     </div>
                     <?php
@@ -823,9 +831,9 @@ function AA_timetable_display_regie($timestamp)
                                 
                                 while ($row = mysql_fetch_row($res))
                                 { 
-                                    if (strtotime($row[22]) >= $timestamp){           
-                                         continue;
-                                    }
+                                   // if (strtotime($row[22]) >= $timestamp){           
+                                   //      continue;
+                                   // }
                                    
                                     if ($row[20] == 0 && $row[20] != NULL)  {               // don't' show merged  rounds
                                           continue;  
