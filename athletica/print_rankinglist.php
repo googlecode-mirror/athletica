@@ -160,7 +160,7 @@ else if($type == 'team' || $type == 'teamAll' || $type == 'teamP')
 // Team sheets
 else if($type == 'sheets')
 {  
-	AA_rankinglist_Sheets($category, $event, $formaction, $cover,'',$heatSeparate);
+	AA_rankinglist_Sheets($category, $event, $formaction, $cover,'',$heatSeparate, $catFrom, $catTo, $discFrom,$discTo);
 }
 
 // Ranking list team sm events
