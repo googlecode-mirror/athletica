@@ -80,6 +80,11 @@ if($_GET['licenseType'] > 0) {		// licensetype selected
 		}
 }   
 
+if($_GET['paymentStatus'] > 0) {        // payment staus selected      
+        $_GET['payment'] = 'payment';
+        $paymentStatus = $_GET['paymentStatus'];
+}   
+
  
 if($_GET['category'] > 0){
 	$contestcat_clause = " AND w.xKategorie = " .$_GET['category']; 
@@ -199,7 +204,7 @@ if($_GET['cover'] == 'cover' && !$export) { // print cover page
                 , v.Sortierwert
                 , k.Anzeige
                 , w.Startgeld  
-                , w.mehrkampfcode    
+                , w.mehrkampfcode                 
             FROM
                 anmeldung AS a
                 LEFT JOIN kategorie AS k ON (a.xKategorie = k.xKategorie) 
@@ -222,12 +227,13 @@ if($_GET['cover'] == 'cover' && !$export) { // print cover page
                 $contestcat_clause
                 $date_clause
                 $athlete_clause 
-                $licType_clause     
-                $limitNrSQL
+                $licType_clause                 
+                $limitNrSQL           
            ORDER BY
             $argument";      
  
 $result = mysql_query($sql);    
+
      
 if(mysql_errno() > 0)		// DB error
 {
@@ -242,10 +248,12 @@ else if(mysql_num_rows($result) > 0)  // data found
 	$v = "";		// current club
 	$ck = "";		// current contest category
 	$dd = "";       // current discipline 
-	
+	$paymentPrint = true;
+      
 	// full list, sorted by name or start nbr
 	while ($row = mysql_fetch_row($result))
-	{   
+	{        
+              
 		// print previous athlete, if any   
 		$pl=false;    
 	 
@@ -283,41 +291,85 @@ else if(mysql_num_rows($result) > 0)  // data found
 			 } 
 	   }  
 	 
+      if ($pl) { 
+              if ($paymentStatus > 0){
+                 if($paymentStatus == 1) {                   
+                   if (strpos($disc, '[N]')){                       
+                       $paymentPrint = false;
+                       
+                   }  
+                   else {
+                       $paymentPrint = true;
+                   }
+                   
+                 }
+                 elseif ($paymentStatus == 2) {        
+                    if (strpos($disc, '[N]') && strpos($disc, '[Y]')){                                           
+                        $paymentPrint = true;
+                   }  
+                   else {
+                       $paymentPrint = false;
+                   }      
+                 }
+                 elseif ($paymentStatus == 3) {        
+                    if (strpos($disc, '[Y]')){                       
+                       $paymentPrint = false;
+                   }        
+                 }
+                 if (strpos($disc, '[]')){                       
+                     $paymentPrint = false;
+                }
+            }
+     
+      }
+     
+     
+     
 		 if ($pl) { 
 		    //if ($row[23] > 0 && !isset($cfgCombinedDef[$row[23]])){  
 		    //   $disc=substr($disc,0,-3).")";  
 			//} 
-		   
-			if((is_a($doc, "PRINT_CatEntryPage"))
-				|| (is_a($doc, "GUI_CatEntryPage")))
-			{  
-				$doc->printLine($nbr, $name, $year, $club, $disc, $ioc);
-			}
-			else if((is_a($doc, "PRINT_ClubEntryPage"))
-				|| (is_a($doc, "GUI_ClubEntryPage")))
-			{     
-				$doc->printLine($nbr, $name, $year, $cat, $disc, $ioc);
-			}
-			else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
-				|| (is_a($doc, "GUI_CatDiscEntryPage")))
-			{   
-				$doc->printLine($nbr, $name, $year, $club, $perf, $ioc);
-			}
-			else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
-				|| (is_a($doc, "GUI_ClubCatEntryPage")))
-			{     
-				$doc->printLine($nbr, $name, $year, $disc, $ioc);
-			}
-			else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
-				|| (is_a($doc, "GUI_ClubCatDiscEntryPage")))
-			{  
-				$doc->printLine($nbr, $name, $year, $perf, $ioc);  
-			}
-			else
-			{  
-				$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $perf, $mkcode);  
-			}                                     
-		  
+            
+		    if ($paymentPrint) {
+               
+                if (strpos($disc, '[]')){                       
+                    $disc = '';
+                }
+                
+			    if((is_a($doc, "PRINT_CatEntryPage"))
+				    || (is_a($doc, "GUI_CatEntryPage")))
+			    {  
+				    $doc->printLine($nbr, $name, $year, $club, $disc, $ioc);
+			    }
+			    else if((is_a($doc, "PRINT_ClubEntryPage"))
+				    || (is_a($doc, "GUI_ClubEntryPage")))
+			    {     
+				    $doc->printLine($nbr, $name, $year, $cat, $disc, $ioc);
+			    }
+			    else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
+				    || (is_a($doc, "GUI_CatDiscEntryPage")))
+			    {   
+				    $doc->printLine($nbr, $name, $year, $club, $perf, $ioc);
+			    }
+			    else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
+				    || (is_a($doc, "GUI_ClubCatEntryPage")))
+			    {     
+				    $doc->printLine($nbr, $name, $year, $disc, $ioc);
+			    }
+			    else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
+				    || (is_a($doc, "GUI_ClubCatDiscEntryPage")))
+			    {  
+				    $doc->printLine($nbr, $name, $year, $perf, $ioc);  
+			    }
+			    else
+			    {  
+				    $doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $perf, $mkcode);  
+                  
+			    }                                     
+            }
+            else {
+                $paymentPrint = true;
+            }
 		  if ($_GET['discgroup']=="yes" 
 							&& $_GET['clubgroup']=="yes" 
 							&& $_GET['contestcatgroup']==""  
@@ -582,37 +634,70 @@ else if(mysql_num_rows($result) > 0)  // data found
 	
 	// print last athlete, if any
 	if($a > 0)
-	{                                                                       
-		if((is_a($doc, "PRINT_CatEntryPage"))
-			|| (is_a($doc, "GUI_CatEntryPage")))
-		{
-			$doc->printLine($nbr, $name, $year, $club, $disc, $ioc);
-		}
-		else if((is_a($doc, "PRINT_ClubEntryPage"))
-			|| (is_a($doc, "GUI_ClubEntryPage")))
-		{
-			$doc->printLine($nbr, $name, $year, $cat, $disc, $ioc);
-		}
-		else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
-			|| (is_a($doc, "GUI_CatDiscEntryPage")))
-		{
-			$doc->printLine($nbr, $name, $year, $club, $perf, $ioc);
-		}
-		else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
-			|| (is_a($doc, "GUI_ClubCatEntryPage")))
-		{
-			$doc->printLine($nbr, $name, $year, $disc, $ioc);
-		}
-		else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
-			|| (is_a($doc, "GUI_ClubCatDiscEntryPage")))
-		{
-			$doc->printLine($nbr, $name, $year, $perf, $ioc);
-		}
-		else
-		{  
-			$doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $perf ); 
-			
-		}
+	{    
+        
+         if ($paymentStatus > 0){
+                 if($paymentStatus == 1) {                   
+                   if (strpos($disc, '[N]')){                       
+                       $paymentPrint = false;                       
+                   }  
+                   else {
+                       $paymentPrint = true;
+                   }
+                   
+                 }
+                 elseif ($paymentStatus == 2) {        
+                    if (strpos($disc, '[N]') && strpos($disc, '[Y]')){                                           
+                        $paymentPrint = true;
+                   }  
+                   else {
+                       $paymentPrint = false;
+                   }      
+                 }
+                 elseif ($paymentStatus == 3) {        
+                    if (strpos($disc, '[Y]')){                       
+                       $paymentPrint = false;
+                   }        
+                 }
+            }
+        
+        if (strpos($disc, '[]')){                       
+                    $disc = '';
+                }
+        
+        
+        if ($paymentPrint) {                                                                   
+		    if((is_a($doc, "PRINT_CatEntryPage"))
+			    || (is_a($doc, "GUI_CatEntryPage")))
+		    {
+			    $doc->printLine($nbr, $name, $year, $club, $disc, $ioc);
+		    }
+		    else if((is_a($doc, "PRINT_ClubEntryPage"))
+			    || (is_a($doc, "GUI_ClubEntryPage")))
+		    {
+			    $doc->printLine($nbr, $name, $year, $cat, $disc, $ioc);
+		    }
+		    else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
+			    || (is_a($doc, "GUI_CatDiscEntryPage")))
+		    {
+			    $doc->printLine($nbr, $name, $year, $club, $perf, $ioc);
+		    }
+		    else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
+			    || (is_a($doc, "GUI_ClubCatEntryPage")))
+		    {
+			    $doc->printLine($nbr, $name, $year, $disc, $ioc);
+		    }
+		    else if((is_a($doc, "PRINT_ClubCatDiscEntryPage")) 
+			    || (is_a($doc, "GUI_ClubCatDiscEntryPage")))
+		    {
+			    $doc->printLine($nbr, $name, $year, $perf, $ioc);
+		    }
+		    else
+		    {  
+			    $doc->printLine($nbr, $name, $year, $cat, $club, $disc, $ioc, $paid, $perf ); 
+			    
+		    }
+        }
 	}
 	
 	if(!$export){ printf("</table>\n"); }

@@ -202,7 +202,25 @@ $page->printPageTitle($strPrint);
 	                    </td>
 	                 </tr>
                      
-                    
+                    <tr>
+                    <?php                      
+                  
+                                       
+                        ?>   
+                        <td class='dialog'>
+                        <?php echo $strPaymentStatus; ?></input>
+                        </td>    
+                        <td class='forms'>   
+                             <select name='paymentStatus'> 
+                              <option value="-">-</option>                                
+                                <option value="1"><?php echo $strPayedAll;?></option>
+                                <option value="2"><?php echo $strPayedPart;?></option>
+                                <option value="3"><?php echo $strPayedNo;?></option>
+                                
+                                
+                                </select>      
+                        </td>
+                     </tr>  
                      
 
             <tr>
