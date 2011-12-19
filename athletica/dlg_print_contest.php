@@ -223,17 +223,24 @@ else
 		<?php
 	} 
 	?>
+    
 <?php    
-	if($row[2] > 0) {		// discipline run in tracks
-?>
-	<tr>
-		<td class='dialog'><?php echo $strNbrOfTracks; ?></td>
-		<?php
-			$dd = new GUI_ConfigDropDown('tracks', 'cfgTrackOrder', $tracks, '', true);
-		?>
-	</tr>
-<?php
-	}
+    if (($$row[7] == $cfgDisciplineType[$strDiscTypeTrack])
+            || ($row[7] == $cfgDisciplineType[$strDiscTypeTrackNoWind])
+            || ($row[7] == $cfgDisciplineType[$strDiscTypeRelay])
+            || ($row[7] == $cfgDisciplineType[$strDiscTypeDistance]))
+        {
+	        if($row[2] > 0) {		// discipline run in tracks
+        ?>
+	        <tr>
+		        <td class='dialog'><?php echo $strNbrOfTracks; ?></td>
+		        <?php
+			        $dd = new GUI_ConfigDropDown('tracks', 'cfgTrackOrder', $tracks, '', true);
+		        ?>
+	        </tr>
+        <?php
+	        }
+        }
 
 	$qual_top = $row[8];
 	$qual_perf = $row[9];
