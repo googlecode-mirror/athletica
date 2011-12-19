@@ -18,12 +18,7 @@ if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
 }
-/*
-if (isset($_GET['arg'])){  
-    echo "cookie=". $_COOKIE['meeting_id'];
-    setcookie("meeting_id", $_GET['arg'], time()+$cfgCookieExpires);   
-}
-*/
+
 if (isset($_GET['meetingId'])){
     $_POST['arg'] = 'select';
     $_POST['item'] = $_GET['meetingId'];
@@ -164,10 +159,6 @@ $menu->printMenu();
 	{  
 		document.selection.item.value=meetingID;
 		document.selection.submit();
-       
-        
-       // document.cookie = 'meeting_id='+meetingID+'; expires=Thu, 2 Aug 2001 20:47:11 UTC; path=/'
-    
 	}
 
 	function check(item)
