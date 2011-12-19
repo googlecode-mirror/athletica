@@ -22,7 +22,7 @@ if (!defined('AA_CL_XML_DATA_LIB_INCLUDED'))
 //require('cl_performance.lib.php');
 //require('cl_timetable.lib.php');
 require('meeting.lib.php');
- include('./config.inc.php');    
+ include('./config.inc.php');      
  
 if(AA_connectToDB() == FALSE){ // invalid db connection
 	return;
@@ -86,7 +86,8 @@ function XML_regUKC($xml_simple){
     $announcement = '';
     $club = '';
     $firstname = '';
-    $lastname = '';
+    $lastname = '';      
+
     
     // check if clubs are in table verein 
     foreach ($xml_simple->accounts->account as $account) {
@@ -138,7 +139,8 @@ function XML_regUKC($xml_simple){
             $city = '';     
             $clubName = '';     
             $email = '';     
-            $canton ='';     
+            $canton ='';  
+            $nationality = '';   
         
             foreach ($athlete->attributes() as $attr=>$value) {
                    
@@ -165,7 +167,7 @@ function XML_regUKC($xml_simple){
             }           
            
             $meetingDate = ''; 
-            $discode = 0;                
+            $discode = 0;      
             
             $lastName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->lastName))));               
             $firstName =  mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->firstName))));   
@@ -177,17 +179,17 @@ function XML_regUKC($xml_simple){
             if (!empty($athlete->accountCode) ) {
                   $club = $athlete->accountCode;   
             }     
-            
-            $sex = $athlete->sex;   
-            $nationality = $athlete->nationality;                 
+                               
+            $sex = (str_replace("\r", "\n", trim(utf8_decode($athlete->sex))));               
+            $nationality = (str_replace("\r", "\n", trim(utf8_decode($athlete->nationality))));                   
             
             $street = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->street))));    
-            $zipCode = $athlete->personalData->zipCode;  
+            $zipCode = (str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->zipCode))));               
             $city = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->city))));   
             $clubName = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->club))));   
             $email = mysql_real_escape_string(str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->email))));   
-            $canton = $athlete->personalData->canton;  
-            
+            $canton = (str_replace("\r", "\n", trim(utf8_decode($athlete->personalData->canton))));      
+                                                                                                                    
             // get region
             $region = 0; 
             if (!empty($canton)) {                
@@ -524,8 +526,8 @@ function XML_regUKC($xml_simple){
           
         }   // end foreach athlete   
     
-    }   // end foreach athlete      
-  
+    }   // end foreach athlete    
+                      
 } 
 
 
