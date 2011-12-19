@@ -429,14 +429,14 @@ class PRINT_ContestTech extends PRINT_Contest
     
     function multiAttempt($line, $head = false){
         for($i = 0; $i<$_POST['countattempts']; $i++){
-            if($i == 3 && !$head){
+            if($i == 3 && !$head && $_POST['countattempts'] != 4){
                 ?>
         <td class='contest_tech_result'></td>
         <td class='contest_tech_field'></td>
                 <?php
             }
             
-            if($i == 3 && $head){
+            if($i == 3 && $head && $_POST['countattempts'] != 4){
                 ?>
         <td class='contest_tech_result'><?php echo $GLOBALS['strResult']; ?></td>
         <td class='contest_tech_field'><?php echo $GLOBALS['strRank']; ?></td>
