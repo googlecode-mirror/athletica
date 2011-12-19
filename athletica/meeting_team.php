@@ -117,13 +117,15 @@ else
         , v.Name
         , v.xVerein
         , k.xKategorie
+        , k_svm.Name 
     FROM
         team AS t
         LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
+        LEFT JOIN kategorie_svm AS k_svm ON (k_svm.xKategorie_svm = t.xKategorie_svm)    
         LEFT JOIN verein AS v ON (v.xVerein = t.xVerein)
     WHERE 
         t.xTeam = " . $_POST['item'];   
-        
+  
 $result = mysql_query($sql);   
 
 if(mysql_errno() > 0)		// DB error
@@ -139,6 +141,10 @@ else if(mysql_num_rows($result) > 0)  // data found
 <tr>
 	<th class='dialog'><?php echo $strCategory; ?></th>
 	<td class='dialog'><?php echo $row[2]; ?></td>
+</tr>
+<tr>
+    <th class='dialog'><?php echo $strSvmCategory; ?></th>
+    <td class='dialog'><?php echo $row[6]; ?></td>
 </tr>
 
 <tr>

@@ -285,6 +285,7 @@ if((!empty($category)) && (!empty($club)) && (!empty($category_svm)) )		// categ
 		<input name='category' type='hidden' value='<?php echo $category; ?>' />
 		<input name='club' type='hidden' value='<?php echo $club; ?>' />
 		<input name='id' type='hidden' value='<?php echo $row['id_svm']; ?>' />
+         <input name='category_svm' type='hidden' value='<?php echo $category_svm; ?>' />       
 		<?php echo $strName ?>: <input class='text' name='name' type='text' maxlength='40'
 			value='<?php echo $row['svm_name'] ?>' />
 	</td>
