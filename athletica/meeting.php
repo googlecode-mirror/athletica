@@ -18,6 +18,16 @@ if(AA_connectToDB() == FALSE)	// invalid DB connection
 {
 	return;
 }
+/*
+if (isset($_GET['arg'])){  
+    echo "cookie=". $_COOKIE['meeting_id'];
+    setcookie("meeting_id", $_GET['arg'], time()+$cfgCookieExpires);   
+}
+*/
+if (isset($_GET['meetingId'])){
+    $_POST['arg'] = 'select';
+    $_POST['item'] = $_GET['meetingId'];
+}
 
 // Select active meeting
 if (isset($_POST['arg']) && $_POST['arg']=="select")
@@ -151,9 +161,13 @@ $menu->printMenu();
 <script type="text/javascript">
 <!--
 	function selectMeeting(meetingID)
-	{
+	{  
 		document.selection.item.value=meetingID;
 		document.selection.submit();
+       
+        
+       // document.cookie = 'meeting_id='+meetingID+'; expires=Thu, 2 Aug 2001 20:47:11 UTC; path=/'
+    
 	}
 
 	function check(item)
@@ -193,10 +207,11 @@ if (isset($_GET['arg']) && $_GET['arg']=="name") {
 }
 ?>
 
-<form action='meeting.php' method='post'
+<form action='index.php' method='post' target="_parent"
 	name='selection'>
 	<input type='hidden' name='arg' value='select' />
 	<input type='hidden' name='item' value='' />
+    <input type='hidden' name='meetingID' value='<?php echo $row["meetingID"];?>' />
 </form>
 
 <h2><?php echo $strMeetings; ?></h2>
@@ -264,7 +279,14 @@ $i=0;
 while ($row = mysql_fetch_array($result))
 {
 	$i++;
-	if($row['xMeeting'] == $_COOKIE['meeting_id']) 	// selected meeting
+    if (isset($_GET['arg'])){
+        $meeting_ID = $_GET['arg'];
+    }
+    else {
+        $meeting_ID = $_COOKIE['meeting_id'];
+    }
+    
+	if($row['xMeeting'] == $meeting_ID ) 	// selected meeting
 	{
 		?>
 	<tr class='active'>
@@ -308,6 +330,8 @@ while ($row = mysql_fetch_array($result))
 		<?php
 	}		// ET meeting active	
 }
+
+
 
 mysql_free_result($result);
 

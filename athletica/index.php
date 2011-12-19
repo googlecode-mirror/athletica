@@ -8,6 +8,7 @@
  */
 
 require('lib/common.lib.php');
+require('lib/meeting.lib.php');
 require('lib/cl_protect.lib.php');
 
 if(!empty($_GET['arg'])) {
@@ -16,6 +17,14 @@ if(!empty($_GET['arg'])) {
 else {		// default menu
 	$arg = 'meeting';
 }
+
+$meetingID = '';
+$arg_m = '';
+if(!empty($_POST['item'])) {
+    $meetingID = $_POST['item'];
+    $arg_m = "?meetingId=".$meetingID; 
+}
+
 
 // change language
 if ($_GET['language']=="change")
@@ -57,6 +66,8 @@ if($pass->isRestricted($_COOKIE['meeting_id'])){
 	
 }
 
+$ukc_meeting = AA_checkMeeting_UKC() ; 
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -70,9 +81,9 @@ if($pass->isRestricted($_COOKIE['meeting_id'])){
 </head>
 
 <frameset  rows="49,*,20,0" frameborder="NO" border="0" framespacing="0">
-	<frame name="menu" src="menu.php?arg=<?php echo $arg; ?><?php echo $redirect2 ?>" marginwidth="0"
+	<frame name="menu" src="menu.php?arg=<?php echo $arg; ?>&ukc=<?php echo $ukc_meeting; ?>&meetingID=<?php echo $meetingID; ?><?php echo $redirect2 ?>" marginwidth="0"
 			marginheight="0" scrolling="no" frameborder="0" noresize>
-	<frame name="main" src="<?php echo $arg; ?>.php<?php echo $redirect ?>" marginwidth="0"
+	<frame name="main" src="<?php echo $arg; ?>.php<?php echo $arg_m; ?><?php echo $redirect ?>" marginwidth="0"
 			marginheight="0" scrolling="auto" frameborder="0" noresize>
 	<frame name="status" src="status.php" marginwidth="0"
 			marginheight="0" scrolling="no" frameborder="0" noresize>

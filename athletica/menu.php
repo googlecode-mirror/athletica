@@ -1,6 +1,10 @@
 <?php
 require('./lib/common.lib.php');
 
+require('./lib/meeting.lib.php');
+require('lib/cl_protect.lib.php');
+
+
 if(empty($_GET['arg'])) {
 	$arg='meeting';
 }
@@ -11,6 +15,19 @@ else {
 if($arg == "login"){
 	$arg = $_GET['redirect'];
 }
+
+$ukc_meeting = 'n';
+
+if(!empty($_GET['meetingID'])) {
+    $meeting = $_GET['meetingID'];
+    $ukc_meeting = AA_checkMeeting_UKC($meeting) ; 
+}
+else {
+    if(!empty($_GET['ukc'])) {
+        $ukc_meeting=$_GET['ukc'];
+    }
+}
+
 
 /**************
  *
@@ -58,6 +75,8 @@ if($arg == "login"){
 		case 'meeting_page_layout':
 
 			$meeting_class = 'main';
+            
+            if ($ukc_meeting == 'n'){
 			// submenus
 			$subitems= array(0 => 'meeting_definition'
 								, 1 => 'meeting_entries'
@@ -82,6 +101,29 @@ if($arg == "login"){
 								, 4 => 'subitem_inactive'
 								, 5 => 'subitem_inactive'
 								, 6 => 'subitem_inactive');
+            }
+             else {
+                 $subitems= array(0 => 'meeting_definition'
+                                , 1 => 'meeting_entries'
+                               
+                                , 2 => 'meeting_timing'
+                                , 3 => 'meeting_page_layout');
+            // submenu titles
+            $subtitles= array(0 => $strMeetingDefinition
+                                , 1 => $strEntries
+                               
+                                , 2 => $strTiming
+                                , 3 => $strPageLayoutShort);
+            // submenu style
+            $subitem_class= array(0 => 'subitem_inactive'
+                                , 1 => 'subitem_inactive'
+                                
+                                , 2 => 'subitem_inactive'
+                                , 3 => 'subitem_inactive');
+                 
+                 
+                 
+             }
 			// highlight current submenu
 			switch($arg) {
 				case 'meeting_definition':
@@ -234,6 +276,8 @@ if($arg == "login"){
 		case 'admin_region':
 		case 'admin_service':
 			$admin_class = 'main';
+            
+             if ($ukc_meeting == 'n'){
 			// submenus
 			$subitems= array(0 => 'admin_categories'
 								, 1 => 'admin_disciplines'
@@ -267,6 +311,39 @@ if($arg == "login"){
 								, 7 => 'subitem_inactive'
 								, 8 => 'subitem_inactive'
 								, 9 => 'subitem_inactive');
+             }
+             else {
+                 // submenus
+            $subitems= array(0 => 'admin_categories'
+                                , 1 => 'admin_disciplines'                               
+                                , 2 => 'admin_clubs'
+                                , 3 => 'admin_region'
+                                , 4 => 'admin_athletes'
+                                , 5 => 'admin_stadiums'
+                                , 6 => 'admin_roundtypes'
+                                , 7 => 'admin_faq'
+                                , 8 => 'admin_service');
+            // submenu titles
+            $subtitles= array(0 => $strCategories
+                                , 1 => $strDisciplines                                
+                                , 2 => $strClubs
+                                , 3 => $strRegion
+                                , 4 => $strAthletes
+                                , 5 => $strStadiums
+                                , 6 => $strRoundtypes
+                                , 7 => $strFaq
+                                , 8 => $strService);
+            // submenu style
+            $subitem_class= array(0 => 'subitem_inactive'
+                                , 1 => 'subitem_inactive'                               
+                                , 2 => 'subitem_inactive'
+                                , 3 => 'subitem_inactive'
+                                , 4 => 'subitem_inactive'
+                                , 5 => 'subitem_inactive'
+                                , 6 => 'subitem_inactive'
+                                , 7 => 'subitem_inactive'
+                                , 8 => 'subitem_inactive');
+             }
 			// highlight current submenu
 			switch($arg) {
 				case 'admin_categories':
@@ -353,7 +430,7 @@ if($arg == "login"){
 		}
 	}
 ?>
-  </tr>
+  </tr> 
 </table>
 
 </body>
