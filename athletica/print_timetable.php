@@ -98,8 +98,16 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 			else			// no DB error
 			{
 				while($row2 = mysql_fetch_row($query2)){
+                    
+                    if ($row2[3] == '0'){                // round typ: 0 = ohne
+                             $roundtype = " ";
+                    }
+                    else {
+                             $roundtype = $row2[3];
+                    }
+                    
 					$grp = ($row2[7]!='') ? $row2[7] : 0;
-					$doc->printLine($row2[0], $row2[4], $row2[5], $row2[3], $grp, $row2[1], $row2[2], $row2[6]);
+					$doc->printLine($row2[0], $row2[4], $row2[5], $roundtype, $grp, $row2[1], $row2[2], $row2[6]);
 				}
 			}
 			
@@ -221,6 +229,12 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 					$k='';
 					while ($tt_row = mysql_fetch_row($res))
 					{
+                        if ($tt_row[1] == '0'){                // round typ: 0 = ohne
+                             $roundtype = " ";
+                        }
+                        else {
+                             $roundtype = $tt_row[1];
+                        }
 						if($k != $tt_row[2]) 	// different category
 						{
 							if($j != 0) {				// not first item
@@ -228,10 +242,10 @@ if(isset($_GET['arg']) && $_GET['arg']=='comp'){
 							}
 							$k = $tt_row[2];		// keep current category
 	
-							$cats[$k] = "<td class='timetable_round'>$tt_row[3] $tt_row[1]"; }
+							$cats[$k] = "<td class='timetable_round'>$tt_row[3] $roundtype"; }
 						else 									// another event for the same category
 						{
-							$cats[$k] = $cats[$k] . "\n<br />$tt_row[3] $tt_row[1]";
+							$cats[$k] = $cats[$k] . "\n<br />$tt_row[3] $roundtype";
 						}
 					}
 	
