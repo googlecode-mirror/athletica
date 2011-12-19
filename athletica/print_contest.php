@@ -137,12 +137,16 @@ $sql = "SELECT
                 , w.Zeitmessung
                 , TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')
                 , TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')
+                , w.Mehrkampfcode                
+                , d1.Name
          FROM 
                 runde AS r
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
                 LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
                 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d1 ON (d1.Code = w.Mehrkampfcode)
                 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                
          WHERE 
                 r.xRunde " . $sqlRound;    
  
@@ -161,6 +165,7 @@ else
     if (!empty($mRounds)){        
         while ($row = mysql_fetch_row($result)) {
             $catMerged .= $row[5]. " / ";
+            $infoMerged .= $row[9]. " / ";
         }   
         $titel = substr($catMerged,0,-2);  
     }
@@ -265,8 +270,31 @@ else
 			$doc->event = "$row[6] $row[3]";
 		}
 	}
+    if ($row[16] > 0){                                                                                // combined events
+	    if ($row[16] == 796 || $row[16] == 797 || $row[16] == 798|| $row[16] == 799 ){
+            $mkName3L =substr("$row[17]",0, 3);
+            if ($mkName3L ==  "..."){
+                $doc->info = "";                         // do not show ...kampf etc. 
+            }
+            else {
+                 $doc->info = "$row[17]";               // discipline Name
+            }
+        }
+        else {
+            $doc->info = "$row[17]";                    // discipline Name
+        }
+    }
+    else {
+        if (!empty($infoMerged)){
+            $doc->info = $infoMerged;                // wettkampf.info merged
+        }
+        else {
+              $doc->info = "$row[9]";                        // wettkampf.info
+        }
+      
+         
+    }
 	
-	$doc->info = "$row[9]";
 	
 	$et = '';	// set enrolement and manipulation time
 	if($row[14] != '00:00'){
