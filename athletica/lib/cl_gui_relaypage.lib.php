@@ -49,11 +49,23 @@ class GUI_RelayPage extends GUI_ListPage
 	}
 
 
-	function printAthletes($athletes)
+	function printAthletes($athletes, $teamsm = false)
 	{
 		?>
 	<tr class='<?php echo $this->rowclass[0]; ?>'>
-		<td class='relay_athletes' colspan='5'><?php echo $athletes; ?></td>
+    <?php
+        if ($teamsm) {
+            ?>
+                <td></td>
+                <td class='relay_athletes' colspan='4'><?php echo $athletes; ?></td>
+         <?php
+        }
+        else {
+              ?>                   
+                <td class='relay_athletes' colspan='5'><?php echo $athletes; ?></td>
+         <?php
+        }
+       ?> 
 	</tr>
 		<?php
 	}
