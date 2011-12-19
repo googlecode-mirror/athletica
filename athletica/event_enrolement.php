@@ -126,11 +126,6 @@ if(isset($_GET['present'])) {		// athlete absent
 	$present = 1;
 }
 
-if(isset($_GET['payed'])) {		// athlete payed
-	$payed = 'y';
-} else {
-	$payed = 'n';
-}    
 
 $mk_group = '';
 if(!empty($_GET['group'])) {
@@ -202,8 +197,7 @@ if($_GET['arg'] == 'change')
 						LEFT JOIN 
 							wettkampf USING(xWettkampf)
 						SET 
-							start.Anwesend = '".$present."' 
-							, start.Bezahlt = '".$payed."' 
+							start.Anwesend = '".$present."' 							
 						WHERE
 							wettkampf.xKategorie = ".$cCat."
 						AND	
@@ -228,8 +222,7 @@ if($_GET['arg'] == 'change')
 		else
 		{    			
 			$sql = "UPDATE start SET 
-						Anwesend='$present'
-						, Bezahlt='$payed'
+						Anwesend='$present'						
 						WHERE xStart='" . $_GET['item'] . "'";
 			
 			mysql_query($sql);   
@@ -434,9 +427,6 @@ $img_team="img/sort_inact.gif";
 if ($arg=="nbr") {
 	$argument="a.Startnummer";
 	$img_nbr="img/sort_act.gif";
-} else if ($arg=="payed") {
-	$argument="s.Bezahlt";
-	$img_name="img/sort_act.gif";
 } else if ($arg=="name") {
 	$argument="at.Name, at.Vorname";
 	$img_name="img/sort_act.gif";
@@ -718,13 +708,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				<img src='<?php echo $img_nbr; ?>' />
 			</a>
 		</th>
-		<th class='dialog'>
-			<?php /*<a href='event_enrolement.php?arg=payed&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>'>*/?>
-			<?php echo $strPayed; ?>
-
-				<?php /*<img src='<?php echo $img_name; ?>' />*/?>
-			</a>
-		</th>
+		
 		<th class='dialog'>
 			<a href='event_enrolement.php?arg=name&category=<?php echo $category; ?>&event=<?php echo $event; ?>&comb=<?php echo $comb; ?>&catFrom=<?php echo $catFrom; ?>&catTo=<?php echo $catTo; ?>&discFrom=<?php echo $discFrom; ?>&discTo=<?php echo $discTo; ?>&mDate=<?php echo $mDate; ?>&round=<?php echo $round;?>'><?php echo $strName; ?>
 
@@ -784,12 +768,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 				<img src='<?php echo $img_nbr; ?>' />
 			</a>
 		</th>
-		<th class='dialog'>
-			<?php /*<a href='event_enrolement.php?arg=payed&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strPayed; ?>
-				<img src='<?php echo $img_name; ?>' />
-			</a>*/?>
-			<?php echo $strPayed; ?>
-		</th>
+		
         <th class='dialog'>
             <a href='event_enrolement.php?arg=relay&category=<?php echo $category; ?>&event=<?php echo $event; ?>'><?php echo $strRelays; ?>
                 <img src='<?php echo $img_name; ?>' />
@@ -1194,17 +1173,12 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			printf("</td>\n");
 			
 			
-			if ($row['Bezahlt']=="y") {
-				$payed_checked = 'checked="checked"';
-			} else {
-				$payed_checked = '';
-			}
+		
 			 
 			if($relay == FALSE)			// single event
 			{
 				printf("<td class='forms_right'><a name='$row[0]'></a>$row[2]</td>");		// startnumber
-				printf("<td class='forms_ctr'><input type='checkbox' name='payed' value='".$row['Bezahlt']."' $payed_checked"
-					. " onClick='document.change_present_$i.submit()' />\n</td>");		// payed
+				
 				printf("<td>$row[3] $row[4]</td>");		// name
 				printf("<td class='forms_ctr'>" . $row[5] . "</td>");	// year
 				printf("<td>$row[6]</td>");		// club name  
@@ -1229,8 +1203,7 @@ if($event > 0 || $comb > 0 || $catFrom > 0 || $discFrom > 0 || $mDate > 0)
 			else							// relay event
 			{
 				printf("<td class='forms_right'><a name='$row[0]'></a>$row[10]</td>");		// startnumber
-				printf("<td class='forms_ctr'><input type='checkbox' name='payed' value='".$row['Bezahlt']."' $payed_checked"
-					. " onClick='document.change_present_$i.submit()' />\n</td>");		// payed
+				
                 printf("<td>$row[2]</td>");        // relay 
 				printf("<td>$row[3]</td>\n");		// club name
 				 
