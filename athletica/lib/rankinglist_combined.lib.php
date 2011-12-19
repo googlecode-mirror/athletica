@@ -396,9 +396,7 @@ else
                 $count_disc++;    
                    if ($count_disc<=$disc_nr)  {
                        
-                        if (!empty($pt_row[11])) {
-                             $pt_row[11] = " ($pt_row[11])";
-                        } 
+                       
                        if($pt_row[4] > 0) {       // any points for this event 
                      
                            $points = $points + $pt_row[4];      // calculate points 
@@ -422,11 +420,11 @@ else
                                
                            }
                           
-					       $info = $info . $sep . $pt_row[0] . $pt_row[11]. "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+					       $info = $info . $sep . $pt_row[0] . " " . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
 					       $sep = ", ";     
                        }
                         elseif ($pt_row[4] == 0 && $pt_row[2] >= 0){          //  athlete with 0 points                                   
-                                $info = $info . $sep . $pt_row[0] . $pt_row[11] . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+                                $info = $info . $sep . $pt_row[0] . " " . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
                                 $sep = ", ";       
                         }  
                        else{ 
