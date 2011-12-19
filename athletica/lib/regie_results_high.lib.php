@@ -20,6 +20,8 @@ function AA_regie_High($event, $round, $layout, $cat, $disc)
 
 	$status = AA_getRoundStatus($round);  
     
+    $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
+    
      mysql_query("
                 LOCK TABLES
                     resultat READ
@@ -261,7 +263,7 @@ setcookie('sort_regie', $arg, time()+2419200);
 				, at.Name
 				, at.Vorname
 				, at.Jahrgang
-				, v.Name
+				, if('".$svm."', te.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 				, st.Bestleistung
 				, at.xAthlet
@@ -275,6 +277,7 @@ setcookie('sort_regie', $arg, time()+2419200);
 				LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
 				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 				LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                LEFT JOIN team AS te ON(a.xTeam = te.xTeam) 
                 LEFT JOIN tempHigh AS t ON (t.xSerienstart = ss.xSerienstart)    
 			    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = r.xRundentyp)
 			WHERE r.xRunde = $round   			
@@ -319,7 +322,7 @@ setcookie('sort_regie', $arg, time()+2419200);
 					}
                       
 					$resTable->printHeatTitle($row[2], $row[3], $title, $row[4], 'regie');
-					$resTable->printAthleteHeader('regie');
+					$resTable->printAthleteHeader('regie', $round);
 				}		// ET new heat
 
 /*

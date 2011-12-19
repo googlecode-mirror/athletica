@@ -162,6 +162,8 @@ function AA_speaker_Tech($event, $round, $layout)
 			$menu->printMenu();
 			echo "<p/>";
 		}
+        
+        $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
 
 		$prog_mode = AA_results_getProgramMode();
 		$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speaker'])) ? $_COOKIE['sort_speaker'] : 'pos');
@@ -178,7 +180,12 @@ function AA_speaker_Tech($event, $round, $layout)
 		$argument="at.Name, at.Vorname";
 		$img_name="img/sort_act.gif";
 	} else if ($arg=="club") {
-		$argument="v.Name, a.Startnummer";
+        if ($svm){
+            $argument="te.Name, a.Startnummer";
+        }
+        else {
+            $argument="v.Name, a.Startnummer";
+        }		
 		$img_club="img/sort_act.gif";
 	} else if ($arg=="perf") {
 		$argument="st.Bestleistung, ss.Position";
@@ -206,13 +213,14 @@ function AA_speaker_Tech($event, $round, $layout)
                 , at.Name
                 , at.Vorname
                 , at.Jahrgang
-                , v.Name
+                , if('".$svm."', te.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
                 , LPAD(s.Bezeichnung,5,'0') as heatid
                 , w.Windmessung
                 , st.Bestleistung
                 , at.xAthlet
                 , at.Land
                 , t.rang
+                , r.xRunde
             FROM
                 runde AS r
                 LEFT JOIN serie AS s ON (s.xRunde = r.xRunde     )
@@ -221,6 +229,7 @@ function AA_speaker_Tech($event, $round, $layout)
                 LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                LEFT JOIN team AS te ON(a.xTeam = te.xTeam) 
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)
                 LEFT JOIN temp AS t ON (t.athlet = ss.xSerienstart)
                 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
@@ -265,7 +274,7 @@ function AA_speaker_Tech($event, $round, $layout)
 						$c++;		// increment colspan to include ranking
 					
 					$resTable->printHeatTitle($row[2], $row[3], $title , $row[5]);
-					$resTable->printAthleteHeader();
+					$resTable->printAthleteHeader('', $row[20]);
 				}		// ET new heat
 
 /*
@@ -345,6 +354,33 @@ function AA_speaker_Tech($event, $round, $layout)
 else {
         AA_printErrorMsg($strErrMergedRoundSpeaker);    
 }       
+    
+   ?> 
+    
+   <script type="text/javascript">
+<!--
+    window.setTimeout("updatePage()", <?php echo $cfgMonitorReload * 1000; ?>);
+
+   
+
+    function updatePage()
+    {
+        window.open("speaker_results.php?round=<?php echo $round; ?>", "main");
+    }
+
+    
+</script> 
+    
+    
+    <?php
+    
+    
+    
+    
+    
+    
+    
+    
         
 
 }	// End Function AA_speaker_Tech

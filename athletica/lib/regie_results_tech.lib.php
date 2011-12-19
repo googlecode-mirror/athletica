@@ -24,6 +24,8 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     $combined = AA_checkCombined(0, $round);    
     
    $prog_mode = AA_results_getProgramMode();   
+   
+    $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
     
      // if this is a combined event, rank all rounds togheter
     $roundSQL = "";   
@@ -304,7 +306,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
             }
         }  
        
-	
+	  
 		
 		$arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
 setcookie('sort_regie', $arg, time()+2419200);
@@ -319,7 +321,13 @@ setcookie('sort_regie', $arg, time()+2419200);
 		$argument="at.Name, at.Vorname";
 		$img_name="img/sort_act.gif";
 	} else if ($arg=="club") {
-		$argument="v.Name, a.Startnummer";
+        if ($svm){
+            $argument="te.Name, a.Startnummer";
+        }
+        else {
+            $argument="v.Name, a.Startnummer";
+        }
+		
 		$img_club="img/sort_act.gif";
 	} else if ($arg=="perf") {
 		$argument="st.Bestleistung, ss.Position";
@@ -332,8 +340,8 @@ setcookie('sort_regie', $arg, time()+2419200);
 		$img_pos="img/sort_act.gif";
 	}
 		
-	$result = mysql_query("
-			SELECT
+	    
+	$sql = "SELECT
 				rt.Name
 				, rt.Typ
 				, s.xSerie
@@ -347,7 +355,7 @@ setcookie('sort_regie', $arg, time()+2419200);
 				, at.Name
 				, at.Vorname
 				, at.Jahrgang
-				, v.Name
+				, if('".$svm."', te.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
 				, LPAD(s.Bezeichnung,5,'0') as heatid
 				, w.Windmessung
 				, st.Bestleistung
@@ -363,14 +371,16 @@ setcookie('sort_regie', $arg, time()+2419200);
                 LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung) 
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet) 
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein) 
+                LEFT JOIN team AS te ON(a.xTeam = te.xTeam) 
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = r.xWettkampf)  
 				LEFT JOIN tempTech AS t ON (t.xSerienstart = ss.xSerienstart)
 			    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 			WHERE r.xRunde = $round     
 			ORDER BY s.xSerie, 
-				" . $argument . "
-		");
-       
+				" . $argument;
+                
+		$result = mysql_query($sql);
+      
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}

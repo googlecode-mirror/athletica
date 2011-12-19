@@ -27,6 +27,8 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
     $combined = AA_checkCombined(0,$round);
 	$eval = AA_results_getEvaluationType($round);
     
+    $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
+    
     if ( ($eval == $cfgEvalType[$strEvalTypeAll])  ||  
                           ($eval == $cfgEvalType[$strEvalTypeHeat] &&   (isset($eventType['club']))) ) 
     {    // eval all heats together
@@ -198,7 +200,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					, at.Name
 					, at.Vorname
 					, at.Jahrgang
-					, v.Name
+					, if('".$svm."', te.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))  
 					, LPAD(s.Bezeichnung,5,'0') as heatid
 					, at.Land
 					, st.Bestleistung
@@ -213,6 +215,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
 					LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 					LEFT JOIN verein AS v  ON (v.xVerein = at.xVerein)
+                    LEFT JOIN team AS te ON(a.xTeam = te.xTeam)
                     LEFT JOIN tempTrack AS t ON (t.xSerienstart = ss.xSerienstart)  
 				    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 				    LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
@@ -239,7 +242,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					, ss.Rang
 					, ss.Qualifikation
 					, sf.Name
-					, v.Name
+					, if('".$svm."', te.Name, v.Name)  
 					, LPAD(s.Bezeichnung,5,'0') as heatid
 					, r.xRunde
 					, st.xStart
@@ -252,6 +255,7 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					LEFT JOIN start AS st ON (st.xStart = ss.xStart) 
 					LEFT JOIN staffel AS sf ON (sf.xStaffel = st.xStaffel) 
 					LEFT JOIN verein AS v ON (v.xVerein = sf.xVerein) 
+                    LEFT JOIN team AS te ON(sf.xTeam = te.xTeam)
                     LEFT JOIN tempTrack AS t ON (t.xSerienstart = ss.xSerienstart)   
 				    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
 				    LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
@@ -309,10 +313,10 @@ function AA_regie_Track($event, $round, $layout, $cat, $disc)
 					$resTable->printHeatTitle($row[3], $row[4], $title, $row[7], $row[6], $row[5], 'regie', $relay);
 
 					if($relay == FALSE) {	// athlete display
-						$resTable->printAthleteHeader('regie');
+						$resTable->printAthleteHeader('regie', $round);
 					}
 					else {		// relay display
-						$resTable->printRelayHeader('regie');
+						$resTable->printRelayHeader('regie', $round);
 					}
 				}		// ET new heat
 

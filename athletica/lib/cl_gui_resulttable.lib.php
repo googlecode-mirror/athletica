@@ -187,8 +187,9 @@ function printHeatTitleRegie($cat, $disc)
 	}
 
 
-	function printAthleteHeader($arg='')
-	{
+	function printAthleteHeader($arg='', $round=0)
+	{ 
+         $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
 		?>
 	<tr>
 		<th class='dialog'><?php echo $GLOBALS['strPositionShort']; ?></th>
@@ -202,7 +203,7 @@ function printHeatTitleRegie($cat, $disc)
            <?php 
         }
         ?>		
-        <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>    
+        <th class='dialog'><?php if($svm){ echo $GLOBALS['strTeam']; }else{ echo $GLOBALS['strClub'];} ?></th>    
 		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strPerformance']; ?></th>
 		<?php
@@ -231,13 +232,14 @@ function printHeatTitleRegie($cat, $disc)
 	}
 
 
-	function printRelayHeader($arg='')
+	function printRelayHeader($arg='', $round = 0)
 	{
+         $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
 		?>
 	<tr>
 		<th class='dialog'><?php echo $GLOBALS['strPositionShort']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strRelay']; ?></th>     
-		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th> 
+		<th class='dialog'><?php if($svm){ echo $GLOBALS['strTeam']; }else{ echo $GLOBALS['strClub'];} ?></th> 
 		<th class='dialog'><?php echo $GLOBALS['strPerformance']; ?></th>
 		<?php
 		// show rank if all results entered
@@ -550,6 +552,9 @@ class GUI_TechResultTable extends GUI_ResultTable
 
 	function printAthleteHeader($argT='', $round=0)
 	{
+        
+    $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
+        
 	if(!empty($_GET['round'])){
 	$round = $_GET['round'];
 }
@@ -643,16 +648,14 @@ else if(!empty($_POST['round'])) {
         
         if ($argT == 'regie'){
             ?>
-             <a href='regie.php?arg=club&round=<?php echo $round; ?>'>
-             <?php echo $GLOBALS['strClub']; ?>
+             <a href='regie.php?arg1=club&round=<?php echo $round; ?>'>
+             <?php if($svm){ echo $GLOBALS['strTeam']; }else{ echo $GLOBALS['strClub'];}    ?>
                         <img src='<?php echo $img_club; ?>' />
                         </a> 
              <?php
         }
-        else {
-             ?>
-            <a href='speaker_results.php?arg=perf&round=<?php echo $round; ?>'>  
-             <?php
+        else {            
+              if($svm){ echo $GLOBALS['strTeam']; }else{ echo $GLOBALS['strClub'];}   
         }               
         
         ?>     
@@ -849,9 +852,10 @@ class GUI_HighResultTable extends GUI_ResultTable
 	}
 
 
-	function printAthleteHeader($argT='')
+	function printAthleteHeader($argT='', $round = 0)
 	{        
-        
+     $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
+         
      if ($argT == 'regie'){
            $arg = (isset($_GET['arg1'])) ? $_GET['arg1'] : ((isset($_COOKIE['sort_regie'])) ? $_COOKIE['sort_regie'] : 'pos');
            setcookie('sort_regie', $arg1, time()+2419200);
@@ -907,7 +911,7 @@ class GUI_HighResultTable extends GUI_ResultTable
               <?php
         }
 		?>
-        <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>  
+        <th class='dialog'><?php if($svm){ echo $GLOBALS['strTeam']; }else{ echo $GLOBALS['strClub'];} ?></th>  
 		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
 		<th class='dialog'>
         

@@ -20,6 +20,8 @@ function AA_speaker_High($event, $round, $layout)
 
 	$status = AA_getRoundStatus($round);
     
+    $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
+    
     $mergedMain=AA_checkMainRound($round);
     if ($mergedMain != 1) {
 
@@ -65,7 +67,7 @@ function AA_speaker_High($event, $round, $layout)
                 , at.Name
                 , at.Vorname
                 , at.Jahrgang
-                , v.Name
+                , if('".$svm."', te.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
                 , LPAD(s.Bezeichnung,5,'0') as heatid
                 , st.Bestleistung
                 , at.xAthlet
@@ -77,6 +79,7 @@ function AA_speaker_High($event, $round, $layout)
                 LEFT JOIN start AS st ON (st.xStart = ss.xStart)
                 LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                 LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                LEFT JOIN team AS te ON(a.xTeam = te.xTeam) 
                 LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
                 LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
             WHERE 
@@ -119,7 +122,7 @@ function AA_speaker_High($event, $round, $layout)
 						$c = 1;		// increment colspan to include ranking
 					}
 					$resTable->printHeatTitle($row[2], $row[3], $title, $row[4]);
-					$resTable->printAthleteHeader();
+					$resTable->printAthleteHeader('', $round);
 				}		// ET new heat
 
 /*
@@ -170,6 +173,29 @@ function AA_speaker_High($event, $round, $layout)
 else {
      AA_printErrorMsg($strErrMergedRoundSpeaker);    
 }
+
+
+ ?> 
+    
+   <script type="text/javascript">
+<!--
+    window.setTimeout("updatePage()", <?php echo $cfgMonitorReload * 1000; ?>);
+
+   
+
+    function updatePage()
+    {
+        window.open("speaker_results.php?round=<?php echo $round; ?>", "main");
+    }
+
+    
+</script> 
+    
+    
+    <?php
+
+
+
     
 }	// End function AA_speaker_High
 
