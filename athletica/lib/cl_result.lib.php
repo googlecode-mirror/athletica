@@ -162,7 +162,7 @@ class Result
 
 		mysql_query("
 			LOCK TABLES
-				resultat WRITE
+				resultat WRITE, runde WRITE, serienstart as ss READ, serie as s READ, runde as r READ, resultat as re READ
 		");
 
 		if(!empty($this->resultID))	// result provided -> change it
@@ -185,6 +185,8 @@ class Result
 					$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 				}
 				else {
+                    AA_StatusChanged($this->resultID);                   
+                    
 					$reply->setKey($this->resultID);
 					$reply->setAction(RES_ACT_UPDATE);
 					$reply->setPerformance($this->performance);
@@ -207,6 +209,9 @@ class Result
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 			}
 			else {
+                 AA_StatusChanged(mysql_insert_id());
+               
+                
 				$reply->setKey(mysql_insert_id());
 				$reply->setAction(RES_ACT_INSERT);
 				$reply->setPerformance($this->performance);
@@ -243,6 +248,8 @@ class Result
 			$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 		}
 		else {
+            AA_StatusChanged($this->resultID);
+                       
 			$reply->setKey($this->resultID);
 			$reply->setAction(RES_ACT_DELETE);
 		}

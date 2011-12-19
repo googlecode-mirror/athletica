@@ -273,7 +273,7 @@ class Timetable
 		// OK: try to change round
 		else
 		{
-			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ, runde WRITE, wettkampf WRITE");
+			mysql_query("LOCK TABLES serie READ, kategorie_svm as ks READ, wettkampf as w READ, runde as r READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ, runde WRITE, wettkampf WRITE, meeting WRITE");
 
 			$status = AA_utils_getRoundStatus($this->round);
 
@@ -453,6 +453,17 @@ class Timetable
 					    } 
                     }
 				}
+                 $sql = "UPDATE meeting SET
+                            StatusChanged = 'y'                          
+                        WHERE xMeeting = " .  $_COOKIE['meeting_id'];              
+              
+                mysql_query($sql);   
+                
+                if(mysql_errno() > 0) {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }             
+                
+                
                 }
 			}
 			mysql_query("UNLOCK TABLES");

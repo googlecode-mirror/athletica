@@ -15,7 +15,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 	define('AA_UTILS_LIB_INCLUDED', 1);
 
 	require('./lib/common.lib.php');
-	require('./convtables.inc.php');
+	require('./convtables.inc.php');        
 
 /*
  * ------------------------------------------------------
@@ -37,6 +37,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 
 	function AA_utils_calcPoints($event, $perf, $fraction = 0, $sex = 'M', $startID)
 	{  
+               
         // check if this is a merged round   (important for calculate points for merged round with different sex)
         $sql="SELECT                                           
                     se.RundeZusammen                       
@@ -82,28 +83,28 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		if($perf > 0)
 		{
 			// get formula to calculate points from performance     
-            $sql= "
-                SELECT
-                    d.Typ
+            $sql= "SELECT
+                    d.Typ 
                     , w.Punktetabelle
                     , w.Punkteformel
                     , d.xDisziplin
                 FROM
                     disziplin_" . $_COOKIE['language'] . " As d
                     LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin)
-                WHERE 
-                    w.xWettkampf = $event     
+                WHERE                          
+                     w.xWettkampf = $event     
                     AND w.Punktetabelle > 0
                     AND (w.Punkteformel != '0'
                         OR (w.Punkteformel = '0' 
-                    AND w.Punktetabelle >= 100))";  
+                    AND w.Punktetabelle >= 100))";     
             
             $result = mysql_query($sql);     
 			
 			if(mysql_errno() > 0) {		// DB error
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 			}
-			else if (mysql_num_rows($result) > 0)	// event has formula assigned
+			else 
+            if (mysql_num_rows($result) > 0)	// event has formula assigned
 			{
 				
 				$row = mysql_fetch_row($result);
@@ -269,7 +270,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 							if ($relay)
 								$countMaxRes = 1; 
 							else
-								$countMaxRes = 2;
+								$countMaxRes = 1;
 							break;
 						case $cfgEventType[$strEventTypeClubBasic]:
 							$countMaxRes = 1;
@@ -382,6 +383,9 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 							if(mysql_errno() > 0) {
 								AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							}
+                            
+                            AA_StatusChanged($row[0]);                           
+                            
 							continue; // skip
 						}
 					}       
@@ -435,7 +439,8 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 					if(mysql_errno() > 0) {
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}
-					
+                    
+					 AA_StatusChanged($key);                    
 				}
 				
 			}

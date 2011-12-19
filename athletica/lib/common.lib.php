@@ -3567,6 +3567,91 @@ function AA_checkRelayDisc($disc){
     }
 }
 
+
+
+/**    
+     * set status changed --> needed by live results
+     * ---------------------------------------------
+     */      
+
+function AA_StatusChanged($xResultat, $xSerie , $xSerienstart){
+    
+    $round = 0;
+    if ($xResultat > 0){
+            $sql = "SELECT 
+                        r.xRunde
+                    FROM 
+                        resultat as re
+                        LEFT JOIN serienstart as ss ON (re.xSerienstart = ss.xSerienstart)
+                        LEFT JOIN serie as s ON (s.xSerie = ss.xSerie)
+                        LEFT JOIN runde as r ON (r.xRunde = s.xRunde)
+                    WHERE  re.xResultat = " . $xResultat;
+    }
+    elseif ($xSerie > 0) {
+          $sql = "SELECT 
+                    r.xRunde
+                FROM  
+                    serie as s 
+                    LEFT JOIN runde as r ON (r.xRunde = s.xRunde)
+            WHERE  s.xSerie = " . $xSerie;
+    }
+    else {
+        $sql = "SELECT 
+                    r.xRunde
+                FROM  
+                    serienstart as ss 
+                    LEFT JOIN serie as s ON (s.xSerie = ss.xSerie)
+                    LEFT JOIN runde as r ON (r.xRunde = s.xRunde)
+            WHERE  ss.xSerienstart = " . $xSerienstart;
+    }
+   
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    else {  
+         if (mysql_num_rows($res) >  0){
+             $row = mysql_fetch_row($res);
+             
+             $sql = "UPDATE runde SET StatusChanged = 'y' WHERE xRunde = " . $row[0];
+             
+             $res = mysql_query($sql);
+             if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+             }
+             else {
+                 $round = $row[0];
+             }
+             
+         }
+    } 
+  
+   return $round; 
+}
+
+/**    
+     * set status changed --> needed by live results
+     * ---------------------------------------------
+     */      
+
+function AA_UpdateStatusChanged($round){
+    
+    $sql = "UPDATE runde SET StatusChanged = 'n' WHERE xRunde = " . $round;
+             
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    
+    $sql = "UPDATE meeting SET StatusChanged = 'n' WHERE xMeeting = " .  $_COOKIE['meeting_id'];              
+             
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }
+    
+}
+
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

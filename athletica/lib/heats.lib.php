@@ -345,7 +345,7 @@ function AA_heats_seedEntries($event)
 	else if($entries > 0)
 	{            
 		mysql_query("LOCK TABLES resultat READ,resultat AS re READ, rundenset READ, wettkampf READ , meeting READ, runde WRITE, serie WRITE, serie AS s WRITE"
-							. ", serienstart WRITE, serienstart AS ss, WRITE runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
+							. ", serienstart WRITE, serienstart AS ss WRITE , runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ,  serie as s READ, serienstart as ss READ, resultat as re READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -405,6 +405,8 @@ function AA_heats_seedEntries($event)
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							$OK = FALSE;
 						}
+                        
+                        AA_StatusChanged(0, $row[0]);                       
 					}
 				}
 				mysql_free_result($res);
@@ -566,7 +568,10 @@ function AA_heats_seedEntries($event)
 										$filmnr++;
 									}
 								}
-							}   
+							}  
+                            foreach ($heats as $key => $val) {
+                                AA_StatusChanged(0, $val);                               
+                            }
                                   
 							//
 							// Mode: open or top performances together
@@ -641,6 +646,9 @@ function AA_heats_seedEntries($event)
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
+                                    
+                                    AA_StatusChanged(0, $heats[$i]);                                   
+                                    
 									$p++;		// next position
                                 if ($combined){
                                     $team_keep=$row[4];
@@ -652,8 +660,18 @@ function AA_heats_seedEntries($event)
 								} 
                                  
                                 for ($j=($i+1);$j<$h;$j++) {
-                                     
-                                      
+                                    
+                                      $sql = "SELECT xSerie FROM serie WHERE Bezeichnung=".($j+1);
+                                      $res_sql = mysql_query($sql);
+                                      if(mysql_errno() > 0) {        // DB error
+                                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                      }
+                                      else {
+                                          while ($row = mysql_fetch_row($res_sql)){
+                                                AA_StatusChanged(0, $row[0]);                                                
+                                          }
+                                          
+                                      }                                     
                                       $sql_del="DELETE FROM serie WHERE Bezeichnung=".($j+1);
                                       mysql_query($sql_del);
                                        
@@ -718,6 +736,9 @@ function AA_heats_seedEntries($event)
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
+                                    
+                                    AA_StatusChanged(0, $heats[$i]);                                    
+                                    
                                     if ($e % 2 != 0){
 									    $i--;			  // previous heat
                                     }
@@ -891,7 +912,7 @@ function AA_heats_seedQualifiedAthletes($event)
                     AND s.xRunde  =" . $prev_rnd ."                               
                 ORDER BY " . $order;           
               
-            $result = mysql_query($sql);
+            $result = mysql_query($sql);           
            
     }
      
@@ -903,7 +924,7 @@ function AA_heats_seedQualifiedAthletes($event)
 	else if(mysql_num_rows($result) > 0)
 	{         
 		mysql_query("LOCK TABLES resultat READ,resultat AS re READ, runde WRITE, rundenset READ,serie WRITE, serie AS ss WRITE"
-							. ", serienstart WRITE, serienstart AS ss WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ");
+							. ", serienstart WRITE, serienstart AS ss WRITE, runde as r READ, wettkampf as w READ, kategorie as k READ, disziplin_de as d READ, disziplin_fr as d READ, disziplin_it as d READ, serie as s READ, serienstart as ss READ, resultat as re READ");
 
 		// check if round still exists
 		if(AA_checkReference("runde", "xRunde", $round) == 0)
@@ -960,6 +981,9 @@ function AA_heats_seedQualifiedAthletes($event)
 							AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 							$OK = FALSE;
 						}
+                        
+                         AA_StatusChanged(0, $row[0]);
+                         
 					}
 				}
 				mysql_free_result($res);
@@ -1121,6 +1145,10 @@ function AA_heats_seedQualifiedAthletes($event)
 									$filmnr++;
 								}
 							}
+                            // need for live results
+                            foreach ($heats as $key => $val) {
+                                AA_StatusChanged(0, $val);                              
+                            }
                             
 							//
 							// Mode: Seed by top performances
@@ -1166,6 +1194,9 @@ function AA_heats_seedQualifiedAthletes($event)
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
+                                    
+                                    AA_StatusChanged(0, $heats[$h]);                                    
+                                    
 									$p++;		// next position                                       
 								}
 							}
@@ -1219,6 +1250,8 @@ function AA_heats_seedQualifiedAthletes($event)
 									if(mysql_errno() > 0) {		// DB error
 										AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 									}
+                                    
+                                    AA_StatusChanged(0, $heats[$h]);                                   
 
 									if($up == TRUE) {	// step up
 										$h++;		// next heat
@@ -1327,6 +1360,8 @@ function AA_heats_addStart($round)
 {  
 	require('./lib/common.lib.php');
     
+    global $cfgMaxAthlete;
+    
     $eventMerged=false; 
     $mround=0;
     $mergedRounds=AA_getMergedRounds($round);
@@ -1359,7 +1394,7 @@ function AA_heats_addStart($round)
 	// OK: try to change
 	else
 	{  
-		mysql_query("LOCK TABLES start WRITE, serie WRITE, serienstart WRITE, runde READ");
+		mysql_query("LOCK TABLES start WRITE, serie WRITE, serienstart WRITE, runde READ, runde WRITE, runde as r READ, serie as s READ, serienstart as ss READ, resultat as re READ");
 
 		// check if start exists
 		if(AA_checkReference("start", "xStart", $_POST['start']) > 0)
@@ -1398,6 +1433,7 @@ function AA_heats_addStart($round)
 					}
 					else {
 						$xSerie = mysql_insert_id();	// get new heat ID
+                        AA_StatusChanged(0,$xSerie);                      
 					}
 				}
 			}
@@ -1430,6 +1466,8 @@ function AA_heats_addStart($round)
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 				
+                AA_StatusChanged(0,$xSerie);
+                                
 				// set start.Anwesend to 0
 				mysql_query("UPDATE start SET Anwesend = 0 WHERE xStart = ".$_POST['start']);
 				
@@ -1459,8 +1497,10 @@ function AA_heats_deleteStart()
 	// OK: try to change
 	else
 	{   
-		mysql_query("LOCK TABLES resultat WRITE, serie WRITE, serienstart WRITE, runde WRITE");
+		mysql_query("LOCK TABLES resultat WRITE, serie WRITE, serienstart WRITE, runde WRITE, resultat as re READ, serie as s READ, serienstart as ss READ, runde as r READ");
 
+        AA_StatusChanged(0, 0,  $_GET['item']);  
+        
 		mysql_query("DELETE FROM resultat WHERE xSerienstart = "
 						. $_GET['item']);
 
@@ -1475,6 +1515,8 @@ function AA_heats_deleteStart()
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
+            
+            
 		}
 
 		AA_heats_deleteHeats();
@@ -1514,6 +1556,9 @@ function AA_heats_deleteHeats()
 			{
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
+            
+            AA_StatusChanged(0, $row[0]);           
+            
 		}
 		mysql_free_result($res);
 	}
@@ -1652,7 +1697,8 @@ function AA_heats_changePosition($round)
 	// OK: try to change
 	else
 	{  
-		mysql_query("LOCK TABLES runde READ, serie WRITE, serienstart WRITE, wettkampf READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, meeting READ");
+		mysql_query("LOCK TABLES runde READ, serie WRITE, serienstart WRITE, wettkampf READ, disziplin_de READ, disziplin_fr READ, disziplin_it READ, meeting READ,
+                    runde WRITE, serie as s READ, serienstart as ss READ, resultat as re READ");
 		
 		// change request by text field
 		if(empty($_POST['heat'])){
@@ -1715,6 +1761,7 @@ function AA_heats_changePosition($round)
 				}
 				else {
 					$xSerie = mysql_insert_id();	// get new heat ID
+                    AA_StatusChanged(0,$xSerie);                    
 				}
 			}
 		}
@@ -1849,7 +1896,7 @@ function AA_heats_delete($round)
 {
 	require('./lib/common.lib.php');
       
-	mysql_query("LOCK TABLES runde READ ,rundenset READ, serie WRITE, serienstart WRITE, hoehe WRITE");
+	mysql_query("LOCK TABLES runde READ ,rundenset READ, serie WRITE, serienstart WRITE, hoehe WRITE, runde WRITE, runde as r READ, serie as s READ, serienstart as ss READ, resultat as re READ");
 
 	// delete only possible if no results entered yet
 	if(AA_getRoundStatus($round) > $GLOBALS['cfgRoundStatus']['heats_done'])
@@ -1879,6 +1926,9 @@ function AA_heats_delete($round)
 				{
 					$err = mysql_errno() . ": " . mysql_error();
 				}
+                
+                AA_StatusChanged(0, $row[0]);                
+                
                 $sql = "DELETE FROM hoehe 
                                WHERE xRunde = " . $round ."    
                                      AND xSerie = " . $row[0];

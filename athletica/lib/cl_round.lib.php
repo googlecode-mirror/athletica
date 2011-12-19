@@ -51,7 +51,7 @@ class Round
 				{
 					$this->update("
 						UPDATE runde SET
-							Status = $status
+							Status = $status                          
 						WHERE xRunde = " . $this->roundID
 					);
 
@@ -62,7 +62,18 @@ class Round
 							. $GLOBALS['cfgRoundStatusTranslation'][$status];	
 						AA_utils_logRoundEvent($this->roundID, $txt);
 					}
-				}	// ET status changed
+                    
+                     $sql = "UPDATE meeting SET
+                            StatusChanged = 'y'                          
+                        WHERE xMeeting = " .  $_COOKIE['meeting_id'];              
+              
+                     mysql_query($sql);   
+                        
+                     if(mysql_errno() > 0) {
+                                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                     }             
+				}
+                
 				mysql_free_result($result);
 			}	// ET DB error
 		}	// ET valid status

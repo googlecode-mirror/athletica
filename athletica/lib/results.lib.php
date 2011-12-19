@@ -129,11 +129,15 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 			serie as s WRITE
 			, resultat as res WRITE
 			, resultat WRITE
+            , resultat as re READ
 			, runde as r WRITE
             , runde as ru WRITE  
+            , runde WRITE  
 			, serienstart as sst READ
-            , serienstart as se READ    
-			, start as st READ
+            , serienstart as se READ  
+            , serienstart as ss READ      
+			, serie as s READ
+            , start as st READ
 			, anmeldung as a READ
 			, disziplin_de as d READ
             , disziplin_fr as d READ 
@@ -344,6 +348,8 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 											, xSerienstart = ".$row[0]
 									);
 									
+                                    AA_StatusChanged(mysql_insert_id());
+                                   
 								}
 						/*	}else{
 								// update                                 
@@ -399,6 +405,8 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 											, xSerienstart = ".$row[0]
 									);
 									
+                                    AA_StatusChanged(mysql_insert_id());
+                                    
 								}
 						/*	}else{
 								// update
@@ -481,15 +489,23 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 			serie as s WRITE
 			, resultat as r WRITE
 			, resultat WRITE
+            , resultat as re READ
 			, runde as ru WRITE
+            , runde WRITE
 			, serienstart as sst READ
             , serienstart as se READ 
+            , serienstart as ss READ 
+            , serie as s READ
 			, start as st READ
 			, anmeldung as a READ
 			, disziplin_de READ
             , disziplin_fr READ 
             , disziplin_it READ 
+            , disziplin_de as d READ
+            , disziplin_fr as d READ 
+            , disziplin_it as d READ 
 			, wettkampf READ
+            , wettkampf as w READ   
 			, staffel as sf READ
             , kategorie as k READ"
 	);
@@ -667,7 +683,9 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 											, Punkte = '$points'
 											, xSerienstart = ".$row[0]
 									        );
-									        
+                                            
+									    AA_StatusChanged(mysql_insert_id());  
+                                        
 								    }
 							    }else{
 								    // update
@@ -678,7 +696,9 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 								    mysql_query("UPDATE resultat as r SET Leistung = '$perf'
 										    , Punkte = '$points'
 									        WHERE xResultat = ".$row[0]);
-								
+                                            
+								    AA_StatusChanged($row[0]);
+                                   
 							    }
 								//
 						    }else{		// relay event
@@ -734,14 +754,19 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 											SET 	Leistung = '$perf'
 												, Punkte = '$points'
 												, xSerienstart = ".$row[1]
-										);    
+										);  
+                                        
+                                        AA_StatusChanged(mysql_insert_id());  
 								  
 								  	}else{  								
 										// update  
                                         $count_results++; 	                                         							
 										mysql_query("UPDATE resultat as r SET Leistung = '$perf'
 											, Punkte = '$points'
-											WHERE xResultat = ".$row[0]);   								
+											WHERE xResultat = ".$row[0]);  
+                                            
+                                        AA_StatusChanged($row[0]); 		
+                                       
 									}
 						   	  }			
 						    }
@@ -996,6 +1021,9 @@ function AA_results_update($performance, $info, $points = 0)
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
+                
+                AA_StatusChanged($_POST['item']);
+                
 			}
 		}
 		else // no result provided -> add result
@@ -1011,6 +1039,10 @@ function AA_results_update($performance, $info, $points = 0)
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
+            
+            AA_StatusChanged(mysql_insert_id());
+            
+            
 		}	// ET add or change
 	}	// ET valid data provided
 }
@@ -1030,15 +1062,16 @@ function AA_results_delete($round, $item)
 		AA_printErrorMsg($GLOBALS['AA_ERROR']);
 	}
 
-	mysql_query("LOCK TABLES resultat WRITE");
-
+	mysql_query("LOCK TABLES resultat WRITE");    
+    
 	mysql_query("DELETE FROM resultat"
 				. " WHERE xResultat=" . $item);
 
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-	}
-
+	}   
+   
+ 
 	mysql_query("UNLOCK TABLES");
 }
 
@@ -1080,6 +1113,9 @@ function AA_results_deleteResults($round){
 			if(mysql_errno() > 0) {
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
+            
+            AA_StatusChanged(0,0,$row[0]);           
+            
             if ($prog_mode == 2){ 
                 if ($z == 0){
                      mysql_query("UPDATE serie SET MaxAthlet = " .$cfgMaxAthlete . " WHERE xSerie = ".$row[1]);
