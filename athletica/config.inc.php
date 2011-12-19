@@ -16,7 +16,7 @@
  * Application Info
  */
 $cfgApplicationName = 'Athletica';
-$cfgApplicationVersion = '5.1';
+$cfgApplicationVersion = '5.2';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
@@ -165,11 +165,14 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
 				, 400 => 'WOM'
 				, 401 => 'U18W'
                 , 406 => '5U16M'     // Fünfkampf U16 M   
+                , 425 => '5U16MI'    // Fünfkampf U16 M Indoor  
                 , 407 => 'U23M'     // Fünfkampf U23 M
                 , 424 => 'HU18M'    // Fünfkampf Halle U18 M
                 , 392 => '5MAN'     // Fünfkampf M
                 , 393 => '5MANU20'  // Fünfkampf U20 M
+                , 427 => '8MANU18'  // Achtkampf U18 M
 				, 399 => 'U16W'     // Fünfkampf U16 W
+                , 426 => '5U16WI'    // Fünfkampf U16 W Indoor  
 				, 396 => 'HMAN'		// Halle
 				, 397 => 'HMANU20'
 				, 398 => 'HMANU18'
@@ -180,7 +183,7 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
                 , 405 => '5MANU18'  // Fünfkampf U18 M
                 , 416 => '5WOM'     // Fünfkampf W
                 , 417 => '5WOMU20'  // Fünfkampf U20 W
-                , 418 => '5WOMU18'  // Fünfkampf U18 W                    
+                , 418 => '5WOMU18'  // Fünfkampf U18 W  
                 , 799 => '..Ka'     // ...kampf
 				);        
               
@@ -203,7 +206,11 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, 'U18W' => array(259,330,388,50,310,352,90)
 			, 'U18W_F' => 4               
 			, 'U16W' => array(35,330,352,310,100)
-			, 'U16W_F' => 2               
+			, 'U16W_F' => 2  
+            
+            , '5U16WI' => array(30,330,352,310,100)
+            , '5U16WI_F' => 2  
+                                      
 			, 'HMAN' => array(30,330,351,310,252,320,100)
 			, 'HMAN_F' => 3
 			, 'HMANU20' => array(30,330,348,310,253,320,100)
@@ -221,11 +228,11 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
             , '5MANU20_F' => 3 
              , '5MANU18' => array(40,330,347,310,100) 
             , '5MANU18_F' => 3
-             , '5WOM' => array(40,330,351,349,100) 
+             , '5WOM' => array(40,310,349,330,100) 
             , '5WOM_F' => 3
              , '5WOMU20' => array(40,330,349,310,100) 
             , '5WOMU20_F' => 3
-             , '5WOMU18' => array(40,330,352,310,100) 
+             , '5WOMU18' => array(40,310,352,330,100) 
             , '5WOMU18_F' => 3
             
 			, 'HWOMU18' => array(256,310,352,330,90)
@@ -241,9 +248,16 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
             , 'U23M_F' => 1   
             , '5U16M' => array(35,330,349,310,100) 
             , '5U16M_F' => 1   
+            , '5U16MI' => array(30,330,349,310,100) 
+            , '5U16MI_F' => 1   
             , '10WOM' =>  array(40,330,349,310,70, 261,357,320,388,110)
-            , '10WOM_F' => 2               
-            , '10MASM_F' => 1   
+            , '10WOM_F' => 4   
+            , '10MASM' => array(40,330,351,310,70,271,361,320,391,110)            
+            , '10MASM_F' => 1  
+            
+            , '8MANU18' => array(40,330,347,70,268,310,389,100)             
+            , '8MANU18_F' => 3
+           
            
 			);
 
@@ -410,7 +424,7 @@ $cfgSVM = array(    '29_01' => array(40,50,70,90,140,271,301,560,310,320,330,340
             , '33_06_T' => array(1530,1245,1330,1200,1215,1430,1445,1345)  
             , '33_06_NT' => array('0330','0045','0130','0000','0015','0230','0245','0145') 
             , '33_06_C' => 'U20W'   
-            , '33_02_D' => 'Jun.C'  
+            , '33_06_D' => 'Jun.C'  
              
             , '35_01' => array(40,100,140,160,560,310,320,330,340,351,361,381,391)    
             , '35_01_F' => 1
@@ -560,7 +574,11 @@ $cfgTVDef = array("de" => array (232 => '50m Hurdles'
                                 ));  
                                 
 // SVM reserve discipline                               
-$cfgResDisc = 811;      
+$cfgResDisc = 811;   
+// SVM discipline (don't exist in athletica)    
+$cfgSvmDiscFirst = 812;
+$cfgSvmDiscLast = 819;
+
   
 /**
  * Heat status
