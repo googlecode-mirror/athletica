@@ -173,6 +173,7 @@ $sql = "SELECT t.xTeamsm
                , t.Startnummer
                , d.name
                , w.xKategorie
+               , d.xDisziplin
 		  FROM teamsm AS t
 	 LEFT JOIN kategorie AS k ON(t.xKategorie = k.xKategorie)
 	 LEFT JOIN verein AS v ON(t.xVerein = v.xVerein) 
@@ -183,7 +184,7 @@ $sql = "SELECT t.xTeamsm
            ".$disc_clause."   
 	 	   ".$club_clause." 
 	  ORDER BY " . $argument;   
-               
+           
 $result = mysql_query($sql);
 
 if(mysql_errno() > 0)		// DB error
@@ -201,7 +202,7 @@ else if(mysql_num_rows($result) > 0)  // data found
     // Team loop 
     // full display ordered by name or start nbr   
     while ($row = mysql_fetch_row($result))
-    {
+    {   
           // print previous relay, if any
         if($s != $row[0] && $s > 0)
         {
@@ -246,7 +247,8 @@ else if(mysql_num_rows($result) > 0)  // data found
                                 , at.Vorname
                                 , at.Jahrgang 
                                 , s.Bestleistung
-                                , d.Typ  
+                                , d.Typ 
+                                , d.xDisziplin 
                            FROM anmeldung AS a 
                       LEFT JOIN teamsmathlet AS sma ON(a.xAnmeldung = sma.xAnmeldung) 
                       LEFT JOIN athlet AS at ON(a.xAthlet = at.xAthlet) 
@@ -257,7 +259,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                        ORDER BY at.Name
                                    , at.Vorname";
             $res = mysql_query($sql);
-           
+            
             if(mysql_errno() > 0) {        // DB error
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
             }
@@ -265,7 +267,10 @@ else if(mysql_num_rows($result) > 0)  // data found
                 $sep = "";
 
                 while ($ath_row = mysql_fetch_row($res))
-                {
+                {  
+                    if ($disc_keep != $ath_row[7]) {
+                       continue;
+                    }
                     $perf = 0;
                     if(($ath_row[6] == $cfgDisciplineType[$strDiscTypeJump])
                         || ($ath_row[6] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
@@ -283,13 +288,13 @@ else if(mysql_num_rows($result) > 0)  // data found
                     } 
                     
                     $athletes = $athletes . $sep
-                        .  $ath_row[2] . " " .    $ath_row[3] . " (" . $perf .") ";
+                         .  $ath_row[1] .". " .  $ath_row[2] . " " .    $ath_row[3] . " (" . $perf .") ";
                     $sep = ", ";
                 }
                 mysql_free_result($res);
             }
 
-            $doc->printAthletes($athletes);
+            $doc->printAthletes($athletes, true);
             $l++;            // increment line count
 
             $name = "";
@@ -371,6 +376,7 @@ else if(mysql_num_rows($result) > 0)  // data found
         
         $l++;            // increment line count
         $s = $row[0];
+        $disc_keep = $row[8];  
     }
 
     // print last relay, if any
@@ -408,14 +414,20 @@ else if(mysql_num_rows($result) > 0)  // data found
         $l++;            // increment line count
 
         $athletes = '';
-        $sql="SELECT a.xAnmeldung
+            $sql="SELECT a.xAnmeldung
                                 , a.Startnummer
                                 , at.Name
                                 , at.Vorname
                                 , at.Jahrgang 
+                                , s.Bestleistung
+                                , d.Typ 
+                                , d.xDisziplin 
                            FROM anmeldung AS a 
                       LEFT JOIN teamsmathlet AS sma ON(a.xAnmeldung = sma.xAnmeldung) 
                       LEFT JOIN athlet AS at ON(a.xAthlet = at.xAthlet) 
+                      LEFT JOIN start AS s ON(s.xAnmeldung = a.xAnmeldung) 
+                      LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf) 
+                      LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON (d.xDisziplin = w.xDisziplin)    
                             WHERE sma.xTeamsm = ".$s." 
                        ORDER BY at.Name
                                    , at.Vorname";
@@ -429,14 +441,35 @@ else if(mysql_num_rows($result) > 0)  // data found
 
             while ($ath_row = mysql_fetch_row($res))
             {
-                $athletes = $athletes . $sep
-                    .   $ath_row[2] . " " .    $ath_row[3];
-                $sep = ", ";
+                if ($disc_keep != $ath_row[7]) {
+                       continue;
+                    }
+                    
+                 $perf = 0;
+                    if(($ath_row[6] == $cfgDisciplineType[$strDiscTypeJump])
+                        || ($ath_row[6] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                        || ($ath_row[6] == $cfgDisciplineType[$strDiscTypeThrow])
+                        || ($ath_row[6] == $cfgDisciplineType[$strDiscTypeHigh])) {
+                        $perf = AA_formatResultMeter($ath_row[5]);
+                    }
+                    else {
+                        if(($ath_row[6] == $cfgDisciplineType[$strDiscTypeTrack])
+                            || ($ath_row[6] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
+                            $perf = AA_formatResultTime($ath_row[5], true, true);
+                        }else{
+                            $perf = AA_formatResultTime($ath_row[5], true);
+                        }
+                    } 
+                    
+                    $athletes = $athletes . $sep
+                         .  $ath_row[1] .". " .  $ath_row[2] . " " .    $ath_row[3] . " (" . $perf .") ";
+                    $sep = ", ";                      
+               
             }
             mysql_free_result($res);
         }
 
-        $doc->printAthletes($athletes);
+        $doc->printAthletes($athletes, true);
     }
 
     printf("</table>\n");
