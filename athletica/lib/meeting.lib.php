@@ -1019,6 +1019,8 @@ function AA_meeting_resetResults($event, $formula, $conv = '')
 				if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
+                 AA_StatusChanged($row[0]);                
+                
 			}	// end while every result for this category
 		}
 		else	// new formula set
@@ -1069,6 +1071,9 @@ function AA_meeting_resetResults($event, $formula, $conv = '')
 					if(mysql_errno() > 0) {
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}
+                    
+                    AA_StatusChanged($row[0]);                   
+                      
 				} // end while every result for this category
 			} // end if ranking points
 		} // ET formula change
@@ -1390,17 +1395,21 @@ function AA_meeting_addTime($st , $wTyp, $item, $dTyp)  {
 }    // end function AA_meeting_addTime
 
 
-    
-//
+ //
 // check meeting if UBS Kids Cup
 //
-function AA_checkMeeting_UKC()  {
+function AA_checkMeeting_UKC($meeting='')  {
     
-    if (empty($_COOKIE['meeting_id'])){
+    if (!empty($meeting)){
+       $sql = "SELECT UKC FROM meeting WHERE xMeeting = ".$meeting;
+    }
+    else if (!empty($_COOKIE['meeting_id'])){
+        $sql = "SELECT UKC FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id'];     
+    }
+    else {
         return '';
     }
-    $sql = "SELECT UKC FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id'];
-     
+          
     $res = mysql_query($sql);
     if(mysql_errno() > 0){
         AA_printErrorMsg(mysql_errno().": ".mysql_error());
@@ -1412,7 +1421,9 @@ function AA_checkMeeting_UKC()  {
     }
     
     return 0;
-}
+}   
+
+    
 
 }		// AA_MEETING_LIB_INCLUDED
 ?>
