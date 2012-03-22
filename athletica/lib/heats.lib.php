@@ -632,7 +632,9 @@ function AA_heats_seedEntries($event)
 												. ", xSerie = " . $heats[$i]
                                                 . ", xStart = " . $row[0] 
 												. ", RundeZusammen = " . $roundTogether
-                                                . ", Bemerkung = '" . $remark ."'");  
+                                                . ", Bemerkung = '" . $remark ."'"
+                                                . ", Position2 = " . $pos);      
+                                                
                                     }
                                    else {
                                          mysql_query("INSERT INTO serienstart SET"
@@ -640,7 +642,8 @@ function AA_heats_seedEntries($event)
                                                 . ", Bahn = " . $pos
                                                 . ", xSerie = " . $heats[$i]
                                                 . ", xStart = " . $row[0]
-                                                . ", Bemerkung = '" . $remark."'");    
+                                                . ", Bemerkung = '" . $remark."'"
+                                                . ", Position2 = " . $pos);    
                                    }
 
 									if(mysql_errno() > 0) {		// DB error
@@ -722,14 +725,16 @@ function AA_heats_seedEntries($event)
                                                 . ", Bahn = " . $pos
                                                 . ", xSerie = " . $heats[$i]
                                                 . ", xStart = " . $row[0] 
-                                                . ", RundeZusammen = " . $roundTogether);   
+                                                . ", RundeZusammen = " . $roundTogether
+                                                . ", Position2 = " . $pos);   
                                     }
                                     else {
 									    $sql = "INSERT INTO serienstart SET"
 												. " Position = " . $pos
 												. ", Bahn = " . $pos
 												. ", xSerie = " . $heats[$i]
-												. ", xStart = " . $row[0];
+												. ", xStart = " . $row[0]
+                                                . ", Position2 = " . $pos;      
 									    mysql_query($sql);
                                     }
 									
@@ -1181,14 +1186,16 @@ function AA_heats_seedQualifiedAthletes($event)
 												. ", Bahn = " . $t
 												. ", xSerie = " . $heats[$h]
 												. ", xStart = " . $row[0]
-                                                . ", RundeZusammen = " . $row[3]);
+                                                . ", RundeZusammen = " . $row[3]
+                                                . ", Position2 = " . $pos);
                                     }
                                     else {
                                           mysql_query("INSERT INTO serienstart SET"
                                                 . " Position = " . $pos
                                                 . ", Bahn = " . $t
                                                 . ", xSerie = " . $heats[$h]
-                                                . ", xStart = " . $row[0]); 
+                                                . ", xStart = " . $row[0]
+                                                . ", Position2 = " . $pos); 
                                     }
                                      
 									if(mysql_errno() > 0) {		// DB error
@@ -1236,14 +1243,16 @@ function AA_heats_seedQualifiedAthletes($event)
 												. ", Bahn = " . $pos
 												. ", xSerie = " . $heats[$h]
 												. ", xStart = " . $row[0]
-                                                . ", RundeZusammen = " . $row[3]);
+                                                . ", RundeZusammen = " . $row[3]
+                                                . ", Position2 = " . $pos);
                                     }
                                     else {
                                            mysql_query("INSERT INTO serienstart SET"
                                                 . " Position = " . $pos
                                                 . ", Bahn = " . $pos
                                                 . ", xSerie = " . $heats[$h]
-                                                . ", xStart = " . $row[0]);
+                                                . ", xStart = " . $row[0]
+                                                . ", Position2 = " . $pos);
                                     
                                     
                                     }                                   
