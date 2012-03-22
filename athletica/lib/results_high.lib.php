@@ -828,7 +828,7 @@ if($_GET['arg'] == 'results_done')
                     FROM
                         resultat
                     WHERE xSerienstart = $row[0]
-                    AND (Leistung = ". $cfgInvalidResult['DSQ']['code']."OR Leistung = ". $cfgInvalidResult['NRS']['code'] .")" 
+                    AND (Leistung = ". $cfgInvalidResult['DSQ']['code']." OR Leistung = ". $cfgInvalidResult['NRS']['code'] .")" 
                 );
 
                 if(mysql_errno() > 0) {        // DB error
