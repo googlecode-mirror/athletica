@@ -209,6 +209,204 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 		
 		return $points;
 	}
+    
+    /**
+     * Calculate points for a given performance
+     *
+     * @param    event            ID table 'wettkampf'
+     * @param    perf            performance (in cm or 1/100sec)    
+     * @return    int            points    
+     */
+
+    function AA_utils_calcPointsUKC($event, $perf, $fraction = 0, $sex = 'M', $startID)
+    {  
+               
+        // check if this is a merged round   (important for calculate points for merged round with different sex)
+        $sql="SELECT                                           
+                    se.RundeZusammen                       
+                FROM
+                    serienstart as se                     
+                WHERE 
+                    se.xSerienstart = " .$startID;
+        $res=mysql_query($sql);    
+        if(mysql_errno() > 0) {        // DB error
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+        else {   
+            $row = mysql_fetch_row($res);
+            
+            if ($row[0] > 0) {                  // merged round exist
+            
+                // get event to the merged round
+                $sql="SELECT
+                    ru.xWettkampf                      
+                FROM
+                    runde as ru                    
+                WHERE 
+                    ru.xRunde = " .$row[0];
+                $res=mysql_query($sql);  
+                if(mysql_errno() > 0) {        // DB error
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                } 
+                else { 
+                    if (mysql_num_rows($res) > 0){   
+                        $row = mysql_fetch_row($res);                         
+                        $event=$row[0];   
+                    } 
+                }     
+            }
+        }
+             
+        global $strConvtableRankingPoints;
+        global $strConvtableRankingPointsU20; 
+        global $cfgUKC_disc, $cfgUKC_disc_F;
+        
+        $GLOBALS['AA_ERROR'] = '';
+        
+        $points = 0;
+        if($perf > 0)
+        {
+            // get formula to calculate points from performance     
+            $sql= "SELECT
+                    d.Typ 
+                    , w.Punktetabelle
+                    , w.Punkteformel
+                    , d.xDisziplin
+                    , d.Code
+                FROM
+                    disziplin_" . $_COOKIE['language'] . " As d
+                    LEFT JOIN wettkampf AS w ON (d.xDisziplin = w.xDisziplin)
+                WHERE                          
+                     w.xWettkampf = $event";                            
+           
+            $result = mysql_query($sql);     
+            
+            if(mysql_errno() > 0) {        // DB error
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+            else 
+            if (mysql_num_rows($result) > 0)    // event has formula assigned
+            {
+                
+                $row = mysql_fetch_row($result);
+                
+                if (strtoupper($sex) == 'M') {
+                    $row[1] = 1;
+                }
+                else {
+                     $row[1] = 2;
+                }
+                if ($row[4] == $cfgUKC_disc[0]){
+                     $row[2] = $cfgUKC_disc_F[0];
+                }
+                elseif  ($row[4] == $cfgUKC_disc[1]){
+                        $row[2] = $cfgUKC_disc_F[1];  
+                }
+                elseif  ($row[4] == $cfgUKC_disc[2]){
+                    $row[2] = $cfgUKC_disc_F[2];  
+                }
+                
+                // if ranking points are set, return
+                if($row[1] == $GLOBALS['cvtTable'][$strConvtableRankingPoints] || $row[1] == $GLOBALS['cvtTable'][$strConvtableRankingPointsU20]){
+                    return 0;
+                }
+
+                // track disciplines: performance in 1/100 sec
+                if($row[1]<100 && ($row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']]
+                                  || $row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']]
+                                  || $row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]
+                                  || $row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']]))
+                {
+                    $perf = ceil($perf/10);
+                }
+                
+                // own score table
+                $test = 0;
+                if($row[1] >= 100){
+                    
+                    $operator = '>=';
+                    $sort = 'ASC';
+                    if(($row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrack']]
+                      || $row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeTrackNoWind']]
+                      || $row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeRelay']]
+                      || $row[0] == $GLOBALS['cfgDisciplineType'][$GLOBALS['strDiscTypeDistance']]))
+                        {
+                        $operator = '>=';
+                        $sort = 'ASC';
+                    }
+                    else {
+                        $operator = '<=';
+                        $sort = 'DESC';
+                    }
+                     
+                    $sqlpt = "SELECT Punkte 
+                                FROM wertungstabelle_punkte 
+                               WHERE xWertungstabelle = ".$row[1]." 
+                                 AND xDisziplin = ".$row[3]." 
+                                 AND Leistung ".$operator." ".$perf." 
+                                 AND Geschlecht = '".$sex."'
+                            ORDER BY Leistung ".$sort." 
+                               LIMIT 1;";
+                    $querypt = mysql_query($sqlpt);
+                    
+                    $datei = fopen('test.txt', 'w+');
+                    fwrite($datei, $sqlpt);
+                    fclose($datei);
+                    
+                    if($querypt && mysql_num_rows($querypt)){
+                        $points = mysql_result($querypt, 0, 'Punkte');
+                    }
+                    
+                    $testdatei = fopen('test.txt', 'w+');
+                    fwrite($testdatei, $sqlpt);
+                    fclose($testdatei);                    
+                } else {    
+                    // split formula into parameters
+                    $params = explode(" ", $GLOBALS['cvtFormulas'][$row[1]][$row[2]]);
+                   
+                    // formula types
+                    $A = $params[1];
+                    $B = $params[2];
+                    $C = $params[3];
+                    
+                    switch ($params[0]) {
+                        // points = A * ((B - perf) / 100) ^ C, fractions are rounded down
+                        case 1:
+                            $points = floor($A * (pow(($B-$perf)/100, (float)$C)));    
+                            break;
+                        // points = A * ((perf - B) / 100) ^ C, fractions are rounded down
+                        case 2:
+                            $points = floor($A * (pow(($perf-$B)/100, (float)$C)));    
+                            break;
+                        // points = A * (perf - B) ^ C, fractions are rounded down
+                        case 3:
+                            $points = floor($A * (pow($perf-$B, (float)$C)));
+                            break;
+                        // points = A * ((B - perf/100)^2) + C, fractions rounded down
+                        // (unused)
+                        case 4:
+                            $points = floor( $A * pow($B - ($perf/100), 2) - $C);
+                            break;
+                        // points = A * (perf/100 + B)^2 - C, fractions rounded down
+                        case 5:
+                            $points = floor( $A * pow(($perf/100)+$B, 2) - $C);
+                            break;
+                        default:
+                            $GLOBALS['AA_ERROR'] = "System Error: Invalid conversion formula (convtables.inc.php)";
+                    }        // end switch params[]
+                }
+                
+                mysql_free_result($result);
+            }        // ET event with formula
+        }        // ET performance provided
+        
+        if(is_nan($points) || $points<0){ // prevent wrong or negative points for "to bad" performances
+            $points = 0;
+        }
+        
+        return $points;
+    }
+    
 	
 	/**
 	 * Calculate ranking points for a given round
@@ -732,6 +930,10 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
         mysql_query("UNLOCK TABLES");
 
     }
+    
+ 
+    
+    
 
 } // end AA_UTILS_LIB_INCLUDED
 ?>
