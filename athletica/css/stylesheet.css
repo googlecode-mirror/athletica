@@ -61,6 +61,7 @@ div.st_heats_done {
 	background-color:#FFFF80;
 	font-weight:bold;
 }
+
 div.st_res_work {
 	background-color:#FFB272;   
 }  
@@ -73,8 +74,11 @@ p.st_res_work {
 }  
 div.st_res_done {
 	background-color:#FF7328; 
-	font-weight:bold;
-   
+	font-weight:bold;     
+}
+div.st_res_live {
+    background-color:#FFB272;   
+    border: 2px solid #F80000;   
 }
 div.st_anct_pend {
 	background-color:#BBFFBB;
