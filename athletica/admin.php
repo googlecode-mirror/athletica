@@ -399,9 +399,8 @@ function removePassword(){
 				</table><br/>
 				<?php
 			}
-            }
-            
-            if ($ukc_meeting == 'y'){
+            }                 
+         
 			?>   
             
                <table class='dialog' width="475">            
@@ -423,6 +422,7 @@ function removePassword(){
                                     </input>
                                     <input type="hidden" name="MAX_FILE_SIZE" value="619430400" />
                                     <input name='xmlfile' type='file' accept='*.xml' maxlength="619430400">
+                                    <input type="hidden" name="ukc_meeting" value="<?php echo $ukc_meeting; ?>" />  
                                 </td>
                             </tr>
                             <tr class="even">
@@ -450,14 +450,18 @@ function removePassword(){
                                     <td><?php echo $strBestlistRemark; ?></td>
                                 </tr>
                                 <tr class='even'>
-                                    <td><input type="button" value="<?php echo $strNext; ?>" class="dialog_ukc" onclick="javascript:document.location.href='admin_results_UKC.php'"></td>
+                                    <td><input type="button" value="<?php echo $strNext; ?>" class="dialog_ukc" onclick="javascript:document.location.href='admin_results_UKC.php?ukc_meeting=<?php echo $ukc_meeting; ?>'"></td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
                 </table>
-                  <br/>       
-                
+                  <br/>  
+              <?php
+                   
+           if ($ukc_meeting == 'y'){    
+               
+               ?>  
              <table class='dialog' width="475">
                 <tr>
                     <th class='dialog'><?php echo $strLinks; ?></th>
@@ -488,7 +492,7 @@ function removePassword(){
            
           
               <?php
-            }
+           }
             ?>
           
             
