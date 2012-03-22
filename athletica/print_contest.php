@@ -59,6 +59,41 @@ if(!empty($_POST['print'])) {
     $print = $_POST['print'];
 }
  
+$endEvent = 0;
+if(isset($_POST['endEvent'])) {
+    $endEvent = 1;
+}
+$countFinalist = $cfgFinalist;
+if(isset($_POST['orig_CountFinalist']) && $_POST['orig_CountFinalist'] > 0) {
+       $countFinalist = $_POST['orig_CountFinalist'];
+}
+
+$dTyp= 0;
+if (isset($_POST['d_Typ'])){
+       $dTyp = $_POST['d_Typ'];
+}
+
+$countFinalAfter = ceil($cfgCountAttempts[$dTyp]/2);
+if(isset($_POST['countFinalAfter']) && $_POST['orig_CountFinalist'] > 0) {
+       $countFinalAfter = $_POST['countFinalAfter'];
+}
+
+$changePos1 = $countFinalAfter;
+if(isset($_POST['changePos1'])) {
+       $changePos1 = $_POST['changePos1'];
+}
+$changePos2 = 0;
+if(isset($_POST['changePos2'])) {
+       $changePos2 = $_POST['changePos2'];
+}
+if ($changePos1 == '-'){
+    $changePos1 =0;
+}
+if ($changePos2 == '-'){
+    $changePos2 =0;
+}
+ $changePos = $changePos1 .",". $changePos2;
+
 AA_utils_changeRoundStatus($round, $cfgRoundStatus['heats_done']);
 if(!empty($GLOBALS['AA_ERROR'])) {
 	AA_printErrorMsg($GLOBALS['AA_ERROR']);
@@ -89,19 +124,23 @@ mysql_free_result($res);
 // -------------------------------
 
 mysql_query("LOCK TABLES runde WRITE");
+                 
+  $sql   ="UPDATE
+        runde
+    SET
+        QualifikationSieger = $qual_top
+        , QualifikationLeistung = $qual_perf
+        , Bahnen = $tracks
+        , Endkampf  =  '$endEvent'
+        , Finalisten  =  $countFinalist
+        , FinalNach =  $countFinalAfter
+        , Drehen = '$changePos'
+    WHERE xRunde = $round"; 
+    
+mysql_query($sql); 
 
-mysql_query("
-	UPDATE
-		runde
-	SET
-		QualifikationSieger = $qual_top
-		, QualifikationLeistung = $qual_perf
-		, Bahnen = $tracks
-	WHERE xRunde = $round
-");
-   
 if(mysql_errno() > 0)		// DB error
-{
+{   
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
 

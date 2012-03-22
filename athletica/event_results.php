@@ -237,6 +237,11 @@ elseif($_GET['arg'] == "del_results"){ // delete all results
 	AA_results_deleteResults($round);
 	
 }
+elseif($_GET['arg'] == "live_results"){ // reset status live
+                             
+    AA_utils_changeRoundStatus($round, $GLOBALS['cfgRoundStatus']['results_in_progress']);
+    
+}
  
 //
 //	form layout (depending on discipline type)

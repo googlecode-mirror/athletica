@@ -177,11 +177,12 @@ else
 
 	$page->printSubTitle("$row[6], $titel");
 ?>
-<form action='print_contest.php' method='post' target='_blank' name='qual'>
+<form action='print_contest.php' method='post' target='_blank' name='qual' >
 <input name='round' type='hidden' value='<?php echo $round; ?>' />
 <input name='present' type='hidden' value='<?php echo $present; ?>' />
-<input name='print' type='hidden' value='<?php echo $print; ?>' />    
-<table class='dialog'>
+<input name='print' type='hidden' value='<?php echo $print; ?>' />  
+<input name='d_Typ' type='hidden' value='<?php echo $row[7]; ?>' />    
+<table class='dialog' id="regtable">
 	<tr>
 		<th class='dialog' colspan='2'><?php echo $row[3]; ?></th>
 	</tr>
@@ -212,14 +213,62 @@ else
 		?>
 	<tr>
 		<td class='dialog'><?php echo $strCountAttempts; ?>:</td>
-		<th class='dialog'><input type="text" value="" name="countattempts" size="3"></th>
+		<th class='dialog'><input type="text" value="<?php echo $cfgCountAttempts[$row[7]];?>" id="countattempts" name="countattempts" size="3" onchange="addSelects()"></th>
 	</tr> 
     <tr> 
         <td class='dialog'><?php echo $strOnlyBestResult; ?>:</td>     
         <th class='dialog'><input type='checkbox' name='onlyBest' value='y'/> 
                  
          </th>  
-     </tr>         
+     </tr>      
+     <tr> 
+        <td class='dialog'><?php echo $strEndEvent; ?>:</td>     
+        <th class='dialog'><input type='checkbox' name='endEvent' id='endEvent' value='y' onclick="addTxtField()"  /> 
+                 
+         </th>  
+     </tr> 
+     
+     
+       
+     <tr>
+    <td class='dialog'><?php echo $strChangePos; ?></td> 
+      <th class='dialog'>   
+                             <select name='changePos1'> 
+                             <option value="-">-</option>
+                             <?php 
+                                for ($i=1;$i<$cfgCountAttempts[$row[7]];$i++){
+                                    if ($i==$cfgCountAttempts[$row[7]]-1) {
+                                        ?>
+                                         <option value="<?php echo $i;?>" selected="selected"><?php echo $i;?></option>   
+                                        <?php
+                                    }
+                                    else {
+                                         ?>
+                                         <option value="<?php echo $i;?>"><?php echo $i;?></option>   
+                                        <?php
+                                    }   
+                                }
+                                ?>  
+                             </select>      
+                        
+                             <select name='changePos2'> 
+                                <option value="-">-</option>
+                             <?php 
+                                for ($i=1;$i<$cfgCountAttempts[$row[7]];$i++){
+                                   
+                                         ?>
+                                         <option value="<?php echo $i;?>"><?php echo $i;?></option>   
+                                        <?php
+                                    
+                                    
+                                }
+                                ?>  
+                             </select>      
+      </th>
+    </tr>     
+    
+     
+    
 		<?php
 	} 
 	?>
@@ -292,7 +341,7 @@ if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
 		<script type="text/javascript">
 <!--
 	function calcTotal()
-	{
+	{      
 		if((isNaN(document.qual.qual_top.value) == true)
 			|| ((parseInt(document.qual.qual_top.value)) < 0))
 		{
@@ -340,6 +389,8 @@ if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
 			<?php echo ($tot_heats * $qual_top) + $qual_perf; ?>
 		</th>
 	</tr>
+    <tr>
+    
 
 <?php
 		mysql_free_result($result);
@@ -365,6 +416,120 @@ if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
 	</tr>
 </table>
 </form>
+<?php 
+   $finalAfterAttempts =  ceil($cfgCountAttempts[$row[7]]/ 2);
+   ?>
+
+ <!-- this select box is used for a IE trick ( in function base_search_show() ) -->
+    <span id="sp_CountFinalist" style="visibility:hidden"><?php echo $strCountFinalist; ?></span>
+    <input type="text" value="<?php echo $cfgFinalist; ?>" id="orig_CountFinalist" style="visibility:hidden" name="orig_CountFinalist" size="3">     
+           
+     <span id="sp_finalAfterAttempts" style="visibility:hidden"><?php echo $strCountFinalAfterXEvents; ?></span>
+    <input type="text" value="<?php echo $finalAfterAttempts; ?>" id="orig_finalAfterAttempts" style="visibility:hidden" name="countFinalAfter" size="3" onchange="return checkCount()" >           
+            
+                      
+  <script type="text/javascript">
+<!--
+               //new Option() kennt vier Parameter von denen die drei letzten Parameter optional sind.
+//1. text = angezeigter Text in der Liste
+//2. value = zu übertragender Wert der Liste (optional)
+//3. defaultSelected = true übergeben, wenn der Eintrag der defaultmäßig vorselektierte Eintrag sein soll, sonst false (optional)
+//4. selected = true übergeben, wenn der Eintrag selektiert werden soll (optional)
+     function addSelects () {
+          var i = 0;
+          for(i=0;i<document.getElementById("countattempts").value;i++) {
+                document.qual.changePos1.options[document.qual.changePos1.length - 1] = null;
+          }
+          for(i=0;i<document.getElementById("countattempts").value;i++) {
+                document.qual.changePos2.options[document.qual.changePos2.length - 1] = null;
+          }
+          newOption = new Option('-', '-', false, false);
+          document.qual.changePos1.options[document.qual.changePos1.length] = newOption;
+          for(i=0;i<document.getElementById("countattempts").value;i++) {   
+                 
+                  if (i==Math.ceil(document.getElementById("countattempts").value/2))  {                           
+                        newOption = new Option(i, i, false, false);
+                        document.qual.changePos1.options[document.qual.changePos1.length] = newOption;                          
+                        var s = i + 1;  
+                        document.qual.changePos1[s].selected = true;     
+                  }  
+                  else {
+                        newOption = new Option(i, i, false, false);
+                        document.qual.changePos1.options[document.qual.changePos1.length] = newOption;   
+                  }             
+                 
+          }
+          newOption = new Option('-', '-', false, false);
+          document.qual.changePos2.options[document.qual.changePos2.length] = newOption;
+          for(i=0;i<document.getElementById("countattempts").value;i++) {                      
+                  newOption = new Option(i, i, false, false);
+                  document.qual.changePos2.options[document.qual.changePos2.length] = newOption; 
+          }  
+          document.getElementById("orig_finalAfterAttempts").value = Math.ceil(document.getElementById("countattempts").value / 2);           
+    }                 
+    
+    
+    function addTxtField() {  
+        
+             var test =  document.getElementById("endEvent").checked;
+             if  (test == true){
+                 
+                    var tbl = document.getElementById("regtable");  
+                  
+                    var tr = tbl.insertRow(8);   
+                    var TD1 = document.createElement("td");     
+                    var TD2 = document.createElement("th");   
+                  
+                    TD2.setAttribute('class','dialog');                   
+                    var check1 = document.getElementById("sp_CountFinalist").cloneNode(true);      
+                    var check2 = document.getElementById("orig_CountFinalist").cloneNode(true);  
+                    
+                    check1.style.visibility = "visible";
+                    check2.style.visibility = "visible";  
+                                       
+                    TD1.appendChild(check1);                                             
+                    tr.appendChild(TD1);   
+                    TD2.appendChild(check2);
+                    tr.appendChild(TD2);                        
+               
+                    var tr = tbl.insertRow(9);   
+                    var TD1 = document.createElement("td");  
+                    var TD2 = document.createElement("th"); 
+                    
+                    TD2.setAttribute('class','dialog');                        
+                    var check1 = document.getElementById("sp_finalAfterAttempts").cloneNode(true);      
+                    var check2 = document.getElementById("orig_finalAfterAttempts").cloneNode(true);                      
+                    check1.style.visibility = "visible";
+                    check2.style.visibility = "visible";   
+                   
+                    TD1.appendChild(check1);                     
+                    tr.appendChild(TD1);                       
+                    TD2.appendChild(check2);
+                    tr.appendChild(TD2);    
+                  
+              }
+              else {                          
+                    var tbl = document.getElementById("regtable");                
+                    var tr = tbl.deleteRow(8);  
+                    var tr = tbl.deleteRow(8);  
+              }
+                           
+    }
+    
+    function checkCount() {   
+               if (document.getElementById("orig_finalAfterAttempts").value < document.getElementById("countattempts").value){
+                   return true;
+               }
+               alert("<?php echo $strWarnFinalAttempt; ?>");
+               return false;
+    }
+    
+    
+   </script>
+    
 
 <?php
 $page->endPage();
+
+
+
