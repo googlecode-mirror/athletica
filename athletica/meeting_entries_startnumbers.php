@@ -183,8 +183,8 @@ if($_GET['arg'] == 'assign')
                             a.xMeeting = " . $_COOKIE['meeting_id'] . " 
                             
                             ORDER BY      
-                                 $argument3 $argument1 $argument,  tat.xTeamsm, $argument2";    
-                     
+                                 $argument3 $argument2, $argument1 $argument,  tat.xTeamsm ";    
+                  
             }
             else {
             $sql="SELECT 
