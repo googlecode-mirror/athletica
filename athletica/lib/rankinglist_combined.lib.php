@@ -131,22 +131,12 @@ else
 	}
 	
 	while($row = mysql_fetch_row($results))
-	{  $dCode = $row[13];
-     
+	{   $dCode = $row[13];         
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
 		{              		
-			$points_arr[] = $points;     
-           if ($dCode_keep == 408){     // UBS Kids Cup
-                 $points_arr_max_disc[$xKat][] = $points_disc;    
-            }
-            else {
-                 $points_arr_max_disc[$xKat][] = AA_get_MaxPointDisc($points_disc); 
-            }     
-           
-            $points_arr_more_disc[$xKat][] = AA_get_MoreBestPointDisc($points_disc);  
-           
+			$points_arr[] = $points;                        
             $points_arr_more_disc_all[$row[9]][] = $points_disc; 
 			$name_arr[] = $name;   		
 			$year_arr[] = $year;
@@ -226,50 +216,46 @@ else
                   $rank=$v;  
                    
                   if ($rank == $rank_keep){ 
-                   if ($dCode_keep == 408){          // UBS Kids Cup
+                 
                         $c=0;
-                        $c_max_disc1 = 0;
-                        $c_max_disc2 = 0; 
-                        for ($i=0;$i<3;$i++){
-                            if ($points_arr_max_disc[$xKat][$key_keep][$i] > $points_arr_max_disc[$xKat][$key][$i]){
-                                $c_max_disc1++; 
-                            }
-                            if ($points_arr_max_disc[$xKat][$key_keep][$i] < $points_arr_max_disc[$xKat][$key][$i]){
-                                $c_max_disc2++; 
-                            }
+                        $keep_c=0;
+                        // first rule
+                        for ($i=1; $i <= sizeof($points_disc); $i++){                                  
+                             if  ($points_arr_more_disc_all[$xKat][$key_keep][$i] > $points_arr_more_disc_all[$xKat][$key][$i]){
+                                  $keep_c ++;
+                             }
+                             else {
+                                 $c++;
+                             }
                         }
-                        
-                        if ($c_max_disc1 == 2 && $c_max_disc2 == 1){    // two disciplines more points
-                            $rank_arr[$key]++;      
+                        $more=ceil(sizeof($points_disc)/2);  
+                        if (sizeof($points_disc) % 2 == 0){              // combined with even number discs
+                             $more++;                                   
                         }
-                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 2){    // two disciplines more points
-                            $rank_arr[$key_keep]++; 
+                        if     ($keep_c >= $more && $keep_c > $c){
+                                $rank_arr[$key]++;
                         }
-                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 1){      // one discipline same points and total same points
-                                $k=AA_get_BestPointDisc($points_arr_max_disc{$xKat}[$key_keep],$points_arr_max_disc[$xKat][$key],$key_keep,$key); 
-                                $rank_arr[$k]++;   
-                        }                    
-                   }
-                   else {        // other combined events
-                        if  ($points_arr_more_disc[$xKat][$key_keep] < $points_arr_more_disc[$xKat][$key]){  
-                            $rank_arr[$key_keep]++;  
-                        }
-                        elseif ($points_arr_more_disc[$xKat][$key_keep] > $points_arr_more_disc[$xKat][$key]){  
-                                $rank_arr[$key]++;   
-                        }
-                        else {       // always same points --> check 
-                            $max_key = AA_get_BestPointDisc($points_arr_more_disc_all[$xKat][$key_keep], $points_arr_more_disc_all[$xKat][$key], $key_keep, $key);
-                            $rank_arr[$max_key]++;  
-                        }   
-                   } 
+                        else {
+                             if  ($c >= $more && $c > $keep_c){   
+                                $rank_arr[$key_keep]++;     
+                             }
+                             else {
+                                  // second rule 
+                                  // check the best points of the highest points of discipline
+                                  $k = AA_get_AthletBestPointDisc($points_arr_more_disc_all[$xKat][$key_keep], $points_arr_more_disc_all[$xKat][$key], $key_keep, $key);
+                                  if ($k != 0){
+                                       $rank_arr[$k]++;     
+                                  }
+                                  // if $k is 0, all points of diszipline are the same -->   athletes with same rank                                     
+                             }   
+                        }    
                 }            
                 $rank_keep = $rank;  
                 $key_keep = $key;   
             
             }   
             
-            asort($rank_arr, SORT_NUMERIC);    // sort descending by rank    
-             
+            asort($rank_arr, SORT_NUMERIC);    // sort descending by rank                 
              
             foreach($rank_arr as $key => $v)
             {  
@@ -403,12 +389,13 @@ else
                            if ($dCode == 408) {                // UBS Kids Cup
                                switch ($pt_row[1]){
                                    case 1:
-                                   case 2: $c=0;          // track
+                                   case 2: $c=1;          // track
                                            break;
                                    case 4:
-                                   case 6: $c=1;          // jump and high
+                                   case 5: 
+                                   case 6: $c=2;          // jump and high
                                            break; 
-                                   case 8: $c=2;          // throw
+                                   case 8: $c=3;          // throw
                                            break;  
                                    default: $c=0;
                                            break;
@@ -460,16 +447,7 @@ else
   
 	if(!empty($a))		// add last athlete if any
 	{
-		$points_arr[] = $points;  
-        
-         if ($dCode == 408){
-                 $points_arr_max_disc[$xKat][] = $points_disc;    
-            }
-            else {
-                 $points_arr_max_disc[$xKat][] = AA_get_MaxPointDisc($points_disc);  
-            }   
-        
-        $points_arr_more_disc[$xKat][] = AA_get_MoreBestPointDisc($points_disc);
+		$points_arr[] = $points;    
         $points_arr_more_disc_all[$xKat][] = $points_disc; 
 		$name_arr[] = $name;
 		$year_arr[] = $year;
@@ -514,16 +492,7 @@ else
 			if($p != $val) {	// not same points as previous athlete
 				$rank = $r;		// next rank
 			}
-            else {
-                if ($dCode == 408){         // UBS Kids Cup
-                
-                    if ($points_arr_max_disc[$xkat][$key] > $points_arr_max_disc[$xKat][$k]){
-                        $rank_arr[$k]  = $r;
-                    }   
-                }
-            }  
-            
-		   	    		 	 
+           		   	    		 	 
 		    // not set rank for invalid results 
 		    if (preg_match("@\(-[1]{1}@", $info_arr[$key])){ 
                 $rank=$max_rank; 
@@ -544,43 +513,40 @@ else
                 $val=$points_arr[$key];  
                 $rank=$v;   
                
-                if ($rank == $rank_keep){ 
-                   if ($dCode == 408){          // UBS Kids Cup
+                if ($rank == $rank_keep){                       
                         $c=0;
-                        $c_max_disc1 = 0;
-                        $c_max_disc2 = 0; 
-                        for ($i=0;$i<3;$i++){
-                            if ($points_arr_max_disc[$xKat][$key_keep][$i] > $points_arr_max_disc[$xKat][$key][$i]){
-                                $c_max_disc1++; 
-                            }
-                            if ($points_arr_max_disc[$xKat][$key_keep][$i] < $points_arr_max_disc[$xKat][$key][$i]){
-                                $c_max_disc2++; 
-                            }
+                        $keep_c=0;
+                        // first rule 
+                        for ($i=1; $i <= sizeof($points_disc); $i++){                                 
+                             if  ($points_arr_more_disc_all[$xKat][$key_keep][$i] > $points_arr_more_disc_all[$xKat][$key][$i]){
+                                  $keep_c ++;
+                             }
+                             else {
+                                 $c++;
+                             }
                         }
-                        
-                        if ($c_max_disc1 == 2 && $c_max_disc2 == 1){    // two disciplines more points
-                            $rank_arr[$key]++;     
+                        $more=ceil(sizeof($points_disc)/2);  
+                        if (sizeof($points_disc) % 2 == 0){              // combined with even number discs
+                             $more++;                                   
                         }
-                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 2){    // two disciplines more points
-                            $rank_arr[$key_keep]++;   
+                        if     ($keep_c >= $more && $keep_c > $c){
+                                $rank_arr[$key]++;
                         }
-                        elseif ($c_max_disc1 == 1 && $c_max_disc2 == 1){      // one discipline same points and total same points
-                                $k=AA_get_BestPointDisc($points_arr_max_disc{$xKat}[$key_keep],$points_arr_max_disc[$xKat][$key],$key_keep,$key);    
-                                $rank_arr[$k]++;  
-                        }                    
-                   }
-                   else {        // other combined events
-                        if  ($points_arr_more_disc[$xKat][$key_keep] < $points_arr_more_disc[$xKat][$key]){  
-                            $rank_arr[$key_keep]++; 
-                        }
-                        elseif ($points_arr_more_disc[$xKat][$key_keep] > $points_arr_more_disc[$xKat][$key]){  
-                                $rank_arr[$key]++;    
-                        }
-                        else {       // always same points --> check 
-                            $max_key = AA_get_BestPointDisc($points_arr_more_disc_all[$xKat][$key_keep], $points_arr_more_disc_all[$xKat][$key], $key_keep, $key);
-                            $rank_arr[$max_key]++; 
-                        }   
-                   } 
+                        else {
+                             if  ($c >= $more && $c > $keep_c){   
+                                $rank_arr[$key_keep]++;     
+                             }
+                             else {
+                                  // second rule 
+                                  // check the best points of the highest points of discipline
+                                  $k = AA_get_AthletBestPointDisc($points_arr_more_disc_all[$xKat][$key_keep], $points_arr_more_disc_all[$xKat][$key], $key_keep, $key);
+                                  if ($k != 0){
+                                       $rank_arr[$k]++;     
+                                  }
+                                  // if $k is 0, all points of diszipline are the same -->   athletes with same rank
+                                 
+                             }   
+                        }                         
                 }            
                 $rank_keep = $rank;  
                 $key_keep = $key; 

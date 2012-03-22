@@ -749,9 +749,12 @@ require('./config.inc.php');
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}else{
-			
-			$row = mysql_fetch_array($result);
-			$nbr = $row[0];
+			 if (mysql_num_rows($result) > 0) {
+			    $row = mysql_fetch_array($result);
+                if (!empty($row[0])){
+                     $nbr = $row[0];  
+                }			    
+             }
 			
 		}
 		
@@ -2751,84 +2754,42 @@ function AA_checkRelayName($category,$event,$relayName){
 	</form>
 <?php
 	}	
+ 
+
+ 
  /**    
-     * get max points of the best two disciplines
-     * ------------------------------------------
+     * get points of the highest points of discipline from athlet with same total points
+     * ---------------------------------------------------------------------------------
      */   
-function AA_get_MaxPointDisc($points_disc)
-{
-    arsort($points_disc, SORT_NUMERIC);    //sort descending by points
-    $max = 0;
-    $i = 0;
-    foreach($points_disc as $key => $val) {
-        if ($i < 2){                    // only the two best discipline
-            $max+=$val;
-        }
-        $i++;
-    }
-    return $max;
-}  
-
- /**    
-     * get points of the best more than the half of the best disciplines
-     * -----------------------------------------------------------------
-     */   
-function AA_get_MoreBestPointDisc($points_disc)
-{   $more=ceil(sizeof($points_disc)/2);
-
-    arsort($points_disc, SORT_NUMERIC);    //sort descending by points   
-    
-    $max = 0;
-    $i = 0;   
-    foreach($points_disc as $key => $val) {
-        if ($i < $more){                    // only more than the half of the best disciplines
-            $max+=$val;
-            $i++;  
-        }
-        else {
-            break;
-        } 
-        
-    }     
-    return $max;
-}
-
-/**    
-     * get points of the best discipline, if same points --> than the second best etc.
-     * -------------------------------------------------------------------------------
-     */   
-function AA_get_BestPointDisc($points_disc_keep, $points_disc, $key_keep, $key_act)
-{   
-    arsort($points_disc_keep, SORT_NUMERIC);    //sort descending by points
-    arsort($points_disc, SORT_NUMERIC);    //sort descending by points   
+function AA_get_AthletBestPointDisc($points_disc_keep, $points_disc, $key_keep, $key_a)
+{       
+    arsort($points_disc_keep, SORT_NUMERIC);        //sort descending by points
+    arsort($points_disc, SORT_NUMERIC);             //sort descending by points   
     
     $points_compare1 = array();
     $points_compare2 = array();   
-    
-    $max_key = 0;
-    
+            
     foreach($points_disc_keep as $key => $val) {
          $points_compare1[] = $val;
-     }
+    }
      
     foreach($points_disc as $key => $val) {
          $points_compare2[] = $val;
-     }  
-     
-    foreach($points_compare1 as $key => $val) {
-        if ($points_compare1[$key] < $points_compare2[$key]) {
-            $max_key =  $key_keep; 
-            break;
+    }  
+            
+    foreach($points_compare1 as $key => $val) {           
+        if ($points_compare1[$key] > $points_compare2[$key]) {                
+            return $key_keep;            
         }
-        elseif  ($points_compare1[$key] > $points_compare2[$key]) {   
-                  $max_key =  $key_act;  
-                  break;  
-        }   
-          // same points --> check next discipline
-    }   
-   
-    return $max_key;
+        elseif  ($points_compare1[$key] < $points_compare2[$key]) {   
+                 return $key_a;                    
+        }           
+        // same points --> check next discipline          
+    }  
+     
+    return 0;        // all disciplines same points
 }
+
 
 /**    
      * check if event is the last combined event (mehrkampfende = 1)
