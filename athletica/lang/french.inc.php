@@ -838,8 +838,16 @@ $strErrDisUkc = "Dans un meeting  UBS Kids Cup il n'est pas possible d'enregistr
  $strOnlineRegInfo2 = "<b>Important:</b> Veuillez reimporter le fichier XML actualisé juste avant le meeting.";  
 $strVersionForbidden = "Le chargement d'un fichier de sauvegarde Athletica 4.0 ou 4.1 n'est pas autorisé pour des raisons de comapatibilité.";
 
+ $strCountImportUKC  =   "Nombre d'inscriptions";
+$strPreviousSeasonBest  =  "Temps de l'année précédente"; 
+$strPayedAll  =   "Toutes disciplines payées"; 
+$strPayedPart  =  "Disciplines partiellement payées"; 
+$strPayedNo  =   "Disicplines impayées"; 
+$strPaymentControl   =  "Contrôle finance d'inscription"; 
+$strPayedShort  =   "Resp"; 
+$strPayedClub  =   "Payé ensemble de la société"; 
 
- 
+ $strErrInvalidResultByMore = "Entrée pas possible, car des résultats ont déjà été enregistrés pour cet athlète."; 
 
 
 ?>
