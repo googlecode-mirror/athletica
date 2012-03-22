@@ -284,7 +284,8 @@ if($heatFrom > 0) {		// heat from selected
 <input type='hidden' name='catFrom' value='<?php echo $catFrom; ?>'> 
 <input type='hidden' name='catTo' value='<?php echo $catTo; ?>'>  
 <input type='hidden' name='discFrom' value='<?php echo $discFrom; ?>'>  
-<input type='hidden' name='discTo' value='<?php echo $discTo; ?>'>    
+<input type='hidden' name='discTo' value='<?php echo $discTo; ?>'> 
+ 
 <table class='dialog'>  
 <tr>
 	<th class='dialog'>
@@ -550,6 +551,12 @@ if($tage>1){
 		<input type='checkbox' name='show_efforts' value='sb_pb'>
 			<?php echo $efforts_text ; ?></input>
 	</th>
+</tr>
+<tr>
+    <th class='dialog'>
+        <input type='checkbox' name='show_ukc' value='ukc'>
+            <?php echo $strRankingList . " " . $strUKC; ?></input>
+    </th>
 </tr>
 </table>
 

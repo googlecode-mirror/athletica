@@ -137,12 +137,17 @@ if(!empty($_GET['show_efforts'])){
 $athleteCat = false;     
 if($_GET['athleteCat'] == "yes"){  
     $athleteCat = true;
-}      
+}   
+
+$show_ukc = false;     
+if($_GET['show_ukc'] == "ukc"){  
+    $show_ukc = true;
+}         
     
 // Ranking list single event
 if($type == 'single')
 {   
-	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo,$athleteCat , $withStartnr, $ranklistAll);
+	AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist, $cover_timing, $date, $show_efforts,$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo,$athleteCat , $withStartnr, $ranklistAll, $show_ukc);
 }                                                                                                                                                                                                     
 
 // Ranking list combined events

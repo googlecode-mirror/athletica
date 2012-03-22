@@ -89,9 +89,9 @@ if($login){
 	
 	// upload result file
 	if($nbr_effort>0){ //upload only if file contains at least one results
-		$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
-		$success = $ftp->put_file($local, $remote);
-		$ftp->close_connection();
+		//$ftp->open_connection($cfgSLVhost, $cfgSLVuser, $cfgSLVpass);
+		//$success = $ftp->put_file($local, $remote);
+		//$ftp->close_connection();
 	} else {
 		$success=true;
 	} 

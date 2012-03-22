@@ -28,6 +28,9 @@ if(AA_checkMeetingID() == FALSE){		// no meeting selected
 //    Display enrolement list
 //
 
+if (isset($_POST['ukc_meeting'])){
+    $ukc_meeting = $_POST['ukc_meeting'];
+}
 $page = new GUI_Page('admin_onlineRegUKC.php');
 $page->startPage();
 $page->printPageTitle($strImportUKC_Title);     
@@ -47,7 +50,7 @@ $menu->printMenu();
 			AA_printErrorMsg($strErrFtpNoGet);
 	}else{  
 			$xml = new XML_simple_data();                 
-			$arr_noCat = $xml->load_xml_simple($_FILES['xmlfile']['tmp_name'], 'regUKC', '');        
+			$arr_noCat = $xml->load_xml_simple($_FILES['xmlfile']['tmp_name'], 'regUKC', '', $ukc_meeting);        
              
             if ($arr_noCat['cat'][0] != ''){    
                                   
