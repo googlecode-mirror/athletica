@@ -108,7 +108,7 @@ class PRINT_Page extends GUI_Page
 			$row = mysql_fetch_assoc($result);
 			$date = $row['von'];
 			if($row['DatumVon'] != $row['DatumBis']) {		// more than one day
-				$date = $date . " " . $GLOBALS['strDateTo'] . " ". $row[7];
+				$date = $date . " " . $GLOBALS['strDateTo'] . " ". $row['bis'];
 			}
 ?>
 	<table>
@@ -123,7 +123,7 @@ class PRINT_Page extends GUI_Page
 	<table>
 		<tr>
 			<td class='cover_param'><?php echo $GLOBALS['strStadium']; ?></td>
-			<td class='cover_value'><?php echo $row['StadionName'].", ".$row[1]; ?></td>
+			<td class='cover_value'><?php echo $row['StadionName'].", ".$row['Ort']; ?></td>
 		</tr>
 		<tr>
 			<td class='cover_param'><?php echo $GLOBALS['strOrganizer']; ?></td>
@@ -139,12 +139,16 @@ class PRINT_Page extends GUI_Page
 		</tr>
 		<?php
 		if($timing){
-			$str = 'OMEGA';
+			$str = "";        
 			if($row['Zeitmessung']=='alge'){
 				$str = 'ALGE '.$row['ALGE_Typ'];
-			} else {
+			} 
+            elseif ($row['Zeitmessung']=='omega'){
 				$str = 'OMEGA ('.$row['OMEGA_Sponsor'].')';
 			}
+             else {
+                   $str = $GLOBALS['strNoTiming'];   
+             }
 			?>
 			<tr>
 				<td class='cover_param'><?php echo $GLOBALS['strTiming']; ?></td>
@@ -714,7 +718,13 @@ class PRINT_RankingList extends PRINT_Page
 		<td class='rank_perf'><?php echo $perf; ?></td>
 		<td class='rank_qual'><?php echo $qual; ?></td>
 		<td class='rank_wind'><?php echo $wind; ?></td>
-		<td class='rank_points'><?php echo $points; ?></td>
+        <?php
+        if ($this->relay == FALSE) {
+            ?>
+		    <td class='rank_points'><?php echo $points; ?></td>
+            <?php
+        }
+        ?>
         <td class='rank_remark'><?php echo $remark; ?></td>   
 	</tr>
 
