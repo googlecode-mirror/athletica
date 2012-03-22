@@ -1398,6 +1398,7 @@ function AA_meeting_addTime($st , $wTyp, $item, $dTyp)  {
  //
 // check meeting if UBS Kids Cup
 //
+
 function AA_checkMeeting_UKC($meeting='')  {
     
     if (!empty($meeting)){
@@ -1423,6 +1424,58 @@ function AA_checkMeeting_UKC($meeting='')  {
     return 0;
 }   
 
+
+
+
+//
+// add disziplines for ubs kids cup (in normal meeting) not combined events
+//
+function AA_meeting_addUkcEvent($xCat, $penalty, $disfee){
+        
+    include('./convtables.inc.php');
+    require('./lib/common.lib.php');
+    
+        
+    // check if combined type has predefined disciplines    
+    $k = 0;
+    if (isset($cfgCombinedWO['UKC'])){
+              
+            foreach($cfgCombinedWO['UKC'] as $val){
+                
+                $k++;
+                $res = mysql_query("SELECT xDisziplin FROM disziplin_" . $_COOKIE['language'] . " WHERE Code = $val");
+                $row = mysql_fetch_array($res);
+                $d = $row[0];
+               
+                $query = "SELECT * FROM wettkampf WHERE xKategorie = ".$xCat . " AND xDisziplin = ". $d;
+               
+                $res = mysql_query($query);        
+                if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                    break;
+                }
+                  
+                if (mysql_num_rows($res) == 0){
+                       $query = "INSERT INTO wettkampf SET
+                        Typ = ".$cfgEventType[$strEventTypeSingle]."
+                        , Haftgeld = '$penalty'
+                        , Startgeld = '$disfee' 
+                        , Info = ''
+                        , xKategorie = ".$xCat."
+                        , xDisziplin = $d
+                        , xMeeting = ".$_COOKIE['meeting_id'];
+                                              
+                        mysql_query($query);
+                       
+                        if(mysql_errno() > 0) {
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                            break;
+                         }   
+               }                  
+            }   
+    }
+    
+}     
     
 
 }		// AA_MEETING_LIB_INCLUDED
