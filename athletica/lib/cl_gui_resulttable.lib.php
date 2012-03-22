@@ -498,9 +498,9 @@ class GUI_TechResultTable extends GUI_ResultTable
      {
         ?>
          <tr>
-        <th class='dialog_title' colspan='2'><?php echo $cat; ?>             
+        <th class='dialog_title' colspan='<?php echo 2 + $this->spanincr; ?>'><?php echo $cat; ?>             
         </th>
-         <th class='dialog_title' colspan='6'><?php echo $disc; ?>                          
+         <th class='dialog_title' colspan='12'><?php echo $disc; ?>                          
         </th>
         </tr> 
         <?php
@@ -510,7 +510,7 @@ class GUI_TechResultTable extends GUI_ResultTable
 	{
 		?>
 	<tr>
-		<th class='dialog' colspan='<?php if ($arg == 'regie'){ echo 4 + $this->spanincr;} else {echo 7 + $this->spanincr;} ?>'>
+		<th class='dialog' colspan='<?php echo 7 + $this->spanincr; ?>'>
 			<a name='heat_<?php echo $scroll; ?>' /><?php echo $title; ?></a>
 		</th>
 		<?php
@@ -732,25 +732,10 @@ else if(!empty($_POST['round'])) {
 		<td class='forms_ctr'><?php echo $rank; ?></td>
 			<?php
 		
-        if ($arg == 'regie'){  
-            ?>
-            <td><nobr>
-            <?php
-        }
+        
 		// show all results
 		foreach($perfs as $key => $perf)
-		{
-			 if ($arg == 'regie'){  
-                 
-                if($fett[$key]==1) {
-                    echo "<b>&nbsp; $perf &nbsp;</b>"; 
-                }
-                else {
-                     echo "&nbsp; $perf &nbsp;";    
-                }  
-               
-             }
-             else {
+		{      			
                   ?>
                   <td>
                   <?php 
@@ -760,14 +745,9 @@ else if(!empty($_POST['round'])) {
                   else {
                     echo " $perf</td>";    
                   }  
-             }  
 		} 
         
-         if ($arg == 'regie'){  
-            ?>
-            </nobr>  </td>
-            <?php
-        } 
+         
 		?>
 			
 	</tr>
@@ -802,7 +782,7 @@ class GUI_HighResultTable extends GUI_ResultTable
          <tr>
         <th class='dialog_title' colspan='2'><?php echo $cat; ?>             
         </th>
-         <th class='dialog_title' colspan='6'><?php echo $disc; ?>                          
+         <th class='dialog_title' colspan='12'><?php echo $disc; ?>                          
         </th>
         </tr> 
         <?php
@@ -812,7 +792,7 @@ class GUI_HighResultTable extends GUI_ResultTable
 	{
 		?>
 	<tr>
-		<th class='dialog' colspan='<?php if ($arg == 'regie') {echo 4 + $this->spanincr;} else {echo 7 + $this->spanincr;} ?>'>
+		<th class='dialog' colspan='<?php if ($arg == 'regie') {echo 10 + $this->spanincr;} else {echo 7 + $this->spanincr;} ?>'>
 			<a name='heat_<?php echo $scroll; ?>' /><?php echo $title; ?></a>
 		</th>
 		<?php
@@ -971,7 +951,7 @@ class GUI_HighResultTable extends GUI_ResultTable
 		<td><?php echo $topperf; ?></td>
 		<td class='forms_ctr'><?php echo $rank; ?></td>
 			<?php
-		
+		        
 
         if ($arg == 'regie'){ 
             ?>
@@ -980,11 +960,11 @@ class GUI_HighResultTable extends GUI_ResultTable
         } 
 		// show all results
 		foreach($perfs as $key => $perf)
-		{
+		{   
 			if ($arg == 'regie'){  
                     
             ?>
-        <?php if($fett[$key]==1) echo "<b>";?><?php echo "&nbsp;&nbsp;&nbsp;$perf"; ?> 
+        <td><nobr> <?php if($fett[$key]==1) echo "<b>";?><?php echo $perf; ?> </nobr> </td>  
             <?php
             
             
