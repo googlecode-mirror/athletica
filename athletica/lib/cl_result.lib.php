@@ -54,7 +54,7 @@ class Result
         $this->performance = $performance; 
         $this->xAthlete = $xAthlete; 
         $this->row_col = $row_col;            
-        $this->maxatt = $maxatt;                
+        $this->maxatt = $maxatt;       
      
 		require('./lib/utils.lib.php');
 		$GLOBALS['AA_ERROR'] = '';
@@ -208,11 +208,13 @@ class Result
 			if(mysql_errno() > 0) {
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 			}
-			else {
-                 AA_StatusChanged(mysql_insert_id());
+			else {                
+                 
+                 $id =  mysql_insert_id(); 
+                 AA_StatusChanged($id);
                
-                
-				$reply->setKey(mysql_insert_id());
+                 
+				$reply->setKey($id);
 				$reply->setAction(RES_ACT_INSERT);
 				$reply->setPerformance($this->performance);
 				$reply->setInfo($this->info);
@@ -237,7 +239,7 @@ class Result
 			return;
 		}
 
-		mysql_query("LOCK TABLES resultat WRITE");
+		mysql_query("LOCK TABLES resultat WRITE, resultat AS re READ , serienstart AS ss READ, serie AS s READ, runde WRITE, runde AS r WRITE");
 
 		mysql_query("
 			DELETE FROM resultat
@@ -417,6 +419,20 @@ class TechResult	extends Result
 			$wind = new Wind($info);
 			$this->info = $wind->getWind();
 		}
+        //  check more results when -1 or -4
+        if ($performance == -1 || $performance == -4){
+            $sql = "SELECT r.Leistung FROM resultat AS r WHERE r.xSerienstart = " .   $this->startID;
+            $res = mysql_query($sql);
+            if (mysql_errno($res)){
+                
+            }
+             else {
+                 if (mysql_num_rows($res) > 0)  {
+                          $GLOBALS['AA_ERROR'] = $GLOBALS['strErrInvalidResultByMore'];  
+                 }
+             }
+        }
+        
 	}
 } // end class TrackResult
 
