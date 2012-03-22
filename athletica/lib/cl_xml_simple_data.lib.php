@@ -47,8 +47,9 @@ class XML_simple_data {
 	var $opentags = array();
 	var $gzfp;
    	
-	function load_xml_simple($file, $type, $mode=''){          
+	function load_xml_simple($file, $type, $mode='', $ukc_meeting){          
 		global $arr_noCat ;      
+        
         
 		if($type != "regUKC"){ // unknown type of data
 			return false;
@@ -62,7 +63,7 @@ class XML_simple_data {
                         disziplin_de AS d READ, disziplin_fr AS d READ, disziplin_it AS d READ, anmeldung READ, anmeldung WRITE,
                         kategorie AS k READ, start WRITE,  start READ ");    
              
-        XML_regUKC($xml_simple);     		
+        XML_regUKC($xml_simple, $ukc_meeting);     		
 		
 		mysql_query("UNLOCK TABLES");
 		
@@ -76,9 +77,9 @@ class XML_simple_data {
 /* handling online registration data (UKC) ****************************************************************************************************/
 //function XML_regUKC($xml_simple){
 
-function XML_regUKC($xml_simple){     
+function XML_regUKC($xml_simple, $ukc_meeting){     
     
-    global $arr_noCat, $discode,  $catcode, $xDis , $distype;
+    global $arr_noCat, $discode,  $catcode, $xDis , $distype, $cfgUKC_disc;  
      
     $kidID = 0;
     $license = 0;
@@ -164,8 +165,7 @@ function XML_regUKC($xml_simple){
                            case 'announcement': $announcement = $value; 
                                                 break;
                     }    
-            }           
-           
+            }  
             $meetingDate = ''; 
             $discode = 0;      
             
@@ -216,11 +216,25 @@ function XML_regUKC($xml_simple){
             
             // get category
             $currYear = date('Y');
-            $age = $currYear - $birthYear;
-            if ($age < 7){
-                 $age = 7;        // 
+            $age = $currYear - $birthYear;               
+            
+           
+            if ($ukc_meeting == 'y'){         // normal UBS Kids Cup Meeting (only UBS Kids Cup)
+                if ($age < 7){
+                    $age = 7;        //  minimum age
+                }
+                $sql_cat = "SELECT xKategorie, Code FROM kategorie AS k WHERE k.alterslimite = " . $age . " AND k.Geschlecht = '" .$sex . "' AND k.UKC = 'y' AND k.aktiv = 'y'"; 
+              }
+            else {   //normal Meetring with UBS Kids Cup integration
+                 if ($age <= 7){
+                    $age = 9;        //  minimum age
+                 }     
+                 if ($age % 2 == 0){
+                     $age++;
+                 }              
+                 $sql_cat = "SELECT xKategorie, Code FROM kategorie AS k WHERE k.alterslimite <= " . $age . " AND k.Geschlecht = '" .$sex . "' AND k.UKC = 'n' AND k.aktiv = 'y'";    
             }
-            $sql_cat = "SELECT xKategorie, Code FROM kategorie AS k WHERE k.alterslimite = " . $age . " AND k.Geschlecht = '" .$sex . "' AND k.UKC = 'y' AND k.aktiv = 'y'";
+            
             $res_cat = mysql_query($sql_cat);
             
             if(mysql_errno() > 0) {   
@@ -230,7 +244,12 @@ function XML_regUKC($xml_simple){
                  if (mysql_num_rows($res_cat) > 0)  {
                         $row_cat =  mysql_fetch_row($res_cat);  
                         $cat = $row_cat[1];
-                        $xCat = $row_cat[0];   
+                        $xCat = $row_cat[0];  
+                        
+                        $selection = "";
+                        if ($ukc_meeting == 'n') {
+                            $selection = " AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";
+                        } 
             
                         $sql = "SELECT 
                                     w.xWettkampf,
@@ -244,10 +263,11 @@ function XML_regUKC($xml_simple){
                                     LEFT JOIN meeting AS m ON (m.xMeeting = w.xMeeting)  
                                 WHERE 
                                     w.xMeeting = ".$_COOKIE['meeting_id']."
+                                    $selection
                                     AND k.Kurzname = '" .$cat ."'";
-                               
+                       
                         $res = mysql_query($sql);
-                        if (mysql_num_rows($res) >= 1) {
+                        if ((mysql_num_rows($res) >= 1 && $ukc_meeting == 'y') || (mysql_num_rows($res) == 3 && $ukc_meeting == 'n')) {
                             while($row_dis = mysql_fetch_assoc($res)){
                                     $xDis[] = $row_dis['xWettkampf'];
                                     if  ($row_dis['Mehrkampfcode'] > 0) {
@@ -257,11 +277,17 @@ function XML_regUKC($xml_simple){
                                     $meetingDate =  $row_dis['DatumVon'];    
                             } 
                         }  
-                        else {
-                           
-                            $_POST['combinedtype'] = 408;
-                            $_POST['cat'] = $xCat;   
-                            AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);  
+                        else {                                    
+                              
+                            if ($ukc_meeting == 'y'){
+                                 $_POST['combinedtype'] = 408;
+                                 $_POST['cat'] = $xCat;   
+                                AA_meeting_addCombinedEvent($_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100); 
+                            } 
+                            else {
+                                 
+                                AA_meeting_addUkcEvent($xCat, $_SESSION['meeting_infos']['Startgeld']/100,$_SESSION['meeting_infos']['Haftgeld']/100);      
+                            }
                                                     
                             $res = mysql_query($sql);
                             if(mysql_errno() > 0) {   
