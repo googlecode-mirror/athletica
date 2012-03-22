@@ -27,6 +27,13 @@ if(AA_checkMeetingID() == FALSE){		// no meeting selected
 	return;		// abort
 }
 
+if (isset($_GET['ukc_meeting'])) {
+     $ukc_meeting = $_GET['ukc_meeting'];   
+}
+else if  (isset($_POST['ukc_meeting'])) {
+     $ukc_meeting = $_POST['ukc_meeting'];   
+}
+
 //
 //	Display enrolement list
 //
@@ -70,7 +77,7 @@ if($_POST['arg'] == "login"){
 }
 
 if($login){
-	
+	            
 	set_time_limit(300);
 	
 	$xml = new XML_data();
@@ -85,7 +92,13 @@ if($login){
 	$local = dirname($_SERVER['SCRIPT_FILENAME'])."/tmp/results_ukc.xml.gz";
 	$remote = date("Ymd")."_".$eventnr.".gz";      	
 	
-    $nbr_effort = $xml->gen_result_xml_UKC($local); 
+    if ($ukc_meeting){
+         $nbr_effort = $xml->gen_result_xml_UKC_CM($local);
+    }
+    else {
+          $nbr_effort = $xml->gen_result_xml_UKC($local);             
+    }
+   
 	
 	// upload result file
 	if($nbr_effort>0){ //upload only if file contains at least one results
@@ -159,6 +172,7 @@ if($login){
 		<table class='admin'>
 		<form action='admin_results_UKC.php' name='base' method='post' target='_self' >
 		<input type="hidden" name="arg" value="login">
+        <input type="hidden" name="ukc_meeting" value="<?php echo $ukc_meeting; ?>"> 
 		<tr>
 			<td>
 				<?php echo $strClubNr ?>
