@@ -1347,6 +1347,7 @@ if ($_POST['arg']=="add")
 												{
 													// validate top performance (if any)
 													$perf = 0;
+                                                    $perfSeason = 0;
 													$p = 'topperf_' . $event;
 													$t = 'type_' . $event;													
 													
