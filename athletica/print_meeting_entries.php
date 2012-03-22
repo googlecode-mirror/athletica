@@ -52,7 +52,7 @@ if ($_GET['catgroup'] == "yes") {
 	$argument = "k.Anzeige, " . $argument;
 }
 if ($_GET['contestcatgroup'] == "yes") {
-	$argument = "ck.Anzeige, " . $argument;
+	$argument = "ck.Anzeige, d2.Anzeige,  " . $argument;
 }
 if ($_GET['clubgroup'] == "yes") {
 	$argument = "v.Sortierwert, " . $argument;
@@ -232,9 +232,8 @@ if($_GET['cover'] == 'cover' && !$export) { // print cover page
            ORDER BY
             $argument";      
  
-$result = mysql_query($sql);    
-
-     
+$result = mysql_query($sql); 
+  
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -281,7 +280,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	   }
 	   elseif ( $_GET['contestcatgroup']=="yes" 
 				&& $_GET['discgroup']=="yes"){
-		   if (($a != $row[0] && $a > 0)  ||   ($dd != $row[9]  && $a > 0)) {
+		   if (($a != $row[0] && $a > 0)  ||   ($dd != $row[9]  && $a > 0)) {                  
 			   $pl=true;	
 		   }
 	   }
@@ -449,7 +448,12 @@ else if(mysql_num_rows($result) > 0)  // data found
 			else if((is_a($doc, "PRINT_CatDiscEntryPage")) 
 				|| (is_a($doc, "GUI_CatDiscEntryPage")))
 			{
-				$doc->printSubTitle($catName . " " . $row[10]);
+                if ($row[23] > 0){
+                        $doc->printSubTitle($catName . " " . $row[10]. " " . $row[19]);
+                }	
+                else {
+                      $doc->printSubTitle($catName . " " . $row[10]);                    
+                }			                                       
 			}
 			else if((is_a($doc, "PRINT_ClubCatEntryPage")) 
 				|| (is_a($doc, "GUI_ClubCatEntryPage")))
