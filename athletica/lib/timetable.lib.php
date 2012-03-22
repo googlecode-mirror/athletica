@@ -296,6 +296,10 @@ function AA_timetable_display($arg = 'monitor')
                         $class = "st_res_work";
                         $href = "event_results.php?round=$row[0]";
                         break;
+                    case($cfgRoundStatus['results_live']):
+                        $class = "st_res_live";
+                        $href = "event_results.php?round=$row[0]";
+                        break;       
                     case($cfgRoundStatus['results_done']):
                         $class = "st_res_done";
                         $href = "event_results.php?round=$row[0]";
