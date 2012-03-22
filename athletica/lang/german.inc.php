@@ -855,5 +855,17 @@ $strPaymentControl = "Startgeld Kontrolle";
 $strPayedShort = "Bez";
 $strPayedClub = "Bezahlt gesamter Verein";
 
+$strErrInvalidResultByMore = "Eingabe nicht möglich, da für diesen Athlet bereits Resultate erfasst wurden.";
+
+$strEndEvent = "Vor-/Endkampf";
+
+$strCountFinalist = "Anzahl Finalisten";   
+$strCountFinalAfterXEvents = "Final nach Versuch";
+$strChangePos = "Reihenfolge drehen nach Versuch:";
+$strWarnFinalAttempt = "Final nach Versuch muss kleiner als die Anzahl Versuche sein.";
+
+$strResultsLive = "LIVE-Resultate";
+$strResetLiveStatus  = "Live Status zurücksetzen";
+
 
 ?>
