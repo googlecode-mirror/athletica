@@ -97,21 +97,26 @@ if ($arg=="nbr") {
 
 // read all entries
 $result = mysql_query("
-	SELECT
+	SELECT  DISTINCT
 		a.xAnmeldung
 		, a.Startnummer
 		, at.Name
-		, at.Vorname
-		, v.Name
+		, at.Vorname  		
+        , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
+        , t.Name
+        , w.Typ
 	FROM
 		anmeldung AS a
 		LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
 		LEFT JOIN verein AS v USING(xVerein)
+        LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung)
+        LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf) 
+          LEFT JOIN team AS t ON(a.xTeam = t.xTeam)    
 	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "   
 	ORDER BY
 		$argument
 	");
- 
+   
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -133,7 +138,15 @@ else if(mysql_num_rows($result) > 0)  // data found
 		else {	// odd row number
 			$rowclass = 'odd';
 		}
-
+        
+        // check if svm
+        $svm = false;
+        if($row[6] > $cfgEventType[$strEventTypeSingleCombined]
+                    && $row[6] != $cfgEventType[$strEventTypeTeamSM]){ 
+                      $svm = true;  
+        }
+        
+        
 		?> 
 <tr class='<?php echo $rowclass; ?>'
 	onClick='selectAthlete(<?php echo $row[0]; ?>)' style="cursor: pointer;">
@@ -143,7 +156,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<?php echo $row[1]; ?>
 	</td>
 	<td nowrap><?php echo $row[2]. " ".$row[3]; ?></td>
-	<td nowrap><?php echo $row[4]; ?></td>
+	<td nowrap><?php if ($svm) {echo $row[5];} else {echo $row[4];} ?></td>
 </tr>     
 		<?php
 	}
