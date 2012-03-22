@@ -83,34 +83,19 @@ $search = new GUI_Searchfield('speaker_entry.php', '_self', 'post', 'speaker.php
 $search->printSearchfield();
 ?>
 <p />
-<?php AA_timetable_display('speaker'); ?>
+<?php AA_timetable_display('speaker');
 
+    $hour= date("H") - 2;   
+    $dateHour = date("Y-m-d") . $hour;        
+   
+    ?>  
 <script type="text/javascript">
 <!--
 	window.setTimeout("updatePage()", <?php echo $cfgMonitorReload * 1000; ?>);
 
-	// scroll to put current time line approximately to the middle of the screen
-	var now = new Date();
-	//var now = new Date(2003,2,9,10,0,0);	// test case
-	var year = now.getYear();
-	var m = now.getMonth() + 1;
-	var month = ((m < 10) ? ("0" + m) : m);
-	var d = now.getDate();
-	var day = ((d < 10) ? ("0" + d) : d);
-	var h = now.getHours() - 2;
-	var hour = ((h < 10) ? ("0" + h) : h);
-	var date = year + "-" + month + "-" + day + hour;
-	if(document.getElementById(date))
-	{
-		// scroll to current time (Internet Explorer only!!!)
-		document.getElementById(date).scrollIntoView("false");
-		// get Y-offset 
-		if(document.documentElement && document.documentElement.scrollTop)
-		{														//IE6 standards compliant mode
-			var scroll = document.documentElement.scrollTop;
-	  }
-		// scroll to the left
-		window.scrollTo(0, scroll);
+	// scroll to put current time - 2 hours line approximately to the top of the screen     	                             
+	if(document.getElementById('<?php echo $dateHour; ?>'))  {   
+		document.getElementById('<?php echo $dateHour; ?>').scrollIntoView("true");   
 	}
 
 	function updatePage()
