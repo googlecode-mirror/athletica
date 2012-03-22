@@ -80,7 +80,8 @@ $cfgBackupCompatibles = array(
     '4.0', 
     '4.1',  
     '5.0',  
-    '5.1'    
+    '5.1',
+    '5.2'        
 );
 
 
@@ -124,6 +125,8 @@ $cfgCountAttempts = array(
 			$cfgDisciplineType[$strDiscTypeJump]=>3
 			, $cfgDisciplineType[$strDiscTypeJumpNoWind]=>3
 			, $cfgDisciplineType[$strDiscTypeThrow]=>6);
+            
+$cfgFinalist = 8;
 
 /**
  * Evaluation type
@@ -572,6 +575,10 @@ $cfgTVDef = array("de" => array (232 => '50m Hurdles'
                                 , 'm' => 'Uomini' 
                                 , 'w'=> 'Donne'                                                                     
                                 ));  
+    
+ // UBS Kids Cup 
+ $cfgUKC_disc = array("30","331","386");
+ $cfgUKC_disc_F = array("60","WEIT","BALL"); 
                                 
 // SVM reserve discipline                               
 $cfgResDisc = 811;   
@@ -688,6 +695,7 @@ $cfgRoundStatus = array("open"=>0
 							, "heats_in_progress"=>1
 							, "heats_done"=>2
 							, "results_in_progress"=>3
+                            , "results_live"=>30
 							, "results_done"=>4
 							, "enrolement_pending"=>5
 							, "enrolement_done"=>6  
@@ -698,6 +706,7 @@ $cfgRoundStatusTranslation = array(0=>$strOpen
 											, 1=>$strHeatsInWork
 											, 2=>$strHeatsDone
 											, 3=>$strResultsInWork
+                                            , 30=>$strResultsLive
 											, 4=>$strResultsDone
 											, 5=>$strEnrolementPending
 											, 6=>$strEnrolementDone
