@@ -111,8 +111,12 @@ function AA_speaker_Tech($event, $round, $layout)
 				{
 					while($restemp = mysql_fetch_row($tempres))
 					{
-				mysql_query("INSERT INTO `temp` ( `id` , `athlet` , `leistung` , `rang`) 
-				VALUES ('', '$row[6]', '$restemp[0]' , '1');");
+				       mysql_query("INSERT INTO `temp` (  `athlet` , `leistung` , `rang`) 
+				                    VALUES ($row[6], $restemp[0] , 1);");
+                
+                       if(mysql_errno() > 0) {        // DB error                              
+                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                        }
 					}
 				}
 				mysql_free_result($tempres);
@@ -293,8 +297,7 @@ function AA_speaker_Tech($event, $round, $layout)
 					ORDER BY
 					r.xResultat";
 				$res = mysql_query($sql);
-				//echo $sql;
-
+				
 				if(mysql_errno() > 0) {		// DB error
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
@@ -310,6 +313,7 @@ function AA_speaker_Tech($event, $round, $layout)
 						temp
 						WHERE athlet = $row[6]";
 				$res2 = mysql_query($sql2);
+                
 				while($row2 = mysql_fetch_row($res2))
 					{
 							
@@ -347,8 +351,8 @@ function AA_speaker_Tech($event, $round, $layout)
 	}		// ET heat seeding done
 
 	$temp = mysql_query("
-			DROP TABLE IF EXISTS `temp`
-		");
+		DROP TABLE IF EXISTS `temp`
+	");
         
 }
 else {
