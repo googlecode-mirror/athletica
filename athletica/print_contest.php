@@ -58,31 +58,36 @@ $print = 'no';
 if(!empty($_POST['print'])) {
     $print = $_POST['print'];
 }
- 
-$endEvent = 0;
-if(isset($_POST['endEvent'])) {
-    $endEvent = 1;
-}
-$countFinalist = $cfgFinalist;
-if(isset($_POST['orig_CountFinalist']) && $_POST['orig_CountFinalist'] > 0) {
-       $countFinalist = $_POST['orig_CountFinalist'];
-}
 
 $dTyp= 0;
 if (isset($_POST['d_Typ'])){
        $dTyp = $_POST['d_Typ'];
 }
-
-$countFinalAfter = ceil($cfgCountAttempts[$dTyp]/2);
-if(isset($_POST['countFinalAfter']) && $_POST['orig_CountFinalist'] > 0) {
-       $countFinalAfter = $_POST['countFinalAfter'];
+ 
+$endEvent = 0;
+$countFinalist = 0;
+$countFinalAfter = 0;
+$changePos1 = 0;  
+$changePos2 = 0; 
+if(isset($_POST['endEvent'])) {
+    $endEvent = 1;
+    $countFinalist = $cfgFinalist;  
+    $countFinalAfter = ceil($cfgCountAttempts[$dTyp]/2);  
+    $changePos1 = $countFinalAfter;   
 }
 
-$changePos1 = $countFinalAfter;
+if(isset($_POST['orig_CountFinalist']) && $_POST['orig_CountFinalist'] > 0) {
+       $countFinalist = $_POST['orig_CountFinalist'];
+}   
+
+if(isset($_POST['countFinalAfter']) && $_POST['orig_CountFinalist'] > 0) {
+       $countFinalAfter = $_POST['countFinalAfter'];
+}  
+
 if(isset($_POST['changePos1'])) {
        $changePos1 = $_POST['changePos1'];
 }
-$changePos2 = 0;
+
 if(isset($_POST['changePos2'])) {
        $changePos2 = $_POST['changePos2'];
 }

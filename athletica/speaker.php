@@ -68,12 +68,20 @@ $hlpbtn = new GUI_Button($cfgURLDocumentation . 'help/speaker/index.html', $strH
 		<div class='st_heats_done'>&nbsp;<?php echo $strHeatsDone; ?>&nbsp;</div>
 	</td>
 	<td class='forms'>
-		<div class='st_res_done'>&nbsp;<?php echo $strResultsDone; ?>&nbsp;</div>
+		<div class='st_res_live'>&nbsp;<?php echo $strResultsLive; ?>&nbsp;</div>
 	</td>
 	<td class='forms'>
 		<div class='st_anct_done'>&nbsp;<?php echo $strResultsAnnounced; ?>&nbsp;</div>
 	</td>
 	<td class='forms' />
+</tr>
+<tr>
+    <td class='forms' />
+    <td class='forms' /> 
+    <td class='forms' />
+        <div class='st_res_done'>&nbsp;<?php echo $strResultsDone; ?>&nbsp;</div>   
+    </td> 
+    <td class='forms' />  
 </tr>
 </table>
 

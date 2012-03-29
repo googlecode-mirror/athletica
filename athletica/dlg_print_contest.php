@@ -129,6 +129,7 @@ $sql = "SELECT
 			, r.QualifikationSieger
 			, r.QualifikationLeistung
             , rt.Typ
+            , rt.Wertung
 		FROM
 			runde AS r
 		LEFT JOIN
@@ -220,52 +221,52 @@ else
         <th class='dialog'><input type='checkbox' name='onlyBest' value='y'/> 
                  
          </th>  
-     </tr>      
-     <tr> 
+     </tr>  
+     <?php
+      if ($row[11] != 1){                    //show checkbox endEvent only when rt.Wertung not 1
+           ?>
+           <tr> 
         <td class='dialog'><?php echo $strEndEvent; ?>:</td>     
         <th class='dialog'><input type='checkbox' name='endEvent' id='endEvent' value='y' onclick="addTxtField()"  /> 
                  
          </th>  
      </tr> 
-     
-     
-       
-     <tr>
+      <tr>
     <td class='dialog'><?php echo $strChangePos; ?></td> 
       <th class='dialog'>   
                              <select name='changePos1'> 
                              <option value="-">-</option>
                              <?php 
-                                for ($i=1;$i<$cfgCountAttempts[$row[7]];$i++){
-                                    if ($i==$cfgCountAttempts[$row[7]]-1) {
-                                        ?>
-                                         <option value="<?php echo $i;?>" selected="selected"><?php echo $i;?></option>   
-                                        <?php
-                                    }
-                                    else {
+                                for ($i=1;$i<$cfgCountAttempts[$row[7]];$i++){    
                                          ?>
                                          <option value="<?php echo $i;?>"><?php echo $i;?></option>   
-                                        <?php
-                                    }   
+                                        <?php    
                                 }
                                 ?>  
-                             </select>      
-                        
+                             </select>
+                            <?php 
+                             echo $strAnd;
+                            ?>
                              <select name='changePos2'> 
                                 <option value="-">-</option>
                              <?php 
-                                for ($i=1;$i<$cfgCountAttempts[$row[7]];$i++){
-                                   
+                                for ($i=1;$i<$cfgCountAttempts[$row[7]];$i++){                                      
                                          ?>
                                          <option value="<?php echo $i;?>"><?php echo $i;?></option>   
-                                        <?php
-                                    
-                                    
+                                        <?php    
                                 }
                                 ?>  
                              </select>      
       </th>
     </tr>     
+     <?php
+      }
+     ?>    
+     
+     
+     
+       
+    
     
      
     
@@ -436,22 +437,29 @@ if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
 //3. defaultSelected = true übergeben, wenn der Eintrag der defaultmäßig vorselektierte Eintrag sein soll, sonst false (optional)
 //4. selected = true übergeben, wenn der Eintrag selektiert werden soll (optional)
      function addSelects () {
+        
           var i = 0;
-          for(i=0;i<document.getElementById("countattempts").value;i++) {
+          
+          var len1 = document.qual.changePos1.options.length;    
+          var len2 = document.qual.changePos2.options.length;      
+          for(i=0;i<len1;i++) {
                 document.qual.changePos1.options[document.qual.changePos1.length - 1] = null;
           }
-          for(i=0;i<document.getElementById("countattempts").value;i++) {
+          for(i=0;i<len2;i++) {    
                 document.qual.changePos2.options[document.qual.changePos2.length - 1] = null;
           }
+          
           newOption = new Option('-', '-', false, false);
           document.qual.changePos1.options[document.qual.changePos1.length] = newOption;
           for(i=0;i<document.getElementById("countattempts").value;i++) {   
                  
                   if (i==Math.ceil(document.getElementById("countattempts").value/2))  {                           
                         newOption = new Option(i, i, false, false);
-                        document.qual.changePos1.options[document.qual.changePos1.length] = newOption;                          
-                        var s = i + 1;  
-                        document.qual.changePos1[s].selected = true;     
+                        document.qual.changePos1.options[document.qual.changePos1.length] = newOption;   
+                        if (document.getElementById("endEvent").checked) {
+                           var s = i + 1;  
+                        document.qual.changePos1[s].selected = true;      
+                        }  
                   }  
                   else {
                         newOption = new Option(i, i, false, false);
@@ -513,6 +521,8 @@ if($nextRound > 0 && !$combined && !$teamsm && $quali)		// next round found
                     var tr = tbl.deleteRow(8);  
                     var tr = tbl.deleteRow(8);  
               }
+              
+              addSelects();
                            
     }
     
