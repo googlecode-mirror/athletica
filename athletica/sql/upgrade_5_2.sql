@@ -119,8 +119,8 @@ UPDATE disziplin_de SET Anzeige= 439 WHERE Code = 408;
  
                                                          
 INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, Sprache, FarbeTitel, FarbeHG) VALUES 
-  ('Rangliste für UBS Kids Cup', 'En sélectionnant cette liste de résultats, seuls les athlètes (moins de 16 ans) qui ont effectué les 3 disciplines d'une UBS Kids Cup, seront listés et les points calculés.', 'y', 380, 200, 200, 250, 'event_rankinglists', 'fr', 'FFAA00', 'FFCC00'),                                                     
-  ('liste de résultats pour UBS Kids Cup', 'Bei Wahl diser Rangliste werden nur diejenigen Ahleten (unter 16 jährig), die alle 3 Diszipline eines UBS Kids Cups absolviert haben, aufgelistet und die Punkte berechnet.', 'y', 380, 200, 200, 250, 'event_rankinglists', 'de', 'FFAA00', 'FFCC00'); 
+  ('Rangliste für UBS Kids Cup', 'En sélectionnant cette liste de résultats, seuls les athlètes (moins de 16 ans) qui ont effectué les 3 disciplines d'une UBS Kids Cup, seront listés et les points calculés.', 'y', 480, 200, 200, 250, 'event_rankinglists', 'fr', 'FFAA00', 'FFCC00'),                                                     
+  ('liste de résultats pour UBS Kids Cup', 'Bei Wahl diser Rangliste werden nur diejenigen Ahleten (unter 16 jährig), die alle 3 Diszipline eines UBS Kids Cups absolviert haben, aufgelistet und die Punkte berechnet.', 'y', 480, 200, 200, 250, 'event_rankinglists', 'de', 'FFAA00', 'FFCC00'); 
  
 INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, Sprache, FarbeTitel, FarbeHG) VALUES 
   ('Paiement en ligne', 'À la rubrique "Payé", il est possible d'imprimer ou d'afficher une liste des paiements en ligne. De plus les paiements peuvent aussi être acquittés sur place.', 'y', 0, 220, 200, 250, 'meeting_entries', 'fr', 'FFAA00', 'FFCC00'),                                                     
@@ -128,3 +128,6 @@ INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, S
  
 
 INSERT INTO `rundentyp_de` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'Zeitläufe', 1, 'FZ');   
+INSERT INTO `rundentyp_fr` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'Courses au temps', 1, 'FZ');   
+INSERT INTO `rundentyp_it` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'corsa a tempo', 1, 'FZ');   
+
