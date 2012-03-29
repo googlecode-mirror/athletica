@@ -10,7 +10,7 @@ if (!defined('AA_RANKINGLIST_COMBINED_LIB_INCLUDED'))
 {
 	define('AA_RANKINGLIST_COMBINED_LIB_INCLUDED', 1);
 
-function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disc_nr,$catFrom,$catTo)
+function AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing=false, $date = '%',$disc_nr,$catFrom,$catTo, $ukc)
 {     
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');
@@ -18,6 +18,7 @@ require('./lib/cl_export_page.lib.php');
 
 require('./lib/common.lib.php');
 require('./lib/results.lib.php');
+require('./config.inc.php'); 
 
 if(AA_connectToDB() == FALSE)	{ // invalid DB connection
 	return;		// abort
@@ -43,10 +44,24 @@ if($catFrom > 0) {
 		}
 	 }
 } 
+$GroupByUkc = "";
+if ($ukc){       
+          $checkyear= date('Y') - 16;                  
+          $selection = " AND at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";   
+          $sql_leftjoin = " LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.xDisziplin = d.xDisziplin) ";
+          $order = " ,at.Name, at.Vorname, d.Anzeige";  
+          $disc_nr = 3;
+         
+    }
+else {
+    $selection = " AND w.Mehrkampfcode > 0 ";
+    $sql_leftjoin = " LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.Mehrkampfcode = d.Code)";    
+    $order = " , w.Mehrkampfcode , ka.Alterslimite DESC"; 
+}
                                     
 $dCode = 0;
 // get athlete info per contest category    
-  $sql="SELECT DISTINCT 
+  $sql1="SELECT DISTINCT 
         a.xAnmeldung
         , at.Name
         , at.Vorname
@@ -60,30 +75,31 @@ $dCode = 0;
         , ka.Code
         , ka.Name
         , ka.Alterslimite 
-        , d.Code             
+        , d.Code 
+        , at.xAthlet              
     FROM
         anmeldung AS a
         LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet )
         LEFT JOIN verein AS v  ON (v.xVerein = at.xVerein  )
         LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung ) 
-        LEFT JOIN wettkampf as w  ON (w.xWettkampf = st.xWettkampf)
-        LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.Mehrkampfcode = d.Code)     
+        LEFT JOIN wettkampf as w  ON (w.xWettkampf = st.xWettkampf) "
+        . $sql_leftjoin . "
         LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
         LEFT JOIN kategorie AS ka ON (ka.xKategorie = a.xKategorie)     
         LEFT JOIN region as re ON (at.xRegion = re.xRegion) 
     WHERE a.xMeeting = " . $_COOKIE['meeting_id'] ."
-    " . $contestcat . "    
-     
-    AND w.Mehrkampfcode > 0   
-    
-    AND st.anwesend = 0     
-    ORDER BY         
-        k.Anzeige
-        , w.Mehrkampfcode
-        , ka.Alterslimite DESC";      
+    " . $contestcat . " 
+     " . $selection . " 
+    AND st.anwesend = 0 "; 
+       
+    $sqlOrder = " ORDER BY         
+        k.Anzeige "
+        . $order;  
+       
+ $sql = $sql1 . $sqlOrder;          
 
 $results = mysql_query($sql);     
-  
+
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -129,9 +145,32 @@ else
 	}elseif($formaction == "exportdiplom"){
 		$list = new EXPORT_CombinedRankingListDiplom($_COOKIE['meeting'], 'csv');
 	}
+    
+    if ($ukc){  
+            
+        while($row = mysql_fetch_row($results))  {
+              if ($roundsUkc[$row[4]][$row[14]] == ""){
+                  $roundsUkc[$row[4]][$row[14]] = 0;
+              }
+              $roundsUkc[$row[4]][$row[14]]++;
+        } 
+        $GroupByUkc = " GROUP BY at.xAthlet ";
+        $sql = $sql1 . $GroupByUkc . $sqlOrder;   
+          
+        $results = mysql_query($sql);  
+    }   
 	
 	while($row = mysql_fetch_row($results))
 	{   $dCode = $row[13];         
+    
+    
+         if ($ukc){
+             if ($roundsUkc[$row[4]][$row[14]] != 3) {
+                 continue;
+             }            
+        }
+            
+    
 		// store previous before processing new athlete
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
@@ -337,9 +376,9 @@ else
 		{   $count_disc=0;
             $remark='';
             $points_disc = array();
-            
+             
 			while($pt_row = mysql_fetch_row($res))
-			{    
+			{   
                 $remark=$pt_row[10];  
 				$lastTime = $pt_row[8];
 				

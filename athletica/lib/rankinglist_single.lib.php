@@ -12,7 +12,9 @@ if (!defined('AA_RANKINGLIST_SINGLE_LIB_INCLUDED'))
 
 function AA_rankinglist_Single($category, $event, $round, $formaction, $break, $cover, $biglist = false, $cover_timing = false, $date = '%',  $show_efforts = 'none',$heatSeparate,$catFrom,$catTo,$discFrom,$discTo,$heatFrom,$heatTo, $athleteCat, $withStartnr, $ranklistAll, $ukc)
 {   
-
+// anstead of remove the function "rankinglist ubs kids cup"", set $ukc for the moment false  --> later remove it perhaps
+// "rankinglist ubs kids cup" is solved in rankinglist_combined.lib.php
+$ukc = false;
         
 require('./lib/cl_gui_page.lib.php');
 require('./lib/cl_print_page.lib.php');  
@@ -2483,10 +2485,9 @@ $list->endList();
             }
             
             //*******************************
-    
-    
-    
-    
+  if ($ukc){
+         AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing, $date, $disc_nr,$catFrom,$catTo, $ukc);   
+  }   
     
 
     $list->endPage();    // end HTML page for printing
