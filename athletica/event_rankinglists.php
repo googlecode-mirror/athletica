@@ -373,7 +373,7 @@ if (isset($eventTypeCat['combined'])){?>
 			</select>
 		</td>
 </tr><?php
-} //END IF  isset($eventTypeCat['combined']))
+} //END IF  isset($eventTypeCat['combined']))   
 
 if (isset($eventTypeCat['club'])){?>
 <tr>
@@ -442,7 +442,7 @@ if (!isset($eventTypeCat['combined'])){?>
 
 
 <?php
-}
+}  
 ?>
 <tr>
 	<th class='dialog'><?php echo $strSortBy; ?></th>
@@ -552,15 +552,20 @@ if($tage>1){
 			<?php echo $efforts_text ; ?></input>
 	</th>
 </tr>
+          
+</table>
+  <p />   
+     <table>
 <tr>
     <th class='dialog'>
-        <input type='checkbox' name='show_ukc' value='ukc'>
-            <?php echo $strRankingList . " " . $strUKC; ?></input>
+        <input type='radio' name='type' value='ukc' id='combined' >
+             <?php echo $strRankingList . " " . $strUKC; ?></input>     
+        
     </th>
 </tr>
 </table>
 
-<p />
+<p />   
 
 <table>
 <tr>
@@ -576,8 +581,10 @@ if($tage>1){
 	</td>         
 </tr>
 </table>
+          
 
-<br>
+
+<br/>
 
 <table class="dialog">
 <tr>
