@@ -1417,16 +1417,27 @@ function AA_heats_addStart($round)
 				{
 					// get new heat name
 					$newhn = '0';
-					$res = mysql_query("SELECT MAX(Bezeichnung) FROM
+					$res = mysql_query("SELECT Bezeichnung FROM
 								serie
 							WHERE
 								xRunde = $round");
 					if(mysql_errno() > 0) {
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}else{
-						$row = mysql_fetch_array($res);
+                        $arr_bez = array();                         
+						while ($row = mysql_fetch_array($res)) {
+                                $arr_bez[] = $row[0];
+                        }                          
+                        $newhn = max($arr_bez);
+                        if (is_numeric($newhn)){
+                              $newhn++;  
+                        }
+                        else{
+                            $key = array_search($newhn, $GLOBALS['cfgAlphabeth']);                            
+                            $newhn =   $GLOBALS['cfgAlphabeth'][++$key];
+                        }                          
 						mysql_free_result($res);
-						$newhn = chr((ord($row[0])+1));
+						//$newhn = chr((ord($row[0])+1));
 					}
 					
 					mysql_query("
