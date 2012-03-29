@@ -246,6 +246,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                              ";      
            
             $res_tmp3 = mysql_query($query_tmp3); 
+             if(mysql_errno() > 0) {        // DB error
+                   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }  
                                
             mysql_query("DROP TABLE IF EXISTS result_tmp2");    // temporary table    
             
@@ -321,6 +324,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             ";
                                                                                                          
             $res_mk = mysql_query($sql_mk);  
+             if(mysql_errno() > 0) {        // DB error
+                   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }  
           
             $cEnrol=0; 
             $cPresent=0;  
@@ -365,6 +371,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                                             ";     
                                     
                                     $res_mehrkampf = mysql_query($sql_mehrkampf); 
+                                    if(mysql_errno() > 0) {        // DB error
+                                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                    }  
                                     
                                     $cEnrol=1; 
                                     $cPresent=0; 
@@ -410,6 +419,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                                             ";     
                                      
                                     $res_mehrkampf = mysql_query($sql_mehrkampf); 
+                                    if(mysql_errno() > 0) {        // DB error
+                                         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                    }  
                                   
                                     $cEnrol=1;  
                                     $cPresent=0; 
@@ -478,6 +490,9 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                              ";     
                                       
                     $res_mehrkampf = mysql_query($sql_mehrkampf); 
+                    if(mysql_errno() > 0) {        // DB error
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                    }  
             }  
             
                // read all events   
@@ -496,7 +511,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                             result_tmp2 AS t
                     ORDER BY t.kAnzeige, t.Kurzname DESC, t.Typ, t.wkAnzeige, t.Mehrkampfcode, t.dAnzeige";   
            
-              $result = mysql_query($sql);
+             $result = mysql_query($sql);
             
             if(mysql_errno() > 0)        // DB error
                 {
@@ -743,7 +758,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                   , kAlterslimite = $row[17]   
                                     ";      
                       
-                   $res_mk = mysql_query($sql_mk);    
+                   $res_mk = mysql_query($sql_mk); 
+                   if(mysql_errno() > 0) {        // DB error
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                   }     
                     
                   $starts=0;
                   $entries=1; 
@@ -781,7 +799,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                                             , kAlterslimite = $row[17]   
                                               ";     
                                   
-                          $res_mk = mysql_query($sql_mk);    
+                           $res_mk = mysql_query($sql_mk);    
+                           if(mysql_errno() > 0) {        // DB error
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                           }  
                            
                            $entries+=1;
                            $fee+=$row['Startgeld'];  
@@ -875,23 +896,34 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
               ORDER BY v.Sortierwert"; 
              
               $res = mysql_query($sql); 
+              if(mysql_errno() > 0) {        // DB error
+                   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+              }  
                           
-              while($row = mysql_fetch_array($res)){                   
-                 
+              while($row = mysql_fetch_array($res)){   
+                       $startTime = $row[5];       
+                       if (empty($row[5])){
+                            $startTime = '00:00:00';
+                       }
+                       $statusSt = $row[12];
+                       if  (empty($row[12])){
+                            $statusSt = 0;
+                       }
+                       
                        $sql_t1="INSERT INTO result_tmp1 SET  
                                     clubnr = $row[0]
                                   , club = \"" .str_replace("\"","'",$row[1]) . "\"   
                                   , ReductionAmount  = '$row[2]' 
                                   ,    Name =\"" .str_replace("\"","'",$row[3]) . "\"
                                   ,    Vorname =\"" .str_replace("\"","'",$row[4]) . "\"  
-                                  ,    Startzeit = '$row[5]' 
+                                  ,    Startzeit = '$startTime' 
                                   ,    started = '$row[6]'   
                                   ,    anwesend = '$row[7]' 
                                   ,    Haftgeld = '$row[8]'  
                                   ,    Startgeld = '$row[9]' 
                                   ,    enrolement = '$row[10]' 
                                   ,    Mehrkampfcode = '$row[11]' 
-                                  ,    Status = '$row[12]'   
+                                  ,    Status = $statusSt  
                                   ,    StartgeldReduktion  = '$row[13]' 
                                   ,    Sortierwert = \"" .str_replace("\"","'",$row[14]) . "\" 
                                   , kKurzname = \"" .$row[16]. "\"  
@@ -902,7 +934,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                        $res_t1 = mysql_query($sql_t1); 
                      
                        if(mysql_errno() > 0)        // DB error
-                        {  
+                        { 
                         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                     }      
                                
@@ -944,7 +976,10 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                       GROUP BY st.xVerein
                       ORDER BY v.Sortierwert"; 
                
-                $res = mysql_query($sql);                        
+                $res = mysql_query($sql);  
+                if(mysql_errno() > 0) {        // DB error
+                   AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                }                        
                 $reductionAmount = 0;
               
                 while($row = mysql_fetch_array($res)){ 
