@@ -2362,7 +2362,12 @@ else if ($_POST['arg'] == 'restore')
                   
                      mysql_query("UPDATE disziplin_de SET Kurzname = '10KAMPF_MASM', Name = 'Zehnkampf Master'  WHERE Code = 414");  
                      mysql_query("UPDATE disziplin_fr SET Kurzname = '10ATHLON_MASM', Name = 'Décathlon Master'  WHERE Code = 414");   
-                     mysql_query("UPDATE disziplin_it SET Kurzname = '10ATHLON_MASM', Name = 'Decathlon Master'  WHERE Code = 414");   
+                     mysql_query("UPDATE disziplin_it SET Kurzname = '10ATHLON_MASM', Name = 'Decathlon Master'  WHERE Code = 414");       
+                     
+                     mysql_query("INSERT INTO `rundentyp_de` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'Zeitläufe', 1, 'FZ')");   
+                     mysql_query("INSERT INTO `rundentyp_fr` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'Courses au temps', 1, 'FZ')");   
+                     mysql_query("INSERT INTO `rundentyp_it` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'corsa a tempo', 1, 'FZ')");   
+
             
             }
             
