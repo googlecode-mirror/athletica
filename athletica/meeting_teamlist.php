@@ -31,13 +31,13 @@ $img_cat="img/sort_inact.gif";
 $img_club="img/sort_inact.gif";
 
 if ($arg=="name") {
-	$argument="t.Name, k.Anzeige";
+	$argument="t.Name, ks.Code";
 	$img_name="img/sort_act.gif";
 } else if ($arg=="cat") {
-	$argument="k.Anzeige, t.Name";
+	$argument="ks.Code, t.Name";
 	$img_cat="img/sort_act.gif";
 } else {
-	$argument="k.Anzeige, t.Name";
+	$argument="ks.Code, t.Name";
 	$img_cat="img/sort_act.gif";
 }
 
@@ -59,7 +59,7 @@ if ($arg=="name") {
 <table class='dialog'>
 	<tr>
 		<th class='dialog'>
-			<a href='meeting_teamlist.php?arg=cat'><?php echo $strCategory; ?>
+			<a href='meeting_teamlist.php?arg=cat'><?php echo $strSvmCategory; ?>
 				<img src='<?php echo $img_cat; ?>' />
 			</a>
 		</th>
@@ -76,10 +76,10 @@ $result = mysql_query("
 	SELECT
 		t.xTeam
 		, t.Name
-		, k.Kurzname
+		, ks.Name
 	FROM
 		team AS t
-		LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
+		LEFT JOIN kategorie_svm AS ks ON (ks.xKategorie_svm = t.xKategorie_svm)
 	WHERE 
         t.xMeeting = " . $_COOKIE['meeting_id'] . "  
 	ORDER BY
@@ -113,7 +113,7 @@ else				// no DB error
 
 		<td>
 			<a name="item<?php echo $row[0]; ?>"></a>
-			<?php echo $row[2]; ?>
+			<?php echo substr($row[2], 5); ?>
 		</td>
 		<td><?php echo $row[1]; ?></td>
 	</tr>
