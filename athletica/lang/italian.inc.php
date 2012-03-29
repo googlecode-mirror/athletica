@@ -800,4 +800,9 @@ $strErrDisUkc = "In un meeting UBS Kids Cup non è possibile inserire discipline 
 $strOnlineRegInfo2 = "<b>Importante:</b> Vogliare reimportare il file XML aggiornato prima del meeting.";
 $strVersionForbidden = "Caricare un file di backup Athletica 4.0 o 4.1 non è consentito per motivi di compatibilità.";     
 
+
+
+
+
+ $strAnd = " e ";    
 ?>

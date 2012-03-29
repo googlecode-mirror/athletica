@@ -848,6 +848,17 @@ $strPayedShort  =   "Resp";
 $strPayedClub  =   "Payé ensemble de la société"; 
 
  $strErrInvalidResultByMore = "Entrée pas possible, car des résultats ont déjà été enregistrés pour cet athlète."; 
+ 
+ $strEndEvent  = "Qualification/Finale";
 
+$strCountFinalist  = "Nombre de finalistes";
+$strCountFinalAfterXEvents  = "Finale après essai";
+$strChangePos   = "Changer ordre après essai:"; 
 
+$strResultsLive  = "Résultats LIVE";
+$strResetLiveStatus  = "Remettre statut Live";
+$strWarnFinalAttempt  = "Finale après essai doit être plus petite que le nombre d'essai";
+
+ $strAnd = " et ";      
+ 
 ?>

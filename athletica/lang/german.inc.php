@@ -866,6 +866,7 @@ $strWarnFinalAttempt = "Final nach Versuch muss kleiner als die Anzahl Versuche 
 
 $strResultsLive = "LIVE-Resultate";
 $strResetLiveStatus  = "Live Status zurücksetzen";
+$strAnd = " und ";
 
 
 ?>
