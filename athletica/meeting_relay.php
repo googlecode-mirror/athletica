@@ -377,13 +377,21 @@ elseif($_POST['arg'] == "remove_pos"){
 	mysql_query("DELETE FROM staffelathlet"
 			. " WHERE xStaffelstart='" . $_POST['relay']
 			. "' AND xAthletenstart='" . $_POST['athlete'] . "'");
-			
-	mysql_query("DELETE FROM start"
-			. " WHERE xStart ='" . $_POST['athlete'] . "'");
-			
-	if(mysql_errno() > 0) {
-		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-	}
+            
+	$sql = "SELECT * FROM staffelathlet WHERE xAthletenstart ='" . $_POST['athlete'] . "'";	
+    $result = mysql_query($sql);	
+    if(mysql_errno() > 0) {
+        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+    } 
+    if (mysql_num_rows($result) == 0){
+            mysql_query("DELETE FROM start"
+                        . " WHERE xStart ='" . $_POST['athlete'] . "'");
+            
+            if(mysql_errno() > 0) {
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+            }
+    }
+	
 	
 	mysql_query("UNLOCK TABLES");
 }
