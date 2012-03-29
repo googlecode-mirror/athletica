@@ -959,7 +959,10 @@ function AA_results_printMenu($round, $status, $prog_mode, $arg)
 		}else{
 			$menu->addButton("event_results.php?arg=del_results&round=$round", $GLOBALS['strDeleteResults']);
 		}
-        $menu->addButton("event_results.php?arg=live_results&round=$round", $GLOBALS['strResetLiveStatus']);  
+        if($status == $GLOBALS['cfgRoundStatus']['results_live'] )  {
+                  $menu->addButton("event_results.php?arg=live_results&round=$round", $GLOBALS['strResetLiveStatus']);     
+        }
+        
 		$menu->printMenu();
 
 		// Info: signature for invalid results
