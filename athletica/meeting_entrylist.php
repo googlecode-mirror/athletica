@@ -95,28 +95,28 @@ if ($arg=="nbr") {
 // Display athletes with disciplines
 //
 
-// read all entries
-$result = mysql_query("
-	SELECT  DISTINCT
-		a.xAnmeldung
-		, a.Startnummer
-		, at.Name
-		, at.Vorname  		
+// read all entries   
+  $sql="SELECT  
+        a.xAnmeldung
+        , a.Startnummer
+        , at.Name
+        , at.Vorname          
         , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
         , t.Name
         , w.Typ
-	FROM
-		anmeldung AS a
-		LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
-		LEFT JOIN verein AS v USING(xVerein)
+    FROM
+        anmeldung AS a
+        LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+        LEFT JOIN verein AS v USING(xVerein)
         LEFT JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung)
         LEFT JOIN wettkampf AS w ON (w.xWettkampf = s.xWettkampf) 
           LEFT JOIN team AS t ON(a.xTeam = t.xTeam)    
-	WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "   
-	ORDER BY
-		$argument
-	");
-   
+    WHERE a.xMeeting = " . $_COOKIE['meeting_id'] . "  
+    GROUP BY at.xAthlet 
+    ORDER BY
+        $argument";
+ $result = mysql_query($sql);
+ 
 if(mysql_errno() > 0)		// DB error
 {
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
