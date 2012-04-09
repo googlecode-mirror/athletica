@@ -2081,7 +2081,7 @@ function AA_heats_printNewStart($event, $round, $action)
 	}
    
 	$result = mysql_query($query);
-    
+  
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
@@ -2104,8 +2104,8 @@ function AA_heats_printNewStart($event, $round, $action)
 			$dd = new GUI_Select('start', 1);
 			$dd->addOptionNone();
 			while ($row = mysql_fetch_row($result))
-			{
-				$dd->addOption($row[1], $row[0]);
+			{  
+				$dd->addOption(utf8_decode($row[1]), $row[0]);
 			}
 			$dd->printList();
 ?>
@@ -2191,7 +2191,7 @@ function AA_getResultRemark($xAthlete)
                     runde AS r 
                     LEFT JOIN serie AS s ON (s.xRunde = r.xRunde) 
                     LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
-                    LEFT JOIN START AS st ON (st.xStart = ss.xStart) 
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart) 
                     LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
                     LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)

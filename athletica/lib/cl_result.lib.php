@@ -325,7 +325,7 @@ class Result
                                     runde AS r 
                                     LEFT JOIN serie AS s ON (s.xRunde = r.xRunde) 
                                     LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
-                                    LEFT JOIN START AS st ON (st.xStart = ss.xStart) 
+                                    LEFT JOIN start AS st ON (st.xStart = ss.xStart) 
                                     LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
                                     LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                                     LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)

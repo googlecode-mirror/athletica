@@ -218,9 +218,38 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
      * @return    int            points    
      */
 
-    function AA_utils_calcPointsUKC($event, $perf, $fraction = 0, $sex = 'M', $startID)
+    function AA_utils_calcPointsUKC($event , $perf, $fraction = 0, $sex = 'M', $startID, $xAthlet, $enrolment, $dCode)
     {  
-               
+        if ($event == 0){     
+            // get event and sex from athlet
+            $sql="SELECT                                           
+                        at.Geschlecht,
+                        w.xWettkampf  ,
+                        w.xDisziplin,
+                        d.Code,
+                        at.xAthlet
+                    FROM
+                        anmeldung AS a
+                        LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet )                           
+                        LEFT JOIN start as st ON (st.xAnmeldung = a.xAnmeldung ) 
+                        LEFT JOIN wettkampf as w  ON (w.xWettkampf = st.xWettkampf)    
+                        LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)  
+                    WHERE 
+                        a.xAnmeldung= " .$enrolment ."
+                        AND d.Code= " .$dCode;
+            $res=mysql_query($sql);    
+            if(mysql_errno() > 0) {        // DB error
+                    $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                }
+            else {   
+                $row = mysql_fetch_row($res);
+                $sex = $row[0];
+                $event = $row[1]; 
+            } 
+            
+            
+            
+        }       
         // check if this is a merged round   (important for calculate points for merged round with different sex)
         $sql="SELECT                                           
                     se.RundeZusammen                       
@@ -405,6 +434,33 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
         }
         
         return $points;
+    }
+    
+    /**
+     * get category for ubs kids cup 
+     *         
+     */
+    function AA_getCatUkc($year, $sex){
+         $age= date('Y') - $year;                  
+         $sql= "SELECT
+                    k.Name
+                FROM
+                    kategorie as k
+                WHERE 
+                     k.UKC = 'y' AND   
+                     k.Geschlecht = '$sex' AND                                             
+                     k.Alterslimite = $age";                            
+           
+            $result = mysql_query($sql);     
+            
+            if(mysql_errno() > 0) {        // DB error
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+            elseif (mysql_num_rows($result) > 0) {   // event has formula assigned
+                     $row = mysql_fetch_row($result);
+                     return $row[0];
+            }
+            return "";
     }
     
 	
@@ -897,7 +953,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
                                         runde AS r 
                                         LEFT JOIN serie AS s ON (s.xRunde = r.xRunde) 
                                         LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
-                                        LEFT JOIN START AS st ON (st.xStart = ss.xStart) 
+                                        LEFT JOIN start AS st ON (st.xStart = ss.xStart) 
                                         LEFT JOIN wettkampf as w ON (w.xWettkampf = st.xWettkampf)
                                         LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
                                         LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)

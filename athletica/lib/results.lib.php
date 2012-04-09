@@ -275,7 +275,7 @@ function AA_results_getTimingAlge($round, $arg=false, $noerror=false){
 								/*$sql = "SELECT Geschlecht
 										  FROM serienstart AS sst
 									 LEFT JOIN serie AS s USING ( xSerie )
-									 LEFT JOIN START AS st ON sst.xStart = st.xStart
+									 LEFT JOIN start AS st ON sst.xStart = st.xStart
 									 LEFT JOIN anmeldung AS a ON st.xAnmeldung = a.xAnmeldung
 									 LEFT JOIN athlet USING ( xAthlet )
 										 WHERE s.xRunde = ".$round."
@@ -617,7 +617,7 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 								/*$sql = "SELECT Geschlecht
 										  FROM serienstart AS sst
 									 LEFT JOIN serie AS s USING ( xSerie )
-									 LEFT JOIN START AS st ON sst.xStart = st.xStart
+									 LEFT JOIN start AS st ON sst.xStart = st.xStart
 									 LEFT JOIN anmeldung AS a ON st.xAnmeldung = a.xAnmeldung
 									 LEFT JOIN athlet USING ( xAthlet )
 										 WHERE s.xRunde = ".$round."

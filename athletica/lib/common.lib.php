@@ -1627,7 +1627,7 @@ function AA_getReduction() {
 
 function AA_getEventTypesCat(){
 // get event-types categories (single, combined, club (svm))
-	$res = mysql_query('SELECT Typ FROM Wettkampf WHERE xMeeting = ' .$_COOKIE['meeting_id']  . ' GROUP BY Typ ORDER BY Typ');
+	$res = mysql_query('SELECT Typ FROM wettkampf WHERE xMeeting = ' .$_COOKIE['meeting_id']  . ' GROUP BY Typ ORDER BY Typ');
 	if(mysql_errno() > 0) {		// DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	} else {
@@ -1665,7 +1665,7 @@ function AA_getEventTypes($round){
 							w.Typ 
 						FROM 
 							runde AS r 
-							LEFT JOIN Wettkampf AS w USING (xWettkampf)  
+							LEFT JOIN wettkampf AS w USING (xWettkampf)  
 						WHERE w.xMeeting = ' .$_COOKIE['meeting_id']  . ' AND r.xRunde = ' . $round );
 	if(mysql_errno() > 0) {        // DB error
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
