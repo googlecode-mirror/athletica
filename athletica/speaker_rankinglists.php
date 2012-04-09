@@ -119,6 +119,16 @@ $eventTypeCat = AA_getEventTypesCat();
             </select>
         </td>
 </tr>
+</table>
+  <p />   
+     <table>
+<tr>
+    <th class='dialog'>
+        <input type='radio' name='type' value='ukc' id='combined' >
+             <?php echo $strRankingList . " " . $strUKC; ?></input>   
+    </th>
+</tr>
+</table>
 
 
 
