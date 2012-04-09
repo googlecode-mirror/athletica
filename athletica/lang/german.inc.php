@@ -868,5 +868,5 @@ $strResultsLive = "LIVE-Resultate";
 $strResetLiveStatus  = "Live Status zurücksetzen";
 $strAnd = " und ";
 
-
+ $strHeight = "Anf.höhe";
 ?>

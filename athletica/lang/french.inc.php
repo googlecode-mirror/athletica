@@ -860,5 +860,5 @@ $strResetLiveStatus  = "Remettre statut Live";
 $strWarnFinalAttempt  = "Finale après essai doit être plus petite que le nombre d'essai";
 
  $strAnd = " et ";      
- 
+ $strHeight = "Haut.init.";   
 ?>
