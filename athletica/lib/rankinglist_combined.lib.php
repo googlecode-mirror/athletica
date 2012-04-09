@@ -76,7 +76,8 @@ $dCode = 0;
         , ka.Name
         , ka.Alterslimite 
         , d.Code 
-        , at.xAthlet              
+        , at.xAthlet
+        , at.Geschlecht               
     FROM
         anmeldung AS a
         LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet )
@@ -193,6 +194,7 @@ else
 		// print previous before processing new category
 		if(!empty($cat)				// not first result row
 			&& 	(($row[4] != $cat || $row[7] != $comb) 	// not the same category, or not the same combined contest
+                || ($ukc == true && ($row[4] != $cat ||  $row[3] != $age))
 				|| (($comb == 410 || $comb == 400) && $catEntry != $row[10] && $row[12] < 23 && !$bU23 && $sepu23)
 					// extract the u23 categories from MAN or WOM combined when:
 			)		// if last event was combined ten/seven and the athletes category has changed
@@ -209,9 +211,14 @@ else
 				$u23name = " (U 23)";
 			}
 			
-			$list->endList();                     
-			$list->printSubTitle($cat."$u23name, ".$combName, "", "");     
-
+			$list->endList();  
+            if ($ukc){
+                 $list->printSubTitle($catUKC.", " .$cfgUKC_Name);
+            }   
+            else {
+                $list->printSubTitle($cat."$u23name, ".$combName, "", "");     
+            }                
+			     
 			$list->startList();
 			$list->printHeaderLine($lastTime);
             
@@ -327,11 +334,25 @@ else
 			}
 		}
 		$cat = $row[4];		// keep current category
+        $age = $row[3];
+        if ($ukc){
+             $catUKC = AA_getCatUkc($row[3], $row[15]);       
+        }
+       
         $xKat = $row[9];
 		$catEntry = $row[10];
 		$catEntryLimit = $row[12];
 		$comb = $row[7];
 		$combName = $row[8];
+        
+        if ($ukc){
+            $order = " d.Anzeige, ru.Datum, ru.Startzeit";
+            $selectionDisc = " AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";   
+        }
+        else {
+              $order = " w.Mehrkampfreihenfolge ASC, ru.Datum, ru.Startzeit"; 
+              $selectionDisc = '';    
+        }
 		
 		// events      
         $res = mysql_query("
@@ -348,6 +369,8 @@ else
                 , w.Mehrkampfreihenfolge 
                 , ss.Bemerkung
                 , w.info
+                , ss.xSerienstart 
+                , d.Code
             FROM
                 start AS st USE INDEX (Anmeldung)
                 LEFT JOIN serienstart AS ss ON (ss.xStart = st.xStart )
@@ -356,7 +379,8 @@ else
                 LEFT JOIN runde AS ru ON (ru.xRunde = s.xRunde)
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf)
                 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
-            WHERE st.xAnmeldung = $row[0]            
+            WHERE st.xAnmeldung = $row[0]  
+            $selectionDisc          
             AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (r.Info !=  '" . $cfgResultsHighOut . "') )                                                                                
             AND w.xKategorie = $row[9]
             AND w.Mehrkampfcode = $row[7]
@@ -364,11 +388,9 @@ else
             GROUP BY
                 st.xStart
             ORDER BY
-                w.Mehrkampfreihenfolge ASC
-                , ru.Datum
-                , ru.Startzeit
+                $order 
         ");       
-           
+        
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -378,7 +400,7 @@ else
             $points_disc = array();
              
 			while($pt_row = mysql_fetch_row($res))
-			{   
+			{                
                 $remark=$pt_row[10];  
 				$lastTime = $pt_row[8];
 				
@@ -422,9 +444,25 @@ else
                    if ($count_disc<=$disc_nr)  {
                        
                        
-                       if($pt_row[4] > 0) {       // any points for this event 
+                       if($pt_row[4] > 0 || $ukc) {       // any points for this event 
                      
-                           $points = $points + $pt_row[4];      // calculate points 
+                           if ($ukc){
+                                 $pointsUKC = AA_utils_calcPointsUKC(0, $pt_row[2],0, $row[16], $pt_row[12], $row[14], $row[0], $pt_row[13]);    
+                                 $points = $points + $pointsUKC;      // calculate points  
+                                 
+                                 mysql_query("UPDATE resultat SET
+                                                    Punkte = $pointsUKC
+                                              WHERE
+                                                    xSerienstart = $pt_row[12]");
+                                 if(mysql_errno() > 0) {
+                                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                 }
+                                 AA_StatusChanged(0,0,$pt_row[12]);
+                           }
+                           else {
+                                 $points = $points + $pt_row[4];      // calculate points  
+                           }
+                          
                            if ($dCode == 408) {                // UBS Kids Cup
                                switch ($pt_row[1]){
                                    case 1:
@@ -442,13 +480,24 @@ else
                                 $points_disc[$c]=$pt_row[4];
                            } 
                            else {
-                                $points_disc[$pt_row[9]]=$pt_row[4];
+                                if ($ukc){
+                                       $points_disc[$row[9]]=$pointsUKC;
+                                }
+                                else {
+                                      $points_disc[$row[9]]=$pt_row[4];    
+                                }
+                               
                                
                            }
-                          
-					       $info = $info . $sep . $pt_row[0] . " " . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+                           if ($ukc){
+                               $info = $info . $sep . $pt_row[0] . " " . "&nbsp;(" . $perf . $wind . ", $pointsUKC)";                      
+                           }
+                           else {
+                                 $info = $info . $sep . $pt_row[0] . " " . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
+                           }
+					       
 					       $sep = ", ";     
-                       }
+                       }                         
                         elseif ($pt_row[4] == 0 && $pt_row[2] >= 0){          //  athlete with 0 points                                   
                                 $info = $info . $sep . $pt_row[0] . " " . "&nbsp;(" . $perf . $wind . ", $pt_row[4])";                      
                                 $sep = ", ";       
@@ -504,8 +553,14 @@ else
 		if(($comb == 410 || $comb == 400) && $catEntryLimit < 23 && $sepu23){
 			$u23name = " (U 23)";
 		}
-		$list->endList();     
-		$list->printSubTitle($cat."$u23name, ".$combName, "", ""); 
+		$list->endList();   
+        if ($ukc){
+              $list->printSubTitle($catUKC.", " .$cfgUKC_Name);  
+        }  
+        else {
+              $list->printSubTitle($cat."$u23name, ".$combName, "", "");  
+        }
+		
 
 		$list->startList();
 		$list->printHeaderLine($lastTime);

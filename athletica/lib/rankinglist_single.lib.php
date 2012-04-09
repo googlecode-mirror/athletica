@@ -762,7 +762,7 @@ else {
                             if(mysql_errno() > 0) {
                                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                             }
-                    AA_StatusChanged($row_res[0]);
+                    AA_StatusChanged(0,0, $row_res[0]);
                    
                 }
                 if ($flagSubtitle ){  
@@ -792,7 +792,7 @@ else {
                     }
                     else {
                         if (!$athleteCat){  
-                            $list->printSubTitle($row[1], $row[2], $roundName, $r_info);                         
+                            $list->printSubTitle($row[1], $row[2], $roundName, $r_info, $heatFrom, $heatTo, $row_rt[2]);                         
                         }   
                     }                       
                     $flagSubtitle=false; 
