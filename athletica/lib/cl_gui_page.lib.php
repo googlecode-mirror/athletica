@@ -308,7 +308,7 @@ class GUI_RankingList extends GUI_ListPage
 	var $wind;
 
 
-	function printSubTitle($category='', $discipline='', $round='', $info)
+	function printSubTitle($category='', $discipline='', $round='', $info, $heatFrom = '', $heatTo = '', $roundType)
 	{
 		if(!empty($round)) {
 			$round = ", $round";
@@ -316,8 +316,12 @@ class GUI_RankingList extends GUI_ListPage
         if(!empty($info)) {  
             $info = "($info)";
         }
+        $heat = ''; 
+        if (!empty($heatFrom) && $roundType == 1){
+            $heat = " , Serie $heatFrom bis $heatTo";
+        }
 ?>
-<h2><?php echo "$category $discipline $info $round"; ?></h2>
+<h2><?php echo "$category $discipline $info $round $heat"; ?></h2>
 <?php
 	}
 

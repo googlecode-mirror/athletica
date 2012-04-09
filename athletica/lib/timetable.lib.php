@@ -336,7 +336,7 @@ function AA_timetable_display($arg = 'monitor')
                         break;
                     case($cfgRoundStatus['results_live']):
                         $class = "st_res_live";
-                        $href = "event_results.php?round=$row[0]";
+                        $href = "speaker_results.php?round=$row[0]";
                         break;    
                     case($cfgRoundStatus['results_done']):
                         $class = "st_res_done";
@@ -808,7 +808,8 @@ function AA_timetable_display_regie($timestamp)
                                         AND s.xStaffel > 0))
                                 LEFT JOIN rundenset AS rs ON (rs.xRunde = r.xRunde AND rs.xMeeting = " . $_COOKIE['meeting_id'] .") 
                                 WHERE w.xMeeting=" . $_COOKIE['meeting_id'] ."             
-                                AND r.status = " . $cfgRoundStatus['results_in_progress'] . "
+                                AND (r.status = " . $cfgRoundStatus['results_in_progress'] . "
+                                OR r.status = " . $cfgRoundStatus['results_live'] . ")  
                                  GROUP BY
                                     r.xRunde
                                     , s.xWettkampf             
@@ -819,7 +820,7 @@ function AA_timetable_display_regie($timestamp)
                                     , k.Kurzname
                                     , d.Anzeige";    
                             $res = mysql_query($sql); 
-                          
+                           
                             if(mysql_errno() > 0)    // DB error
                             {
                                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

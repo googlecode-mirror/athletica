@@ -823,7 +823,7 @@ class GUI_HighResultTable extends GUI_ResultTable
         }
         else {
             ?>   
-             <th class='dialog'  colspan='3'></th>
+             <th class='dialog'  colspan='4'></th>
              <?php
         }
 		?>
@@ -832,7 +832,7 @@ class GUI_HighResultTable extends GUI_ResultTable
 	}
 
 
-	function printAthleteHeader($argT='', $round = 0)
+	function printAthleteHeader($argT='', $round = 0, $rStatus)
 	{        
      $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
          
@@ -892,7 +892,15 @@ class GUI_HighResultTable extends GUI_ResultTable
         }
 		?>
         <th class='dialog'><?php if($svm){ echo $GLOBALS['strTeam']; }else{ echo $GLOBALS['strClub'];} ?></th>  
-		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strTopPerformance']; ?></th> 
+        <?php
+        if ($rStatus == $GLOBALS['cfgRoundStatus']['results_live']){            
+            ?>
+              <th class='dialog'><?php echo $GLOBALS['strHeight']; ?></th>       
+            <?php
+        }   
+        ?>
+         
 		<th class='dialog'>
         
          <?php
@@ -928,7 +936,7 @@ class GUI_HighResultTable extends GUI_ResultTable
 	 *		- perfs	array of preformatted results
 	 *		- rank	rank, if any
 	 */
-	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perfs, $fett, $rank, $country="", $athletID, $curr_class='', $arg='')
+	function printAthleteLine($pos, $nbr, $name, $year, $club, $topperf, $perfs, $fett, $rank, $country="", $athletID, $curr_class='', $arg='', $rStatus, $height)
 	{
 ?>
 	<tr class='<?php if (empty($curr_class)) {echo $this->rowclass[0];} else {echo $curr_class; } ?>' onClick='window.open("speaker_entry.php?item=<?php echo $athletID; ?>", "_self")' style="cursor: pointer;">   
@@ -949,6 +957,13 @@ class GUI_HighResultTable extends GUI_ResultTable
         ?>  	
          <td nowrap><?php echo $club; ?></td>    	
 		<td><?php echo $topperf; ?></td>
+        <?php
+         if ($rStatus == $GLOBALS['cfgRoundStatus']['results_live']) {
+              ?>
+             <td><?php echo AA_formatResultMeter($height);?></td>  
+             <?php
+        }
+        ?>
 		<td class='forms_ctr'><?php echo $rank; ?></td>
 			<?php
 		        
@@ -982,8 +997,9 @@ class GUI_HighResultTable extends GUI_ResultTable
             </nobr> </td>
             <?php  
         } 
-		?>
-			
+		
+       
+		?>	
 	</tr>
 		<?php
 		$this->switchRowClass();
