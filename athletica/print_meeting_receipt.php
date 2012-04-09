@@ -113,7 +113,7 @@ if($_GET['formaction'] == 'print') {        // page for printing
                 $limitNrSQL
             ORDER BY
                 $argument";      
-        
+       
         $result = mysql_query($sql);    
  
 if(mysql_errno() > 0)		// DB error
@@ -124,14 +124,16 @@ else if(mysql_num_rows($result) > 0)  // data found
 {                                     
 	$a = 0;		// current athlete enrolement  
 	$l = 0;		// line counter  
-    $first=true;
-    $tf = 0;    // total fee    
+    $first=true; 
+    $tf = 0;    // total fee   
+    $c = 0;      
+    $flag_footer = false;
 	
 	// full list, sorted by name 
 	while ($row = mysql_fetch_row($result))
-	{          
+	{           
 		// print previous athlete, if any
-		if($a != $row[0] && $a > 0)
+		if(($a != $row[0] || $v != $row[7]) && $a > 0)
 		{   
             if ($club_clause!='' && $athlete_clause=='') {
                   if ($first) {  
@@ -146,7 +148,57 @@ else if(mysql_num_rows($result) > 0)  // data found
                   $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
                   $tf=$tf+$fee;      
             }
-            else {    
+            elseif  ($club_clause=='' && $athlete_clause=='') {
+                                                                                   
+                     if ($v != $row[7] && $a != $row[0] && $first){  
+                          if ($c > 0 && $flag_footer){
+                                printf("</td></tr>");                      
+                                $tf=$tf+$fee;  
+                                $doc->printLineFooter($tf,$date, $place, true);   
+                                $l+=6;  
+                                $doc->insertPageBreak();  
+                                $flag_footer = false;  
+                                $tf=0;      
+                          }                             
+                         $first = true; 
+                        
+                     } 
+                     
+                     if ($first) {     
+                         
+                       $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
+                       $doc->printLineBreak(1); 
+                       $doc->printLineClub($club); 
+                       $l+=4; 
+                       $first=false;   
+                       printf("<tr><td colspan='4'>"); 
+                       $c++;    
+                       $flag_footer = true;
+                  } 
+                    
+                 
+                   $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
+                   
+                      
+                   if ($v != $row[7] && $a != $row[0] && !$first){  
+                                if ($c > 0 && $flag_footer){
+                                    printf("</td></tr>");                      
+                                    $tf=$tf+$fee;  
+                                    $doc->printLineFooter($tf,$date, $place, true);   
+                                    $l+=6;  
+                                    $doc->insertPageBreak();  
+                                    $flag_footer = false;  
+                                    $tf=0; 
+                                    $fee=0;      
+                                }  
+                                $first = true; 
+                                $c++;                           
+                           }                       
+                   $tf=$tf+$fee;   
+            
+            }
+            else
+             {    
                 $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
                 $doc->printLineBreak(2);     
                 $doc->printLine1($nbr, $name, $year );   
@@ -162,7 +214,20 @@ else if(mysql_num_rows($result) > 0)  // data found
         // new athlete   
 		if($a != $row[0])		
 		    {  
-             
+            if ($v != $row[7] ){ 
+                          if ($c > 0 && $flag_footer){
+                                printf("</td></tr>");                      
+                                $tf=$tf+$fee;  
+                                $doc->printLineFooter($tf,$date, $place, true);   
+                                $l+=6;  
+                                $doc->insertPageBreak();  
+                                $flag_footer = false; 
+                                $tf=0;
+                          }                             
+                         $first = true; 
+                        
+            } 
+                     
             $l = 0;                  // reset line counter  
             $fee=0;    
             $disc="";
@@ -183,7 +248,12 @@ else if(mysql_num_rows($result) > 0)  // data found
 				$club = $row[8];		// use team name
 			}    
             $place = $row[24];  
+           
+            
 		}
+        else {
+              
+        }
 	
             $Info = ($row[18]!="") ? ' ('.$row[18].')' : '';    
             $noFee=false;   
@@ -203,16 +273,19 @@ else if(mysql_num_rows($result) > 0)  // data found
 	  
         if (!$noFee) {
             if ($fee==0) {
-		     $fee+=$row[22];  
+		     $fee+=$row[22];               
              }
              else {
              $fee+=($row[22] - ($reduction/100));  
              }   
         }        
 	
-		$l++;            // increment line count  
+		$l++;            // increment line count       
+              
 		$a = $row[0];
-        $m = $row[19];    // keep combined    
+        $m = $row[19];    // keep combined  
+        $v = $row[7];    // keep club        
+        
     }
 	
 	if($a > 0)
@@ -232,6 +305,36 @@ else if(mysql_num_rows($result) > 0)  // data found
               $tf=$tf+$fee;  
               $doc->printLineFooter($tf,$date, $place, true);   
          }
+         elseif  ($club_clause=='' && $athlete_clause=='') {  
+             
+                     if ($v != $row[7]){ 
+                          if ($c > 0 && $flag_footer){
+                                printf("</td></tr>");                      
+                                $tf=$tf+$fee;  
+                                $doc->printLineFooter($tf,$date, $place, true);   
+                                $l+=6;  
+                                $doc->insertPageBreak();  
+                                $flag_footer = false;  
+                                $tf=0;      
+                          }                             
+                          $first = true; 
+                     } 
+                     if ($first) {     
+                         
+                       $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
+                       $doc->printLineBreak(1); 
+                       $doc->printLineClub($club); 
+                       $l+=4; 
+                       $first=false;   
+                       printf("<tr><td colspan='4'>"); 
+                       $c++;    
+                       $flag_footer = true;
+                  } 
+                                 
+                  $doc->printLine4($first, $name, $year, $cat ,$disc, $fee); 
+                  $tf=$tf+$fee;      
+                  $v = $v_keep;    
+            }
          else {  
              $doc->printHeader($mname,$mDateFrom,$mDateTo,$stadion,$organisator);
              $doc->printLineBreak(2);     
