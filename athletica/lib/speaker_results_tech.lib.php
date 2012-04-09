@@ -108,16 +108,17 @@ function AA_speaker_Tech($event, $round, $layout)
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 				}
 				else
-				{
+				{     
 					while($restemp = mysql_fetch_row($tempres))
-					{
-				       mysql_query("INSERT INTO `temp` (  `athlet` , `leistung` , `rang`) 
-				                    VALUES ($row[6], $restemp[0] , 1);");
-                
-                       if(mysql_errno() > 0) {        // DB error                              
-                            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-                        }
-					}
+					{   
+				       if (!empty($restemp[0])){   
+                           mysql_query("INSERT INTO `temp` (  `athlet` , `leistung` , `rang`) 
+				                        VALUES ($row[6], $restemp[0] , 1);");                                 
+                           if(mysql_errno() > 0) {        // DB error   
+                                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                           } 
+                       }  
+					} 
 				}
 				mysql_free_result($tempres);
 				
@@ -146,14 +147,36 @@ function AA_speaker_Tech($event, $round, $layout)
 			$templeistung=$rowrang[2];
 			$xrang=$xrang+1;
 			} 
+	   
 	
-	
-	
-	
-	
-	
-	
-	
+	     // if this is a combined event, rank all rounds togheter
+        $roundSQL = "";                  
+        if($combined){
+            $roundSQL = "AND s.xRunde IN (";                
+            $res_c = mysql_query("SELECT xRunde FROM runde WHERE xWettkampf = ".$event);
+            while($row_c = mysql_fetch_array($res_c)){
+                $roundSQL .= $row_c[0].",";                    
+            }
+            $roundSQL = substr($roundSQL,0,-1).")";
+            
+        }else{
+            $roundSQL = "AND s.xRunde = $round";              
+        }  
+         $countAthlete = 0;
+         $sql_at = "SELECT 
+                       Count(*)
+                 FROM 
+                        start AS s                      
+                 WHERE   
+                        s.xWettkampf = " .$event;
+         $result_at = mysql_query($sql_at);  
+         if(mysql_errno() > 0) {        // DB error
+                    AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+         }       
+         $row_at = mysql_fetch_row($result_at);   
+         if (mysql_num_rows($result_at) > 0){
+             $countAthlete =  $row_at[0];
+         }    
 	
 		
 		
@@ -169,7 +192,81 @@ function AA_speaker_Tech($event, $round, $layout)
         
         $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
 
-		$prog_mode = AA_results_getProgramMode();
+		$prog_mode = AA_results_getProgramMode();   
+               
+        // find current athlete (show yellow) when more than one attempt
+        $roundSQL_C = substr($roundSQL,4);
+        $sql_curr="SELECT 
+                    count( * ) , 
+                    ss.xSerienstart,
+                    if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder,
+                    s.MaxAthlet,
+                    ss.Position2,
+                    ss.Position3
+              FROM 
+                    resultat as r 
+                    LEFT JOIN serienstart AS ss ON ( r.xSerienstart = ss.xSerienstart)
+                    LEFT JOIN serie AS s ON (ss.xSerie = s.xSerie )
+              WHERE                     
+                    $roundSQL_C  
+              GROUP BY ss.xSerienstart
+              ORDER BY posOrder ";
+
+        $res_curr = mysql_query($sql_curr);  
+        if(mysql_errno() > 0) {
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        
+        }
+        else {
+            $ss = 0;
+            $keep_ss = 0;                // current athlete to show yellow
+            $keep_ss_first = 0;          // first athlete is current when all have same count of attempts
+            $c = 0;
+            $z = 0;
+            $maxAthlete = 0;
+           
+            while ($row_curr = mysql_fetch_row($res_curr)) {
+                if ($z > 0 && $z == $maxAthlete){
+                    break;
+                }
+                if  ($c > 0){
+                    if ($row_curr[0] < $c){
+                         $keep_ss_save = $keep_ss;
+                         $keep_ss = $row_curr[1];
+                         break;
+                    }
+                }
+                $c = $row_curr[0];
+                $ss = $row_curr[1]; 
+                if ($z == 0){
+                    $keep_ss_first =  $row_curr[1];
+                    if ($row_curr[4] > 0 || $row_curr[5] > 0) {
+                          $maxAthlete = $row_curr[3]; 
+                    }
+                    
+                }
+                $z++; 
+            }
+        }  
+        if ($prog_mode == 0) {
+            if ($keep_ss == 0 && $r < $r_attempts) {
+                $keep_ss =  $keep_ss_first;
+            }
+            else {
+                 if ($r < $r_attempts){
+                       $keep_ss = $keep_ss_save;
+                 }
+            }
+        } 
+        else {                 
+             if ($keep_ss == 0 && $z%$countAthlete==0){                  
+                   $keep_ss =  $keep_ss_first;
+             }
+        }
+        
+        
+        
+        
 		$arg = (isset($_GET['arg'])) ? $_GET['arg'] : ((isset($_COOKIE['sort_speaker'])) ? $_COOKIE['sort_speaker'] : 'pos');
         setcookie('sort_speaker', $arg, time()+2419200);          
 
@@ -340,10 +437,24 @@ function AA_speaker_Tech($event, $round, $layout)
 					mysql_free_result($res);
 				}
 
-				//print_r($perfs);
-				
+				//print_r($perfs);                  
+                
+                if ($keep_ss > 0){
+                         if ($keep_ss == $row[6]){
+                             $curr_class = "active";
+                         }  
+                }
+                else {
+                          if (empty($perfs) && !$current_athlete){
+                                $current_athlete = true;
+                                $curr_class = "active";
+                          }
+                }
+                
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
-					, AA_formatYearOfBirth($row[12]), $row[13], AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], $row[18], $row[17]);
+					, AA_formatYearOfBirth($row[12]), $row[13], AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], $row[18], $row[17], $curr_class);
+                    
+                $curr_class = "";   
 			}
 			$resTable->endTable();
 			mysql_free_result($result);
