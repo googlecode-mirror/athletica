@@ -145,7 +145,7 @@ elseif($_POST['arg'] == "merge_add"){
 	if(!empty($_POST['mainRound']) && !empty($_POST['round'])){
 		
 		//mysql_query("LOCK TABLES rundenset WRITE, serie READ");
-        mysql_query("LOCK TABLES rundenset WRITE, rundenset as rs READ ,serie READ, runde AS r Read, Wettkampf AS w READ, meeting READ ");
+        mysql_query("LOCK TABLES rundenset WRITE, rundenset as rs READ ,serie READ, runde AS r Read, wettkampf AS w READ, meeting READ ");
    	
 		$mr = $_POST['mainRound'];
 		$r = $_POST['round'];
@@ -222,7 +222,7 @@ elseif($_POST['arg'] == "merge_add"){
 	if(!empty($_POST['mainRound']) && !empty($_POST['round']) && !empty($_POST['roundSet'])){
 		
 		//mysql_query("LOCK TABLES rundenset WRITE, serie READ");
-		mysql_query("LOCK TABLES rundenset WRITE, rundenset as rs READ,serie READ, runde AS r Read, Wettkampf AS w READ, meeting READ ");
+		mysql_query("LOCK TABLES rundenset WRITE, rundenset as rs READ,serie READ, runde AS r Read, wettkampf AS w READ, meeting READ ");
         
 		$mr = $_POST['mainRound'];
 		$r = $_POST['round'];

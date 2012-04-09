@@ -1032,7 +1032,7 @@ if(mysql_errno() > 0){
                         a.xAnmeldung                        
                     FROM 
                         anmeldung AS a  
-                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        LEFT JOIN start AS s ON a.xAnmeldung = s.xAnmeldung 
                         LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
                         LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
                     WHERE 
@@ -1061,7 +1061,7 @@ if(mysql_errno() > 0){
                         a.xAnmeldung
                     FROM 
                         anmeldung AS a  
-                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        LEFT JOIN start AS s ON a.xAnmeldung = s.xAnmeldung 
                         LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
                         LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
                     WHERE 
@@ -1091,7 +1091,7 @@ if(mysql_errno() > 0){
                         a.xAnmeldung
                     FROM 
                         anmeldung AS a  
-                        LEFT JOIN START AS s ON a.xAnmeldung = s.xAnmeldung 
+                        LEFT JOIN start AS s ON a.xAnmeldung = s.xAnmeldung 
                         LEFT JOIN wettkampf AS w USING ( xWettkampf ) 
                         LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d USING ( xDisziplin )  
                     WHERE 
