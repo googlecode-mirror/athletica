@@ -152,8 +152,14 @@ if($type == 'single')
 
 // Ranking list combined events
 else if($type == 'combined' || $type  == 'ukc')
-{                                                                                                          
-	AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing, $date, $disc_nr,$catFrom,$catTo, $type);
+{   
+    if ($type == 'ukc'){
+        $show_ukc = true;
+    }   
+    else {
+           $show_ukc = false;   
+    }                                                                                                      
+	AA_rankinglist_Combined($category, $formaction, $break, $cover, $sepu23, $cover_timing, $date, $disc_nr,$catFrom,$catTo, $show_ukc);
 }                                                                                                  
 
 // Ranking list teams events
