@@ -72,6 +72,8 @@ function AA_speaker_High($event, $round, $layout)
                 , st.Bestleistung
                 , at.xAthlet
                 , at.Land
+                , r.Status
+                , ss.Starthoehe
             FROM
                 runde AS r
                 LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
@@ -87,7 +89,7 @@ function AA_speaker_High($event, $round, $layout)
             ORDER BY
                 heatid
                 , ss.Position";    
-         
+          
         $result = mysql_query($sql);  
 
 		if(mysql_errno() > 0) {		// DB error
@@ -98,6 +100,8 @@ function AA_speaker_High($event, $round, $layout)
 			// initialize variables
 			$h = 0;
 			$i = 0;
+            $current_athlete = false;
+            $curr_class = '';
 
 			$resTable = new GUI_HighResultTable($round, $layout, $status);
 
@@ -121,8 +125,8 @@ function AA_speaker_High($event, $round, $layout)
 					if($status == $cfgRoundStatus['results_done']) {
 						$c = 1;		// increment colspan to include ranking
 					}
-					$resTable->printHeatTitle($row[2], $row[3], $title, $row[4]);
-					$resTable->printAthleteHeader('', $round);
+					$resTable->printHeatTitle($row[2], $row[3], $title, $row[4]);                       
+					$resTable->printAthleteHeader('', $round, $row[17]);
 				}		// ET new heat
 
 /*
@@ -160,9 +164,23 @@ function AA_speaker_High($event, $round, $layout)
 
 					mysql_free_result($res);
 				}
+                
+                $heatStart = AA_getCurrAthlete($row[2]);
+                if ($heatStart > 0) {
+                    if ($row[5] == $heatStart){
+                         $curr_class = "active"; 
+                    }
+                }
+                else {
+                    if (empty($perfs) && !$current_athlete){
+                        $current_athlete = true;
+                        $curr_class = "active";
+                    }
+                }
 
 				$resTable->printAthleteLine($row[6], $row[8], "$row[9] $row[10]"
-					, AA_formatYearOfBirth($row[11]), $row[12], AA_formatResultMeter($row[14]), $perfs, $fett, $rank, $row[16], $row[15]);
+					, AA_formatYearOfBirth($row[11]), $row[12], AA_formatResultMeter($row[14]), $perfs, $fett, $rank, $row[16], $row[15], $curr_class, '', $row[17], $row[18]);
+                $curr_class = ""; 
 			}
 			$resTable->endTable();
 			mysql_free_result($result);
