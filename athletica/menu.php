@@ -12,6 +12,13 @@ else {
 	$arg = $_GET['arg'];
 }
 
+if(empty($_GET['arg2'])) {
+    $arg2='';
+}
+else {
+    $arg2 = $_GET['arg2'];
+}
+
 if($arg == "login"){
 	$arg = $_GET['redirect'];
 }
@@ -60,6 +67,12 @@ else {
 	$speaker_class = 'main_inactive';
     $regie_class = 'main_inactive'; 
 	$admin_class = 'main_inactive';
+    
+
+   if (!empty($arg2)){
+        $arg_save = $arg;
+       $arg = "regie";
+   }
 
 	switch($arg) {
 		//
@@ -157,7 +170,7 @@ else {
 		case 'event_enrolement':
 		case 'event_heats':
 		case 'event_results':
-		case 'event_rankinglists':
+		case 'event_rankinglists': 
 			$event_class = 'main';
 			// submenus
 			$subitems= array(0 => 'event_enrolement'
@@ -198,7 +211,8 @@ else {
 		case 'speaker':
 		case 'speaker_entries':
 		case 'speaker_results':
-		case 'speaker_rankinglists':
+		case 'speaker_rankinglists':  
+            
 			$speaker_class = 'main';
 			// submenus
 			$subitems= array(0 => 'speaker_entries'
@@ -230,13 +244,17 @@ else {
         // Main menu 'REGIE'
         //    - reuses event rankinglists
         case 'regie':
+              $arg2 = 'regie';
         case 'speaker_entries':
-        case 'speaker_results':
+        case 'speaker_results&regie':
         case 'speaker_rankinglists':
+            if (!empty($arg2)){
+                $arg = $arg_save;
+            }
             $regie_class = 'main';
             // submenus
             $subitems= array(0 => 'speaker_entries'
-                                , 1 => 'speaker_results'
+                                , 1 => 'speaker_results&regie'
                                 , 2 => 'speaker_rankinglists');
             // submenu titles
             $subtitles= array(0 => $strEntries
@@ -274,7 +292,7 @@ else {
 		case 'admin_roundtypes':
 		case 'admin_faq':
 		case 'admin_region':
-		case 'admin_service':
+		case 'admin_service':   
 			$admin_class = 'main';
             
              if ($ukc_meeting == 'n'){
@@ -422,9 +440,11 @@ else {
 	{
 		$percent_width = 100 / count($subitems);
 		foreach($subitems as $item)
-		{
+		{         if ($item == 'speaker_results&regie'){
+                      $item =   'speaker_results';
+        }
 			echo "<td nowrap=\"nowrap\" class=\"$subitem_class[$i]\" height=\"20\" width=\"$percent_width%\">\n";
-			echo "<a href=\"index.php?arg=$item\" target=\"_parent\">\n";
+			echo "<a href=\"index.php?arg=$item&arg2=$arg2\" target=\"_parent\">\n";
 			echo $subtitles[$i] . "</a></td>\n";
 			$i++;	
 		}
