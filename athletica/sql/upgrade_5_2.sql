@@ -9,7 +9,7 @@ ALTER TABLE runde ADD Endkampf enum('0','1') NOT NULL DEFAULT '0';
 ALTER TABLE runde ADD Finalisten tinyint(4) DEFAULT '8';
 ALTER TABLE runde ADD FinalNach tinyint(4) DEFAULT '3';
 ALTER TABLE runde ADD Drehen varchar(20) DEFAULT '3';                                                                                                                        
-ALTER TABLE start ADD Starthoehe int(11) DEFAULT '0';   
+ALTER TABLE serienstart ADD Starthoehe int(11) DEFAULT '0';   
 
 INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ,aktiv) VALUES  ('5KAMPF_U16M_I', 'Fünfkampf U16 M Indoor', 407, 6, 0, 9, '01:00:00', '00:15:00', 5, 425, 1, 'y');
 INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ,aktiv) VALUES  ('5KAMPF_U16W_I', 'Fünfkampf U16 W Indoor', 410, 6, 0, 9, '01:00:00', '00:15:00', 5, 426, 1, 'y');
@@ -119,12 +119,12 @@ UPDATE disziplin_de SET Anzeige= 439 WHERE Code = 408;
  
                                                          
 INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, Sprache, FarbeTitel, FarbeHG) VALUES 
-  ('Rangliste für UBS Kids Cup', 'En sélectionnant cette liste de résultats, seuls les athlètes (moins de 16 ans) qui ont effectué les 3 disciplines d'une UBS Kids Cup, seront listés et les points calculés.', 'y', 480, 200, 200, 250, 'event_rankinglists', 'fr', 'FFAA00', 'FFCC00'),                                                     
-  ('liste de résultats pour UBS Kids Cup', 'Bei Wahl diser Rangliste werden nur diejenigen Ahleten (unter 16 jährig), die alle 3 Diszipline eines UBS Kids Cups absolviert haben, aufgelistet und die Punkte berechnet.', 'y', 480, 200, 200, 250, 'event_rankinglists', 'de', 'FFAA00', 'FFCC00'); 
+  ("Rangliste für UBS Kids Cup", "En sélectionnant cette liste de résultats, seuls les athlètes (moins de 16 ans) qui ont effectué les 3 disciplines d'une UBS Kids Cup, seront listés et les points calculés.", "y", 480, 200, 200, 250, "event_rankinglists", "fr", "FFAA00", "FFCC00"),                                                     
+  ("liste de résultats pour UBS Kids Cup", "Bei Wahl diser Rangliste werden nur diejenigen Ahleten (unter 16 jährig), die alle 3 Diszipline eines UBS Kids Cups absolviert haben, aufgelistet und die Punkte berechnet.", "y", 480, 200, 200, 250, "event_rankinglists", "de", "FFAA00", "FFCC00"); 
  
 INSERT INTO faq(Frage, Antwort, Zeigen, PosTop, PosLeft, height, width, Seite, Sprache, FarbeTitel, FarbeHG) VALUES 
-  ('Paiement en ligne', 'À la rubrique "Payé", il est possible d'imprimer ou d'afficher une liste des paiements en ligne. De plus les paiements peuvent aussi être acquittés sur place.', 'y', 0, 220, 200, 250, 'meeting_entries', 'fr', 'FFAA00', 'FFCC00'),                                                     
-  ('Online Bezahlung', 'Beim Register "Bezahlt" kann eine Liste der Online Zahlungen gedruckt oder angezeigt werden. Zuätzlich können auch Bezahlungen vor Ort quittiert werden', 'y', 0, 220, 200, 250, 'meeting_entries', 'de', 'FFAA00', 'FFCC00'); 
+  ("Paiement en ligne", "À la rubrique Payé, il est possible d'imprimer ou d'afficher une liste des paiements en ligne. De plus les paiements peuvent aussi être acquittés sur place.", "y", 0, 220, 200, 250, "meeting_entries", "fr", "FFAA00", "FFCC00"),                                                     
+  ("Online Bezahlung", "Beim Register Bezahlt kann eine Liste der Online Zahlungen gedruckt oder angezeigt werden. Zuätzlich können auch Bezahlungen vor Ort quittiert werden", "y", 0, 220, 200, 250, "meeting_entries", "de", "FFAA00", "FFCC00"); 
  
 
 INSERT INTO `rundentyp_de` (`xRundentyp`, `Typ`, `Name`, `Wertung`, `Code`) VALUES  (10, 'FZ', 'Zeitläufe', 1, 'FZ');   
