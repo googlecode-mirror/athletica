@@ -18,6 +18,12 @@ else {		// default menu
 	$arg = 'meeting';
 }
 
+$arg2 = ''; 
+if(!empty($_GET['arg2'])) {
+    $arg2 = $_GET['arg2'];
+}
+
+
 $meetingID = '';
 $arg_m = '';
 if(!empty($_POST['item'])) {
@@ -81,7 +87,7 @@ $ukc_meeting = AA_checkMeeting_UKC() ;
 </head>
 
 <frameset  rows="49,*,20,0" frameborder="NO" border="0" framespacing="0">
-	<frame name="menu" src="menu.php?arg=<?php echo $arg; ?>&ukc=<?php echo $ukc_meeting; ?>&meetingID=<?php echo $meetingID; ?><?php echo $redirect2 ?>" marginwidth="0"
+	<frame name="menu" src="menu.php?arg=<?php echo $arg; ?>&ukc=<?php echo $ukc_meeting; ?>&meetingID=<?php echo $meetingID; ?>&arg2=<?php echo $arg2; ?>&<?php echo $redirect2 ?>" marginwidth="0"
 			marginheight="0" scrolling="no" frameborder="0" noresize>
 	<frame name="main" src="<?php echo $arg; ?>.php<?php echo $arg_m; ?><?php echo $redirect ?>" marginwidth="0"
 			marginheight="0" scrolling="auto" frameborder="0" noresize>
