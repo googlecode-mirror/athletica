@@ -43,7 +43,23 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     }else{
         $roundSQL = "AND s.xRunde = $round";
         $roundSQL2 = " s.xRunde = $round";
-    }      
+    }  
+     $countAthlete = 0;
+     $sql_at = "SELECT 
+                   Count(*)
+             FROM 
+                    start AS s                      
+             WHERE   
+                    s.xWettkampf = " .$event;
+     $result_at = mysql_query($sql_at);  
+     if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+     }       
+     $row_at = mysql_fetch_row($result_at);   
+     if (mysql_num_rows($result_at) > 0){
+         $countAthlete =  $row_at[0];
+     }    
+            
 	
      $sql = "SELECT 
                     COUNT(*), 
@@ -63,6 +79,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
     $row = mysql_fetch_row($result);
       
     $r = $row[0];                     // max. attempts
+    $r_attempts = $row[1];
      
          mysql_query("
                 LOCK TABLES
@@ -269,7 +286,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                     $roundSQL_C  
               GROUP BY ss.xSerienstart
               ORDER BY posOrder ";
-        
+
         $res_curr = mysql_query($sql_curr);  
         if(mysql_errno() > 0) {
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -289,6 +306,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                 }
                 if  ($c > 0){
                     if ($row_curr[0] < $c){
+                         $keep_ss_save = $keep_ss;
                          $keep_ss = $row_curr[1];
                          break;
                     }
@@ -305,6 +323,22 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                 $z++; 
             }
         }  
+        if ($prog_mode == 0) {
+            if ($keep_ss == 0 && $r < $r_attempts) {
+                $keep_ss =  $keep_ss_first;
+            }
+            else {
+                 if ($r < $r_attempts){
+                     $keep_ss = $keep_ss_save;
+                 }
+            }
+        } 
+        else {                 
+             if ($keep_ss == 0 && $z%$countAthlete==0){                  
+                   $keep_ss =  $keep_ss_first;
+             }
+        }  
+        
        
 	  
 		
@@ -396,18 +430,7 @@ setcookie('sort_regie', $arg, time()+2419200);
 			$resTable = new GUI_TechResultTable($round, $layout, $status);
             $resTable->printHeatTitleRegie($cat, $disc);  
 
-            if ($maxAthlete > 0){
-                 $c_athl = $maxAthlete;                          // maximum of athletes for next attempts
-            }
-            else {
-                 $c_athl = mysql_num_rows($result);                   // number of all athletes 
-            }
-            
-            if ($z == $c_athl && $keep_ss == 0){                 // all athletes same count of attempts then show first as current athlete
-                $keep_ss = $keep_ss_first; 
-           }
-        
-            
+                       
 			while($row = mysql_fetch_row($result))
 			{
 /*
@@ -497,20 +520,18 @@ setcookie('sort_regie', $arg, time()+2419200);
                 if ($row[19] == 0){
                     $row[19] = '';
                 }
-                if ($prog_mode == 2){
-                     if ($keep_ss > 0){
+               
+               if ($keep_ss > 0){
                          if ($keep_ss == $row[6]){
                              $curr_class = "active";
                          }  
-                     }
-                     else {
+               }
+               else {
                           if (empty($perfs) && !$current_athlete){
                                 $current_athlete = true;
                                 $curr_class = "active";
                           }
-                     }
-                }
-               
+               }    
 				 
 				$resTable->printAthleteLine($row[7], $row[9], "$row[10] $row[11]"
 					, '',$row[13], AA_formatResultMeter($row[16]) ,$perfs, $fett, $row[19], '', $row[17], $curr_class, 'regie');
