@@ -190,21 +190,26 @@ require('./config.inc.php');
         0 if xControl is 0 but the result upload is activated
     
     */
-    function AA_checkControl_UKC(){
+    function AA_checkControl_UKC($meeting_nr = ''){
         
         if(AA_checkMeetingID()){
             
-            $res = mysql_query("SELECT Nummer FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id']);
-            if(mysql_errno() > 0){
-                AA_printErrorPage(mysql_errno().": ".mysql_error());
-            }else{
-                $row = mysql_fetch_array($res);
-                if($row[0] > 0){
-                    return 1;
+            if (empty($meeting_nr)){
+                $res = mysql_query("SELECT Nummer FROM meeting WHERE xMeeting = ".$_COOKIE['meeting_id']);
+                if(mysql_errno() > 0){
+                    AA_printErrorPage(mysql_errno().": ".mysql_error());
+                }else{
+                    $row = mysql_fetch_array($res);
+                    if($row[0] > 0){
+                        return 1;
+                    }
+                    else {
+                        return 0;
+                    }
                 }
-                else {
-                    return 0;
-                }
+            }
+            else {
+                 return 1; 
             }
         }
             
