@@ -77,7 +77,8 @@ if(isset($_GET['a']) && $_GET['a']=='statusupload'){
 	$statusupload = (isset($_GET['v']) && intval($_GET['v'])==1) ? 1 : 0;
 	
 	$sql = "UPDATE runde 
-			   SET StatusUpload = ".$statusupload.";";
+			   SET StatusUpload = ".$statusupload
+               . " ,  StatusUploadUKC = ".$statusupload;
 	$query = mysql_query($sql);
 	
 	$_SESSION['temp'] = array(
