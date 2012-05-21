@@ -30,8 +30,7 @@ if(AA_connectToDB() == FALSE)    { // invalid DB connection
 
 if(AA_checkMeetingID() == FALSE) {        // no meeting selected
     return;        // abort
-}
-
+}  
 
 // set up ranking list selection
 $selection = '';
@@ -69,8 +68,8 @@ elseif($category == 0) {        // show all disciplines for every category
 elseif ($event == 0) {    // show all disciplines for a specific category    
          $catMerged=false;
          $mergedCat=AA_mergedCat($category);
-         if  ($mergedCat!=''){  
-                $selection = "w.xKategorie =" . $category . " AND ";  
+         if  ($mergedCat!=''){                   
+                $selection = "w.xKategorie IN " . $mergedCat . " AND ";  
                 $catMerged=true; 
          }
          else
@@ -195,8 +194,9 @@ if($discFrom > 0) {    //
                 , r.Startzeit";
 
     $results = mysql_query($sql);
-}        
    
+}        
+
 if(mysql_errno() > 0) {        // DB error      
     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());  
 }
@@ -245,46 +245,45 @@ else {
         echo "<br><br><b><blockquote>$strErrNoResults</blockquote></b>";
     }
     
-    $rounds = array();
-    $i = 0;
+    $rounds = array();      
     $catUkc = "";
-     $roundsUkc = array(); 
-     $discUkc = "";
+    $roundsUkc = array(); 
+    $discUkc = "";
+    $roundsInfo = array();
+     
     while($row = mysql_fetch_row($results)){
+         
          $mergedRounds=AA_getMergedRounds($row[0]);  
-         if  (!empty($mergedRounds) ){
-               if (!in_array($mergedRounds, $rounds)){
-                   $i++;
-                   $rounds[$i] = $mergedRounds;  
+         if  (!empty($mergedRounds) ){                    
+               if ($pos = strpos($mergedRounds, $row[0])){                    
+                   $rounds[$i] = $row[0];  
                    if ($heatSeparate) {
                           if (!empty($row[14])){                
-                            $roundsInfo[$i] .= $row[14] ." / ";
+                            $roundsInfo[$row[0]] .= $row[14] ." / ";
                         }
                    }
                    else {
                         if (!empty($row[13])){                
-                            $roundsInfo[$i] .= $row[13] ." / ";
+                            $roundsInfo[$row[0]] .= $row[13] ." / ";       
                         }
-                   }
-                   
+                   }                     
                }
                else {
                     if (!empty($row[13])){                
-                        $roundsInfo[$i] .= $row[13] ." / ";   
+                        $roundsInfo[$row[0]] .= $row[13] ." / ";   
                     }               
                }
          } 
           if ($row[2] != $discUkc){
                $roundsUkc[$row[1]][] =  $row[0];
           }
-          $discUkc = $row[2];
-          
+          $discUkc = $row[2];              
     }
     
     $results = mysql_query($sql);
       
     while($row = mysql_fetch_row($results))
-    {   
+    {           
         // for a combined event, the rounds are merged, so jump until the next event
         if($cRounds > 1){
             $cRounds--;                    
@@ -524,9 +523,9 @@ else {
                 if ($athleteCat){
                     $order=$orderAthleteCat . $order_heat;   
                 }
-                $selection = ""; 
+                $selection2 = ""; 
                 $checkyear= date('Y') - 16;
-                $selection = " at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] .") AND ";    
+                $selection2 = " at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] .") AND ";    
                 
                 $query = "SELECT ss.xSerienstart, 
                              IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
@@ -571,7 +570,7 @@ else {
                    LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie)
                    LEFT JOIN kategorie AS k1 ON (a.xKategorie = k1.xKategorie)   
                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin)   
-                       WHERE " . $selection .$roundSQL." 
+                       WHERE " . $selection2 .$roundSQL." 
                        ".$limitRankSQL." 
                        ".$valid_result." 
                        ".$sqlSeparate." 
@@ -588,11 +587,11 @@ else {
                 if ($athleteCat){
                     $order=$orderAthleteCat . $order_heat;   
                 }
-                $selection = "";
+                $selection2 = "";
                 
                 if ($ukc){
                     $checkyear= date('Y') - 16;                          
-                    $selection = " at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] .") AND ";   
+                    $selection2 = " at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] .") AND ";   
                     
                 }
                 $query = "SELECT ss.xSerienstart, 
@@ -638,7 +637,7 @@ else {
                    LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie)
                    LEFT JOIN kategorie AS k1 ON (a.xKategorie = k1.xKategorie)   
                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin)   
-                       WHERE " . $selection .$roundSQL." 
+                       WHERE " . $selection2 .$roundSQL." 
                        ".$limitRankSQL." 
                        ".$valid_result." 
                        ".$sqlSeparate." 
@@ -765,19 +764,27 @@ else {
                     AA_StatusChanged(0,0, $row_res[0]);
                    
                 }
+                
                 if ($flagSubtitle ){  
-                    
+                    $r_info = '';
                     $mainRound = AA_getMainRound($row[0]);
-                    if ($mainRound > 0){                        
-                        foreach ($rounds as $key => $val){
-                            if ($pos = strpos($val, $mainRound)){
-                                $r_info = $roundsInfo[$key];
-                                $r_info = substr($r_info,0, -3);
-                            }
+                    if ($mainRound > 0){ 
+                        if ($heatSeparate) {                     
+                              $r_info = $roundsInfo[$row[0]];                                       
+                              $r_info = substr($r_info,0, -3);   
+                        }
+                        else {
+                               
+                               $mergedRounds=AA_getMergedRounds($row[0]);       
+                               $mRounds = split(',',substr($mergedRounds,1,-1));
+                               foreach ($mRounds as $key => $val){
+                                    $r_info .= $roundsInfo[$val];    
+                               }
+                               $r_info = substr($r_info,0, -3);   
                         }
                     }
                     else {
-                         $r_info = $row_res[24];
+                         $r_info = $row_res[24];     
                     }
                     
                     $nr = 0;    
@@ -891,7 +898,7 @@ else {
                         if ($saison == "I"){
                             $heatwind = '';
                         }
-                        if ($relay){
+                        if ($relay && !$svm){   
                            $points = false;
                         }
                         $list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval, $withStartnr);
@@ -1393,7 +1400,8 @@ else {
             $list->endList();
         }    // ET DB error result rows   
 
-        $cat = $row[1];    // keep category   
+        $cat = $row[1];    // keep category 
+        $round_keep = $row[0];  
         
     }    // END WHILE event rounds
     mysql_free_result($results);
