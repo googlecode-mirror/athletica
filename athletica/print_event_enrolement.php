@@ -117,10 +117,10 @@ $doc = new PRINT_EnrolementPage($_COOKIE['meeting']);
                 LEFT JOIN runde AS r On (r.xWettkampf = w.xWettkampf)
                 LEFT JOIN disziplin_" . $_COOKIE['language'] ." as dm ON w.Mehrkampfcode = dm.Code
                 LEFT JOIN start AS s ON(s.xWettkampf=w.xWettkampf)  
-                INNER JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)   
+                LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)   
           WHERE " . $argument ."   
             ORDER BY w.xKategorie, w.Mehrkampfcode, r.xWettkampf, r.Datum, r.Startzeit";     
-  
+ 
 $result = mysql_query($sql);
 
 if(mysql_errno() > 0)		// DB error
@@ -366,7 +366,7 @@ else
                                     , at.Vorname
                                     , at.Jahrgang
                                     , if('$svm', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)) 
-                                    , if (s.Bestleistung = 0, 9999999, s.Bestleistung)  as Bestleistung
+                                    , if ((s.Bestleistung = 0 AND (d.Typ < $cfgDisciplineType[$strDiscTypeJump] OR d.Typ = $cfgDisciplineType[$strDiscTypeDistance])), 9999999, s.Bestleistung)  as Bestleistung
                                     , d.Typ
                                     , IF(at.xRegion = 0, at.Land, re.Anzeige)
                                     , d.Name 
