@@ -572,10 +572,11 @@ function AA_meeting_changeCategory($byCombtype = 0)
 		{   
 			while ($row = mysql_fetch_row($result))
 			{
-				// check if any formula for new conversion table
+				// check if any formula for new conversion table                 
 				$setFormula = "";
+                
 				if($_POST['conv_changed'] == 'yes')
-				{   
+				{                        
 					if($_POST['conv'] == $cvtTable[$strConvtableRankingPoints] || $_POST['conv'] == $cvtTable[$strConvtableRankingPointsU20]){ // check ranking points
 						$keysRP = array_keys($cvtFormulas[$_POST['conv']]);
 						if($row[3] == $cfgDisciplineType[$strDiscTypeRelay]){ // if relay type
@@ -603,6 +604,15 @@ function AA_meeting_changeCategory($byCombtype = 0)
 					}elseif(isset($cvtFormulas[$_POST['conv']][substr($row[1],0,6)])){
 						$setFormula = ", Punkteformel='".substr($row[1],0,6)."'";
 						$formula = substr($row[1],0,6);
+                    }elseif(isset($cvtFormulas[$_POST['conv']][substr($row[1],0,7)])){
+                        $setFormula = ", Punkteformel='".substr($row[1],0,7)."'";
+                        $formula = substr($row[1],0,7);
+                    }elseif(isset($cvtFormulas[$_POST['conv']][substr($row[1],0,8)])){
+                        $setFormula = ", Punkteformel='".substr($row[1],0,8)."'";
+                        $formula = substr($row[1],0,8);                     
+                    }elseif(isset($cvtFormulas[$_POST['conv']][substr($row[1],0,10)])){
+                        $setFormula = ", Punkteformel='".substr($row[1],0,10)."'";
+                        $formula = substr($row[1],0,10);
 					}
 					else {
                         if ($row[4] >= 497 & $row[4] <= 499) {
@@ -996,14 +1006,14 @@ function AA_meeting_resetResults($event, $formula, $conv = '')
         WHERE        
             st.xWettkampf = $event 
             AND re.Info != 'XXX'";  
-     
+    
     $result = mysql_query($sql);       
 		
 	if(mysql_errno() > 0) {
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 	}
 	else
-	{
+	{  
 		if($formula == '0')	// formula deleted
 		{
 			// reset all result points to zero
@@ -1061,6 +1071,7 @@ function AA_meeting_resetResults($event, $formula, $conv = '')
 				while ($row = mysql_fetch_row($result))
 				{
 					$points = AA_utils_calcPoints($event, $row[1], 0, $row[3]);
+                    
 					mysql_query("
 						UPDATE resultat SET
 							Punkte = $points
@@ -1475,7 +1486,33 @@ function AA_meeting_addUkcEvent($xCat, $penalty, $disfee){
             }   
     }
     
-}     
+}         
+
+function array_sort_func($a,$b=NULL) {
+   static $keys;
+   if($b===NULL) return $keys=$a;
+   foreach($keys as $k) {
+      if(@$k[0]=='!') {
+         $k=substr($k,1);
+         if(@$a[$k]!==@$b[$k]) {
+            return strcmp(@$b[$k],@$a[$k]);
+         }
+      }
+      else if(@$a[$k]!==@$b[$k]) {
+         return strcmp(@$a[$k],@$b[$k]);
+      }
+   }
+   return 0;
+}
+
+function array_sort(&$array) {
+   if(!$array) return $keys;
+   $keys=func_get_args();
+   array_shift($keys);
+   array_sort_func($keys);
+   usort($array,"array_sort_func");       
+}
+   
     
 
 }		// AA_MEETING_LIB_INCLUDED
