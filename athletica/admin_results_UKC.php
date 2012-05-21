@@ -18,7 +18,7 @@ require('./lib/common.lib.php');
 require('./lib/cl_xml_data.lib.php');
 require('./lib/cl_ftp_data.lib.php');
 require('./lib/cl_http_data.lib.php');
-
+  
 if(AA_connectToDB() == FALSE)	{		// invalid DB connection
 	return;
 }
@@ -32,6 +32,14 @@ if (isset($_GET['ukc_meeting'])) {
 }
 else if  (isset($_POST['ukc_meeting'])) {
      $ukc_meeting = $_POST['ukc_meeting'];   
+}
+
+$meeting_nr = '';
+if (isset($_GET['meeting_nr'])){
+   $meeting_nr= $_GET['meeting_nr'];
+}
+else if (isset($_POST['meeting_nr'])){
+   $meeting_nr= $_POST['meeting_nr'];
 }
 
 //
@@ -86,14 +94,20 @@ if($login){
 	//
 	// set file names and generade result xml
 	//
-	$res = mysql_query("select Nummer from meeting where xMeeting = ".$_COOKIE['meeting_id']);
-	$row = mysql_fetch_Array($res);             
-	$eventnr = $row[0];
+    if (empty($meeting_nr)){    
+	    $res = mysql_query("select Nummer from meeting where xMeeting = ".$_COOKIE['meeting_id']);
+	    $row = mysql_fetch_Array($res);             
+	    $eventnr = $row[0];
+    } 
+    else {
+        $eventnr = $meeting_nr;   
+    } 
+    
 	$local = dirname($_SERVER['SCRIPT_FILENAME'])."/tmp/results_ukc.xml.gz";
 	$remote = date("Ymd")."_".$eventnr.".gz";      	
 	
-    if ($ukc_meeting){
-         $nbr_effort = $xml->gen_result_xml_UKC_CM($local);
+    if ($ukc_meeting == 'n'){
+         $nbr_effort_ukc = $xml->gen_result_xml_UKC_CM($local, $meeting_nr);
     }
     else {
           $nbr_effort = $xml->gen_result_xml_UKC($local);             
@@ -101,30 +115,50 @@ if($login){
    
 	
 	// upload result file
-	if($nbr_effort>0){ //upload only if file contains at least one results
+	if($nbr_effort>0 || $nbr_effort_ukc>0){ //upload only if file contains at least one results
 		$ftp->open_connection($cfgSLVhostUKC, $cfgSLVuser, $cfgSLVpass);
 		$success = $ftp->put_file($local, $remote);
 		$ftp->close_connection();
 	} else {
 		$success=true;
-	} 
-     
+	}     
       
 	if($success){
 		// output message and set round status to results_sent
-		
-		foreach($GLOBALS['rounds'] as $xRunde){
-			mysql_query("UPDATE runde SET StatusUpload = 1 WHERE xRunde = $xRunde");
-			if(mysql_errno() > 0 ){
-				AA_printErrorMsg(mysql_errno().": ".mysql_error());
-			}
-		}
-		if($nbr_effort>0){
-			echo "<p><b>$strResultsUploaded</b></p>";
-			echo $strNumberEfforts .": " .$nbr_effort;
-		} else {
-			echo "<p><b>$strResultsUploadedNoResults</b></p>";
-		}
+		if ($nbr_effort>0){
+		    foreach($GLOBALS['rounds'] as $xRunde){
+			    mysql_query("UPDATE runde SET StatusUpload = 1 WHERE xRunde = $xRunde");
+			    if(mysql_errno() > 0 ){
+				    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+			    }
+		    }
+        }
+        else {
+             foreach($GLOBALS['rounds'] as $xRunde){
+                mysql_query("UPDATE runde SET StatusUploadUKC = 1 WHERE xRunde = $xRunde");
+                if(mysql_errno() > 0 ){
+                    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                }
+            }
+        }  
+        if ($ukc_meeting == 'y'){  
+		    if($nbr_effort>0){
+			    echo "<p><b>$strResultsUploaded</b></p>";
+			    echo $strNumberEfforts .": " .$nbr_effort;
+		    } 
+            else {
+			    echo "<p><b>$strResultsUploadedNoResults</b></p>";
+		    }
+        }
+        else {
+               if($nbr_effort_ukc>0){
+                echo "<p><b>$strResultsUploaded</b></p>";
+                echo $strNumberEfforts .": " .$nbr_effort_ukc;
+            } 
+            else {
+                echo "<p><b>$strResultsUploadedNoResults</b></p>";
+            }
+        }
 		
 		
 		
@@ -134,7 +168,7 @@ if($login){
 		
 	}
 }else{
-	$cControl = AA_checkControl_UKC();
+	$cControl = AA_checkControl_UKC($meeting_nr);      
 	if($cControl == 0){
 		echo "<p>$strErrNoControl4</p>";
 		return;
@@ -173,6 +207,7 @@ if($login){
 		<form action='admin_results_UKC.php' name='base' method='post' target='_self' >
 		<input type="hidden" name="arg" value="login">
         <input type="hidden" name="ukc_meeting" value="<?php echo $ukc_meeting; ?>"> 
+         <input type="hidden" name="meeting_nr" value="<?php echo $meeting_nr; ?>">  
 		<tr>
 			<td>
 				<?php echo $strClubNr ?>
