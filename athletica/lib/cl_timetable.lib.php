@@ -233,7 +233,7 @@ class Timetable
 		// OK: try to delete round
 		else
 		{
-			mysql_query("LOCK TABLES serie READ, runde WRITE");
+			mysql_query("LOCK TABLES serie READ, runde WRITE, rundenset READ, rundenset WRITE");
 			// Still in use?
 			if(AA_utils_checkReference("serie", "xRunde", $this->round) != 0)
 			{
@@ -252,6 +252,43 @@ class Timetable
 			{
 				$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 			}
+            
+            // check if merged round
+            $sql = "SELECT xRundenset, Hauptrunde FROM rundenset WHERE xRunde = " . $this->round ." AND xMeeting = " .$_COOKIE['meeting_id'];
+            $result = mysql_query($sql);
+          
+            if(mysql_errno() > 0)
+            {
+                $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+            }
+            $num =  mysql_num_rows($result);  
+            if ($num > 0){
+                $row = mysql_fetch_row($result);
+                
+                if ($row[1] == 1 || $num == 2){      // main round                        
+                    mysql_query("
+                        DELETE FROM
+                            rundenset
+                        WHERE xRundenset = " . $row[0] ." AND xMeeting = " .$_COOKIE['meeting_id']);
+                    
+                    if(mysql_errno() > 0)
+                        {
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                    } 
+                }
+                else {
+                      mysql_query("
+                        DELETE FROM
+                            rundenset
+                        WHERE xRunde= " . $this->round ." AND xMeeting = " .$_COOKIE['meeting_id']);     
+                      if(mysql_errno() > 0){                        
+                        $GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
+                      }   
+                }
+                    
+            }
+                
+            
 
 			mysql_query("UNLOCK TABLES");
 		}
