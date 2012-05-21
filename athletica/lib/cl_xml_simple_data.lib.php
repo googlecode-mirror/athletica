@@ -395,8 +395,7 @@ function XML_regUKC($xml_simple, $ukc_meeting){
                                        if ($license > 0){                                       
                                     
                                                 $sql = "UPDATE athlet SET                                                             
-                                                            Land = '" .  $nationality ."',  
-                                                            xVerein = '" .  $clubnr ."',    
+                                                            Land = '" .  $nationality ."',                                                                
                                                             Bezahlt = '" .  $licensePaid ."',      
                                                             xRegion = " . $region . ",   
                                                             Adresse = '" . $street . "',  
@@ -407,19 +406,19 @@ function XML_regUKC($xml_simple, $ukc_meeting){
                                        }
                                        else {
                                               $sql = "UPDATE athlet SET  
-                                                            Land = '" .  $nationality ."',  
-                                                            xVerein = '" .  $clubnr ."',    
+                                                            Land = '" .  $nationality ."',                                                              
                                                             Bezahlt = '" .  $licensePaid ."',  
                                                             xRegion = " . $region . ",   
                                                             Adresse = '" . $street . "',  
                                                             Plz = " . $zipCode . ",  
                                                             Ort = '" . $city . "',  
                                                             Email = '" . $email ."'    
-                                                            WHERE Name= '" .  $lastName ."' AND Vorname = '" .  $firstName ."' AND Geburtstag = '" . $birthdate ."'";  
+                                                            WHERE Name= '" .  $lastName ."' AND Vorname = '" .  $firstName ."' AND Geburtstag = '" . $birthdate ."'" ;  
+                                                            
                                        }   
                                       
                                         mysql_query($sql);
-                                        if(mysql_errno() > 0){ 
+                                        if(mysql_errno() > 0){                                              
                                             AA_printErrorMsg("xml-22-".mysql_errno().": ".mysql_error());
                                         }else{
                                                 $xAthlete = $row[0];   

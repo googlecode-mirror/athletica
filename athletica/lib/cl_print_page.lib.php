@@ -926,7 +926,7 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 	}
 
 
-	function printAthleteLine($name, $year, $points, $country)
+	function printAthleteLine($name, $year, $points, $country, $club, $rank, $type)
 	{
 		if(($this->lpp - $this->linecnt) < 4)		// page break check
 		{
@@ -937,15 +937,27 @@ class PRINT_TeamRankingList extends PRINT_RankingList
 			$this->printHeaderLine($this->relay, $this->windinfo);
 		}
 		$this->linecnt++;			// increment line count
-?>
-	<tr>
-		<td class='team_rank' />
-		<td class='team_name'><?php echo "$name, $year, $country"; ?></td>
-		<td class='team_club'><?php echo $points; ?></td>
-		<td class='team_points' />
-	</tr>
+    if ($type == 'teamP'){
+             ?>
+        <tr>
+            <td class='team_rank'><?php echo $rank; ?></td>
+            <td class='team_name'><?php echo "$name, $year, $country"; ?></td>
+            <td class='team_club'><?php echo $club; ?></td>
+            <td class='team_points' ><?php echo $points; ?></td>
+        </tr>
+             <?php
+    }
+    else {
+       ?>
+       <tr>
+        <td class='team_rank' />
+        <td class='team_name'><?php echo "$name, $year, $country"; ?></td>
+        <td class='team_club'><?php echo $points; ?></td>
+        <td class='team_points' />
+    </tr>
+    <?php 
+    }
 
-<?php
 	}
 
 
