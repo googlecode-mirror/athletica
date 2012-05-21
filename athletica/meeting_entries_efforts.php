@@ -71,6 +71,7 @@ if (isset($_POST['updateEfforts'])){
 		AA_printErrorMsg(mysql_errno() . ": " . mysql_error() . $sql);
 	} else { 
         $licnr_keep=0;
+        $perfSeason = 0;
 		while ($row_start = mysql_fetch_array($res_start)){
 			// get performance from base data 
 			$perf = 0;
@@ -101,6 +102,9 @@ if (isset($_POST['updateEfforts'])){
 		   		$perf = (ltrim($perf,"0"))*100;  
                 $perfSeason = (ltrim($perfSeason,"0"))*100;  
 			}
+            if  (empty($perfSeason)){
+                 $perfSeason = 0; 
+            }
             											  
 			if($perf != NULL) {	// invalid performance
 				$sql = "UPDATE start SET 
