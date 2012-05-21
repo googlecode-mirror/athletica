@@ -228,18 +228,30 @@ else		// no DB error
  *
  *****************************************/
 
-$result = mysql_query("
-	SELECT
-		xKategorie
-		, Kurzname
-	FROM
-		kategorie AS k
-        LEFT JOIN meeting AS m ON (m.UKC = k.UKC)     
-    WHERE aktiv = 'y'
-        AND m.xMeeting = " . $_COOKIE['meeting_id'] . "   
-	ORDER BY
-		Anzeige
-");
+if ($ukc_meeting){
+    $sql = "SELECT
+                xKategorie
+                , Kurzname
+            FROM
+                kategorie AS k                     
+            WHERE aktiv = 'y'                       
+            ORDER BY
+                Anzeige";
+}
+else {
+       $sql = "SELECT
+                xKategorie
+                , Kurzname
+            FROM
+                kategorie AS k     
+                LEFT JOIN meeting AS m ON (m.UKC = k.UKC)  
+            WHERE aktiv = 'y'
+                AND m.xMeeting = " . $_COOKIE['meeting_id'] . "   
+            ORDER BY
+                Anzeige";
+}
+
+$result = mysql_query($sql);  	
 
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
