@@ -68,6 +68,25 @@ function checkForm(){
 	}
 }
 
+function checkForm2(){       
+    
+    var obj2 = document.meetingnr;
+    
+    
+    if(obj2.meeting_nr.value==''){
+        alert('<?php echo $strErrEventNr ?>');
+        obj2.meeting_nr.focus();
+        return false;
+    }
+    else {
+        document.location.href='admin_results_UKC.php?ukc_meeting=<?php echo $ukc_meeting; ?>&meeting_nr='+obj2.meeting_nr.value;
+        return false;
+    }
+    
+    
+   
+}
+
 function removePassword(){
 	
 	document.meetingpw.arg.value = "del_password";
@@ -446,12 +465,40 @@ function removePassword(){
                     <tr>
                         <td>
                             <table class='admin'>
+                            <?php
+                             if ($ukc_meeting == 'n'){  
+                                 ?>
+                                 <form name="meetingnr" method="post" action="admin.php" onsubmit="return checkForm2();">
                                 <tr class='odd'>
                                     <td><?php echo $strBestlistRemark; ?></td>
                                 </tr>
-                                <tr class='even'>
-                                    <td><input type="button" value="<?php echo $strNext; ?>" class="dialog_ukc" onclick="javascript:document.location.href='admin_results_UKC.php?ukc_meeting=<?php echo $ukc_meeting; ?>'"></td>
+                                 <tr class='even'>
+                                    <td> 
+                                    <?php                                   
+                                        echo $strMeetingNbr; ?> 
+                                        <input type="text" name="meeting_nr" size="10" />
+                                        <?php
+                                       
+                                        ?>
+                                        <input type="submit" value="<?php echo $strNext; ?>"/>   
+                                        
                                 </tr>
+                                </form>
+                             
+                                <?php
+                             }
+                             else {
+                                 ?>
+                            
+                                <tr class='odd'>
+                                    <td><?php echo $strBestlistRemark; ?></td>
+                                </tr>
+                                 <tr class='even'>    
+                                    <td><input type="button" value="<?php echo $strNext; ?>" class="dialog_ukc" onclick="javascript:document.location.href='admin_results_UKC.php?ukc_meeting=<?php echo $ukc_meeting; ?>'"></td>                                
+                                </tr>   
+                                <?php
+                                }
+                                ?>
                             </table>
                         </td>
                     </tr>
