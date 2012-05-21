@@ -18,7 +18,7 @@ require('./lib/cl_export_page.lib.php');
 
 require('./lib/common.lib.php');
 require('./lib/results.lib.php');
-require('./config.inc.php'); 
+require('./config.inc.php');   
 
 if(AA_connectToDB() == FALSE)	{ // invalid DB connection
 	return;		// abort
@@ -46,17 +46,19 @@ if($catFrom > 0) {
 } 
 $GroupByUkc = "";
 if ($ukc){       
-          $checkyear= date('Y') - 16;                  
-          $selection = " AND at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";   
+          $checkyear= date('Y') - 16;   
+          $min_age =  date('Y') - 7;       
+          $selection = " AND at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";          
+          
           $sql_leftjoin = " LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.xDisziplin = d.xDisziplin) ";
-          $order = " ,at.Name, at.Vorname, d.Anzeige";  
+          $order = " at.Geschlecht, at.Jahrgang,  at.Name, at.Vorname,  d.Anzeige";  
           $disc_nr = 3;
          
     }
 else {
     $selection = " AND w.Mehrkampfcode > 0 ";
     $sql_leftjoin = " LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (w.Mehrkampfcode = d.Code)";    
-    $order = " , w.Mehrkampfcode , ka.Alterslimite DESC"; 
+    $order = " k.Anzeige , w.Mehrkampfcode , ka.Alterslimite DESC"; 
 }
                                     
 $dCode = 0;
@@ -93,11 +95,10 @@ $dCode = 0;
      " . $selection . " 
     AND st.anwesend = 0 "; 
        
-    $sqlOrder = " ORDER BY         
-        k.Anzeige "
-        . $order;  
+    $sqlOrder = " ORDER BY " . $order;      
        
- $sql = $sql1 . $sqlOrder;          
+ $sql = $sql1 . $sqlOrder;   
+  
 
 $results = mysql_query($sql);     
 
@@ -159,11 +160,16 @@ else
         $sql = $sql1 . $GroupByUkc . $sqlOrder;   
           
         $results = mysql_query($sql);  
+     
     }   
 	
 	while($row = mysql_fetch_row($results))
-	{   $dCode = $row[13];         
+	{   $dCode = $row[13]; 
     
+        $row3_tmp =  $row[3];      
+        if ($row3_tmp > $min_age){
+             $row3_tmp= $min_age;
+        }
     
          if ($ukc){
              if ($roundsUkc[$row[4]][$row[14]] != 3) {
@@ -176,32 +182,49 @@ else
 		if(($a != $row[0])		// new athlete
 			&& ($a > 0))			// first athlete processed
 		{              		
-			$points_arr[] = $points;                        
-            $points_arr_more_disc_all[$row[9]][] = $points_disc; 
-			$name_arr[] = $name;   		
-			$year_arr[] = $year;
-			$club_arr[] = $club;
-			$info_arr[] = $info;
-			$ioc_arr[] = $ioc;
-			$x_arr[] = $a;
-            $rank_arr[] = $rank;   
-			$info = '';
-			$points = 0;
-			$sep = '';
+			
+                $points_arr[] = $points;  
+
+                if ($ukc){  
+                     $xKatUKC = AA_getCatUkc($birthDate, $sex, true);                   
+                     $points_arr_more_disc_all[$xKatUKC][] = $points_disc;
+                } 
+                else {  
+                     $points_arr_more_disc_all[$row[9]][] = $points_disc;
+                }                     
+                
+			    $name_arr[] = $name; 
+                               
+			    $year_arr[] = $year;
+			    $club_arr[] = $club;
+			    $info_arr[] = $info;
+			    $ioc_arr[] = $ioc;
+			    $x_arr[] = $a;
+                if (isset($points_disc_keep) && sizeof($points_disc_keep) < 3 && $ukc){
+                    $rank_arr[] = 0;                             
+                }
+                else {
+                     $rank_arr[] = $rank;   
+                }
+                
+			    $info = '';
+			    $points = 0;
+			    $sep = '';
+        
             
 		}
-       
-		// print previous before processing new category
+      
+		// print previous before processing new category                   
 		if(!empty($cat)				// not first result row
-			&& 	(($row[4] != $cat || $row[7] != $comb) 	// not the same category, or not the same combined contest
-                || ($ukc == true && ($row[4] != $cat ||  $row[3] != $age))
+			&& 	((($row[4] != $cat || $row[7] != $comb) && $ukc == false) 	// not the same category, or not the same combined contest
+                || ($ukc == true && (  ($row3_tmp != $age)))
 				|| (($comb == 410 || $comb == 400) && $catEntry != $row[10] && $row[12] < 23 && !$bU23 && $sepu23)
 					// extract the u23 categories from MAN or WOM combined when:
 			)		// if last event was combined ten/seven and the athletes category has changed
 					// and if the next athletes are < 23 and they are not yet separated ($bU23)
 					// AND the user has choosen to separate ($sepu23)
 		)
-		{
+		{   
 			$bU23 = false; // set the separate flag! else it will be separated by each category
 			if(($comb == 410 || $comb == 400) && $catEntry != $row[10] && $row[12] < 23){
 				$bU23 = true;
@@ -229,7 +252,7 @@ else
             
            
              $no_rank=999999;
-             $max_rank=$no_rank;
+             $max_rank=$no_rank;   
             
 		     foreach($points_arr as $key => $val) {
                 $r++;     
@@ -239,15 +262,15 @@ else
                 
                 if($p != $val) {    // not same points as previous team
                     $rank = $r;        // next rank
-                }
+                }    
                                        
                 // not set rank for invalid results 
                 if (preg_match("@\(-[1]{1}@", $info_arr[$key])){ 
                     $rank=$max_rank; 
                     $max_rank+=1;      
                     $r--;  
-                }               
-                
+                } 
+                               
                 $rank_arr[$key] = $rank;
                 $p = $val;            // keep current points    
             
@@ -256,21 +279,23 @@ else
     		asort($rank_arr, SORT_NUMERIC);    // sort descending by rank    
            
             $rank_keep = 0; 
-                      
+            $key_keep = '';
+             
             foreach($rank_arr as $key => $v) {
                   $val=$points_arr[$key];  
                   $rank=$v;  
-                   
+                 
+                  
                   if ($rank == $rank_keep){ 
                  
                         $c=0;
                         $keep_c=0;
                         // first rule
                         for ($i=1; $i <= sizeof($points_disc); $i++){                                  
-                             if  ($points_arr_more_disc_all[$xKat][$key_keep][$i] > $points_arr_more_disc_all[$xKat][$key][$i]){
+                             if  ($points_arr_more_disc_all[$xKat][$key_keep][$i] > $points_arr_more_disc_all[$xKat][$key][$i]){  
                                   $keep_c ++;
                              }
-                             else {
+                             else {   
                                  $c++;
                              }
                         }
@@ -333,13 +358,16 @@ else
 				$list->insertPageBreak();
 			}
 		}
-		$cat = $row[4];		// keep current category
-        $age = $row[3];
+		$cat = $row[4];		// keep current category          
+        $age = $row3_tmp; 
         if ($ukc){
-             $catUKC = AA_getCatUkc($row[3], $row[15]);       
-        }
-       
-        $xKat = $row[9];
+             $catUKC = AA_getCatUkc($row[3], $row[15], false);    
+             $xKat = AA_getCatUkc($row[3], $row[15], true);          
+        }         
+         else {
+              $xKat = $row[9];  
+         }
+        
 		$catEntry = $row[10];
 		$catEntryLimit = $row[12];
 		$comb = $row[7];
@@ -390,7 +418,7 @@ else
             ORDER BY
                 $order 
         ");       
-        
+       
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
@@ -481,7 +509,20 @@ else
                            } 
                            else {
                                 if ($ukc){
-                                       $points_disc[$row[9]]=$pointsUKC;
+                                    switch ($pt_row[1]){
+                                       case 1:
+                                       case 2: $c=1;          // track
+                                               break;
+                                       case 4:
+                                       case 5: 
+                                       case 6: $c=2;          // jump and high
+                                               break; 
+                                       case 8: $c=3;          // throw
+                                               break;  
+                                       default: $c=0;
+                                               break;
+                                    }
+                                     $points_disc[$c]=$pointsUKC;                                        
                                 }
                                 else {
                                       $points_disc[$row[9]]=$pt_row[4];    
@@ -524,12 +565,22 @@ else
 		$a = $row[0];
 		$name = $row[1] . " " . $row[2];
 		$year = AA_formatYearOfBirth($row[3]);
+        $birthDate = $row[3];
+        $sex = $row[15];
 		$club = $row[5];
 		$ioc = $row[6];   	
         $remark_arr[] = $remark; 
-        $xKat = $row[9]; 	
+        if ($ukc){
+            $xKat = AA_getCatUkc($row[3], $row[15], true);          
+        }
+        else {
+               $xKat = $row[9];     
+        }
+      
         $points_disc_keep = $points_disc;
         $dCode_keep = $dCode;
+       
+        
         
 	}	// END WHILE athlete per category
   
@@ -592,8 +643,8 @@ else
                 $rank=$max_rank; 
                 $max_rank+=1;      
 				$r--;  
-		 	}     		  
-			
+		 	}     
+                        
 			$p = $val;			// keep current points
             $k = $key;            // keep current key
             $rank_arr[$key]  = $rank;   
@@ -602,7 +653,7 @@ else
         asort($rank_arr, SORT_NUMERIC);    // sort descending by rank       
         
          $rank_keep = 0; 
-                   
+        
          foreach($rank_arr as $key => $v){
                 $val=$points_arr[$key];  
                 $rank=$v;   
