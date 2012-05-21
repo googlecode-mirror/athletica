@@ -440,10 +440,14 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
      * get category for ubs kids cup 
      *         
      */
-    function AA_getCatUkc($year, $sex){
-         $age= date('Y') - $year;                  
+    function AA_getCatUkc($year, $sex , $flag=false){
+         $age= date('Y') - $year;   
+         if ($age < 7) {
+             $age = 7;
+         }              
          $sql= "SELECT
-                    k.Name
+                    k.Name,
+                    k.xKategorie
                 FROM
                     kategorie as k
                 WHERE 
@@ -458,7 +462,13 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
             }
             elseif (mysql_num_rows($result) > 0) {   // event has formula assigned
                      $row = mysql_fetch_row($result);
-                     return $row[0];
+                     if ($flag){
+                         return $row[1]; 
+                     }
+                     else {
+                          return $row[0]; 
+                     }
+                     
             }
             return "";
     }
