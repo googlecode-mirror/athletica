@@ -869,4 +869,5 @@ $strResetLiveStatus  = "Live Status zurücksetzen";
 $strAnd = " und ";
 
  $strHeight = "Anf.höhe";
+ $strErrEventNr = "Bitte Wettkampf-Nr. eingeben.";
 ?>
