@@ -81,7 +81,8 @@ $cfgBackupCompatibles = array(
     '4.1',  
     '5.0',  
     '5.1',
-    '5.2'        
+    '5.2',  
+    '5.3'              
 );
 
 
@@ -578,7 +579,10 @@ $cfgTVDef = array("de" => array (232 => '50m Hurdles'
     
  // UBS Kids Cup 
  $cfgUKC_disc = array("30","331","386");
- $cfgUKC_disc_F = array("60","WEIT","BALL"); 
+ $cfgUKC_disc_F = array("de" => array('60','WEIT','BALL'),
+                        'fr' => array('60','LONGUEUR','BALLE'),
+                        'it' => array("60","LUNGO","PALLINA"));  
+ 
  $cfgUKC_Name = "UBS Kids Cup";
                                 
 // SVM reserve discipline                               
