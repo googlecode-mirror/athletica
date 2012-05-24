@@ -325,14 +325,14 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
                 else {
                      $row[1] = 2;
                 }
-                if ($row[4] == $cfgUKC_disc[0]){
-                     $row[2] = $cfgUKC_disc_F[0];
+                if ($row[4] == $cfgUKC_disc[0]){                        
+                     $row[2] = $cfgUKC_disc_F[$_COOKIE['language']][0];
                 }
                 elseif  ($row[4] == $cfgUKC_disc[1]){
-                        $row[2] = $cfgUKC_disc_F[1];  
+                        $row[2] = $cfgUKC_disc_F[$_COOKIE['language']][1]; 
                 }
                 elseif  ($row[4] == $cfgUKC_disc[2]){
-                    $row[2] = $cfgUKC_disc_F[2];  
+                    $row[2] = $cfgUKC_disc_F[$_COOKIE['language']][2]; 
                 }
                 
                 // if ranking points are set, return
