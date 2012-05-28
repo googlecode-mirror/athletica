@@ -81,7 +81,7 @@ elseif($arg == "copy")
 	$newxMeeting = 0;
 	$new_date = $_POST['from_year'].'-'.$_POST['from_month'].'-'.$_POST['from_day'];
 	
-	mysql_query("LOCK TABLES meeting WRITE, wettkampf WRITE, runde WRITE");
+	mysql_query("LOCK TABLES meeting WRITE, wettkampf WRITE, wettkampf as w READ ,runde WRITE, kategorie as k READ");
 	
 	// copy meeting entry
 	$resFields = mysql_query("SHOW COLUMNS FROM meeting");
@@ -144,7 +144,8 @@ elseif($arg == "copy")
 		}
 		
 		mysql_free_result($resData);
-		mysql_free_result($resFields);
+		mysql_free_result($resFields);               
+      
 		
 	}
 	
@@ -157,7 +158,7 @@ elseif($arg == "copy")
 			$fields[] = $row;
 		}
 		
-		$resData = mysql_query("SELECT * FROM wettkampf WHERE xMeeting = ".$_COOKIE['meeting_id']);
+		$resData = mysql_query("SELECT * FROM wettkampf as w LEFT JOIN kategorie as k ON (w.xKategorie = k.xKategorie) WHERE w.xMeeting = ".$_COOKIE['meeting_id'] ." AND k.Code != 'U12X'");
 		
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -218,7 +219,8 @@ elseif($arg == "copy")
 		mysql_free_result($resData);
 		mysql_free_result($resFields);
 		mysql_free_result($resData2);
-		mysql_free_result($resFields2);
+		mysql_free_result($resFields2);                    
+     
 		
 		// unlock all tables
 		mysql_query("UNLOCK TABLES");

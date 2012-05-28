@@ -299,7 +299,7 @@ $result = mysql_query("SELECT xKategorie"
 						. ", Geschlecht"
 						. ", Code"
                         . ", aktiv"   
-						. " FROM kategorie ORDER BY " . $argument);
+						. " FROM kategorie WHERE Code != 'U12X' ORDER BY " . $argument);
       
 $i = 0;
 $btn = new GUI_Button('', '');	// create button object

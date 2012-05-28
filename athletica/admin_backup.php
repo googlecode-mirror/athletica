@@ -2251,9 +2251,7 @@ else if ($_POST['arg'] == 'restore')
                   
                   mysql_query("UPDATE disziplin_it SET Typ = 2 WHERE Code = 796");
                   mysql_query("UPDATE disziplin_it SET Typ = 4 WHERE Code = 797");  
-                  mysql_query("UPDATE disziplin_it SET Typ = 8 WHERE Code = 798");    
-                  
-                  mysql_query("DELETE FROM kategorie WHERE Code = 'U12X'");   
+                  mysql_query("UPDATE disziplin_it SET Typ = 8 WHERE Code = 798");     
                 
             } 
             
@@ -2370,6 +2368,23 @@ else if ($_POST['arg'] == 'restore')
 
             
             }
+             if ($shortVersion <= 5.3){ 
+                      mysql_query("UPDATE disziplin_fr SET Kurzname = 'LONGUEUR', Name = 'Longueur'  WHERE Code = 330");       
+             }
+            
+            $sql="SELECT xKategorie FROM kategorie WHERE Code = 'U12X'";
+            $res = mysql_query($sql);
+            if (mysql_num_rows($res) > 0){
+                  $row = mysql_fetch_row($res);
+                  $sql="SELECT xKategorie FROM wettkampf WHERE xKategorie = " . $row[0];
+                  $res = mysql_query($sql);
+                   if (mysql_num_rows($res) > 0){ 
+                       mysql_query("UPDATE kategorie SET aktiv = 'n' WHERE Code = 'U12X'");
+                   } 
+                   else {
+                         mysql_query("DELETE FROM kategorie WHERE Code = 'U12X'");
+                   } 
+            }   
             
             
 			// security updates
