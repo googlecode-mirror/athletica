@@ -2093,7 +2093,7 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                 
                 , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
                 , IF(at.xRegion = 0, at.Land, re.Anzeige)
-                , w.Mehrkampfcode
+                , 0
                 , d.Name
                
                 
@@ -2151,7 +2151,7 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                     0,
                     d.Staffellaeufer,  
                     r.xRunde,
-                     w.info  
+                    w.info  
                 FROM 
                     wettkampf as w 
                     LEFT JOIN runde as r ON (w.xWettkampf = r.xWettkampf)  
@@ -2160,15 +2160,16 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                 LEFT JOIN
                     kategorie as k ON k.xKategorie = w.xKategorie     
                 WHERE $selection r.xRunde > 0 AND  
+                   
                     w.xMeeting = ".$_COOKIE['meeting_id']."                  
                 ORDER BY
-                    k.Code
+                    k.Code                      
                     , w.info
                     , w.xKategorie
                     , d.Anzeige";     
                // the order "k.Code, w.xKategorie" makes sense if there are multiple self made categories (without any code)        
-        $res = mysql_query($sql);
-       
+        $res = mysql_query($sql);   
+        
         if(mysql_errno() > 0){              
             echo(mysql_errno().": ".mysql_error());
         }else{
@@ -2376,6 +2377,7 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                                     }
                                     
                                     $kidsID_upload = $row_results['kidID'];
+                                   
                                     if ($row_results['kidID'] == 0){
                                         $kidsID_upload = '';
                                     }
@@ -2388,7 +2390,7 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                                     if ($row[3] == 386){
                                          $perfRounded = "t". $perfRounded;                  // t = throw
                                     } 
-                                                                   
+                                    
                                     $combined[$row_results['xAthlet']][$row[3]] = array('wind'=>$wind, 'kindOfLap'=>" ".$row_results['Typ'],
                                         'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'indoor'=>$indoor, 'points'=>$row_results['Punkte'],
                                         'effort'=>$perfRounded, 'discipline'=>$row[6], 'license'=>$license, 'kidID'=>$kidsID_upload,
@@ -2512,9 +2514,8 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                     // write    
                     $cRank = 0;    // rank counter
                     $lp = 0;    // remembers points of last athlete
-                    
-                    foreach($combined as $xathlet => $disc){  
-                        
+                   
+                    foreach($combined as $xathlet => $disc){                                
                          if ($roundsUkc[$disc['xathlete']] != 3) {                        // enrolement for 3 kids cup disciplines
                              continue;
                          }            
@@ -2522,7 +2523,7 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                                 $cRank=0; 
                             }
                          $cRank++;    
-                         if($lp != $disc['points']){    
+                         if($lp != $disc['points'] || $disc['points'] == 0){    
                             $lp = $disc['points'];
                             $combined[$xathlet]['rank'] = $cRank;
                          }
@@ -2562,7 +2563,9 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                          $tmp['birthDate'] =  substr($tmp['birthDate'], 1, 4);                      
                          $tmp['catathlete'] = null;
                          $tmp = array_values($tmp);
+                        
                          usort($tmp, array($this, "sort_perdate"));
+                         
                          $tmp = $tmp[0];  
                          
                          $run = '';  
@@ -2578,14 +2581,23 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                          }
                          elseif (substr($perf1,0,1) == 't'){
                              $throw = substr($perf1,1);
+                         }  
+                         if (substr($perf2,0,1) == 'r'){ 
+                            $run = substr($perf2,1); 
                          }    
-                         if (substr($perf2,0,1) == 'j'){ 
+                         elseif (substr($perf2,0,1) == 'j'){ 
                             $jump = substr($perf2,1); 
                          }
                          elseif (substr($perf2,0,1) == 't'){ 
                             $throw = substr($perf2,1); 
                          } 
-                         if (substr($perf3,0,1) == 't'){  
+                         if (substr($perf3,0,1) == 'r'){ 
+                            $run = substr($perf3,1); 
+                         }  
+                         elseif (substr($perf3,0,1) == 'j'){ 
+                            $jump = substr($perf3,1); 
+                         }
+                         elseif (substr($perf3,0,1) == 't'){  
                               $throw = substr($perf3,1); 
                          } 
                           
@@ -2601,23 +2613,25 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                      }
                                                         
                      foreach($combined as $xathlet => $disc){   
-                         
-                          if ($roundsUkc[$disc['xathlete']] != 3) {                  // enrolement for 3 kids cup disciplines
+                        
+                         if ($roundsUkc[$disc['xathlete']] != 3) {                  // enrolement for 3 kids cup disciplines
                              continue;
                          }            
                         // get information for athlete
                         $tmp = $disc;
+                       
                         $tmp['points'] = null;
                         $tmp['edetails'] = null;
                         $tmp['birthDate'] =  substr($tmp['birthDate'], 1, 4);                      
                         $tmp['catathlete'] = null;
                         $tmp = array_values($tmp);
-                        usort($tmp, array($this, "sort_perdate"));
-                        $tmp = $tmp[0];   
-                       
-                         $run = '';  
-                         $jump = '';
-                         $throw = '';    
+                         
+                       // usort($tmp, array($this, "sort_perdate"));
+                      
+                        $tmp = $tmp[0];  
+                        $run = '';  
+                        $jump = '';
+                        $throw = '';
                           
                          list ($perf1, $perf2, $perf3) = split('[/]', $disc['edetails']);  
                          if (substr($perf1,0,1) == 'r'){
@@ -2628,14 +2642,23 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                          }
                          elseif (substr($perf1,0,1) == 't'){
                              $throw = substr($perf1,1);
-                         }    
-                         if (substr($perf2,0,1) == 'j'){ 
+                         }  
+                         if (substr($perf2,0,1) == 'r'){ 
+                            $run = substr($perf2,1); 
+                         }  
+                         elseif (substr($perf2,0,1) == 'j'){ 
                             $jump = substr($perf2,1); 
                          }
                          elseif (substr($perf2,0,1) == 't'){ 
                             $throw = substr($perf2,1); 
                          } 
-                         if (substr($perf3,0,1) == 't'){  
+                         if (substr($perf3,0,1) == 'r'){ 
+                            $run = substr($perf3,1); 
+                         }  
+                         elseif (substr($perf3,0,1) == 'j'){ 
+                            $jump = substr($perf3,1); 
+                         }
+                         elseif (substr($perf3,0,1) == 't'){  
                               $throw = substr($perf3,1); 
                          } 
                           
@@ -2845,7 +2868,7 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
     }   
     
     function sort_perdate($a, $b)
-    {
+    {  
         $ret = strcasecmp($a['DateOfEffort'], $b['DateOfEffort']);
         if($ret == 0){ return 0; }
         return ($ret < 0) ? 1 : -1;

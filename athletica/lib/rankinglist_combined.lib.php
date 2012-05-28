@@ -62,6 +62,13 @@ else {
 }
                                     
 $dCode = 0;
+if ($ukc){
+     $mk = ",0";
+}
+else {
+    $mk = ",w.Mehrkampfcode";
+}  
+
 // get athlete info per contest category    
   $sql1="SELECT DISTINCT 
         a.xAnmeldung
@@ -70,9 +77,9 @@ $dCode = 0;
         , at.Jahrgang
         , k.Name
         , IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo)
-        , IF(at.xRegion = 0, at.Land, re.Anzeige)
-        , w.Mehrkampfcode
-        , d.Name
+        , IF(at.xRegion = 0, at.Land, re.Anzeige)";
+        
+   $sql2=", d.Name
         , w.xKategorie
         , ka.Code
         , ka.Name
@@ -97,8 +104,7 @@ $dCode = 0;
        
     $sqlOrder = " ORDER BY " . $order;      
        
- $sql = $sql1 . $sqlOrder;   
-  
+ $sql = $sql1 . $mk .$sql2 .$sqlOrder;        
 
 $results = mysql_query($sql);     
 
@@ -157,8 +163,9 @@ else
               $roundsUkc[$row[4]][$row[14]]++;
         } 
         $GroupByUkc = " GROUP BY at.xAthlet ";
-        $sql = $sql1 . $GroupByUkc . $sqlOrder;   
-          
+        $mk = ",w.Mehrkampfcode";
+        $sql = $sql1 .$mk . $sql2 . $GroupByUkc . $sqlOrder;   
+   
         $results = mysql_query($sql);  
      
     }   
@@ -375,19 +382,20 @@ else
         
         if ($ukc){
             $order = " d.Anzeige, ru.Datum, ru.Startzeit";
-            $selectionDisc = " AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";   
+            $selectionDisc = " AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") ";  
+            $selectionMk = '';               
         }
         else {
               $order = " w.Mehrkampfreihenfolge ASC, ru.Datum, ru.Startzeit"; 
+               $selectionMk = " AND w.Mehrkampfcode = " .$row[7];               
               $selectionDisc = '';    
         }
 		
-		// events      
-        $res = mysql_query("
-            SELECT
+		// events  
+        $query="SELECT
                 d.Kurzname
                 , d.Typ
-              , MAX(IF ((r.Info='-') && (d.Typ = 6) ,0,r.Leistung)) 
+                , MAX(IF ((r.Info='-') && (d.Typ = 6) ,0,r.Leistung)) 
                 , r.Info
                 , MAX(IF ((r.Info='-') && (d.Typ = 6),0,r.Punkte)) AS pts    
                 , s.Wind
@@ -408,16 +416,17 @@ else
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf)
                 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
             WHERE st.xAnmeldung = $row[0]  
-            $selectionDisc          
-            AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (r.Info !=  '" . $cfgResultsHighOut . "') )                                                                                
-            AND w.xKategorie = $row[9]
-            AND w.Mehrkampfcode = $row[7]
-            AND ru.Status = " . $cfgRoundStatus['results_done'] . "   
+                $selectionDisc          
+                AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (r.Info !=  '" . $cfgResultsHighOut . "') )                                                                                
+                AND w.xKategorie = $row[9]
+                $selectionMk   
+                AND ru.Status = " . $cfgRoundStatus['results_done'] . "   
             GROUP BY
                 st.xStart
             ORDER BY
-                $order 
-        ");       
+                $order";
+                
+        $res = mysql_query($query);    
        
 		if(mysql_errno() > 0) {		// DB error
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
