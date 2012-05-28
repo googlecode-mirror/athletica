@@ -133,9 +133,10 @@ else
 	$event = 0;
 	$xCat = 0;
 	$xComb = 0;
+    $noDisc = false;
 	
 	while($row = mysql_fetch_row($result))   
-	{   
+	{            
         $discHeader=($row[0]!='') ? $row[0] : $row[11];   
 		if($row[4] != $event)	// only first round per event      
 		{
@@ -144,7 +145,8 @@ else
 			  continue;
 		  	} 		   
 			// change round status only if nothing done yet
-			if($row[6] == $cfgRoundStatus['open']) {	
+          
+			if(isset($row[6]) && $row[6] == $cfgRoundStatus['open']) {	
 				AA_utils_changeRoundStatus($row[5],
 					$cfgRoundStatus['enrolement_pending']);
 				if(!empty($GLOBALS['AA_ERROR'])) {
@@ -153,7 +155,7 @@ else
 			}
 			
 			// handle page break
-		  if($i > 0 && $pagebreak == "discipline") {	// not first event
+		  if($i > 0 && $pagebreak == "discipline" && !$noDisc) {	// not first event               
 			  $doc->insertPageBreak();
 		  }
 		  if($i > 0 && $xCat != $row[7] && $pagebreak == "category"){
@@ -166,6 +168,7 @@ else
 		  $relay = AA_checkRelay($event);
 		  $combined = AA_checkCombined($event);
 		  $svm = AA_checkSVM($event);
+         
 		  if($svm){
 			  $sortAddition = "t.Name, ";
 		  }  
@@ -385,7 +388,7 @@ else
                                     AND w.Mehrkampfcode = 0 "                                    
                               . $sqlGroup ."
                               ORDER BY " . $sortAddition .$sort;  
-                         
+                     
 			  }
 		  }
 		  else {							// relay event
@@ -436,7 +439,7 @@ else
 		  }
         
           $res = mysql_query($query);    
-        
+           
           $first=true;
           $athleteLine = '';
 		  if(mysql_errno() > 0)		// DB error
@@ -446,10 +449,11 @@ else
 		  else if(mysql_num_rows($res) > 0)  // data found
 		  {
 			  $l = 0;		// line counter
+              $noDisc = false;      
               
 			  // full list
 			  while ($row = mysql_fetch_row($res))
-			  {   
+			  {  
                   if (!$relay){        // not relay and not combined        
                         // print only disciplines related to header 
                         if ($row[8]!=$discHeader & $xComb==0 ){ 
@@ -541,8 +545,11 @@ else
                } 
                                  
 			  printf("</table>\n");
-			  mysql_free_result($res);
-		  }		// ET DB error  
+			  mysql_free_result($res);   
+		  }	
+          else {
+              $noDisc = true;              
+          }	// ET DB error  
 		}		// END same round
 	}		// END WHILE events
 	mysql_free_result($result);
