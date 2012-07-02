@@ -233,7 +233,7 @@ if($_POST['arg'] == 'save_res')
                     , TopX int(1)
                     , TotalX int(2)
                     )
-                    TYPE=HEAP 
+                    ENGINE=HEAP 
             ");
             
             
@@ -591,7 +591,7 @@ if($_GET['arg'] == 'results_done')
                 , TopX int(1)
                 , TotalX int(2)
                 )
-               TYPE=HEAP
+               ENGINE=HEAP
         ");
          
         

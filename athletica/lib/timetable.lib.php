@@ -706,7 +706,7 @@ function AA_timetable_display_regie($timestamp)
                           `xSerie` int(10) NOT NULL default '0',  
                           `rang` int(10) NOT NULL default '0',
                           PRIMARY KEY  (`xSerienstart`)
-                        )  TYPE=HEAP 
+                        )  ENGINE=HEAP 
                         ");
             if(mysql_errno() > 0) {        // DB error
                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -722,7 +722,7 @@ function AA_timetable_display_regie($timestamp)
                                 , TotalX int(2)
                                 , `rang` int(10) NOT NULL default '0' 
                                 )
-                                TYPE=HEAP 
+                                ENGINE=HEAP 
                         "); 
                   if(mysql_errno() > 0) {        // DB error
                         AA_printErrorMsg(mysql_errno() . ": " . mysql_error());

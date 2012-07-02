@@ -390,7 +390,7 @@ if($_GET['arg'] == 'results_done' || ($prog_mode == 2 && $_GET['arg'] != 'change
                 $qry = $qry . ", Res" . $i . " int(9) default '0'";
                 $qry = $qry . ", Wind" . $i . " char(5) default '0'";
             }
-            $qry = $qry . ") TYPE=HEAP";
+            $qry = $qry . ") ENGINE=HEAP";
           
             mysql_query($qry);    // create temporary table
 
