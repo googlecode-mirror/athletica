@@ -29,13 +29,15 @@ if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
 
+$event_mainround = 0;
 $mRounds= AA_getMergedRounds($round);
 $sqlRound = '';
 if (empty($mRounds)){
-   $sqlRound = "= ". $round;  
+   $sqlRound = "= ". $round;      
 }
 else {
      $sqlRound = "IN ". $mRounds;  
+     $event_mainround = AA_getEvent($round);  
 }
 
 $sql = "SELECT 
@@ -59,7 +61,7 @@ $sql = "SELECT
 			kategorie AS k ON(w.xKategorie = k.xKategorie) 
 		WHERE 
 			r.xRunde ".$sqlRound.";";
-            
+
 $res = mysql_query($sql);
 							
 $combined = false;
@@ -74,7 +76,7 @@ if(mysql_errno() > 0)		// DB error
 else
 {   $first = true;
 	while($row = mysql_fetch_row($res)){
-        if ($first){
+        if ($first){              
 	        $event = $row[0];				// event ID
 	        $title = $row[2] . ", " . $row[3];
 	        if(!is_null($row[1])) {
@@ -96,6 +98,9 @@ else
             $title .=  " / " . $row[3];
         }
 	}
+    if ($event_mainround > 0){
+          $event = $event_mainround;
+    }
     
 	mysql_free_result($res);
 }
