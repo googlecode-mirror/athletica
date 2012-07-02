@@ -885,7 +885,18 @@ document.getElementById("progress").width="<?php echo $width ?>";
                             if($wind > "2"){
                                 //$relevant = 0;
                             }
-                           
+                            
+                            if(($row[2] == $cfgDisciplineType[$strDiscTypeJump])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeThrow])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeHigh])) {
+                                    
+                                   if ($row_results['Typ'] == 'F'){                                     // tech. discipline Final (no serie) 
+                                          if (is_numeric($row_results['Bezeichnung'])){    
+                                                $row_results['Bezeichnung'] = '';  
+                                          }
+                                   }            
+                            }                        
                             if ($row_results['Typ'] == '0'){                 // (ohne)     
                                    $row_results['Bezeichnung'] = '';
                                 }
@@ -1114,12 +1125,24 @@ document.getElementById("progress").width="<?php echo $width ?>";
                             }    
                             
                             // check on relevant for bestlist
-                            $relevant = 1;                             
-                               
+                            $relevant = 1;     
+                            
+                           if(($row[2] == $cfgDisciplineType[$strDiscTypeJump])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeThrow])
+                                || ($row[2] == $cfgDisciplineType[$strDiscTypeHigh])) {
+                                    
+                                   if ($row_results['Typ'] == 'F'){                                     // tech. discipline Final (no serie)
+                                          if (is_numeric($row_results['Bezeichnung'])){    
+                                                $row_results['Bezeichnung'] = '';  
+                                          }
+                                   }            
+                            }                        
+                                                                                             
                             if ($row_results['Typ'] == '0'){                 // (ohne)                                      
                                    $row_results['Bezeichnung'] = '';
                             }
-                              if ($row_results['Typ'] == 'F'){                 // (ohne)                                      
+                            if ($row_results['Typ'] == 'F'){                 // (ohne)                                      
                                    $row_results['Typ'] = '';
                             }
                             
@@ -3373,7 +3396,7 @@ function XML_base_end($parser, $name){
         $account['ACCOUNTSHORT'] = (trim($account['ACCOUNTSHORT'])!='') ? trim($account['ACCOUNTSHORT']) : $account['ACCOUNTNAME'];
         $account['ACCOUNTTYPE'] = trim($account['ACCOUNTTYPE']);
         $account['LG'] = trim($account['LG']);
-        
+                    
         //
         // save account with relays and svm teams
         //
@@ -4657,13 +4680,12 @@ function XML_reg_start($parser, $name, $attr){
                            
                             mysql_query($sql);    
                            
-                            if(mysql_errno() > 0){
-                               
+                            if(mysql_errno() > 0){                                
                                 XML_db_error(mysql_errno().": ".mysql_error());
                             }else{                 
                                 
                                 $team_id = $id; // do not use mysql_insert_id() - it will return 0
-                                // like this i will notice if the insert succeeded or not
+                                // like this i will notice if the insert succeeded or not                                 
                                 if(mysql_affected_rows() == 0){
                                     echo "Fehler: Team ID $id";
                                 }
