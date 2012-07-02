@@ -126,6 +126,7 @@ $results = mysql_query("
 	ORDER BY
 		k.Anzeige, ks.Code
 ");
+
         
     
 if(mysql_errno() > 0) {		// DB error
@@ -141,7 +142,7 @@ else
                               , Punkte float
                               , xTeam int(11)  
                               )
-                              TYPE=HEAP");       
+                              ENGINE=HEAP");       
      if(mysql_errno() > 0) {        // DB error
         AA_printErrorMsg(mysql_errno() . ": " . mysql_error()); 
      }
@@ -152,7 +153,7 @@ else
 		// Club rankinglist:Combined 
 		if ($row[2] == $cfgEventType[$strEventTypeClubCombined])
 		{  
-			processCombined($row[0], $row[1], $type);
+			processCombined($row[0], $row[1], $type, $row[2]);
 		}
 		// Club rankinglist: Single
 		else
@@ -334,7 +335,7 @@ function processSingle($xCategory, $category, $xCat_svm, $cat_svm)
 									, Wettkampftyp tinyint(4)
 									, Disizplinentyp tinyint(4)
 									)
-								  TYPE=HEAP 
+								  ENGINE=HEAP 
 							");
 						}       
                         
@@ -812,7 +813,7 @@ function processSingle($xCategory, $category, $xCat_svm, $cat_svm)
 //	process club combined events
 //
 
-function processCombined($xCategory, $category, $type)
+function processCombined($xCategory, $category, $type, $wTyp)
 {  
 	//global $rFrom, $rTo, $limitRank;
     $GLOBALS[$rFrom];
@@ -849,10 +850,11 @@ function processCombined($xCategory, $category, $type)
         WHERE 
             a.xMeeting = " . $_COOKIE['meeting_id'] ." 
             AND w.xKategorie = $xCategory
+            AND w.Typ = $wTyp    
         ORDER BY
             t.xTeam
     ";                        
-  
+                
     $results = mysql_query($sql);    
    
 	if(mysql_errno() > 0) {		// DB error
