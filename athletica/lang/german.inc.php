@@ -497,7 +497,7 @@ $strRoundtypes = "Rundentypen";
 
 $strSave = "Speichern";
 $strSearch = "Suchen";
-$strSearchForLicense = "&Uuml;ber Lizenznr. oder Name anmelden:";
+$strSearchForLicense = "&Uuml;ber Lizenznr. anmelden:";
 $strSearchResults = "Suchresultate";
 $strSeed = "Einteilen";
 $strSeedHeat = "Neu einteilen";
