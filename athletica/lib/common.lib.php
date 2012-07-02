@@ -3232,7 +3232,7 @@ function AA_rankingForNewPosition($round, $pass)
                 $qry = $qry . ", Res" . $i . " int(9) default '0'";
                 $qry = $qry . ", Wind" . $i . " char(5) default '0'";
             }
-            $qry = $qry . ") TYPE=HEAP";
+            $qry = $qry . ") ENGINE=HEAP";
           
             mysql_query($qry);    // create temporary table
 
@@ -3618,6 +3618,35 @@ function AA_UpdateStatusChanged($round){
     
 }
 
+
+ /**    
+     * set status changed --> needed by live results
+     * ---------------------------------------------
+     */      
+
+function AA_getEvent($round){
+    
+    $event = 0;
+    $sql = "SELECT 
+                w.xWettkampf  
+            FROM 
+                wettkampf as w
+                LEFT JOIN runde as r ON (w.xWettkampf = r.xWettkampf)
+            WHERE r.xRunde = " . $round;
+    
+    $res = mysql_query($sql);
+    if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }  
+      
+    if (mysql_num_rows($res) > 0){
+          $row = mysql_fetch_row($res);  
+          $event = $row[0]; 
+    }    
+   
+   return $event;
+
+}
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>
