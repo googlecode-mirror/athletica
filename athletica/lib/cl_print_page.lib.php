@@ -718,12 +718,12 @@ class PRINT_RankingList extends PRINT_Page
 		<td class='rank_perf'><?php echo $perf; ?></td>
 		<td class='rank_qual'><?php echo $qual; ?></td>
 		<td class='rank_wind'><?php echo $wind; ?></td>
-        <?php
-        if ($this->relay == FALSE) {
+        <?php            
+        if ($this->points == TRUE) {
             ?>
 		    <td class='rank_points'><?php echo $points; ?></td>
             <?php
-        }
+       }
         ?>
         <td class='rank_remark'><?php echo $remark; ?></td>   
 	</tr>
