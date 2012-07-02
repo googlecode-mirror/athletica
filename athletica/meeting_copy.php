@@ -123,7 +123,7 @@ elseif($arg == "copy")
 		
 		$sql = "";
 		while($f = mysql_fetch_assoc($resFields)){  
-			if($f['Key'] != "PRI" && $f['Field'] != "Name" && $f['Field'] != "Nummer" && $f['Field'] != "DatumVon" && $f['Field'] != "DatumBis"){ // exclude primary key and 2 fields
+			if($f['Key'] != "PRI" && $f['Field'] != "Name" && $f['Field'] != "Nummer" && $f['Field'] != "DatumVon" && $f['Field'] != "DatumBis" && $f['Field'] != "xControl"){ // exclude primary key and 2 fields
 				$sql .= ", ".$f['Field']." = '".$data[$f['Field']]."' ";  
 			}
 			
@@ -134,6 +134,7 @@ elseif($arg == "copy")
 				, Nummer = '$newnumber'
 				, DatumVon = '$dateFrom'
 				, DatumBis = '$dateTo' 
+                , xControl = 0 
 				$sql
 		");
 		
