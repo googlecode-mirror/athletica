@@ -356,7 +356,7 @@ if(isset($_POST['searchfield'])){
 		//remove trailing 0 and check-digit (barcode-reader will transmit this chars)
 		$licensenr = ltrim(substr($_POST['searchfield'],0,11),'0');
 		$search_occurred = true;  
-		$searchparam = " WHERE license = " . $licensenr;  
+		$searchparam = " WHERE license = " . $licensenr;     
 	
 		$sql = "SELECT * FROM base_athlete " . $searchparam; 
 			//WHERE license = $licensenr";
@@ -457,10 +457,8 @@ if(isset($_POST['searchfield'])){
 					  }
 				}
 		}
-	}     
-	else                       // // search request for name
-		$searchparam = " WHERE (lastname like '%" . $_POST['searchfield'] . "%' OR firstname like '%" . $_POST['searchfield'] . "%')";  
-      
+	
+                                 
     // check if athlete already registered and has checked disciplines 
     $sql_at = "SELECT 
                     s.xStart ,
@@ -472,7 +470,7 @@ if(isset($_POST['searchfield'])){
                     INNER JOIN anmeldung AS a ON (at.xAthlet = a.xAthlet) 
                     INNER JOIN start AS s ON (s.xAnmeldung = a.xAnmeldung) 
                     LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)    
-                WHERE Lizenznummer = $licensenr AND a.xMeeting=" . $_COOKIE['meeting_id'];
+                WHERE Lizenznummer = $licensenr AND a.xMeeting=" . $_COOKIE['meeting_id'];  
     
     $result_at = mysql_query($sql_at);
     if(!$result_at){
@@ -511,7 +509,10 @@ if(isset($_POST['searchfield'])){
                 if(mysql_num_rows($result_at) > 0){ // no athlete was found
                       $AthReg = true; 
                 }
-    }  
+    } 
+    }  // end not numeric   
+    
+    
 }
 
  
