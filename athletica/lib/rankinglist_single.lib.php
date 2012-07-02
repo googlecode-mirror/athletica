@@ -879,9 +879,9 @@ else {
                      
                         if ($athleteCat && !$relay){                         
                           if($formaction == 'print') {   
-                                if ($row_res[20]!=$atCatName){                        
-                                          $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);                                    
-                                       $atCatName_keep=$atCatName; 
+                                if ($row_res[20].$row[2]!=$atCatName){                        
+                                       $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);  
+                                       $atCatName=$row_res[20].$row[2];
                                        if ($flagInfoLine1){   
                                         $list->printInfoLine($info_save1);
                                         $flagInfoLine1=false;  
@@ -906,10 +906,9 @@ else {
                           
                          if ($athleteCat && !$relay){                         
                             if($formaction == 'view') {
-                                 if ($row_res[20]!=$atCatName){                        
-                                              $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);                                    
-                                           
-                                           $atCatName_keep=$atCatName;
+                                 if ($row_res[20].$row[2]!=$atCatName){                        
+                                           $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);                                    
+                                           $atCatName=$row_res[20].$row[2];   
                                            if ($flagInfoLine1){   
                                             $list->printInfoLine($info_save1,$athleteCat);
                                             $flagInfoLine1=false;  
@@ -945,8 +944,7 @@ else {
                     }
                             
                     $r= $row_res[1];                // keep rank  
-                    $heat_keep= $row_res[5];        // keep heat
-                    $atCatName = $row_res[20];      // keep athlete category name  
+                    $heat_keep= $row_res[5];        // keep heat    
                     
 
                     // name
@@ -973,8 +971,14 @@ else {
 
                     // performance                      
                     if($row_res[3] < 0) {    // invalid result
-                        if ($row_res[3] == '-98'){                           
-                            $perf = $cfgInvalidResult['NAA']['code'];                             
+                        if ($row_res[3] == '-98'){ 
+                            if ($row[3] == $cfgDisciplineType[$strDiscTypeJump] || $row[3] == $cfgDisciplineType[$strDiscTypeJumpNoWind] || $row[3] == $cfgDisciplineType[$strDiscTypeThrow]){
+                                  $perf = $cfgInvalidResult['NRS']['short'];  
+                            }  
+                            else {
+                                  $perf = $cfgInvalidResult['NAA']['code'];  
+                            }                        
+                                                       
                         }
                         elseif ($row_res[3] == '-99'){                           
                             $perf = $cfgInvalidResult['WAI']['short']; 
@@ -1963,10 +1967,9 @@ else {
                      
                         if ($athleteCat && !$relay){                         
                           if($formaction == 'print') {   
-                                if ($row_res[20]!=$atCatName){                        
-                                        $list->printSubTitle($row_res[20], $row2_keep, $roundName, $row_res[24]);  
-                                          
-                                       $atCatName_keep=$atCatName; 
+                                if ($row_res[20].$row[2]!=$atCatName){                        
+                                       $list->printSubTitle($row_res[20], $row2_keep, $roundName, $row_res[24]);  
+                                       $atCatName=$row_res[20].$row[2];                                          
                                        if ($flagInfoLine1){   
                                         $list->printInfoLine($info_save1);
                                         $flagInfoLine1=false;  
@@ -1991,10 +1994,9 @@ else {
                           
                          if ($athleteCat && !$relay){                         
                             if($formaction == 'view') {
-                                 if ($row_res[20]!=$atCatName){                        
+                                 if ($row_res[20].$row[2]!=$atCatName){                        
                                            $list->printSubTitle($row_res[20], $row[2], $roundName, $row_res[24]);                                                  
-                                           
-                                           $atCatName_keep=$atCatName;
+                                           $atCatName=$row_res[20].$row[2];                                             
                                            if ($flagInfoLine1){   
                                             $list->printInfoLine($info_save1,$athleteCat);
                                             $flagInfoLine1=false;  
@@ -2025,7 +2027,7 @@ else {
                     }
                     $r= $row_res[1];                // keep rank
                     $heat_keep= $row_res[5];        // keep rank   
-                    $atCatName = $row_res[20];      // keep athlete category name  
+                   
 
                     // name
                     $name = $row_res[9];
