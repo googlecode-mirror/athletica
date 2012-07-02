@@ -533,8 +533,8 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 						case $cfgEventType[$strEventTypeSVMNL]:   
 							if ($relay)
 								$countMaxRes = 1; 
-							else
-								$countMaxRes = 1;
+							else                          
+								$countMaxRes = 2;
 							break;
 						case $cfgEventType[$strEventTypeClubBasic]:
 							$countMaxRes = 1;
@@ -687,7 +687,7 @@ if (!defined('AA_UTILS_LIB_INCLUDED'))
 				if($i > 0){
 					
 					$p = $pts / $i; // divide points for athletes with the same rank
-					$p = round($p, 1);
+					$p = round($p, 1);  
 					foreach($tmp as $x){
 						$update[$x] = $p;
 					}

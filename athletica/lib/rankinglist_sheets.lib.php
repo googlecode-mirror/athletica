@@ -110,12 +110,13 @@ $sql = "SELECT
     " . $selection 
       ." AND w.Typ >=  " . $cfgEventType[$strEventTypeClubBasic] ."  
     GROUP BY
-        k.xKategorie
+        k.xKategorie,
+        w.Typ
     ORDER BY
         k.Anzeige";
     
  $results = mysql_query($sql);
-
+ 
 if(mysql_errno() > 0) {		// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -130,7 +131,7 @@ else
 		// Team sheet: Combined 
 		if ($row[2] == $cfgEventType[$strEventTypeClubCombined])
 		{   
-			AA_sheets_processCombined($row[0], $row[1]);
+			AA_sheets_processCombined($row[0], $row[1], $row[2]);
 		}
 		// Team sheet: Single
 		else
@@ -354,7 +355,7 @@ function AA_sheets_processSingle($xCategory, $category, $selection2)
 						switch($pt_row[8]) {
 							case $cfgEventType[$strEventTypeSVMNL]: // new national league mode since 2007
 												// simply 2 athletes per disc and 1 relay
-								$a = 1;
+								$a = 2;
 								break;
 							case $cfgEventType[$strEventTypeClubBasic]:
 								$a = 1;
@@ -391,7 +392,7 @@ function AA_sheets_processSingle($xCategory, $category, $selection2)
 											, Disizplinentyp tinyint(4)
 											, xStaffel int(11)
 											)
-										TYPE=HEAP
+										ENGINE=HEAP
 									");
 
 									if(mysql_errno() > 0) {		// DB error
@@ -1033,7 +1034,7 @@ function AA_sheets_processSingle($xCategory, $category, $selection2)
 //	process club combined events
 //
 
-function AA_sheets_processCombined($xCategory, $category)
+function AA_sheets_processCombined($xCategory, $category, $wTyp)
 {
 	require('./config.inc.php');
 
@@ -1059,10 +1060,11 @@ function AA_sheets_processCombined($xCategory, $category)
         WHERE 
             a.xMeeting = " . $_COOKIE['meeting_id'] ."  
             AND w.xKategorie = $xCategory
+            AND w.Typ = $wTyp
         ORDER BY
             t.xTeam
     ";          
-     
+      
     $results = mysql_query($sql);    
 
 	if(mysql_errno() > 0) {		// DB error
@@ -1156,16 +1158,17 @@ function AA_sheets_processCombined($xCategory, $category)
                     ru.Datum
                     , ru.Startzeit
             ";     
-             
+          
+              
             $res = mysql_query($sql);    
 		
 			if(mysql_errno() > 0) {		// DB error
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}
 			else
-			{
+			{   
 				while($pt_row = mysql_fetch_row($res))
-				{
+				{    
 					// set wind, if required
 					if($pt_row[6] == 1)
 					{
