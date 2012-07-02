@@ -60,7 +60,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
          $countAthlete =  $row_at[0];
      }    
             
-	
+	 $r = 0;       
      $sql = "SELECT 
                     COUNT(*), 
                     ru.Versuche
@@ -74,11 +74,14 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
              GROUP BY r.xSerienstart
              ORDER BY 1 DESC";    
     
-    $result = mysql_query($sql);         
+    $result = mysql_query($sql);   
     
     $row = mysql_fetch_row($result);
-      
-    $r = $row[0];                     // max. attempts
+    
+    if (mysql_num_rows($result) > 0) {          
+         $r = $row[0];      // max. attempts                 
+    }
+   
     $r_attempts = $row[1];
      
          mysql_query("
@@ -107,7 +110,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
             // Set up a temporary table to hold all results for ranking.
             // The number of result columns varies according to the maximum
             // number of results per athlete.  
-            
+                        
             $qry = "
                 CREATE TEMPORARY TABLE IF NOT EXISTS tempTech (
                     xSerienstart int(11)
@@ -119,7 +122,7 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                 $qry = $qry . ", Res" . $i . " int(9) default '0'";
                 $qry = $qry . ", Wind" . $i . " char(5) default '0'";
             }
-            $qry = $qry . ") TYPE=HEAP";
+            $qry = $qry . ") ENGINE=HEAP";
            
             mysql_query($qry);    // create temporary table      
 
@@ -219,11 +222,14 @@ function AA_regie_Tech($event, $round, $layout, $cat, $disc)
                     for($i=1; $i <= $r; $i++) {
                         $qry = $qry . $comma . "Res" . $i . " DESC";
                         $comma = ", ";
-                    }    
+                    }  
+                    if ($r == 0){
+                         $qry = substr($qry,0,-9);
+                    }  
                 }                        
                 $result = mysql_query($qry);
 
-                if(mysql_errno() > 0) {        // DB error
+                if(mysql_errno() > 0) {        // DB error                          
                     AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                 }
                 else {
