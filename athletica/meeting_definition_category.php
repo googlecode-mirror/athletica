@@ -260,6 +260,11 @@ elseif($_POST['arg']=="new_discipline"){
 		if(mysql_errno() > 0) {
 			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		}
+        
+        $_POST['conv_changed'] = 'yes';
+        $_POST['conv']= $_POST['punktetabelle'];
+        $_POST['type'] = $cfgEventType[$strEventTypeSingleCombined];
+        AA_meeting_changeCategory($t);
 	}
 }
 // remove a discipline
@@ -583,7 +588,7 @@ $sql = "SELECT
 			, d.Anzeige;";
    
 $result = mysql_query($sql); 
-
+      
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 }
@@ -601,7 +606,10 @@ else			// no DB error
     $keep_key = 0;         // keep the key for the svm disciplin with nulltime
                      	
 	while ($row = mysql_fetch_row($result))
-	{         
+	{  
+        if ($row[7] > 0){
+            $cNewCombined = true;
+        }   
         if ($i==0){
             if (!empty($row[8])){
                 $svm=$row[8];  
