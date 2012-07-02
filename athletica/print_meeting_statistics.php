@@ -622,7 +622,7 @@ $doc->printHeaderLine($strCategory, $strDiscipline, $strEntries, $strStarted);
                               , kKurzname varchar(4) 
                               , kAlterslimite tinyint(4)    
                               )
-                              TYPE=HEAP");  
+                              ENGINE=HEAP");  
   
       // calculate started athlets only for combined event and write the 
       //         earliest one per athlete and per combined event in a temporary table  
