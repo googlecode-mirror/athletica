@@ -109,6 +109,12 @@ $cfgHeightDiffPole = 0.20;
 $cfgHeightStartPole = 3.50;
 
 $cfgResultsHighOut = "XXX";		// last high result
+$cfgResultsHighOut1 = "XX-";        
+$cfgResultsHighOut2 = "X-";            
+$cfgResultsHighOut3 = "X--";            
+$cfgResultsHighOut4 = "-";       
+$cfgResultsHighOut5 = "--";  
+$cfgResultsHighOut6 = "---";           
 // separator transformation mask	(valid separators in user entries)
 $cfgResultsSepTrans = array("."=>"$cfgResultsSeparator"
 								,	":"=>"$cfgResultsSeparator"
