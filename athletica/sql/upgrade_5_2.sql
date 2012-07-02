@@ -24,7 +24,7 @@ INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Ty
 
 INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ,aktiv) VALUES  ('Schwedenstaffel', 'Schwedenstaffel', 404, 12, 4, 3, '01:00:00', '00:15:00', 0, 603, 1, 'y');                                                                                                                                                                                                                                                                                     
 INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ,aktiv) VALUES  ('Relais suédois', 'Relais suédois', 404, 12, 4, 3, '01:00:00', '00:15:00', 0, 603, 1, 'y');                                                                                                                                                                                                                                                                                                                                                                                                                                           
-INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ,aktiv) VALUES  ('staffetta svedese', 'staffetta svedese', 404, 12, 4, 3, '01:00:00', '00:15:00', 0, 603, 1, 'y');                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ,aktiv) VALUES  ('staffetta sved.', 'staffetta svedese', 404, 12, 4, 3, '01:00:00', '00:15:00', 0, 603, 1, 'y');                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 
 UPDATE disziplin_de SET Kurzname = '5KAMPF_U18M_I', Name = 'Fünfkampf U18 M Indoor' , Anzeige= 406 WHERE Code = 424;  
 UPDATE disziplin_de SET Kurzname = '5KAMPF_W_U20W_I', Name = 'Fünfkampf W / U20 W Indoor' , Anzeige= 408 WHERE Code = 394; 
@@ -36,7 +36,7 @@ UPDATE disziplin_de SET Kurzname = '7KAMPF_U18M_I', Name = 'Siebenkampf U18 M In
              
              
 UPDATE disziplin_fr SET Kurzname = '5ATHLON_U18M_I', Name = 'Pentathlon U18 M Indoor' , Anzeige= 406 WHERE Code = 424;  
-UPDATE disziplin_fr SET Kurzname = '5ATHLON_W_U20W_I', Name = 'Pentathlon W / U20 W Indoor' , Anzeige= 408 WHERE Code = 394;  
+UPDATE disziplin_fr SET Kurzname = '5ATHLON_W_U20WI', Name = 'Pentathlon W / U20 W Indoor' , Anzeige= 408 WHERE Code = 394;  
 UPDATE disziplin_fr SET Kurzname = '5ATHLON_U18W_I', Name = 'Pentathlon U18 W Indoor' , Anzeige= 409 WHERE Code = 395; 
                 
 UPDATE disziplin_fr SET Kurzname = '7ATHLON_M_I', Name = 'Heptathlon M Indoor' , Anzeige= 413 WHERE Code = 396;  
@@ -44,7 +44,7 @@ UPDATE disziplin_fr SET Kurzname = '7ATHLON_U20M_I', Name = 'Heptathlon U20 M In
 UPDATE disziplin_fr SET Kurzname = '7ATHLON_U18M_I', Name = 'Heptathlon U18 M Indoor' , Anzeige= 415 WHERE Code = 398;  
              
 UPDATE disziplin_it SET Kurzname = '5ATHLON_U18M_I', Name = 'Pentathlon U18 M Indoor' , Anzeige= 406 WHERE Code = 424;  
-UPDATE disziplin_it SET Kurzname = '5ATHLON_W_U20W_I', Name = 'Pentathlon W / U20 W Indoor' , Anzeige= 408 WHERE Code = 394;  
+UPDATE disziplin_it SET Kurzname = '5ATHLON_W_U20WI', Name = 'Pentathlon W / U20 W Indoor' , Anzeige= 408 WHERE Code = 394;  
 UPDATE disziplin_it SET Kurzname = '5ATHLON_U18W_I', Name = 'Pentathlon U18 W Indoor' , Anzeige= 409 WHERE Code = 395; 
                 
 UPDATE disziplin_it SET Kurzname = '7ATHLON_M_I', Name = 'Heptathlon M Indoor' , Anzeige= 413 WHERE Code = 396;  
