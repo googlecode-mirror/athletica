@@ -416,18 +416,20 @@ else
                 LEFT JOIN wettkampf AS w ON (w.xWettkampf = st.xWettkampf)
                 LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)
             WHERE st.xAnmeldung = $row[0]  
-                $selectionDisc          
-                AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (r.Info !=  '" . $cfgResultsHighOut . "' && r.Info !=  '" . $cfgResultsHighOut1 . "' 
-                                                 && r.Info !=  '" . $cfgResultsHighOut2 . "'  && r.Info !=  '" . $cfgResultsHighOut3 . "'  && r.Info !=  '" . $cfgResultsHighOut4 . "'  
-                                                 && r.Info !=  '" . $cfgResultsHighOut5 . "' && r.Info !=  '" . $cfgResultsHighOut6 . "' ) )                                                                                
-                AND w.xKategorie = $row[9]
+                $selectionDisc 
+                AND ( (r.Info = '" . $cfgResultsHighOut . "' && d.Typ = 6 && r.Leistung < 0)  OR  (d.Typ = 6 && (r.Info !=  '" . $cfgResultsHighOut . "' && r.Info !=  '" . $cfgResultsHighOut1 . "' 
+                                                 && r.Info !=  '" . $cfgResultsHighOut2 . "'  && r.Info !=  '" . $cfgResultsHighOut3 . "'  && r.Info !=  '" . $cfgResultsHighOut4 . "'
+                                                 && r.Info !=  '" . $cfgResultsHighOut5 . "' && r.Info !=  '" . $cfgResultsHighOut6 . "' && r.Info !=  '" . $cfgResultsHighOut7 . "' && r.Info !=  '" . $cfgResultsHighOut7 . "'))
+                      OR (d.Typ != 6 ) )   
+                
+               AND w.xKategorie = $row[9]
                 $selectionMk   
                 AND ru.Status = " . $cfgRoundStatus['results_done'] . "   
             GROUP BY
                 st.xStart
             ORDER BY
-                $order";
-         
+                $order";                     
+               
         $res = mysql_query($query);    
        
 		if(mysql_errno() > 0) {		// DB error
