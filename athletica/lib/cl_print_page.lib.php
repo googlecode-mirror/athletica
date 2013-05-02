@@ -556,7 +556,7 @@ class PRINT_RankingList extends PRINT_Page
 
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time="", $svm = false, $base_perf = false, $qual_mode = false , $eval, $withStartnr)
+		, $wind=FALSE, $heatwind='', $time="", $svm = false, $base_perf = false, $qual_mode = false , $eval, $withStartnr, $teamsm = false)
 	{   
 		$this->relay = $relay;
 		$this->points = $points;
@@ -653,6 +653,10 @@ class PRINT_RankingList extends PRINT_Page
 			?>
 		<th class='rank_club'><?php echo $GLOBALS['strTeam']; ?></th>
 			<?php
+        }elseif ($teamsm){
+            ?>
+        <th class='rank_club'><?php echo $GLOBALS['strTeamsm']; ?></th>
+            <?php        
 		}else{
 			?>
 		<th class='rank_club'><?php echo $GLOBALS['strClub']; ?></th>

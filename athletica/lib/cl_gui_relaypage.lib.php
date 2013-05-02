@@ -57,7 +57,7 @@ class GUI_RelayPage extends GUI_ListPage
         if ($teamsm) {
             ?>
                 <td></td>
-                <td class='relay_athletes' colspan='4'><?php echo $athletes; ?></td>
+                <td class='relay_athletes' colspan='6'><?php echo $athletes; ?></td>
          <?php
         }
         else {

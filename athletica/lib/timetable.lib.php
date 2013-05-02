@@ -91,7 +91,7 @@ function AA_timetable_display($arg = 'monitor')
                 , w.Mehrkampfcode
                 , rs.xRundenset
                 , rs.Hauptrunde
-                , d.xDisziplin
+                , d.xDisziplin                     
             FROM
                 runde AS r
                 LEFT JOIN wettkampf AS w ON (r.xWettkampf = w.xWettkampf)
@@ -116,9 +116,9 @@ function AA_timetable_display($arg = 'monitor')
                 , k.Anzeige
                 , k.Kurzname
                 , d.Anzeige";    
-         
+        
         $res = mysql_query($sql);  
-                       
+                     
         if(mysql_errno() > 0)    // DB error
         {    
             AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -269,7 +269,13 @@ function AA_timetable_display($arg = 'monitor')
                         if($combined){ 
                             $href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]_$row[21]&group=$row[15]&round=$row[0]";
                         }else{
-                            $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]";    
+                            if ($teamsm){
+                                  $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]&teamsm=$teamsm&group=$row[15]";
+                            }
+                            else {
+                                $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]";
+                            }
+                                
                         }
                         break;
                     case($cfgRoundStatus['enrolement_pending']):
@@ -277,7 +283,12 @@ function AA_timetable_display($arg = 'monitor')
                         if($combined){  
                             $href = "event_enrolement.php?category=$row[11]&comb=$row[11]_$row[18]_$row[21]&round=$row[0]&group=$row[15]";    
                         }else{
-                            $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]";    
+                             if ($teamsm){  
+                                 $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]&teamsm=$teamsm&group=$row[15]";   
+                             }
+                             else {
+                                  $href = "event_enrolement.php?category=$row[11]&event=$row[10]&round=$row[0]"; 
+                             }                                    
                         }
                         break;
                     case($cfgRoundStatus['enrolement_done']):
@@ -315,8 +326,13 @@ function AA_timetable_display($arg = 'monitor')
                     switch($row[1]) {
                     case($cfgRoundStatus['open']):
                     case($cfgRoundStatus['enrolement_pending']): 
-                        $class = "";
-                        $href = "speaker_entries.php?round=$row[0]&group=$row[15]";
+                        $class = "";  
+                        if ($teamsm){  
+                            $href = "speaker_entries.php?round=$row[0]&teamsm=$teamsm&group=$row[15]";   
+                        }
+                        else {
+                             $href = "speaker_entries.php?round=$row[0]&group=$row[15]";   
+                        }
                         break;  
                     case($cfgRoundStatus['enrolement_done']): 
                        $class = "st_enrlmt_done"; 
@@ -423,7 +439,7 @@ function AA_timetable_display($arg = 'monitor')
                                
                         if($roundSetMain == 0){
                             $starts = "m";                               
-                        }else{
+                }else{
                         if($row[17] == 1){ // if this is a combined last event, every athlete starts
                             $starts = $row[5];
                         }elseif(empty($row[15])){ // if no group is set
@@ -476,10 +492,46 @@ function AA_timetable_display($arg = 'monitor')
                              if($row[17] == 1){ // if this is a combined last event, every athlete starts
                             $starts = $row[5];
                         }elseif(empty($row[15])){ // if no group is set
-                            $starts = $row[5];
+                               if ($teamsm) { 
+                                   $sql = "SELECT
+                                              DISTINCT st.xAnmeldung                             
+                                          FROM
+                                              start AS st
+                                          INNER JOIN
+                                              anmeldung AS a USING(xAnmeldung)
+                                          INNER JOIN
+                                              teamsmathlet AS tat ON (st.xAnmeldung = tat.xAnmeldung)
+                                          WHERE 
+                                              st.xWettkampf = $row[10]
+                                              AND    st.Gruppe = '$row[15]'
+                                              AND st.Anwesend = 0";  
+                                  
+                                   $result = mysql_query($sql);   
+                                   if(mysql_errno() > 0) {     
+                                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+                                   }
+                                   $starts = mysql_num_rows($result);   
+                                   
+                               } 
+                               else {
+                                   $starts = $row[5];   
+                               }  
+                           
                         }else{      
-                            
-                             $sql = "SELECT COUNT(*) 
+                              if ($teamsm) {    
+                                  
+                                       $sql = "SELECT COUNT(*) 
+                                            FROM
+                                                    start as st
+                                                    LEFT JOIN anmeldung as a ON (st.xAnmeldung = a.xAnmeldung)
+                                            WHERE    
+                                                    st.xWettkampf = $row[10]
+                                                    AND    st.Gruppe = '$row[15]'
+                                                    AND st.Anwesend = 0";    
+                                   
+                              }
+                              else {
+                                    $sql = "SELECT COUNT(*) 
                                     FROM
                                             start as st
                                             LEFT JOIN anmeldung as a ON (st.xAnmeldung = a.xAnmeldung)
@@ -487,15 +539,20 @@ function AA_timetable_display($arg = 'monitor')
                                             st.xWettkampf = $row[10]
                                             AND    a.Gruppe = '$row[15]'
                                             AND st.Anwesend = 0";    
+                              }
+                                                                       
                             
                             $result = mysql_query($sql);   
                             
                             if(mysql_errno() > 0) {     
                                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                             }else{
-                                $start_row = mysql_fetch_array($result);
-                                $starts = $start_row[0];
-                                mysql_free_result($result);
+                                 
+                                 $start_row = mysql_fetch_array($result);
+                                 $starts = $start_row[0];
+                                 mysql_free_result($result);
+                                                       
+                               
                             }
                             $combGroup = "&nbsp;g".$row[15];
                         }
@@ -593,18 +650,32 @@ function AA_timetable_display($arg = 'monitor')
                             $starts = $row[5];
                         }elseif(empty($row[15])){ // if no group is set
                             $starts = $row[5];
-                        }else{                                    
-                             $sql = "SELECT 
-                                        COUNT(*) 
-                                     FROM   
-                                            start as st
-                                            LEFT JOIN anmeldung as a  ON (st.xAnmeldung = a.xAnmeldung)
-                                     WHERE    
-                                            st.xWettkampf = " .$row[10] ."
-                                            AND a.Gruppe = '" .$row[15] ."'";    
-                              
+                        }else{   
+                             if ($teamsm) {   
+                                            
+                                        $sql = "SELECT 
+                                            COUNT(*) 
+                                         FROM   
+                                                start as st
+                                                LEFT JOIN anmeldung as a  ON (st.xAnmeldung = a.xAnmeldung)
+                                         WHERE    
+                                                st.xWettkampf = " .$row[10] ."
+                                                AND st.Gruppe = '" .$row[15] ."'";    
+                             }  
+                             else {
+                                 
+                                                           
+                                 $sql = "SELECT 
+                                            COUNT(*) 
+                                         FROM   
+                                                start as st
+                                                LEFT JOIN anmeldung as a  ON (st.xAnmeldung = a.xAnmeldung)
+                                         WHERE    
+                                                st.xWettkampf = " .$row[10] ."
+                                                AND a.Gruppe = '" .$row[15] ."'";    
+                             } 
                              $result = mysql_query($sql);
-
+                             
                             if(mysql_errno() > 0) {        // DB error
                                 AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
                             }else{

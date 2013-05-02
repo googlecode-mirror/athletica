@@ -958,13 +958,20 @@ function processCombined($xCategory, $category, $type, $wTyp)
                 WHERE 
                     st.xAnmeldung = $row[0]                    
                     AND w.Typ = " . $cfgEventType[$strEventTypeClubCombined] . "                  
-                    AND r.Info != '" . $cfgResultsHighOut . "' 
+                    AND 
+                    ((d.Typ = 6 && (r.Info !=  '" . $cfgResultsHighOut . "' && r.Info !=  '" . $cfgResultsHighOut1 . "' 
+                                                 && r.Info !=  '" . $cfgResultsHighOut2 . "'  && r.Info !=  '" . $cfgResultsHighOut3 . "'  && r.Info !=  '" . $cfgResultsHighOut4 . "'
+                                                 && r.Info !=  '" . $cfgResultsHighOut5 . "' && r.Info !=  '" . $cfgResultsHighOut6 . "' )
+                      OR (d.Typ != 6 ) ))
+                    
+                    
                 GROUP BY
                     st.xStart
                 ORDER BY
                     ru.Datum
                     , ru.Startzeit
-            ";          
+            ";     
+            //r.Info != '" . $cfgResultsHighOut . "'        
           
             $res = mysql_query($sql);      
            

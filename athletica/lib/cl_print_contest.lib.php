@@ -171,7 +171,7 @@ class PRINT_Contest extends PRINT_Page
 
 class PRINT_ContestTrack extends PRINT_Contest
 {
-    function printStartHeat($svm = false)
+    function printStartHeat($svm = false, $teamsm = false)
     {
 ?>
     <table>
@@ -187,12 +187,18 @@ class PRINT_ContestTrack extends PRINT_Contest
             ?>
         <th class='contest_track_club'><?php echo $GLOBALS['strTeam']; ?></th>
             <?php
-        }else{
+        }elseif ($teamsm){
+            ?>
+        <th class='contest_track_club'><?php echo $GLOBALS['strTeamsm']; ?></th>
+            <?php
+        }
+        else {
             ?>
         <th class='contest_track_club'><?php echo $GLOBALS['strClub']; ?></th>
             <?php
-        }
+        }       
         ?>
+        
         <th class='contest_track_result'><?php echo $GLOBALS['strResult']; ?></th>
         <th class='contest_track_rank'><?php echo $GLOBALS['strRank']; ?></th>
     </tr>

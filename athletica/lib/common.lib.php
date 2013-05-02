@@ -518,6 +518,26 @@ require('./config.inc.php');
 			}
 			
 		}
+        else {
+               $sql = "SELECT         
+                        w.Typ
+                    FROM
+                        wettkampf AS w
+                    GROUP BY w.Typ";
+  
+               $results = mysql_query($sql);
+               if(mysql_errno() > 0)        // DB error
+                    {
+                        AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+               }
+               if (mysql_num_rows($results) == 1) {       
+                      $row = mysql_fetch_row($results);
+                      if ($row[0] == $cfgEventType[$strEventTypeTeamSM]) {
+                            return true;
+                      } 
+               }
+               return false;    
+        }
 		
 	}
 	
@@ -3646,7 +3666,121 @@ function AA_getEvent($round){
    
    return $event;
 
-}
+}    
+
+/**    
+     * check event for tech discipline
+     * -------------------------------
+     */      
+
+function AA_checkEventDisc($event){
+    global $cfgDisciplineType, $strDiscTypeJump, $strDiscTypeJumpNoWind, $strDiscTypeHigh, $strDiscTypeThrow;
+    
+    $techDisc = false;
+    $sql = "SELECT 
+                d.Typ
+            FROM 
+                wettkampf as w
+                LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin)     
+            WHERE 
+                (d.Typ = ". $cfgDisciplineType[$strDiscTypeJump] . " || d.Typ = ". $cfgDisciplineType[$strDiscTypeJumpNoWind] . " || d.Typ = ". $cfgDisciplineType[$strDiscTypeHigh] ." || d.Typ = ". $cfgDisciplineType[$strDiscTypeThrow]. ") 
+                AND w.xWettkampf = " . $event;
+    
+    $res = mysql_query($sql);
+   
+    if(mysql_errno() > 0) {        // DB error
+                AA_printErrorMsg(mysql_errno() . ": " . mysql_error());      
+    }  
+      
+    if (mysql_num_rows($res) > 0){
+          $techDisc = true;
+    }    
+   
+   return $techDisc;
+
+}   
+
+/**
+     * Teamsm selection drop down
+     *    query arg. 1 = action
+     *    query arg. 2 = category ID
+     *    query arg. 3 = event ID
+     *
+     */
+    function AA_printTeamsmSelection($action, $category, $event, $club)
+    {
+?>
+<form action='<?php echo $action; ?>' method='post' name='teamsm_selection'>
+    <input name='arg' type='hidden' value='select_teamsm' />
+    <input name='category' type='hidden' value='<?php echo $category; ?>' />
+    <input name='club' type='hidden' value='<?php echo $club; ?>' />
+    <table>
+        <tr>
+            <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>
+<?php
+        $dd = new GUI_EventDropDown($category, $event, 'document.teamsm_selection.submit()', false);
+?>
+        </tr>
+    </table>
+</form>
+<?php
+    } 
+    
+    /**
+     * Group selection Teamsm drop down
+     *    query arg. 1 = action
+     *    query arg. 2 = category ID
+     *    query arg. 3 = event ID
+     *
+     */
+    function AA_printGroupSelection($action, $category, $event, $club, $group)
+    {
+?>
+<form action='<?php echo $action; ?>' method='post' name='group_selection'>
+    <input name='arg' type='hidden' value='select_group' />
+    <input name='category' type='hidden' value='<?php echo $category; ?>' />
+    <input name='club' type='hidden' value='<?php echo $club; ?>' />
+     <input name='event' type='hidden' value='<?php echo $event; ?>' /> 
+    <input name='group' type='hidden' value='<?php echo $group; ?>' />  
+    <table>
+        <tr>
+            <th class='dialog'><?php echo $GLOBALS['strGroup']; ?></th>
+<?php
+        $dd = new GUI_GroupDropDown($category, $event, 'document.group_selection.submit()', $group);
+?>
+        </tr>
+    </table>
+</form>
+<?php
+    } 
+    
+    function AA_formatResultTimePalmares($time) 
+    {
+        list($hour,$min,$sec,$z) = split(':', $time);
+        if ($hour > 0){
+            $time_new =  trim($hour,'0') .":";
+        }
+        if ($min > 0){
+            if ($hour > 0){
+                $time_new .=  $min .":";   
+                
+            }
+            else {
+                  $time_new .=  trim($min,'0') .":";  
+            }
+        }
+        if ($sec > 0){
+            if ($min > 0){
+                  $time_new .=  $sec .":";   
+            }
+            else {
+                  $time_new .=  trim($sec,'0') .":";   
+            }
+           
+        }
+         $time_new .=  $z; 
+         return $time_new;
+    }
 	
 } // end AA_COMMON_LIB_INCLUDED
 ?>

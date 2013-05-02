@@ -179,6 +179,7 @@ function AA_heats_seedEntries($event)
                          AND a.xAnmeldung = s.xAnmeldung
                          AND r.xRunde ". $sqlRounds ."  
                      ORDER BY $order";   
+           
         }
         elseif($relay == FALSE && $svmContest){ // single event but svm             
            
@@ -288,11 +289,28 @@ function AA_heats_seedEntries($event)
                         LEFT JOIN team as t ON (a.xTeam = t.xTeam)
                   WHERE 
                         s.xWettkampf = " . $event ."                          
-                        AND a.Gruppe = '$cGroup'
+                        AND s.Gruppe = '$cGroup'
                         AND s.Anwesend = 0
                         AND s.xAnmeldung > 0
                   ORDER BY $order";  
        
+    }
+    elseif ($teamsm && empty($cGroup)) {
+           $query = "SELECT DISTINCT
+                        xStart, 
+                        if(Bestleistung = 0, $badValue, Bestleistung) as best 
+                       
+                  FROM 
+                        start as s 
+                        LEFT JOIN anmeldung as a ON (s.xAnmeldung = a.xAnmeldung)
+                        INNER JOIN teamsmathlet as tat ON (a.xAnmeldung = tat.xAnmeldung)
+                  WHERE 
+                        s.xWettkampf = " . $event ."                          
+                        AND s.Gruppe = '$cGroup'
+                        AND s.Anwesend = 0
+                        AND s.xAnmeldung > 0
+                  ORDER BY $order"; 
+           
     }    
     
     
@@ -1832,7 +1850,8 @@ function AA_heats_changeHeatName($round)
 	else
 	{
 		//if($_POST['id'] != '?')		// '?' is reserved for new heats
-		if($_POST['id'] != '?' && eregi('^([A-Z]{1,3}|[0-9]{1,3})$', $_POST['id']))		// '?' is reserved for new heats
+               
+		 if($_POST['id'] != '?' && (preg_match('#^[a-z]+$#i' , $_POST['id']) || preg_match('#^[0-9]+$#i' , $_POST['id']))) // '?' is reserved for new heats
 		{  
 			mysql_query("LOCK TABLES serie WRITE");
 

@@ -45,6 +45,8 @@ $performance = 0;        // initialize
 
 $svm = AA_checkSVM(0, $round); // decide whether to show club or team name
 
+$teamsm = AA_checkTeamSM(0, $round); 
+
 $prog_mode = AA_results_getProgramMode();   
 
 
@@ -912,47 +914,93 @@ if($round > 0 && $prog_mode != 2)
     {
         AA_heats_printNewStart($presets['event'], $round, "event_results.php");
 
-        // display all athletes       
-        $sql = "
-            SELECT rt.Name
-                , rt.Typ
-                , s.xSerie
-                , s.Bezeichnung
-                , ss.xSerienstart
-                , ss.Position
-                , ss.Rang
-                , a.Startnummer
-                , at.Name
-                , at.Vorname
-                , at.Jahrgang
-                , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
-                , LPAD(s.Bezeichnung,5,'0') as heatid
-                , rs.xResultat
-                , rs.Leistung
-                , rs.Info
-                , at.Land
-                , ss.Bemerkung
-                , at.xAthlet
-                , r.xRunde 
-                , ss.RundeZusammen  
-            FROM
-                runde AS r
-                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
-                LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie   )
-                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
-                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
-                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
-                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
-                LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
-                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
-                LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart
-            WHERE 
-                r.xRunde = $round              
-            ORDER BY
-                heatid
-                , ss.Position
-                , rs.xResultat DESC
-        ";        
+        // display all athletes      
+        if ($teamsm){
+            $sql = "
+                SELECT rt.Name
+                    , rt.Typ
+                    , s.xSerie
+                    , s.Bezeichnung
+                    , ss.xSerienstart
+                    , ss.Position
+                    , ss.Rang
+                    , a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , t.Name
+                    , LPAD(s.Bezeichnung,5,'0') as heatid
+                    , rs.xResultat
+                    , rs.Leistung
+                    , rs.Info
+                    , at.Land
+                    , ss.Bemerkung
+                    , at.xAthlet
+                    , r.xRunde 
+                    , ss.RundeZusammen  
+                FROM
+                    runde AS r
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie   )
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                    LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                    LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                    INNER JOIN teamsmathlet AS tat ON(st.xAnmeldung = tat.xAnmeldung)
+                    LEFT JOIN teamsm as t ON (tat.xTeamsm = t.xTeamsm)                      
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                    LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart
+                WHERE 
+                    r.xRunde = $round              
+                ORDER BY
+                    heatid
+                    , ss.Position
+                    , rs.xResultat DESC
+            ";        
+        } 
+        else {
+            $sql = "
+                SELECT rt.Name
+                    , rt.Typ
+                    , s.xSerie
+                    , s.Bezeichnung
+                    , ss.xSerienstart
+                    , ss.Position
+                    , ss.Rang
+                    , a.Startnummer
+                    , at.Name
+                    , at.Vorname
+                    , at.Jahrgang
+                    , if('".$svm."', t.Name, IF(a.Vereinsinfo = '', v.Name, a.Vereinsinfo))   
+                    , LPAD(s.Bezeichnung,5,'0') as heatid
+                    , rs.xResultat
+                    , rs.Leistung
+                    , rs.Info
+                    , at.Land
+                    , ss.Bemerkung
+                    , at.xAthlet
+                    , r.xRunde 
+                    , ss.RundeZusammen  
+                FROM
+                    runde AS r
+                    LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                    LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie   )
+                    LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                    LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                    LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                    LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                    LEFT JOIN team AS t ON(a.xTeam = t.xTeam) 
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                    LEFT JOIN resultat AS rs ON rs.xSerienstart = ss.xSerienstart
+                WHERE 
+                    r.xRunde = $round              
+                ORDER BY
+                    heatid
+                    , ss.Position
+                    , rs.xResultat DESC
+            ";        
+        }
+        
         
         $result = mysql_query($sql);    
        
@@ -1063,7 +1111,7 @@ if($round > 0 && $prog_mode != 2)
         <th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
         <th class='dialog'><?php echo $strYearShort; ?></th>
         <th class='dialog'><?php echo $strCountry; ?></th>
-        <th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
+        <th class='dialog'><?php if($svm){ echo $strTeam; }  elseif ($teamsm){ echo $strTeamsm;} else{ echo $strClub;} ?></th>
 <?php
                     if($status == $cfgRoundStatus['results_done'])
                     {
@@ -1971,7 +2019,7 @@ else if($round > 0 && $prog_mode == 2){
         <th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
         <th class='dialog'><?php echo $strYearShort; ?></th>
         <th class='dialog'><?php echo $strCountry; ?></th>
-        <th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>  
+        <th class='dialog'><?php if($svm){ echo $strTeam; } elseif ($teamsm){ echo $strTeamsm;} else{ echo $strClub;} ?></th>  
         <th class='dialog'><?php echo $strRank; ?></th>   
         <th class='dialog' ><?php echo $strResultRemark; ?></th>    
          

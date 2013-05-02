@@ -27,6 +27,8 @@ $nextRound = AA_getNextRound($presets['event'], $round);
 
 $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
 
+$teamsm = AA_checkTeamSM(0, $round); 
+
 $prog_mode = AA_results_getProgramMode();  
 
 //
@@ -892,7 +894,48 @@ if($round > 0)
       
        
         // display all athletes   
-         $sql = "SELECT 
+        if ($teamsm){
+             $sql = "SELECT 
+                        rt.Name
+                        , rt.Typ
+                        , s.xSerie
+                        , s.Bezeichnung
+                        , s.Wind
+                        , an.Bezeichnung
+                        , ss.xSerienstart
+                        , ss.Position
+                        , ss.Rang
+                        , a.Startnummer
+                        , at.Name
+                        , at.Vorname
+                        , at.Jahrgang
+                        , t.Name
+                        , LPAD(s.Bezeichnung,5,'0') as heatid
+                        , r.Versuche
+                        , ss.Qualifikation
+                        , at.Land
+                        , r.nurBestesResultat
+                        , ss.Bemerkung
+                        , at.xAthlet
+                        ,  if (ss.Position2 > 0, if (ss.Position3 > 0, ss.Position3, ss.Position2) , ss.Position ) as posOrder   
+                  FROM 
+                        runde AS r
+                        LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                        LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                        LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                        LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                        LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                        LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)                                  
+                        INNER JOIN teamsmathlet AS tat ON(st.xAnmeldung = tat.xAnmeldung)
+                        LEFT JOIN teamsm as t ON (tat.xTeamsm = t.xTeamsm)                      
+                        LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                        LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                  WHERE 
+                        r.xRunde = " . $round ."                                 
+                  ORDER BY heatid, posOrder";  
+        }
+        else {
+             $sql = "SELECT 
                         rt.Name
                         , rt.Typ
                         , s.xSerie
@@ -929,6 +972,8 @@ if($round > 0)
                   WHERE 
                         r.xRunde = " . $round ."                                 
                   ORDER BY heatid, posOrder";  
+        }
+        
                   
         $result = mysql_query($sql);    
       
@@ -1066,7 +1111,7 @@ if($round > 0)
         <th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
         <th class='dialog'><?php echo $strYearShort; ?></th>
         <th class='dialog'><?php echo $strCountry; ?></th>
-        <th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
+        <th class='dialog'><?php if($svm){ echo $strTeam; } elseif ($teamsm){ echo $strTeamsm;} else{ echo $strClub;} ?></th>
 <?php
                     if($status == $cfgRoundStatus['results_done'] || $prog_mode == 2) {
 ?>

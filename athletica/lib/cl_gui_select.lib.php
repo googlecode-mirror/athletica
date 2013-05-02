@@ -104,20 +104,26 @@ class GUI_Select
 	 *					(item[0] is usually the primary key, item[1] the display
 	 *					name)
 	 */
-	function addOptionsFromDB($query)
-	{
+	function addOptionsFromDB($query, $concat=false)
+	{    
 		require('./lib/utils.lib.php');
 		$GLOBALS['AA_ERROR'] = '';      
 
 		$res = mysql_query($query);
+      
 		if(mysql_errno() > 0) {		// DB error
 			$GLOBALS['AA_ERROR'] = mysql_errno() . ": " . mysql_error();
 		}
-		else {
+		else {  
 			while ($row = mysql_fetch_row($res))
-			{
-				//$this->options[$row[1]] = $row[0];
-				$this->options[$row[0]] = $row[1];
+			{   
+                if ($concat){
+                     $this->options[$row[0]] = $row[2] .'. ' . $row[1] .' (' . $row[3]. ')';  
+                }
+                else {
+                     $this->options[$row[0]] = $row[1];  
+                }
+				
 			}
 			mysql_free_result($res);
 		}
@@ -159,7 +165,7 @@ class GUI_Select
         }
         
 		foreach ($this->options as $key=>$value)
-		{
+		{                                      
 			if($key == "$this->checked") {
 				printf("\t<option selected value='$key'>$value</option>\n");
 			}
@@ -168,7 +174,7 @@ class GUI_Select
 			}
 		}
 ?>
-	</select>
+	</select>    
 <?php
 	}
 
@@ -901,7 +907,7 @@ class GUI_DisciplineSelect
 			FROM
 				disziplin_" . $_COOKIE['language'] . "  AS d
                 $table  
-			WHERE d.Typ != ".$cfgDisciplineType[$strDiscCombined]."
+			WHERE d.Typ != ".$cfgDisciplineType[$strDiscCombined]." 
             AND d.aktiv = 'y' 
              $sql_ukc  
 			$where
@@ -1797,6 +1803,58 @@ class GUI_ScoreTableDisciplineSelect
 		$this->select->printList();
 	}
 } // END CLASS GUI_ScoreTableDisciplineSelect
+
+
+/********************************************
+ * CLASS GUI_GroupSelect
+ * Prints an group drop down list by using the GUI_Select class.
+ *******************************************/
+
+class GUI_GroupSelect
+{
+    var $select;
+    var $category;
+    var $group;
+    
+    /*    Constructor
+     *    -----------
+     */
+    function GUI_GroupSelect($category, $action='', $group)
+    {
+        $this->category = $category;
+        $this->group = $group; 
+        $this->select = new GUI_Select('group', 1, $action);
+        $this->select->addOptionNone();                // empty item
+    }
+
+
+    /*    printList()
+     *    -----------
+     * Finally, print the <SELECT> list
+     * To preselect an item, provide its DB primary key
+     *        key:        primary key of db table
+     *        relay:    set to true, if you only want to see relay events
+     */
+    function printList($key=0)
+    {
+        require('./config.inc.php');            
+        
+        $this->select->options[1] = 1;  
+        $this->select->options[2] = 2;          
+                                  
+
+        if(!empty($GLOBALS['AA_ERROR']))
+        {
+            AA_printErrorMsg($GLOBALS['AA_ERROR']);
+        }
+        if($key == 0) {
+            $key = '-';
+        }
+        $this->select->selectOption($key);
+        $this->select->printList();
+    }
+
+} // END CLASS Gui_EventSelect
 
 
 } // end AA_CL_GUI_SELECT_LIB_INCLUDED

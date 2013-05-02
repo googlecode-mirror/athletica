@@ -32,6 +32,9 @@ if(AA_checkMeetingID() == FALSE) {        // no meeting selected
     return;        // abort
 }  
 
+// check teamsm
+$teamsm = AA_checkTeamsm(0,0);
+
 // set up ranking list selection
 $selection = '';
 $eventMerged = false;
@@ -122,39 +125,78 @@ if($discFrom > 0) {    //
     if ($ukc){       
           $selection = " (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] . ") AND ";   
     }
-    $sql = "SELECT 
-        r.xRunde
-        , k.Name
-        , d.Name
-        , d.Typ
-        , w.xWettkampf
-        , r.QualifikationSieger
-        , r.QualifikationLeistung
-        , w.Punkteformel
-        , w.Windmessung
-        , r.Speakerstatus
-        , d.Staffellaeufer
-        , CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))
-        , w.xDisziplin  
-        , w.info
-    FROM
-        wettkampf AS w
-        LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
-          LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin) 
-          LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
-    WHERE " . $selection . "
-    w.xMeeting = " . $_COOKIE['meeting_id'] . "     
-    AND r.Status = " . $cfgRoundStatus['results_done'] . " 
-    AND r.Datum LIKE '".$date."'
-    ORDER BY
-        k.Anzeige
-        , d.Anzeige
-        , r.Datum
-        , r.Startzeit";
+    if ($teamsm){
+         $sql = "SELECT 
+                    group_concat(r.xRunde)
+                    , k.Name
+                    , d.Name
+                    , d.Typ
+                    , w.xWettkampf
+                    , r.QualifikationSieger
+                    , r.QualifikationLeistung
+                    , w.Punkteformel
+                    , w.Windmessung
+                    , r.Speakerstatus
+                    , d.Staffellaeufer
+                    , CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))     
+                    , w.xDisziplin  
+                    , w.info         
+                FROM
+                    wettkampf AS w
+                    LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+                      LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin) 
+                      LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
+                WHERE " . $selection . "
+                w.xMeeting = " . $_COOKIE['meeting_id'] . "     
+                AND r.Status = " . $cfgRoundStatus['results_done'] . " 
+                AND r.Datum LIKE '".$date."'
+                GROUP BY w.xWettkampf
+                ORDER BY
+                    k.Anzeige
+                    , d.Anzeige
+                    , r.Datum
+                    , r.Startzeit";
+      
+       $results = mysql_query($sql);
+
+    } 
+    else {  
+   
+            $sql = "SELECT 
+                r.xRunde
+                , k.Name
+                , d.Name
+                , d.Typ
+                , w.xWettkampf
+                , r.QualifikationSieger
+                , r.QualifikationLeistung
+                , w.Punkteformel
+                , w.Windmessung
+                , r.Speakerstatus
+                , d.Staffellaeufer
+                , CONCAT(DATE_FORMAT(r.Datum,'$cfgDBdateFormat'), ' ', TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat'))
+                , w.xDisziplin  
+                , w.info          
+            FROM
+                wettkampf AS w
+                LEFT JOIN kategorie AS k ON (k.xKategorie = w.xKategorie)
+                  LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin) 
+                  LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf) 
+            WHERE " . $selection . "
+            w.xMeeting = " . $_COOKIE['meeting_id'] . "     
+            AND r.Status = " . $cfgRoundStatus['results_done'] . " 
+            AND r.Datum LIKE '".$date."'
+            ORDER BY
+                k.Anzeige
+                , d.Anzeige
+                , r.Datum
+                , r.Startzeit";
+          
+           $results = mysql_query($sql);
+    
+    }
   
-   $results = mysql_query($sql);
- 
-  }
+  }     
  else {      
      // heats separate
        
@@ -250,10 +292,13 @@ else {
     $roundsUkc = array(); 
     $discUkc = "";
     $roundsInfo = array();
-     
-    while($row = mysql_fetch_row($results)){
+    $mergedRounds = '';
          
-         $mergedRounds=AA_getMergedRounds($row[0]);  
+    while($row = mysql_fetch_row($results)){
+        
+         if (!$teamsm){
+            $mergedRounds=AA_getMergedRounds($row[0]);  
+         }
          if  (!empty($mergedRounds) ){                    
                if ($pos = strpos($mergedRounds, $row[0])){                    
                    $rounds[$i] = $row[0];  
@@ -281,7 +326,11 @@ else {
     }
     
     $results = mysql_query($sql);
-      
+     if(mysql_errno() > 0)        // DB error
+        {
+            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
+        }
+
     while($row = mysql_fetch_row($results))
     {           
         // for a combined event, the rounds are merged, so jump until the next event
@@ -289,8 +338,7 @@ else {
             $cRounds--;                    
             continue;
         }
-        //$roundSQL = "s.xRunde = $row[0]";
-        
+                
         if ($ukc){
             $catUkc = $row[1];
            
@@ -313,6 +361,9 @@ else {
              $roundSQL = "s.xRunde = $row[0]";
              $GroupByUkc = "";
              
+        }
+        if ($teamsm){
+               $roundSQL = "s.xRunde IN ($row[0]) ";  
         }
         
         $cRounds = 0;
@@ -340,17 +391,33 @@ else {
 
         $roundName = '';
         $type = '';
-        $res = mysql_query("
-            SELECT
-                rt.Name
-                , rt.Typ
-                , rt.Wertung
-            FROM
-                runde
-                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = runde.xRundentyp)
-            WHERE 
-                runde.xRunde = $row[0]             
-        ");
+        if ($teamsm){
+              $res = mysql_query("
+                SELECT
+                    rt.Name
+                    , rt.Typ
+                    , rt.Wertung
+                FROM
+                    runde
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = runde.xRundentyp)
+                WHERE 
+                    runde.xRunde IN ($row[0])             
+            ");
+        }
+        else {
+              $res = mysql_query("
+                SELECT
+                    rt.Name
+                    , rt.Typ
+                    , rt.Wertung
+                FROM
+                    runde
+                    LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON (rt.xRundentyp = runde.xRundentyp)
+                WHERE 
+                    runde.xRunde = $row[0]             
+                    ");
+        }
+       
 
         if(mysql_errno() > 0)        // DB error
         {
@@ -396,7 +463,7 @@ else {
                 }else{
                     $cRounds = mysql_num_rows($res_c);                        
                     $roundSQL = "s.xRunde IN (";
-                    while($row_c = mysql_Fetch_array($res_c)){
+                    while($row_c = mysql_fetch_array($res_c)){
                         $roundSQL .= $row_c[0].",";
                     }
                     $roundSQL = substr($roundSQL, 0, -1).")";
@@ -594,7 +661,63 @@ else {
                     $selection2 = " at.Jahrgang > $checkyear AND (d.Code = " . $cfgUKC_disc[0] ." || d.Code = " . $cfgUKC_disc[1]  . " || d.Code = " . $cfgUKC_disc[2] .") AND ";   
                     
                 }
-                $query = "SELECT ss.xSerienstart, 
+                if ($teamsm){
+                    $query = "SELECT ss.xSerienstart, 
+                             IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
+                             ss.Qualifikation, 
+                             ".$sql_leistung." AS leistung_neu, 
+                             r.Info, 
+                             s.Bezeichnung, 
+                             s.Wind, 
+                             r.Punkte, 
+                             t.Name, 
+                             at.Name, 
+                             at.Vorname, 
+                             at.Jahrgang, 
+                             LPAD(s.Bezeichnung, 5, '0') AS heatid, 
+                             IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land, 
+                             at.xAthlet, 
+                             ru.Datum, 
+                             ru.Startzeit ,
+                             ss.RundeZusammen,
+                             ru.xRunde,  
+                             k.Name , 
+                             k1.Name ,                             
+                             k1.Anzeige ,
+                             ss.Bemerkung,
+                             w.Punkteformel,
+                             w.info,
+                             a.Startnummer,
+                             w.xWettkampf,
+                             at.Geschlecht
+                             
+                        FROM serie AS s USE INDEX(Runde)
+                   LEFT JOIN serienstart AS ss USING(xSerie) 
+                   LEFT JOIN resultat AS r USING(xSerienstart) 
+                   LEFT JOIN start AS st ON(ss.xStart = st.xStart) 
+                   LEFT JOIN anmeldung AS a USING(xAnmeldung) 
+                   LEFT JOIN athlet AS at USING(xAthlet) 
+                   LEFT JOIN verein AS v USING(xVerein) 
+                   LEFT JOIN region AS re ON(at.xRegion = re.xRegion) 
+                   INNER JOIN teamsmathlet AS tat ON(st.xAnmeldung = tat.xAnmeldung)
+                   LEFT JOIN teamsm as t ON (tat.xTeamsm = t.xTeamsm)                      
+                   LEFT JOIN runde AS ru ON(s.xRunde = ru.xRunde) 
+                   LEFT JOIN wettkampf AS w On (w.xWettkampf= st.xWettkampf)   
+                   LEFT JOIN kategorie AS k On (w.xKategorie= k.xKategorie)
+                   LEFT JOIN kategorie AS k1 ON (a.xKategorie = k1.xKategorie)   
+                   LEFT JOIN disziplin_" . $_COOKIE['language'] . " as d ON (d.xDisziplin = w.xDisziplin)   
+                       WHERE " . $selection2 .$roundSQL." 
+                       ".$limitRankSQL." 
+                       ".$valid_result." 
+                       ".$sqlSeparate." 
+                       ".$selectionHeats." 
+                     $GroupByUkc 
+                    ORDER BY ".$order                                
+                              .$order2
+                             .$order_perf;  
+                }
+                else {
+                    $query = "SELECT ss.xSerienstart, 
                              IF(ss.Rang=0, $max_rank, ss.Rang) AS rank, 
                              ss.Qualifikation, 
                              ".$sql_leistung." AS leistung_neu, 
@@ -646,7 +769,9 @@ else {
                     ORDER BY ".$order                                
                               .$order2
                              .$order_perf;  
+                }
                 
+                 
         }
         else {                        // relay event
                                 
@@ -692,7 +817,7 @@ else {
         }    
          }
          
-          
+       
         $res = mysql_query($query);
         if(mysql_errno() > 0) {        // DB error   
        
@@ -714,7 +839,8 @@ else {
             $perf_save = '';  
             //$list->startList();
             $nr = 0;             
-            $atCat = '';  
+            $atCat = ''; 
+            
             
             if ($ukc){
                   $arr_xAthlet = array();
@@ -732,7 +858,7 @@ else {
             $res = mysql_query($query); 
             // process every result
             while($row_res = mysql_fetch_array($res))
-            {  
+            {     
                 if ($ukc){  
                 
                     if ($arr_xAthlet[$row_res[14]] < 3){
@@ -767,7 +893,10 @@ else {
                 
                 if ($flagSubtitle ){  
                     $r_info = '';
-                    $mainRound = AA_getMainRound($row[0]);
+                    $mainRound = '';
+                    if (!$teamsm) {
+                        $mainRound = AA_getMainRound($row[0]);
+                    }
                     if ($mainRound > 0){ 
                         if ($heatSeparate) {                     
                               $r_info = $roundsInfo[$row[0]];                                       
@@ -816,7 +945,7 @@ else {
                         $flagInfoLine2=false;  
                     }
                 } 
-                
+                 
                 $row_res[3] = ($row_res[3]==1 || $row_res[3]==2 || $row_res[3]==3 || $row_res[3]==4) ? ($row_res[3] * -1) : (($row_res[3]==9) ? -99 : (($row_res[3]==8) ? -98 : $row_res[3]));                                                                                             
                  
                 if($row_res[0] != $id)    // athlete not processed yet
@@ -876,7 +1005,7 @@ else {
                         if ($show_efforts == 'sb_pb'){
                             $base_perf = true;
                         } 
-                     
+                                               
                         if ($athleteCat && !$relay){                         
                           if($formaction == 'print') {   
                                 if ($row_res[20].$row[2]!=$atCatName){                        
@@ -901,7 +1030,7 @@ else {
                         if ($relay && !$svm){   
                            $points = false;
                         }
-                        $list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval, $withStartnr);
+                        $list->printHeaderLine($title, $relay, $points, $wind, $heatwind, $row[11], $svm, $base_perf, $qual_mode, $eval, $withStartnr, $teamsm);
                         
                           
                          if ($athleteCat && !$relay){                         
@@ -929,18 +1058,53 @@ else {
                   
                     $count_rank++;                       
                    
-                    // rank                        
-                    if(($row_res[1]==$max_rank || $row_res[1]==$max_rank-1)         // invalid result
-                                || ($r == $row_res[1] && $heat_keep == $row_res[5])) {        // same rank as previous
-                                $rank='';
-                    }
-                    else {
-                        if ($ukc){
-                            $rank= $count_rank;
+                    // rank    
+                    if ($teamsm){
+                        if ($perf_save !=''){
+                            if ($perf_save == $row_res[3]){
+                                $count_rank--;
+                                $rank = '';
+                            }
+                            else {
+                                 $rank= $count_rank;     
+                            }
                         }
                         else {
-                            $rank= $row_res[1];   
-                        }  
+                             $rank= $count_rank;    
+                        }
+                        
+                    } 
+                    else { 
+                         if ($heatSeparate){
+                              if ($row_res[1]==$max_rank || $row_res[1]==$max_rank-1) {   // invalid result
+                                    $rank='';
+                              } 
+                              elseif ($r == $row_res[1] && $heat_keep == $row_res[5]) { // same rank as previous
+                                        $rank= $count_rank--;
+                              }  
+                              else {
+                                    if ($ukc){
+                                        $rank= $count_rank;
+                                    }
+                                    else {
+                                        $rank= $row_res[1];   
+                                    }  
+                             }
+                         }    
+                         else {
+                             if(($row_res[1]==$max_rank || $row_res[1]==$max_rank-1)         // invalid result
+                                    || ($r == $row_res[1] && $heat_keep == $row_res[5])) {        // same rank as previous
+                                    $rank='';
+                             }
+                             else {
+                                if ($ukc){
+                                    $rank= $count_rank;
+                                }
+                                else {
+                                    $rank= $row_res[1];   
+                                }  
+                             }
+                         }  
                     }
                             
                     $r= $row_res[1];                // keep rank  
@@ -1028,7 +1192,7 @@ else {
                         }
                     }
                     
-                    
+                      
                     // wind info
                     $wind = '';
                     $secondResult = false;                   
@@ -1395,7 +1559,8 @@ else {
                 if ($relay)
                      $catM = $row_res[16];      // keep merged category relay
                 else
-                    $catM = $row_res[19];       // keep merged category   
+                    $catM = $row_res[19];       // keep merged category 
+                
             }    // END WHILE result lines
             
        
@@ -1406,6 +1571,7 @@ else {
 
         $cat = $row[1];    // keep category 
         $round_keep = $row[0];  
+       
         
     }    // END WHILE event rounds
     mysql_free_result($results);
@@ -1533,8 +1699,7 @@ else {
         if($cRounds > 1){
             $cRounds--;                    
             continue;
-        }
-        //$roundSQL = "s.xRunde = $row[0]";
+        }        
         $roundSQL = "s.xRunde = $row[0]";  
         $cRounds = 0;
         
@@ -1622,7 +1787,7 @@ else {
                 }else{
                     $cRounds = mysql_num_rows($res_c);                        
                     $roundSQL = "s.xRunde IN (";
-                    while($row_c = mysql_Fetch_array($res_c)){
+                    while($row_c = mysql_fetch_array($res_c)){
                         $roundSQL .= $row_c[0].",";
                     }
                     $roundSQL = substr($roundSQL, 0, -1).")";

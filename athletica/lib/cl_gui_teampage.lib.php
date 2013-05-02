@@ -21,6 +21,7 @@ if (!defined('AA_CL_GUI_TEAMPAGE_LIB_INCLUDED'))
 
 class GUI_TeamsPage extends GUI_RelayPage
 {
+    
     function printHeaderLine()
     {
         ?>
@@ -75,6 +76,13 @@ class GUI_TeamsPage extends GUI_RelayPage
 
 class GUI_TeamPage extends GUI_RelayPage
 {
+      function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
 	function printHeaderLine()
 	{
 		?>
@@ -83,7 +91,9 @@ class GUI_TeamPage extends GUI_RelayPage
 		<th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>   
-		<th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>        
+        <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>     
 	</tr>
 		<?php
 	}
@@ -101,9 +111,9 @@ class GUI_TeamPage extends GUI_RelayPage
 	}
 
 
-	function printLine($name, $cat, $club, $disc, $perf, $startnbr)
+	function printLine($name, $cat, $club, $disc, $perf, $startnbr, $enrolSheet, $quali, $teamPerf)
 	{
-		if(!empty($disc)) {	// new discipline
+		if(!empty($disc)) {	// new discipline                                                , 
 			$this->switchRowClass();
 		}
 		?>
@@ -112,7 +122,9 @@ class GUI_TeamPage extends GUI_RelayPage
 		<td><?php echo $name; ?></td>
 		<td><?php echo $cat; ?></td>
         <td><?php echo $club; ?></td> 
-		<td><?php echo $disc; ?></td>
+		<td><?php echo $disc; ?></td>          
+        <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td> 
 	</tr>
 		<?php
 	}
@@ -130,6 +142,14 @@ class GUI_TeamPage extends GUI_RelayPage
 
 class GUI_ClubTeamPage extends GUI_RelayPage
 {
+       
+    function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
     function printHeaderLine()
     {
         ?>
@@ -137,7 +157,9 @@ class GUI_ClubTeamPage extends GUI_RelayPage
         <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th>         
-        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>         
+        <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th> 
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>   
     </tr>
         <?php
     }
@@ -155,7 +177,7 @@ class GUI_ClubTeamPage extends GUI_RelayPage
     }
 
 
-    function printLine($name, $cat, $disc, $perf, $startnbr)
+    function printLine($name, $cat, $disc, $perf, $startnbr, $enrolSheet, $quali, $teamPerf)                       
     {
         if(!empty($disc)) {    // new discipline
             $this->switchRowClass();
@@ -165,7 +187,9 @@ class GUI_ClubTeamPage extends GUI_RelayPage
         <td class='forms_right'><?php echo $startnbr; ?></td>
         <td><?php echo $name; ?></td>
         <td><?php echo $cat; ?></td>           
-        <td><?php echo $disc; ?></td>
+        <td><?php echo $disc; ?></td>         
+        <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td>  
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>     
     </tr>
         <?php
     }
@@ -183,6 +207,13 @@ class GUI_ClubTeamPage extends GUI_RelayPage
 
 class GUI_CatTeamPage extends GUI_RelayPage
 {
+     function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
     function printHeaderLine()
     {
         ?>
@@ -190,7 +221,9 @@ class GUI_CatTeamPage extends GUI_RelayPage
         <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>          
         <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>   
-        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>         
+        <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th> 
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>      
     </tr>
         <?php
     }
@@ -208,7 +241,7 @@ class GUI_CatTeamPage extends GUI_RelayPage
     }
 
 
-    function printLine($name, $club, $disc, $perf, $startnbr)
+    function printLine($name, $club, $disc, $perf, $startnbr, $enrolSheet, $quali, $teamPerf)
     {
         if(!empty($disc)) {    // new discipline
             $this->switchRowClass();
@@ -218,7 +251,9 @@ class GUI_CatTeamPage extends GUI_RelayPage
         <td class='forms_right'><?php echo $startnbr; ?></td>
         <td><?php echo $name; ?></td>           
         <td><?php echo $club; ?></td> 
-        <td><?php echo $disc; ?></td>
+        <td><?php echo $disc; ?></td>        
+        <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>    
     </tr>
         <?php
     }
@@ -236,14 +271,22 @@ class GUI_CatTeamPage extends GUI_RelayPage
 
 class GUI_ClubCatTeamPage extends GUI_RelayPage
 {
+    function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
     function printHeaderLine()
     {
         ?>
     <tr>
         <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
-        <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>
-       
-        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>        
+        <th class='dialog'><?php echo $GLOBALS['strDiscipline']; ?></th>         
+        <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>  
     </tr>
         <?php
     }
@@ -261,7 +304,7 @@ class GUI_ClubCatTeamPage extends GUI_RelayPage
     }
 
 
-    function printLine($name,  $disc, $perf, $startnbr)
+    function printLine($name,  $disc, $perf, $startnbr ,$enrolSheet, $quali, $teamPerf)
     {
         if(!empty($disc)) {    // new discipline
             $this->switchRowClass();
@@ -269,9 +312,10 @@ class GUI_ClubCatTeamPage extends GUI_RelayPage
         ?>
     <tr class='<?php echo $this->rowclass[0]; ?>'>
         <td class='forms_right'><?php echo $startnbr; ?></td>
-        <td><?php echo $name; ?></td>
-       
-        <td><?php echo $disc; ?></td>
+        <td><?php echo $name; ?></td>         
+        <td><?php echo $disc; ?></td>          
+        <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td>
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>    
     </tr>
         <?php
      }
@@ -289,13 +333,22 @@ class GUI_ClubCatTeamPage extends GUI_RelayPage
 
 class GUI_CatDiscTeamPage extends GUI_RelayPage
 {
+    function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
     function printHeaderLine()
     {
         ?>
     <tr>
         <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>  
-        <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>    
+        <th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>         
+        <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th> 
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>      
     </tr>
         <?php
     }
@@ -313,7 +366,7 @@ class GUI_CatDiscTeamPage extends GUI_RelayPage
     }
 
 
-    function printLine($name,  $club, $perf, $startnbr)
+    function printLine($name,  $club, $perf, $startnbr ,$enrolSheet, $quali, $teamPerf)
     {
         if(!empty($disc)) {    // new discipline
             $this->switchRowClass();
@@ -322,7 +375,9 @@ class GUI_CatDiscTeamPage extends GUI_RelayPage
     <tr class='<?php echo $this->rowclass[0]; ?>'>
         <td class='forms_right'><?php echo $startnbr; ?></td>
         <td><?php echo $name; ?></td>  
-        <td><?php echo $club; ?></td>   
+        <td><?php echo $club; ?></td> 
+        <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>     
     </tr>
         <?php
     }
@@ -340,6 +395,13 @@ class GUI_CatDiscTeamPage extends GUI_RelayPage
 
 class GUI_ClubDiscTeamPage extends GUI_RelayPage
 {
+    function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
     function printHeaderLine()
     {
         ?>
@@ -347,6 +409,8 @@ class GUI_ClubDiscTeamPage extends GUI_RelayPage
         <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>
         <th class='dialog'><?php echo $GLOBALS['strCategoryShort']; ?></th> 
+         <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th> 
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>      
     </tr>
         <?php
     }
@@ -364,7 +428,7 @@ class GUI_ClubDiscTeamPage extends GUI_RelayPage
     }
 
 
-    function printLine($name, $cat, $perf, $startnbr)
+    function printLine($name, $cat, $perf, $startnbr, $enrolSheet, $quali, $teamPerf)
     {
         if(!empty($disc)) {    // new discipline
             $this->switchRowClass();
@@ -373,7 +437,9 @@ class GUI_ClubDiscTeamPage extends GUI_RelayPage
     <tr class='<?php echo $this->rowclass[0]; ?>'>
         <td class='forms_right'><?php echo $startnbr; ?></td>
         <td><?php echo $name; ?></td>
-        <td><?php echo $cat; ?></td>   
+        <td><?php echo $cat; ?></td> 
+         <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>       
     </tr>
         <?php
     }
@@ -391,12 +457,21 @@ class GUI_ClubDiscTeamPage extends GUI_RelayPage
 
 class GUI_ClubCatDiscTeamPage extends GUI_RelayPage
 {
+    function printTitle($title)
+    {        
+?>       
+        <h2 class='dialog'><?php echo $title;  ?></h2>    
+<?php
+    }
+    
     function printHeaderLine()
     {
         ?>
     <tr>
         <th class='dialog'><?php echo $GLOBALS['strStartnumber']; ?></th>
-        <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th> 
+        <th class='dialog'><?php echo $GLOBALS['strTeamTeamSM']; ?></th>
+        <th class='dialog'><?php echo $GLOBALS['strQualifyValue']; ?></th> 
+        <th class='dialog'><?php echo $GLOBALS['strQualifyRank']; ?></th>   
     </tr>
         <?php
     }
@@ -414,7 +489,7 @@ class GUI_ClubCatDiscTeamPage extends GUI_RelayPage
     }
 
 
-    function printLine($name, $perf, $startnbr)
+    function printLine($name, $perf, $startnbr ,$enrolSheet, $quali, $teamPerf)
     {
         if(!empty($disc)) {    // new discipline
             $this->switchRowClass();
@@ -422,7 +497,9 @@ class GUI_ClubCatDiscTeamPage extends GUI_RelayPage
         ?>
     <tr class='<?php echo $this->rowclass[0]; ?>'>
         <td class='forms_right'><?php echo $startnbr; ?></td>
-        <td><?php echo $name; ?></td>   
+        <td><?php echo $name; ?></td>          
+        <td><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td>
+        <td><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>     
     </tr>
         <?php
     }

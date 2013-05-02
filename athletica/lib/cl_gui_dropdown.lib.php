@@ -500,6 +500,26 @@ class GUI_ScoreTableDisciplineDropDown
 } // END CLASS Gui_TeamDropDown
 
 
+/********************************************
+ * CLASS GUI_GroupDropDown
+ *******************************************/
+
+class GUI_GroupDropDown
+{
+    /*    Constructor
+     *    -----------
+     */
+    function GUI_GroupDropDown($category, $event, $action, $group)
+    {
+        $select = new GUI_GroupSelect($category, $action, $group);
+        echo "<td class='forms'>";
+        $select->printList($group);
+        echo "</td>";
+    }
+
+} // END CLASS GUI_EventCombinedDropDown
+
+
 } // end AA_CL_GUI_DROPDOWN_LIB_INCLUDED
 
 ?>

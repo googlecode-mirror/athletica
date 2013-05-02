@@ -29,6 +29,8 @@ $relay = AA_checkRelay($presets['event']);	// check, if this is a relay event
 
 $svm = AA_checkSVM(0, $round); // decide whether to show club or team name  
 
+$teamsm = AA_checkTeamSM(0, $round); 
+
 // $flagMain=AA_getMainRound($round);
 //   if ($flagMain) {
 //
@@ -658,8 +660,49 @@ if($round > 0)
         
 		// display all athletes
 		if($relay == FALSE) {		// single event
-			
-              $query = "SELECT 
+			  if ($teamsm){
+                  $query = "SELECT 
+                                r.Bahnen
+                                , rt.Name
+                                , rt.Typ
+                                , s.xSerie
+                                , s.Bezeichnung
+                                , s.Wind
+                                , s.Film
+                                , an.Bezeichnung
+                                , ss.xSerienstart
+                                , ss.Position
+                                , ss.Rang
+                                , ss.Qualifikation
+                                , a.Startnummer
+                                , at.Name
+                                , at.Vorname
+                                , at.Jahrgang  
+                                , t.Name 
+                                , LPAD(s.Bezeichnung,5,'0') as heatid
+                                , s.Handgestoppt
+                                , at.Land   
+                                , ss.Bemerkung  
+                                , at.xAthlet                    
+                         FROM 
+                                runde AS r
+                                LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                                LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                                LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                                LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                                LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                                LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                                INNER JOIN teamsmathlet AS tat ON(st.xAnmeldung = tat.xAnmeldung)
+                                LEFT JOIN teamsm as t ON (tat.xTeamsm = t.xTeamsm)                      
+                                LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                                LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                         WHERE
+                                r.xRunde = " . $round ."   
+                         ORDER BY heatid ".$order .", ss.Position";      
+
+              }
+              else {
+                  $query = "SELECT 
                                 r.Bahnen
                                 , rt.Name
                                 , rt.Typ
@@ -697,6 +740,8 @@ if($round > 0)
                                 r.xRunde = " . $round ."   
                          ORDER BY heatid ".$order .", ss.Position";      
 
+              }
+              
 		}
 		else {								// relay event
 			
@@ -913,7 +958,7 @@ if($round > 0)
 		<th class='dialog' colspan='2'><?php echo $strAthlete; ?></th>
 		<th class='dialog'><?php echo $strYearShort; ?></th>
 		<th class='dialog'><?php echo $strCountry; ?></th>
-		<th class='dialog'><?php if($svm){ echo $strTeam; }else{ echo $strClub;} ?></th>
+		<th class='dialog'><?php if($svm){ echo $strTeam; } elseif ($teamsm){ echo $strTeamsm;} else {echo $strClub;} ?></th>
 		<th class='dialog'><?php echo $strPerformance; ?></th>
         
 <?php

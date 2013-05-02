@@ -109,6 +109,37 @@ class PRINT_TeamsPage extends PRINT_RelayPage
 
 class PRINT_TeamPage extends PRINT_RelayPage
 {
+    var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
+    
+    
 	function printHeaderLine($enrolSheet=false)
 	{
 		if(($this->lpp - $this->linecnt) < 12)		// page break check
@@ -130,13 +161,15 @@ class PRINT_TeamPage extends PRINT_RelayPage
 		<th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>
 		<th class='team_entry_cat'><?php echo $GLOBALS['strCategoryShort']; ?></th>
         <th class='team_entry_club'><?php echo $GLOBALS['strClub']; ?></th> 
-		<th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>
+		<th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>           
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>
 	</tr>
 <?php
 		$this->linecnt++;
 	} 
 
-	function printLine($name, $cat, $club, $disc, $perf, $nbr, $enrolSheet)
+	function printLine($name, $cat, $club, $disc, $perf, $nbr, $enrolSheet, $quali, $teamPerf)
 	{
 		if(($this->lpp - $this->linecnt) < 12)		// page break check
 		{
@@ -157,7 +190,9 @@ class PRINT_TeamPage extends PRINT_RelayPage
 		<td class='team_entry_name'><?php echo $name; ?></td>
 		<td class='team_entry_cat'><?php echo $cat; ?></td>
         <td class='team_entry_club'><?php echo $club; ?></td> 
-		<td class='team_entry_disc'><?php echo $disc; ?></td>
+		<td class='team_entry_disc'><?php echo $disc; ?></td>        
+        <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>    
 	</tr>
 <?php
 
@@ -182,6 +217,35 @@ class PRINT_TeamPage extends PRINT_RelayPage
 
 class PRINT_ClubTeamPage extends PRINT_RelayPage
 {
+    var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
     function printHeaderLine($enrolSheet=false)
     {
         if(($this->lpp - $this->linecnt) < 4)        // page break check
@@ -201,15 +265,17 @@ class PRINT_ClubTeamPage extends PRINT_RelayPage
         <th class='team_entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>
         <th class='team_entry_cat'><?php echo $GLOBALS['strCategoryShort']; ?></th> 
-        <th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>          
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>  
     </tr>
 <?php
         $this->linecnt++;
     }     
 
-    function printLine($name, $cat, $disc, $perf, $nbr,$enrolSheet)
+    function printLine($name, $cat, $disc, $perf, $nbr,$enrolSheet, $quali, $teamPerf)
     {
-        if(($this->lpp - $this->linecnt) < 2)        // page break check
+        if(($this->lpp - $this->linecnt) < 12)        // page break check
         {
             printf("</table>");
             $this->insertPageBreak();
@@ -227,7 +293,9 @@ class PRINT_ClubTeamPage extends PRINT_RelayPage
         <td class='team_entry_nbr'><?php echo $nbr; ?></td>
         <td class='team_entry_name'><?php echo $name; ?></td>
         <td class='team_entry_cat'><?php echo $cat; ?></td>   
-        <td class='team_entry_disc'><?php echo $disc; ?></td>
+        <td class='team_entry_disc'><?php echo $disc; ?></td>         
+        <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>   
     </tr>
 <?php
         $this->linecnt++;
@@ -246,6 +314,36 @@ class PRINT_ClubTeamPage extends PRINT_RelayPage
 
 class PRINT_CatTeamPage extends PRINT_RelayPage
 {
+    var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>           
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
+    
     function printHeaderLine($enrolSheet=false)
     {
         if(($this->lpp - $this->linecnt) < 4)        // page break check
@@ -265,20 +363,23 @@ class PRINT_CatTeamPage extends PRINT_RelayPage
         <th class='team_entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>  
         <th class='team_entry_club'><?php echo $GLOBALS['strClub']; ?></th> 
-        <th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>         
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>     
     </tr>
 <?php
         $this->linecnt++;
     }     
 
-    function printLine($name, $club, $disc, $perf, $nbr,$enrolSheet)
+    function printLine($name, $club, $disc, $perf, $nbr,$enrolSheet, $quali, $teamPerf)
     {
         if(($this->lpp - $this->linecnt) < 2)        // page break check
         {
             printf("</table>");
             $this->insertPageBreak();
-            printf("<table>");
+            printf("<table>");   
             $this->printHeaderLine($enrolSheet);
+            
         }
 ?>
     <tr>
@@ -291,7 +392,9 @@ class PRINT_CatTeamPage extends PRINT_RelayPage
         <td class='team_entry_nbr'><?php echo $nbr; ?></td>
         <td class='team_entry_name'><?php echo $name; ?></td>  
         <td class='team_entry_club'><?php echo $club; ?></td> 
-        <td class='team_entry_disc'><?php echo $disc; ?></td>       
+        <td class='team_entry_disc'><?php echo $disc; ?></td> 
+         <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>         
     </tr>
 <?php
         $this->linecnt++;
@@ -310,6 +413,35 @@ class PRINT_CatTeamPage extends PRINT_RelayPage
 
 class PRINT_ClubCatTeamPage extends PRINT_RelayPage
 {
+    var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
     function printHeaderLine($enrolSheet=false)
     {
         if(($this->lpp - $this->linecnt) < 4)        // page break check
@@ -328,15 +460,17 @@ class PRINT_ClubCatTeamPage extends PRINT_RelayPage
       ?>  
         <th class='team_entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>   
-        <th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>
+        <th class='team_entry_disc'><?php echo $GLOBALS['strDiscipline']; ?></th>         
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+         <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>  
     </tr>
 <?php
         $this->linecnt++;
     }     
 
-    function printLine($name, $disc, $perf, $nbr, $enrolSheet)
+    function printLine($name, $disc, $perf, $nbr, $enrolSheet, $quali,$teamPerf)
     {
-        if(($this->lpp - $this->linecnt) < 2)        // page break check
+        if(($this->lpp - $this->linecnt) < 12)        // page break check
         {
             printf("</table>");
             $this->insertPageBreak();
@@ -353,7 +487,9 @@ class PRINT_ClubCatTeamPage extends PRINT_RelayPage
       ?>  
         <td class='team_entry_nbr'><?php echo $nbr; ?></td>
         <td class='team_entry_name'><?php echo $name; ?></td>  
-        <td class='team_entry_disc'><?php echo $disc; ?></td>
+        <td class='team_entry_disc'><?php echo $disc; ?></td>        
+        <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>    
     </tr>
 <?php
         $this->linecnt++;
@@ -372,6 +508,35 @@ class PRINT_ClubCatTeamPage extends PRINT_RelayPage
 
 class PRINT_CatDiscTeamPage extends PRINT_RelayPage
 {
+    var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
     function printHeaderLine($enrolSheet=false)
     {
         if(($this->lpp - $this->linecnt) < 4)        // page break check
@@ -390,13 +555,15 @@ class PRINT_CatDiscTeamPage extends PRINT_RelayPage
       ?>  
         <th class='team_entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>  
-        <th class='team_entry_club'><?php echo $GLOBALS['strClub']; ?></th>  
+        <th class='team_entry_club'><?php echo $GLOBALS['strClub']; ?></th>            
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>        
     </tr>
 <?php
         $this->linecnt++;
     }      
          
-    function printLine($name, $club, $perf, $nbr,$enrolSheet)
+    function printLine($name, $club, $perf, $nbr,$enrolSheet, $quali, $teamPerf)
     {
         if(($this->lpp - $this->linecnt) < 2)        // page break check
         {
@@ -415,7 +582,9 @@ class PRINT_CatDiscTeamPage extends PRINT_RelayPage
       ?>  
         <td class='team_entry_nbr'><?php echo $nbr; ?></td>
         <td class='team_entry_name'><?php echo $name; ?></td>  
-        <td class='team_entry_club'><?php echo $club; ?></td>           
+        <td class='team_entry_club'><?php echo $club; ?></td>   
+        <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>           
     </tr>
 <?php
         $this->linecnt++;
@@ -434,6 +603,35 @@ class PRINT_CatDiscTeamPage extends PRINT_RelayPage
 
 class PRINT_ClubDiscTeamPage extends PRINT_RelayPage
 {
+     var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 7)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>            
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
     function printHeaderLine($enrolSheet=false)
     {
         if(($this->lpp - $this->linecnt) < 4)        // page break check
@@ -453,12 +651,14 @@ class PRINT_ClubDiscTeamPage extends PRINT_RelayPage
         <th class='team_entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
         <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>
         <th class='team_entry_cat'><?php echo $GLOBALS['strCategoryShort']; ?></th> 
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th>  
+        <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>        
     </tr>
 <?php
         $this->linecnt++;
     }
                                    
-    function printLine($name, $cat, $perf, $nbr,$enrolSheet)
+    function printLine($name, $cat, $perf, $nbr,$enrolSheet, $quali, $teamPerf)
     {
         if(($this->lpp - $this->linecnt) < 2)        // page break check
         {
@@ -477,7 +677,9 @@ class PRINT_ClubDiscTeamPage extends PRINT_RelayPage
       ?>  
         <td class='team_entry_nbr'><?php echo $nbr; ?></td>
         <td class='team_entry_name'><?php echo $name; ?></td>
-        <td class='team_entry_cat'><?php echo $cat; ?></td>  
+        <td class='team_entry_cat'><?php echo $cat; ?></td> 
+        <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>            
     </tr>
 <?php
         $this->linecnt++;
@@ -496,9 +698,38 @@ class PRINT_ClubDiscTeamPage extends PRINT_RelayPage
 
 class PRINT_ClubCatDiscTeamPage extends PRINT_RelayPage
 {
+    var $event;
+    var $cat;
+    var $time;
+    var $timeinfo;
+    
+    
+    
+    function printTitle($title)
+    {   
+        // page break check (at least one further line left)
+        if(($this->lpp - $this->linecnt) < 14)        
+        {
+            $this->insertPageBreak();
+        }
+        $this->linecnt = $this->linecnt + 3;    // needs four lines (see style sheet)
+?>
+        <table class="team_entry_disc"><tr>
+            <th class='team_entry_event'><?php echo $title; ?></th>
+            <th class='team_entry_time'><?php echo $this->time; ?></th>
+        </tr>
+        <tr>
+       
+        <th class='team_entry_timeinfo' colspan="2"> 
+            <?php echo $this->timeinfo; ?>
+        </td></tr>
+        </table>
+<?php
+    }
+    
     function printHeaderLine($enrolSheet=false)
     {
-        if(($this->lpp - $this->linecnt) < 4)        // page break check
+        if(($this->lpp - $this->linecnt) < 12)        // page break check
         {
             printf("</table>");
             $this->insertPageBreak();
@@ -513,15 +744,17 @@ class PRINT_ClubCatDiscTeamPage extends PRINT_RelayPage
           }
       ?>  
         <th class='team_entry_nbr'><?php echo $GLOBALS['strStartnumber']; ?></th>
-        <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>   
+        <th class='team_entry_name'><?php echo $GLOBALS['strName']; ?></th>           
+        <th class='team_entry_perf'><?php echo $GLOBALS['strQualifyValue']; ?></th> 
+        <th class='team_entry_quali'><?php echo $GLOBALS['strQualifyRank']; ?></th>     
     </tr>
 <?php
         $this->linecnt++;
     }    
 
-    function printLine($name, $perf, $nbr,$enrolSheet)
+    function printLine($name, $perf, $nbr,$enrolSheet , $quali, $teamPerf)
     {
-        if(($this->lpp - $this->linecnt) < 2)        // page break check
+        if(($this->lpp - $this->linecnt) < 10)        // page break check
         {
             printf("</table>");
             $this->insertPageBreak();
@@ -537,7 +770,9 @@ class PRINT_ClubCatDiscTeamPage extends PRINT_RelayPage
           }
       ?>  
         <td class='team_entry_nbr'><?php echo $nbr; ?></td>
-        <td class='team_entry_name'><?php echo $name; ?></td> 
+        <td class='team_entry_name'><?php echo $name; ?></td>          
+        <td class='team_entry_perf'><?php if ($quali == 0) { echo ""; } else {echo $teamPerf;} ?></td> 
+        <td class='team_entry_quali'><?php if ($quali == 0) { echo ""; } else {echo $quali;} ?></td>   
     </tr>
 <?php
         $this->linecnt++;

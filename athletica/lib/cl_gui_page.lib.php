@@ -222,10 +222,10 @@ class GUI_Page
 	}
 
 
-	function printSubTitle($subtitle)
+	function printSubTitle($subtitle, $discname)
 	{
 ?>
-<h2><?php echo $subtitle; ?></h2>
+<h2><?php echo $subtitle . " " . $discname; ?></h2>
 <?php
 	}
 
@@ -352,7 +352,7 @@ class GUI_RankingList extends GUI_ListPage
 	}
 
 	function printHeaderLine($title, $relay=FALSE, $points=FALSE
-		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false, $qual_mode = false, $eval='', $withStartnr)
+		, $wind=FALSE, $heatwind='', $time='', $svm = false, $base_perf = false, $qual_mode = false, $eval='', $withStartnr, $teamsm = false)
 	{
 		$this->relay = $relay;
 		$this->wind = $wind;
@@ -425,7 +425,13 @@ class GUI_RankingList extends GUI_ListPage
 			?>
 		<th class='dialog'><?php echo $GLOBALS['strTeam']; ?></th>
 			<?php
-		}else{
+		}
+        elseif ($teamsm){
+            ?>
+        <th class='dialog'><?php echo $GLOBALS['strTeamsm']; ?></th>
+            <?php
+            
+        }else{
 			?>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
 			<?php
@@ -861,7 +867,7 @@ class GUI_TeamSMRankingList extends GUI_ListPage
 		?>
 	<tr>
 		<th class='dialog'><?php echo $GLOBALS['strRank']; ?></th>
-		<th class='dialog'><?php echo $GLOBALS['strName']; ?></th>
+		<th class='dialog'><?php echo $GLOBALS['strTeamsm']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strClub']; ?></th>
 		<th class='dialog'><?php echo $GLOBALS['strResult']; ?></th>
 	</tr>
