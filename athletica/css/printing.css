@@ -409,6 +409,26 @@ td.relay_athletes { vertical-align:top; font-style:italic;
  * Team entry lists
  * ----------------
  */
+ 
+
+table.team_entry_disc { table-layout:auto; border-collapse:collapse; width:680px; }
+
+th.team_entry_event    { width: 200; font-size:20px; text-align:left;
+                            padding-top:6px; padding-bottom:3px; }
+th.team_entry_cat_header        { width: 200; font-size:20px; text-align:left;
+                            padding-top:6px; padding-bottom:3px; }
+th.team_entry_time    { width: 270; font-size:20px; text-align:right;
+                            padding-top:6px; padding-bottom:3px; }
+th.team_entry_timeinfo { text-align:right; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:3px;
+                text-decoration: none; font-weight: normal; }
+
+ 
+ 
+ 
+ 
+ 
+ 
 table.team_entry { table-layout:auto; border-collapse:collapse; }
 
 /* list header line */
@@ -418,24 +438,30 @@ th.team_entry_tic { width:10px; padding-left:0px; padding-right:5px;
 th.team_entry_nbr { width:35px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.team_entry_name { width:300px; padding-left:0px; padding-right:5px;
+th.team_entry_name { width:250px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
 th.teams_entry_name { width:200px; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                 border-bottom:1px solid #000000; }
-th.team_entry_year { width:50px; padding-left:0px; padding-right:5px;
+th.team_entry_year { width:40px; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                 border-bottom:1px solid #000000; }
 th.team_entry_cat { width:50px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
-th.team_entry_club { width:250px; padding-left:0px; padding-right:5px;
+th.team_entry_club { width:200px; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                 border-bottom:1px solid #000000; }
 th.team_entry_disc { width:100px; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px;
 				border-bottom:1px solid #000000; }
+th.team_entry_quali { width:50px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
+th.team_entry_perf { width:50px; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px;
+                border-bottom:1px solid #000000; }
 th.teams_entry_disc { width:400px; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px;
                 border-bottom:1px solid #000000; }
@@ -454,6 +480,11 @@ td.team_entry_club { vertical-align:top; padding-left:0px; padding-right:5px;
                 padding-top:0px; padding-bottom:2px; }
 td.team_entry_disc { vertical-align:top; padding-left:0px; padding-right:5px;
 				padding-top:0px; padding-bottom:2px; }
+td.team_entry_quali { vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
+td.team_entry_perf { vertical-align:top; padding-left:0px; padding-right:5px;
+                padding-top:0px; padding-bottom:2px; }
+                
 
 /* discipline list header line */
 th.team_disc { width:150px; padding-left:0px; padding-right:5px;
