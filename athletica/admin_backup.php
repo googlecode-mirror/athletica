@@ -242,18 +242,16 @@ else if ($_POST['arg'] == 'restore')
 	$name_ini = 'php.ini';
 	$name_ini2 = 'php2.ini';
 	$name_bak = 'php.bak_'.date('YmdHis', time());
-	
+   
 	if($content == false){
 		$error_type = $_FILES['bkupfile']['error'];
 		switch($_FILES['bkupfile']['error']){
 			case 1:
 				if($cfgInstallDir!='[ATHLETICA]'){
 					$ini_inhalt = @file_get_contents($cfgInstallDir.'\php\\'.$name_ini);
-					
-					$search = 'upload_max_filesize = ([0-9]{1,2}M)';
-					$replace = 'upload_max_filesize = 50M';
-					$ini_inhalt2 = eregi_replace($search, $replace, $ini_inhalt);
-					
+                    $search = '/upload_max_filesize = [0-9]{1,2}M/';
+					$replace = 'upload_max_filesize = 50M';                   
+                    $ini_inhalt2 = preg_replace($search, $replace, $ini_inhalt);					 
 					if($ini_inhalt2!='' && $ini_inhalt2!=$ini_inhalt){
 						$ini_neu = @fopen($cfgInstallDir.'\php\\'.$name_ini2, 'w+');
 						
@@ -499,8 +497,8 @@ else if ($_POST['arg'] == 'restore')
 			",\n(, '', '', '', '', '', '', '', '', '', '', '', '', '', '', )", // zeitmessung
 		);
 		
-		foreach($search as $s){
-			$replace = (eregi('^VALUES', $s)) ? 'VALUES' : '';
+		foreach($search as $s){  
+            $replace = (preg_match('/^VALUES/', $s)) ? 'VALUES' : '';
 			$content = str_replace($s, $replace, $content);
 		}
 		
@@ -2371,6 +2369,22 @@ else if ($_POST['arg'] == 'restore')
              if ($shortVersion <= 5.3){ 
                       mysql_query("UPDATE disziplin_fr SET Kurzname = 'LONGUEUR', Name = 'Longueur'  WHERE Code = 330");       
              }
+             
+            if ($shortVersion < 6.1){ 
+                  mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES ('Stab-Weit', 'Stab - Weit',325, 15, 0, 5, '01:00:00', '00:20:00', 0, 332, 1)");     
+                  
+                    mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES ('perche-long', 'perche en longueur',325, 15, 0, 5, '01:00:00', '00:20:00', 0, 332, 1)");     
+                    
+                      mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES ('asta-lungo', 'salto con l\'asta et lungo',325, 15, 0, 5, '01:00:00', '00:20:00', 0, 332, 1)");     
+                  
+                  
+                   mysql_query("INSERT INTO `disziplin_de` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES ('Drehwurf', 'Drehwerfen',365, 15, 0, 8, '01:00:00', '00:20:00', 0, 354, 1)");                                                                                                     
+              mysql_query("INSERT INTO `disziplin_fr` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES ('lancer-rotation', 'lancer en rotation',365, 15, 0, 8, '01:00:00', '00:20:00', 0, 354, 1)");                                                                                                     
+               mysql_query("INSERT INTO `disziplin_it` (Kurzname,Name,Anzeige,Seriegroesse,Staffellaeufer,Typ,Appellzeit,Stellzeit,Strecke,Code, xOMEGA_Typ) VALUES ('lancio-rotativo', 'lancio di rotativo',365, 15, 0, 8, '01:00:00', '00:20:00', 0, 354, 1)");                                                                                                     
+             
+             
+             
+            }
             
             $sql="SELECT xKategorie FROM kategorie WHERE Code = 'U12X'";
             $res = mysql_query($sql);
