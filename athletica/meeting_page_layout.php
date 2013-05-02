@@ -119,10 +119,11 @@ if(mysql_errno() > 0){
 }
 
 // Bilder die nicht mehr gebraucht werden löschen
+
 $dir = dir('layout/');
 while(($entry = $dir->read())!==false){
-	if(eregi('(bmp|gif|jpg|jpeg|png)$', $entry)){
-		if(!eregi('(^athletica100.jpg$|^athletica-logo.png$)', $entry)){
+	if(preg_match('/(bmp|gif|jpg|jpeg|png)$/i', $entry)){
+        if(!preg_match('/(athletica100.jpg|athletica-logo.png)$/i', $entry)){
 			$sql = "SELECT COUNT(xLayout) AS total
 					  FROM layout 
 					 WHERE BildTL = '".$entry."' 
@@ -141,13 +142,14 @@ while(($entry = $dir->read())!==false){
 		}
 	}
 }
+
 $dir->close();
 
 // Bilder im falschen Verzeichnis (tmp) ins Verzeichnis layout kopieren
 $dir = dir('tmp/');
 while(($entry = $dir->read())!==false){
-	if(eregi('(bmp|gif|jpg|jpeg|png)$', $entry)){
-		if(eregi('(^athletica100.jpg$|^athletica-logo.png$)', $entry)){
+	if(preg_match('/(bmp|gif|jpg|jpeg|png)$/i', $entry)){
+        if(preg_match('/(athletica100.jpg|athletica-logo.png)$/i', $entry)){
 			@unlink('tmp/'.$entry);
 		} else {
 			$sql = "SELECT COUNT(xLayout) AS total

@@ -791,16 +791,27 @@ else if (mysql_num_rows($result) > 0)
 		<input name='event' type='hidden' value='<?php echo $row[8]; ?>' />
 		<?php   
         
+        $sqlClubLG=" = " .$row[7];
+        $arrClub=AA_meeting_getLG_Club($row[7]);      // get all clubs with same LG
+       
+        if (count($arrClub) > 0) {
+            $sqlClubLG=" IN (";
+            foreach ($arrClub as $key => $val) {
+                $sqlClubLG.=$val .",";              
+           }
+           $sqlClubLG=substr($sqlClubLG,0,-1);
+           $sqlClubLG.=")";
+        } 
         
 		$dropdown = new GUI_Select("athlete", 1);
 		$dropdown->addOption($strUnassignedAthletes, 0);
         
-        $sql = "SELECT
-                st.xStart,
-                a.Startnummer,
-                at.Name,   
-                at.Vorname,  
-                at.Jahrgang               
+        $dropdown->addOptionsFromDB("  
+            SELECT
+                st.xStart
+                , CONCAT( at.Name,' ', at.Vorname)   
+                , a.Startnummer
+                , at.Jahrgang
                 
             FROM
                 anmeldung AS a
@@ -810,25 +821,17 @@ else if (mysql_num_rows($result) > 0)
             WHERE 
                 sa.xAthletenstart IS NULL              
             AND st.xWettkampf = $row[8]
-            AND at.xVerein = $row[7]
+            AND at.xVerein $sqlClubLG
             AND a.xTeam = $row[10]
             ORDER BY
                 at.Name
-                , at.Vorname";
+                , at.Vorname",true);   
       
-        $res = mysql_query($sql);
         if(!empty($GLOBALS['AA_ERROR']))
         {
             AA_printErrorMsg($GLOBALS['AA_ERROR']);
-        }
-        
-        while ($ath_row = mysql_fetch_row($res))
-            {     
-                $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )"; 
-                $dropdown->addOption($ath_concat, $ath_row[0]);  
-            }
-        mysql_free_result($res);
-            
+        }           
+       
         $dropdown->printList(false);
         
        ?>
@@ -898,13 +901,7 @@ else if (mysql_num_rows($result) > 0)
 						start AS st
 					WHERE st.xWettkampf = $row[8]
 					AND st.xAnmeldung = $ath_row[0]
-				 ");
-                 $sql="SELECT
-                        st.xStart
-                    FROM
-                        start AS st
-                    WHERE st.xWettkampf = $row[8]
-                    AND st.xAnmeldung = $ath_row[0]";
+				 ");                    
                  
 				 if(mysql_errno() > 0) {
 					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -915,7 +912,7 @@ else if (mysql_num_rows($result) > 0)
 					if((mysql_num_rows($r) == 0) 	
 						|| ($ath_row[5] != $row[10]))
 					{
-						 $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";    
+						$ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";    
                         $dropdown->addOption($ath_concat, $ath_row[0]);                        
 					}
                    
@@ -942,31 +939,7 @@ else if (mysql_num_rows($result) > 0)
 <?php		//
 		// extended athlete list2 (all registered athletes)
 		//
-		$res = mysql_query("
-			SELECT
-				a.xAnmeldung, 
-                a.Startnummer,
-                at.Name,   
-                at.Vorname,  
-                at.Jahrgang, 				
-				a.xTeam
-                
-			FROM
-				anmeldung AS a
-				LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
-			WHERE  
-			  a.xMeeting = " . $_COOKIE['meeting_id'] . "
-			"/*AND at.xVerein = $row[7]*/."
-			ORDER BY at.Name, at.Vorname
-		");
-         
-             
-		if(mysql_errno() > 0)
-		{
-			AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-		}
-		else	// OK
-		{
+		
 			?>
 	<form action='meeting_relay.php' method='post' >
 	<td class='forms' colspan='4'>
@@ -979,36 +952,24 @@ else if (mysql_num_rows($result) > 0)
 			// Drop down list of all athletes 
 			$dropdown = new GUI_Select("athlete", 1);
 			$dropdown->addOption($strAllRegisteredAthletes, 0);
-
-			while ($ath_row = mysql_fetch_row($res))
-			{          
             
-                $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";
-				/*$r = mysql_query("
-					SELECT
-						st.xStart
-					FROM
-						start AS st
-					WHERE st.xWettkampf = $row[8]
-					AND st.xAnmeldung = $ath_row[0]
-				 ");
+             $dropdown->addOptionsFromDB("SELECT
+                a.xAnmeldung
+                , CONCAT( at.Name,' ', at.Vorname)   
+                , a.Startnummer
+                , at.Jahrgang  
+            FROM
+                anmeldung AS a
+                LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+            WHERE  
+              a.xMeeting = " . $_COOKIE['meeting_id'] . "             
+            ORDER BY at.Name, at.Vorname", true);
 
-				 if(mysql_errno() > 0) {
-					AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-				 }
-				 else		// OK
-				 {
-					// Athlete not in even or team
-					if((mysql_num_rows($r) == 0) 	
-						|| ($ath_row[2] != $row[10]))
-					{*/
-						$dropdown->addOption($ath_concat, $ath_row[0]);
-					/*}
-				}	// ET DB Error
-				mysql_free_result($r);*/
-			}
-			mysql_free_result($res);
-			//$dropdown->printList('forms', 2);
+			
+             if(!empty($GLOBALS['AA_ERROR']))
+                {
+                    AA_printErrorMsg($GLOBALS['AA_ERROR']);
+             }           
 			$dropdown->printList(false);
 			?>
 	</td>
@@ -1017,35 +978,12 @@ else if (mysql_num_rows($result) > 0)
 	</td>
 	</form>	
 			<?php
-		}	// ET DB Error (unassigned athletes)
+		
 		 
          //
         // extended athlete list (team)
         //
-        $res = mysql_query("
-            SELECT
-                a.xAnmeldung,
-                a.Startnummer,
-                at.Name,   
-                at.Vorname,  
-                at.Jahrgang,                 
-                a.xTeam
-            FROM
-                anmeldung AS a
-                LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
-            WHERE  
-                a.xMeeting = " . $_COOKIE['meeting_id'] . 
-                " AND a.xTeam = " .$row[10] ." 
-                 AND a.xTeam > 0   
-            ORDER BY at.Name, at.Vorname
-        ");
         
-        if(mysql_errno() > 0)
-        {
-            AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
-        }
-        else    // OK
-        {
             ?>
     <form action='meeting_relay.php' method='post' >
     <td class='forms' colspan='2'>
@@ -1058,12 +996,25 @@ else if (mysql_num_rows($result) > 0)
             // Drop down list of all athletes in team 
             $dropdown = new GUI_Select("athlete", 1);
             $dropdown->addOption($strAllRegisteredRelayTeam, 0);
+            
+            $dropdown->addOptionsFromDB(" SELECT
+                 a.xAnmeldung
+                , CONCAT( at.Name,' ', at.Vorname)   
+                , a.Startnummer
+                , at.Jahrgang  
+            FROM
+                anmeldung AS a
+                LEFT JOIN athlet AS at ON (a.xAthlet = at.xAthlet)
+            WHERE  
+                a.xMeeting = " . $_COOKIE['meeting_id'] . 
+                " AND a.xTeam = " .$row[10] ." 
+                 AND a.xTeam > 0   
+            ORDER BY at.Name, at.Vorname", true);  
 
-            while ($ath_row = mysql_fetch_row($res))
-            {   $ath_concat = $ath_row[1] ."." . $ath_row[2] . " " . $ath_row[3] . " ( " . $ath_row[4]. " )";    
-               $dropdown->addOption($ath_concat, $ath_row[0]);  
-            }
-            mysql_free_result($res);  
+             if(!empty($GLOBALS['AA_ERROR']))
+                {
+                    AA_printErrorMsg($GLOBALS['AA_ERROR']);
+             }           
             $dropdown->printList(false);
             ?>
     </td>
@@ -1072,7 +1023,7 @@ else if (mysql_num_rows($result) > 0)
     </td>
     </form>    
             <?php
-        }    // ET DB Error (unassigned athletes)
+        
         ?>  
          
 </tr>

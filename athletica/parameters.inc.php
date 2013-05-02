@@ -212,12 +212,12 @@ $cfgTrackOrder = array(		3=>array (1=>3
 //$cfgPrtLinesPerPage = 57;		// printer dependent  
 //$cfgPageContentHeight = 285;    // content layer height in mm, will position header an footer on printings
    
- if(eregi('firefox', $_SERVER['HTTP_USER_AGENT'])) {
+ if (preg_match('/firefox/i', $_SERVER['HTTP_USER_AGENT'])) {    
      $cfgPageContentHeight = 270;    // content layer height in mm, will position header an footer on printings 
      $cfgPrtLinesPerPage = 57;        // printer dependent
 }
 else 
-   if(eregi('msie 6', $_SERVER['HTTP_USER_AGENT'])) {  
+   if (preg_match('/msie 6/i', $_SERVER['HTTP_USER_AGENT'])) {   
          $cfgPageContentHeight = 250;    // content layer height in mm, will position header an footer on printings 
          $cfgPrtLinesPerPage = 57;        // printer dependent  
 }
