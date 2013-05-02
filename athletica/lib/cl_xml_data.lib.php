@@ -66,7 +66,7 @@ class XML_data{
     function load_xml($file, $type, $mode=''){          
         global $strErrXmlParse, $strErrFileNotFound,$arr_noCat, $cfgResDisc , $cfgSvmDiscFirst, $cfgSvmDiscLast;   
         
-        if($type != "base" && $type != "result" && $type != "reg" && $type != "regZLV"){ // unknown type of data
+        if($type != "base" && $type != "result" && $type != "reg" && $type != "regZLV" ){ // unknown type of data
             return false;
         }
         switch ($type){
@@ -87,7 +87,7 @@ class XML_data{
                         , team WRITE,  kategorie READ, wettkampf AS w READ,
                         , disziplin_de AS d READ, disziplin_fr AS d READ, disziplin_it AS d READ, anmeldung AS an READ, anmeldung WRITE
                         , kategorie AS k READ, start WRITE, runde WRITE");
-            break;              
+            break;                
         }
         //mysql_query("START TRANSACTION");
         
@@ -295,7 +295,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
                 t.xTeam
             ORDER BY 
                 v.xVerein";      
-                
+         
         $res_teams = mysql_query($query);     
         
         if(mysql_errno() > 0){
@@ -340,8 +340,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
                     d.Kurzname,
                     w.Mehrkampfcode,
                     w.xKategorie,
-                    d.Staffellaeufer,  
-                    r.xRunde 
+                    d.Staffellaeufer, 
+                    r.xRunde
                 FROM 
                     wettkampf as w 
                     LEFT JOIN runde as r ON (w.xWettkampf = r.xWettkampf)  
@@ -355,12 +355,13 @@ document.getElementById("progress").width="<?php echo $width ?>";
                 ORDER BY
                     k.Code
                     , w.xKategorie
+                    , dCode
                     , w.Mehrkampfcode
                     , w.Mehrkampfreihenfolge
                     , d.Staffellaeufer";
                 // the order "k.Code, w.xKategorie" makes sense if there are multiple self made categories (without any code)        
         $res = mysql_query($sql);  
-        
+         
         if(mysql_errno() > 0){
             echo(mysql_errno().": ".mysql_error());
         }else{
@@ -387,6 +388,14 @@ document.getElementById("progress").width="<?php echo $width ?>";
                 if(empty($row[4])){
                     // self made category
                     $row[4] = "";
+                }
+                
+                $relay = AA_checkRelay($row[5]);    // check, if this is a relay event    
+                if ($relay != False){
+                     if ($keep_dCode == $row[3] && $keep_kCode = $row[4] && $keep_Event= $row[5] && $keep_wCat = $row[8]){
+                          // skip hier relays with more than one round (to prevent them double)                             
+                          continue;   
+                     }  
                 }
                           
                 //
@@ -539,9 +548,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
                 //
                 // first of all, print all single results (athletes and relays)
                 //
-                
-                $relay = AA_checkRelay($row[5]);    // check, if this is a relay event
-                
+                                    
                 $order_perf = "";
                 $valid_result = "";
                 $best_perf = "";
@@ -643,7 +650,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
                             . $order_perf;                         
                 }
                 else {                        // relay event
-                                                       
+                     echo "relay";                                  
                     $query = "
                         SELECT
                             ss.xSerienstart
@@ -693,7 +700,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
                             . $order_perf;    
                     
                         $res_teams = mysql_query($query);   
-                       
+                     
                 }            
                  
                 $res_results = mysql_query($query);
@@ -1214,7 +1221,11 @@ document.getElementById("progress").width="<?php echo $width ?>";
                   
                 $this->close_open_tags("disciplines");
                 
-                
+              $keep_dCode = $row[3];  
+              $keep_kCode = $row[4];   
+              $keep_Event= $row[5];  
+              $keep_wCat = $row[8];   
+               
             }
             
             // check on last combined event                   
@@ -3660,9 +3671,16 @@ function XML_reg_start($parser, $name, $attr){
     if($name == "DISCIPLINE"){     
         
         $xDis = array();
-        $discode = $attr['DISCODE'];                      
-         
-        $catcode = $attr['CATCODE'];
+        $discode = $attr['DISCODE'];     
+        
+        $svmCategoryCode = $attr['SVMCATEGORYCODE'];                                       
+        if ($svmCategoryCode == '36_09'){
+             $catcode = 'U12M';
+        } 
+        else {
+            $catcode = $attr['CATCODE'];   
+        }
+        
         $disname = trim($attr['DISNAME']); // special name of discipline, ordinary disname + info (cold be user defined)
         $disinfo = trim($attr['DISINFO']); // special name of discipline, without ordinary disc-name (cold be user defined)
         $disspecial = $attr['DISSPECIAL'];
@@ -4300,8 +4318,7 @@ function XML_reg_start($parser, $name, $attr){
                                         }    
                                         
                                         
-                                        if(mysql_errno() > 0){
-                                           
+                                        if(mysql_errno() > 0){                                            
                                             XML_db_error("15-".mysql_errno().": ".mysql_error());
                                         }else{
                                             if(mysql_num_rows($res_effort) > 0){
@@ -5667,4 +5684,5 @@ function XML_regZLV_end($parser, $name){
 }
 
 function XML_regZLV_data($parser, $data){  
-}    
+}       
+         

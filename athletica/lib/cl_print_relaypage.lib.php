@@ -72,16 +72,17 @@ class PRINT_RelayPage extends PRINT_Page
         $w = AA_getStringWidth($athletes, 12);
         $t = ceil(($w / 600));        
         $this->linecnt+=$t;         
-		
+		      
+        
         // different space of browsers by empty line
-        if (empty($athletes) && (eregi('msie', $_SERVER['HTTP_USER_AGENT']))) {    
+        if (empty($athletes) && (preg_match('/msie/i', $_SERVER['HTTP_USER_AGENT']))) {    
               $this->linecnt++; 
         }
         elseif (empty($athletes)) {                   
                $this->linecnt=$this->linecnt + 0.3; 
         }
       
-       if (eregi('msie', $_SERVER['HTTP_USER_AGENT']) && empty($athletes)) {     // force IE to print empty line like firefox  
+       if (preg_match('/msie/i', $_SERVER['HTTP_USER_AGENT']) && empty($athletes)) {     // force IE to print empty line like firefox  
 ?>
 	<tr>
 		<td class='relay_athletes' colspan='6'><?php echo $athletes; ?>&nbsp;</td>     
@@ -392,14 +393,14 @@ class PRINT_ClubCatDiscRelayPage extends PRINT_RelayPage
         $this->linecnt+=$t;         
         
         // different space of browsers by empty line
-        if (empty($athletes) && (eregi('msie', $_SERVER['HTTP_USER_AGENT']))) {    
+        if (empty($athletes) && (preg_match('/msie/i', $_SERVER['HTTP_USER_AGENT']))) {    
                  $this->linecnt++;  
         }
         elseif (empty($athletes)) {
              $this->linecnt=$this->linecnt + 0.6; 
         }
       
-        if (eregi('msie', $_SERVER['HTTP_USER_AGENT']) && empty($athletes)) {    // force IE to print empty line like firefox
+        if (preg_match('/msie/i', $_SERVER['HTTP_USER_AGENT']) && empty($athletes)) {    // force IE to print empty line like firefox
 ?>
     <tr>
         <td class='relay_athletes' colspan='6'><?php echo $athletes; ?>&nbsp;</td>
