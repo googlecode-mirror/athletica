@@ -805,4 +805,14 @@ $strVersionForbidden = "Caricare un file di backup Athletica 4.0 o 4.1 non è con
  
  $strHeight = "Alto iniz.";   
  $strErrEventNr = "Pf. introdurre il numero della competizione.";    
+ 
+ $strQualifyRank = "Rango di qualifica";
+ $strQualifyValue = "Tempo di qualifica"; 
+ 
+ $strSBYear = "MPS";
+ $strRecord = "Rekord";
+ $strEventName = "Nome della gara";
+ $strTitle = "Titolo";
+ $strCity = "Luogo";
+ $strTeamsm = "Nome del gruppo";
 ?>

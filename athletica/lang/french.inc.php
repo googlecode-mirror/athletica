@@ -862,4 +862,15 @@ $strWarnFinalAttempt  = "Finale après essai doit être plus petite que le nombre 
  $strAnd = " et ";      
  $strHeight = "Haut.init.";   
  $strErrEventNr = "Veuillez entrer le No de la compétition."; 
+ 
+ $strQualifyRank = "Rang-quali";
+ $strQualifyValue = "Valeur-quali"; 
+ 
+ $strSBYear = "An MPS";
+ $strRecord = "Rekord";
+ $strEventName = "Nom compétition";
+ $strTitle = "Titre";
+ $strCity = "Lieu";
+ $strTeamsm = "Nom du team";
+ 
 ?>

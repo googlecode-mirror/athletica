@@ -870,4 +870,21 @@ $strAnd = " und ";
 
  $strHeight = "Anf.höhe";
  $strErrEventNr = "Bitte Wettkampf-Nr. eingeben.";
+ 
+ $strQualifyRank = "Quali-Rang";
+ $strQualifyValue = "Quali-Wert"; 
+ 
+ $strSBYear = "SB J.";
+ $strRecord = "Rekord";
+ $strEventName = "Wettkampf Name";
+ $strTitle = "Titel";
+ $strCity = "Ort";
+ $strTeamsm = "Teamname";
+ 
+ $strInfoShort = "Info";  
+ $strPalmaresUpdate = "Update der Palmarèsdaten";
+ $strPalmaresRemark  = "Mit dieser Funktion können Sie die Palmarèsdaten der Athleten aktualisieren.";
+ $strPalmaresUpdated = "Die Palmarèsdaten der Athleten wurden auf den neuesten Stand gebracht";   
+ 
+
 ?>
