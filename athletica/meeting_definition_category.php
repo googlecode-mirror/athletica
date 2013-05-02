@@ -284,7 +284,7 @@ elseif($_POST['arg']=="change_starttime"){
 	}    
        
     if($_POST['wTyp'] > $cfgEventType[$strEventTypeSingleCombined]
-                && $row[2] != $cfgEventType[$strEventTypeTeamSM])         // not single event
+                && $_POST['wTyp']!= $cfgEventType[$strEventTypeTeamSM])         // not single event
             {
               //$it=$_POST['item'];                                                      
               if ($_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeTrack] ||
@@ -300,7 +300,13 @@ elseif($_POST['arg']=="change_starttime"){
 	           
             }
     else {
-         $_POST['roundtype'] = 8; // round type "Mehrkampf"  
+         if ($_POST['wTyp'] ==  $cfgEventType[$strEventTypeTeamSM]){
+               $_POST['roundtype'] = 9; // round type "(ohne)"  
+         }
+         else {
+             $_POST['roundtype'] = 8; // round type "Mehrkampf"  
+         }
+         
     } 
     
      $svm='';
@@ -588,6 +594,7 @@ $sql = "SELECT
 			, d.Anzeige;";
    
 $result = mysql_query($sql); 
+
       
 if(mysql_errno() > 0) {	// DB error
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -701,7 +708,7 @@ else			// no DB error
 ?>
 	<th class='dialog'><?php echo $strConversionTable; ?></th>
 <?php
-			}
+			}           
 ?>
 </tr>  
 <tr>
@@ -810,8 +817,7 @@ else			// no DB error
 <?php
 			}	// ET single event
 			$k=$row[1];
-            $svmCat_keep = $row[8];  
-
+            $svmCat_keep = $row[8];                  
 		}
 
 		// conversion formula drop down
@@ -1079,6 +1085,7 @@ else			// no DB error
 			<input type="hidden" name="item" value="<?php echo $row[0] ?>">
 			<input type="hidden" name="info" value="<?php echo $row[13] ?>">
 			<input type="hidden" name="last" value="<?php echo $row[14] ?>">
+           <input name='wTyp' type='hidden' value='<?php echo $row[2]; ?>' />  
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
 			<input type="hidden" name="nocat" value="1"/> 
 			
@@ -1181,7 +1188,7 @@ else			// no DB error
 			</form>     
 			 <?php       
 			}             
-
+            
 			?>             
 			<form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
 			<input type="hidden" name="arg" value="change_event">     
@@ -1190,6 +1197,7 @@ else			// no DB error
 			<input type="hidden" name="item" value="<?php echo $row[0] ?>">
 			<input type="hidden" name="info" value="<?php echo $row[13] ?>">
 			<input type="hidden" name="last" value="<?php  echo $row[14] ?>">
+            <input type="hidden" name="wTyp" value="<?php  echo $row[2] ?>"> 
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
 			<input type="hidden" name="nocat" value="1"/>             
 			
@@ -1394,6 +1402,7 @@ else			// no DB error
 			<th class='dialog'><?php echo $strTime; ?></th>
 				<?php
 			}
+            
 			?>
 			
 		</tr>
@@ -1407,35 +1416,109 @@ else			// no DB error
 			//
 			// print each discipline
 			//
-			
-			// get count of groups of entrys for current event
-			$cGroups = array();
-			$sql = "SELECT
-						DISTINCT(a.Gruppe) AS g
-					FROM
-						wettkampf AS w
-					LEFT JOIN 
-						start AS st USING(xWettkampf)
-					LEFT JOIN 
-						anmeldung AS a USING(xAnmeldung)
-					WHERE
-						w.xWettkampf = ".$row[0]."
-					AND
-						w.xMeeting = ".$_COOKIE['meeting_id']."
-					AND 
-						a.Gruppe != ''
-					ORDER BY
-						g ASC;";    
-			$res_c = mysql_query($sql);
-			if(mysql_errno() > 0){
-				AA_printErrorMsg(mysql_errno().": ".mysql_error());
-			}else{
-				while($row_c = mysql_fetch_array($res_c)){
-					$cGroups[] = $row_c[0];
-				}
-				mysql_free_result($res_c);
-			}
-			
+            $cGroups = array(); 
+			if ($row[2] == $cfgEventType[$strEventTypeTeamSM]) {
+                 $sql_c = "SELECT DISTINCT 
+                                r.Gruppe
+                                , r.xRunde
+                                , r.xWettkampf
+                            FROM
+                                wettkampf AS w
+                                LEFT JOIN start AS st USING(xWettkampf)      
+                                INNER JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)  
+                            WHERE
+                                w.xWettkampf = ".$row[0]."
+                            AND
+                                w.xMeeting = ".$_COOKIE['meeting_id'] ."
+                            ORDER BY r.Gruppe";   
+                  
+                 $res_c = mysql_query($sql_c);                      
+                 if (mysql_num_rows($res_c) == 0) {                               
+                           
+                           $sql = "INSERT INTO runde SET  
+                                           Datum = '".$_SESSION['meeting_infos']['DatumVon']."', 
+                                           Gruppe = '1' , 
+                                           xRundentyp = 9 ,
+                                           xWettkampf = ".$row[0];                       
+                            mysql_query($sql);
+                            if(mysql_errno() > 0){
+                                AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                            }
+                            $sql = "INSERT INTO runde SET  
+                                           Datum = '".$_SESSION['meeting_infos']['DatumVon']."', 
+                                           Gruppe = '2' , 
+                                           xRundentyp = 9 ,
+                                           xWettkampf = ".$row[0];                       
+                            mysql_query($sql);
+                            if(mysql_errno() > 0){
+                              AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                            }
+                    }
+                    elseif (mysql_num_rows($res_c) == 1) {
+                            $row_c = mysql_fetch_row($res_c);  
+                            if ($row_c[0] == ''){
+                                   $sql = "Update runde SET  
+                                                    Gruppe = '1' 
+                                           WHERE xRunde = " .$row_c[1];
+                                    mysql_query($sql);
+                                    if(mysql_errno() > 0){
+                                        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                                    }  
+                            }
+                            if  ($row_c[0] == 1 || $row_c[0] == ''){
+                                  $group = 2;
+                            }
+                            else {
+                                  $group = 1;
+                            }
+                            $sql = "INSERT INTO runde SET  
+                                           Datum = '".$_SESSION['meeting_infos']['DatumVon']."', 
+                                            Gruppe = '" . $group . "',  
+                                           xRundentyp = 9 ,
+                                           xWettkampf = ".$row[0];  
+                    
+                            mysql_query($sql);
+                            if(mysql_errno() > 0){
+                                AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                            } 
+                    }    
+                    $res_c = mysql_query($sql_c);
+                    if (mysql_num_rows($res_c) > 0) {
+                        while($row_c = mysql_fetch_array($res_c)){
+                            $cGroups[] = $row_c[0];
+                        }
+                    }
+            }
+            else {
+			        // get count of groups of entrys for current event
+			     
+			        $sql = "SELECT
+						        DISTINCT(a.Gruppe) AS g
+					        FROM
+						        wettkampf AS w
+					        LEFT JOIN 
+						        start AS st USING(xWettkampf)
+					        LEFT JOIN 
+						        anmeldung AS a USING(xAnmeldung)
+					        WHERE
+						        w.xWettkampf = ".$row[0]."
+					        AND
+						        w.xMeeting = ".$_COOKIE['meeting_id']."
+					        AND 
+						        a.Gruppe != ''
+					        ORDER BY
+						        g ASC;";    
+			        $res_c = mysql_query($sql);
+                   
+			        if(mysql_errno() > 0){
+				        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+			        }else{
+				        while($row_c = mysql_fetch_array($res_c)){
+					        $cGroups[] = $row_c[0];
+				        }
+				        mysql_free_result($res_c);
+			        }
+            }
 			?>
 		<tr>
 			<form method="POST" action="meeting_definition_category.php" name="event_<?php echo $row[0] ?>">
@@ -1445,6 +1528,7 @@ else			// no DB error
 			<input type="hidden" name="item" value="<?php echo $row[0] ?>">
 			<input type="hidden" name="info" value="<?php echo $row[13] ?>">
 			<input type="hidden" name="last" value="<?php echo $row[14] ?>">
+             <input type="hidden" name="wTyp" value="<?php  echo $row[2] ?>">
 			<input name='cat' type='hidden' value='<?php echo $row[1]; ?>' />
 			<td class='dialog'><?php echo $row[6]; ?></td>
 			
@@ -1556,8 +1640,7 @@ else			// no DB error
 		</tr>
 			<?php
 			
-		}
-		
+		}       		
 		
 	}	// end loop disciplines
 	//mysql_free_result($result);

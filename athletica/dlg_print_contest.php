@@ -130,6 +130,7 @@ $sql = "SELECT
 			, r.QualifikationLeistung
             , rt.Typ
             , rt.Wertung
+            , w.Typ
 		FROM
 			runde AS r
 		LEFT JOIN
@@ -182,7 +183,8 @@ else
 <input name='round' type='hidden' value='<?php echo $round; ?>' />
 <input name='present' type='hidden' value='<?php echo $present; ?>' />
 <input name='print' type='hidden' value='<?php echo $print; ?>' />  
-<input name='d_Typ' type='hidden' value='<?php echo $row[7]; ?>' />    
+<input name='d_Typ' type='hidden' value='<?php echo $row[7]; ?>' />   
+<input name='w_Typ' type='hidden' value='<?php echo $row[12]; ?>' />   
 <table class='dialog' id="regtable">
 	<tr>
 		<th class='dialog' colspan='2'><?php echo $row[3]; ?></th>

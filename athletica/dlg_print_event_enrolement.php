@@ -61,11 +61,21 @@ if(isset($_GET['mDate'])){
     $mDate = $_GET['mDate'];
 }
 
+$teamsm = false;
+if (isset($_GET['teamsm'])){
+    $teamsm = $_GET['teamsm'];
+} 
+
 $mk_group = '';
+$tm_group = ''; 
 if(!empty($_GET['group'])) {
-    $mk_group = $_GET['group']; 
-   
-}
+    if ($teamsm) {
+         $tm_group = $_GET['group']; 
+    }
+    else {
+         $mk_group = $_GET['group']; 
+    } 
+}  
 
 
 $page = new GUI_Page('dlg_print_event_enrolement');
@@ -90,7 +100,19 @@ $menu->printMenu();*/
 <input type="hidden" name="discFrom" value="<?php echo $discFrom ?>"> 
 <input type="hidden" name="discTo" value="<?php echo $discTo ?>"> 
 <input type="hidden" name="mDate" value="<?php echo $mDate ?>"> 
-<input type="hidden" name="group" value="<?php echo $mk_group ?>">
+<?php 
+if ($teamsm){
+    ?>
+         <input type="hidden" name="group" value="<?php echo $tm_group ?>">
+    <?php
+}
+else {
+     ?>
+         <input type="hidden" name="group" value="<?php echo $mk_group ?>">
+    <?php
+}
+ ?>
+<input type="hidden" name="teamsm" value="<?php echo $teamsm ?>"> 
 
 <table class='dialog'>
 	<tr>

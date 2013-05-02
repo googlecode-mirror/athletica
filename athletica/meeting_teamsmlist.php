@@ -29,7 +29,8 @@ $page->startPage();
 $img_name="img/sort_inact.gif";
 $img_cat="img/sort_inact.gif";
 $img_disc="img/sort_inact.gif";
-$img_nbr="img/sort_inact.gif";  
+$img_nbr="img/sort_inact.gif"; 
+$img_group="img/sort_inact.gif";   
 
 if ($arg=="name") {
 	$argument="t.Name, k.Anzeige";
@@ -40,6 +41,9 @@ if ($arg=="name") {
 } else if ($arg=="disc") {
 	$argument="d.Anzeige, t.Name";
 	$img_disc="img/sort_act.gif";
+} else if ($arg=="group") {
+    $argument="t.Gruppe, t.Name";
+    $img_group="img/sort_act.gif";
 } else if ($arg=="nbr") {
     $argument="t.Startnummer";
     $img_nbr="img/sort_act.gif";
@@ -85,6 +89,11 @@ if ($arg=="name") {
 				<img src='<?php echo $img_disc; ?>' />
 			</a>
 		</th>
+        <th class='dialog'>
+            <a href='meeting_teamsmlist.php?arg=group'><?php echo $strGroup; ?>
+                <img src='<?php echo $img_group; ?>' />
+            </a>
+        </th>
 	</tr>
 
 <?php
@@ -96,6 +105,7 @@ if ($arg=="name") {
         , k.Kurzname
         , d.Kurzname
         , t.Startnummer
+        , t.Gruppe
     FROM
         teamsm AS t
         LEFT JOIN kategorie AS k ON (k.xKategorie = t.xKategorie)
@@ -136,11 +146,12 @@ else				// no DB error
         <?php echo $row[4] ?>
         </td>
 		<td>
-			<a name="item<?php echo $row[0]; ?>"></a>
+			<a name="item<?php echo $row[0]; ?>" id='item<?php echo $row[0]; ?>'></a>
 			<?php echo $row[1]; ?>
 		</td>
 		<td><?php echo $row[2]; ?></td>
 		<td><?php echo $row[3]; ?></td>
+        <td><?php echo $row[5]; ?></td>   
 	</tr>
 		<?php
 	}
@@ -150,7 +161,8 @@ else				// no DB error
 </table>
 
 <script>
-	document.all.item<?php echo $_GET['item']; ?>.scrollIntoView("true");
+	 document.getElementById('item<?php echo $_GET['item']; ?>').scrollIntoView("true");  
+    
 </script>
 <?php
 

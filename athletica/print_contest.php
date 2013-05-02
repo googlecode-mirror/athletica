@@ -63,6 +63,11 @@ $dTyp= 0;
 if (isset($_POST['d_Typ'])){
        $dTyp = $_POST['d_Typ'];
 }
+
+$teamsm = false;
+if($_POST['w_Typ'] == $cfgEventType[$strEventTypeTeamSM]){
+    $teamsm = true;
+}
  
 $endEvent = 0;
 $countFinalist = 0;
@@ -409,8 +414,43 @@ else
 	{
 		// display all heats
 		if($relay == FALSE) {		// single event
-			
-            $query = "SELECT 
+			if ($teamsm){
+                 $query = "SELECT DISTINCT
+                            r.Bahnen
+                            , rt.Name
+                            , rt.Typ
+                            , s.Bezeichnung
+                            , ss.Position
+                            , an.Bezeichnung
+                            , a.Startnummer
+                            , at.Name
+                            , at.Vorname
+                            , at.Jahrgang
+                            , t.Name
+                            , LPAD(s.Bezeichnung,5,'0') as heatid
+                            , ss.Bahn
+                            , s.Film
+                            , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land  
+                     FROM 
+                            runde AS r
+                            LEFT JOIN serie AS s ON (s.xRunde = r.xRunde)
+                            LEFT JOIN serienstart AS ss ON (ss.xSerie = s.xSerie)
+                            LEFT JOIN start AS st ON (st.xStart = ss.xStart)
+                            LEFT JOIN anmeldung AS a ON (a.xAnmeldung = st.xAnmeldung)
+                            LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
+                            LEFT JOIN verein AS v ON (v.xVerein = at.xVerein)
+                            LEFT JOIN rundentyp_" . $_COOKIE['language'] . " AS rt ON rt.xRundentyp = r.xRundentyp
+                            LEFT JOIN anlage AS an ON an.xAnlage = s.xAnlage
+                            INNER JOIN teamsmathlet as tat ON (a.xAnmeldung = tat.xAnmeldung)
+                            LEFT JOIN teamsm as t ON (tat.xTeamsm = t.xTeamsm)
+                            LEFT JOIN region AS re ON at.xRegion = re.xRegion  
+                    WHERE 
+                            r.xRunde = " . $round ."                      
+                     ORDER BY heatid ". $order." , ss.Position";                           
+                   
+            }
+            else {
+               $query = "SELECT 
                             r.Bahnen
                             , rt.Name
                             , rt.Typ
@@ -440,7 +480,9 @@ else
                             LEFT JOIN region AS re ON at.xRegion = re.xRegion  
                     WHERE 
                             r.xRunde = " . $round ."                      
-                     ORDER BY heatid ". $order." , ss.Position";       
+                     ORDER BY heatid ". $order." , ss.Position";        
+            }
+            
                      
 		}
 		else {								// relay event
@@ -476,7 +518,7 @@ else
                      
 		}  
         
-        $result = mysql_query($query);       
+        $result = mysql_query($query); 
 		
 		if(mysql_errno() > 0)		// DB error
 		{
@@ -569,7 +611,7 @@ else
 						}
 
 						$doc->printHeatTitle($heat, $row[5], $filmnr);
-						$doc->printStartHeat($svm);
+						$doc->printStartHeat($svm, $teamsm);
 
 						$id = $row[3];
 						$h++;			// nbr of heats
@@ -580,7 +622,7 @@ else
 						$doc->printEndHeat();                        
 						$doc->insertPageBreak();
 						$doc->printHeatTitle("$heat $strCont", $row[5], $filmnr);
-						$doc->printStartHeat($svm);
+						$doc->printStartHeat($svm, $teamsm);
 					}
 
 

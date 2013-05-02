@@ -42,10 +42,23 @@ else if(!empty($_POST['round'])) {
 	$round = $_POST['round'];
 }
 
-$group = '';
-if(!empty($_GET['group'])) {
-    $group = $_GET['group'];  
+$teamsm = false;
+if (isset($_GET['teamsm'])){
+    $teamsm = $_GET['teamsm'];
 } 
+
+$mk_group = '';
+$tm_group = ''; 
+if(!empty($_GET['group'])) {
+    if ($teamsm) {
+         $tm_group = $_GET['group']; 
+    }
+    else {
+         $mk_group = $_GET['group']; 
+    } 
+}  
+
+
 
 $presets = AA_results_getPresets($round);
 
@@ -117,11 +130,14 @@ if($round > 0)
     }
     else {
         $sqlEvent=" = ". $presets['event'];  
-    } 
+    }          
    
-    $sqlGroup = '';
-    if  ($group != ''){
-        $sqlGroup = " AND a.Gruppe = " .$group;  
+    $sqlGroup = "";
+    if  (!empty($mk_group)) {
+              $sqlGroup = " AND a.Gruppe =  " .$mk_group; 
+    }
+    elseif (!empty($tm_group)){
+                $sqlGroup =" AND s.Gruppe =  " .$tm_group; 
     }
    
 	if($relay == FALSE) 		// single event
@@ -194,7 +210,8 @@ if($round > 0)
 			<a href='speaker_entries.php?arg=name&round=<?php echo $round; ?>'>
 				<?php echo $strName; ?></a>
 				<img src='<?php echo $img_name; ?>' />
-			</th>
+			</th> 
+       
 		<th class='dialog'>
 		<?php echo $strYear; ?>
 		</th>
@@ -267,7 +284,8 @@ if($round > 0)
 				
 				?>
 		<td class='forms_right'><?php echo $row[1]; ?></td>
-		<td><?php echo "$row[2] $row[3]"; ?></td>
+		<td><?php echo "$row[2] $row[3]"; ?></td> 
+         
 		<td class='forms_ctr'><?php echo AA_formatYearOfBirth($row[4]); ?></td>
 		<td><?php echo $row[5]; ?></td>
 		<td><?php echo $perf; ?></td>

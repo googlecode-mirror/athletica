@@ -13,7 +13,7 @@ require('./lib/cl_gui_select.lib.php');
 
 require('./lib/meeting.lib.php'); 
 require('./lib/common.lib.php');
-require('./lib/cl_performance.lib.php');
+require('./lib/cl_performance.lib.php');       
 
 if(AA_connectToDB() == FALSE)	{				// invalid DB connection
 	return;		// abort
@@ -23,22 +23,107 @@ if(AA_checkMeetingID() == FALSE) {		// no meeting selected
 	return;		// abort
 }
 
+
+
+ 
+
 //
 // change team
 //
 if ($_POST['arg']=="change")
 {
 	if(!empty($_POST['name']) && !empty($_POST['item'])){
-		
-		// update team name
-		mysql_query("UPDATE teamsm SET
-				Name = '".$_POST['name']."'
-			WHERE
-				xTeamsm = ".$_POST['item']."");
-		
-		if(mysql_errno()>0){ 
-			AA_printErrorMsg(mysql_errno().": ".mysql_error());
-		}
+		                        
+		// get 
+        //check teams athlet
+        $sql = "SELECT 
+                    r.Status,
+                    a.xAnmeldung,
+                    r.xRunde,
+                    w.xDisziplin,
+                    s.xStart
+                FROM
+                    teamsm as ts
+                    LEFT JOIN teamsmathlet as tat ON (ts.xTeamsm = tat.xTeamsm)
+                    LEFT JOIN anmeldung as a ON (tat.xAnmeldung = a.xAnmeldung)
+                    LEFT JOIN start as s ON (s.xAnmeldung = a.xAnmeldung)
+                    LEFT JOIN runde as r ON (s.xWettkampf = r.xWettkampf)
+                    LEFT JOIN wettkampf as w ON (w.xWettkampf = r.xWettkampf)
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (d.xDisziplin = w.xDisziplin)    
+                WHERE 
+                    (d.Typ >= ". $cfgDisciplineType[$strDiscTypeJump] . " AND d.Typ <= ". $cfgDisciplineType[$strDiscTypeThrow] . " AND d.Typ != ". $cfgDisciplineType[$strDiscTypeDistance] . ")                  
+                    AND ts.xTeamsm = ".$_POST['item'];
+        
+        $res = mysql_query($sql);
+        if(mysql_errno()>0){ 
+            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+        } 
+        //check status
+        $errSeed = false;
+        while ($row = mysql_fetch_row($res)){
+              if  ($row[0] != $cfgRoundStatus['open'] && $row[0] != $cfgRoundStatus['enrolement_done'] && $row[0] != $cfgRoundStatus['enrolement_pending']){   
+                  $errSeed = true;
+              }
+        }
+        if ($errSeed){
+              AA_printErrorMsg($strErrAthletesSeeded);  
+        } 
+        else {
+              $res = mysql_query($sql); 
+              while ($row = mysql_fetch_row($res)) {  
+            
+                    $sql = "UPDATE start SET                              
+                                Gruppe = '".$_POST['group']."' 
+                           WHERE
+                                xStart = ".$row[4];
+                    mysql_query($sql); 
+                    if(mysql_errno()>0){ 
+                        AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                    } 
+                }
+       }  
+      
+       if ($_POST['dTyp'] ==  $cfgDisciplineType[$strDiscTypeJump] || $_POST['dTyp']  ==  $cfgDisciplineType[$strDiscTypeJumpNoWind] || $_POST['dTyp']  ==  $cfgDisciplineType[$strDiscTypeThrow]){
+               $perf = new PerformanceAttempt($_POST['perf']);
+             $perf->performance = $perf->getPerformance();
+             $perf = $perf->getPerformance();
+       }
+       elseif  ($_POST['dTyp']  ==  $cfgDisciplineType[$strDiscTypeHigh] ){
+            $perf = new PerformanceAttempt($_POST['perf']);
+             $perf->performance = $perf->getPerformance();
+             $perf = $perf->getPerformance();
+       }  
+       else {                          
+            if(($_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeTrack])   
+                    || ($_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeTrackNoWind]) 
+                    || ($_POST['dTyp'] == $cfgDisciplineType[$strDiscTypeRelay] )){   
+                
+                $secflag = true;
+               
+            }else{
+                 $secflag = false;    
+            } 
+                         
+            $perf = new PerformanceTime($_POST['perf'], $secflag);
+            $perf->performance = $perf->getPerformance();  
+            $perf = $perf->getPerformance();   
+       }  
+       
+               
+       // update team name
+        if (!$errSeed){  
+            mysql_query("UPDATE teamsm SET
+                    Name = '".$_POST['name']."',
+                    Gruppe = '".$_POST['group']."', 
+                     Quali = ".$_POST['quali'].",
+                      Leistung = ".$perf." 
+                WHERE
+                    xTeamsm = ".$_POST['item']."");
+            
+            if(mysql_errno()>0){ 
+                AA_printErrorMsg(mysql_errno().": ".mysql_error());
+            } 
+        }
 	}else{
 		AA_printErrorMsg($strErrEmptyFields);
 	}
@@ -105,7 +190,34 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
                $msgError = 1; 
                AA_printErrorMsg($strStrNrNotExist);  
            }
-       }         
+       }    
+       
+       //check athlete in heats
+         $sql = "SELECT 
+                    r.Status  
+                FROM 
+                    teamsm as t
+                    LEFT JOIN teamsmathlet as tat ON (t.xTeamsm = tat.xTeamsm)
+                    LEFT JOIN start as s ON (s.xAnmeldung = tat.xAnmeldung)
+                    LEFT JOIN anmeldung as a ON (a.xAnmeldung = tat.xAnmeldung)
+                    LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)  
+                    LEFT JOIN runde as r ON (r.Gruppe = s.Gruppe)                       
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin)  
+                 WHERE
+                    d.xDisziplin = ".$_POST['disc']  ." AND 
+                    ((r.Status > " . $cfgRoundStatus[open] . " AND r.Status  < " . $cfgRoundStatus[enrolement_pending] . ") OR r.Status  > " . $cfgRoundStatus[enrolement_done] .") AND
+                    s.Gruppe = " . $_POST['group'];
+        $res=mysql_query($sql); 
+        
+        if (mysql_num_rows($res) > 0) {
+             ?>
+            <script type="text/javascript">   
+            alert("<?php echo $strErrHeatsAlreadySeeded; ?>"); 
+            </script>
+            <?php     
+             $msgError = 1;
+        }  
+                         
         if ($msgError == 0){        
             mysql_query("LOCK TABLES start WRITE, teamsmathlet WRITE, athlet READ, anmeldung READ, disziplin_de READ, disziplin_de AS d READ, disziplin_fr READ,disziplin_fr AS d READ ,disziplin_it READ, disziplin_it AS d READ, kategorie READ, wettkampf READ, base_performance READ, base_athlete READ");
 		       
@@ -125,11 +237,11 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 				        WHERE
 					        xAnmeldung = ".$_POST['athlete'][$key]."
 				            AND	xWettkampf = ".$_POST['event']."");
-       
+              
 		        if(mysql_errno()>0){  
 			        AA_printErrorMsg(mysql_errno().": ".mysql_error());
 		        }else{
-			
+			        
 			        if(mysql_num_rows($res) == 0){
 				
 				        // get top performance
@@ -207,12 +319,24 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 				        mysql_query("INSERT INTO start SET
 						    xAnmeldung = ".$_POST['athlete'][$key]."
 						    , xWettkampf = ".$_POST['event']."
+                             , Gruppe = '".$_POST['group']."' 
 						    , Bestleistung = $perf;");
 				        if(mysql_errno()>0){ 
 					        AA_printErrorMsg(mysql_errno().": ".mysql_error());
 				        }
 				
 			        }
+                    else {
+                         mysql_query("UPDATE start SET                                 
+                                         Gruppe = '".$_POST['group']."' 
+                                     WHERE 
+                                         xAnmeldung = ".$_POST['athlete'][$key]."
+                                         AND    xWettkampf = ".$_POST['event']);                                           
+                        
+                        if(mysql_errno()>0){ 
+                            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                        }  
+                    }
 			
 			        // insert
 			        mysql_query("INSERT INTO teamsmathlet SET
@@ -220,12 +344,13 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 					    , xAnmeldung = ".$_POST['athlete'][$key]."");
 			        if(mysql_errno()>0){ 
 				        AA_printErrorMsg(mysql_errno().": ".mysql_error());
-			        }
+			        }                   
 		        }
 		    }          // end foreach
         
 		    mysql_query("UNLOCK TABLES");  
         }
+       
 	}
 }
 
@@ -235,7 +360,30 @@ if ($_POST['arg']=="add_athlete" || $_POST['arg']=="add_athlete_stnr")
 if ($_GET['arg']=="del_athlete")
 {
 	if(!empty($_GET['item']) && !empty($_GET['athlete'])){
-		
+        
+        //check athlete in heats
+        $sql = "SELECT 
+                    r.Status 
+                FROM 
+                    anmeldung as a
+                    LEFT JOIN start as s ON (s.xAnmeldung = a.xAnmeldung)
+                    LEFT JOIN runde as r ON (r.xWettkampf = s.xWettkampf AND s.Gruppe = r.Gruppe)                      
+                 WHERE
+                    ((r.Status > " . $cfgRoundStatus[open] . " AND r.Status  < " . $cfgRoundStatus[enrolement_pending] . ") OR r.Status  > " . $cfgRoundStatus[enrolement_done] .") AND
+                    a.xAnmeldung = " . $_GET['athlete'];
+        $res=mysql_query($sql);  
+        
+        if (mysql_num_rows($res) > 0) {
+            ?>
+            <script type="text/javascript">   
+            alert("<?php echo $strAthlete . $strErrStillUsed; ?>"); 
+            </script>
+            <?php     
+            
+            $_GET['arg'] = '';
+            $_POST['item'] = $_GET['item'];
+        }
+		else {
 		$_POST['item'] = $_GET['item'];
 		
 		mysql_query("DELETE FROM teamsmathlet
@@ -249,8 +397,8 @@ if ($_GET['arg']=="del_athlete")
 		
 		if($query && mysql_num_rows($query)==1){
 			$teamsm = mysql_fetch_assoc($query);
-			
-			$sql2 = "DELETE FROM start 
+			                             
+			$sql2 = "UPDATE start SET Gruppe = '' 
 						   WHERE xAnmeldung = ".$_GET['athlete']." 
 							 AND xWettkampf = ".$teamsm['xWettkampf'].";";
 			mysql_query($sql2);
@@ -259,6 +407,8 @@ if ($_GET['arg']=="del_athlete")
 		if(mysql_errno()>0){ 
 			AA_printErrorMsg(mysql_errno().": ".mysql_error());
 		}
+       
+        }
 	}
 }
 
@@ -268,26 +418,79 @@ if ($_GET['arg']=="del_athlete")
 if ($_GET['arg']=="del")
 {
 	if(!empty($_GET['item'])){
-		
-		mysql_query("LOCK TABLES teamsmathlet WRITE, teamsm WRITE");
-		
-		mysql_query("DELETE FROM teamsmathlet
-			WHERE
-				xTeamsm = ".$_GET['item']."");
-		if(mysql_errno()>0){ 
-			AA_printErrorMsg(mysql_errno().": ".mysql_error());
-		}else{
-			
-			mysql_query("DELETE FROM teamsm
-				WHERE
-					xTeamsm = ".$_GET['item']."");
-			if(mysql_errno()>0){   
-				AA_printErrorMsg(mysql_errno().": ".mysql_error());
-			}
-			
-		}
-		
-		mysql_query("UNLOCK TABLES");
+        
+        //check athlete in heats
+        $sql = "SELECT 
+                    r.Status    
+                FROM 
+                    teamsm as t
+                    LEFT JOIN teamsmathlet as tat ON (t.xTeamsm = tat.xTeamsm)
+                    LEFT JOIN start as s ON (s.xAnmeldung = tat.xAnmeldung)
+                    LEFT JOIN anmeldung as a ON (a.xAnmeldung = tat.xAnmeldung)
+                    LEFT JOIN wettkampf as w ON (w.xWettkampf = s.xWettkampf)  
+                    LEFT JOIN runde as r ON (r.Gruppe = s.Gruppe)                       
+                    LEFT JOIN disziplin_" . $_COOKIE['language'] . " AS d ON (w.xDisziplin = d.xDisziplin)  
+                 WHERE
+                    d.xDisziplin = ".$_GET['disc']  ." AND 
+                    ((r.Status > " . $cfgRoundStatus[open] . " AND r.Status  < " . $cfgRoundStatus[enrolement_pending] . ") OR r.Status  > " . $cfgRoundStatus[enrolement_done] .") AND
+                    t.xTeamsm = " . $_GET['item'];
+        $res=mysql_query($sql); 
+      
+        if (mysql_num_rows($res) > 0) {
+            ?>
+            <script type="text/javascript">   
+            alert("<?php echo $strTeamTeamSM . $strErrStillUsed; ?>"); 
+            </script>
+            <?php     
+            
+            $_GET['arg'] = '';
+            $_POST['item'] = $_GET['item'];
+        }
+        else {
+		        mysql_query("LOCK TABLES teamsmathlet WRITE, teamsm WRITE , teamsmathlet as tat READ, teamsm as ts READ,  start WRITE, anmeldung WRITE");
+		                         
+                $sql = "SELECT 
+                             xAnmeldung
+                        FROM 
+                            teamsm as ts
+                            INNER JOIN teamsmathlet as tat ON (ts.xTeamsm = tat.xTeamsm)
+                        WHERE 
+                            ts.xTeamsm = ".$_GET['item'];
+                            
+                $query = mysql_query($sql);  
+                
+                 if(mysql_errno()>0){ 
+                    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                }     
+                if (mysql_num_rows($query) > 0){                
+                    while ($teamsm = mysql_fetch_assoc($query)){   
+                        
+                        $sql2 = "UPDATE start SET Gruppe = '' 
+                                       WHERE xAnmeldung = ".$teamsm['xAnmeldung'];
+                                         
+                        mysql_query($sql2);            
+                        if(mysql_errno()>0){ 
+                            AA_printErrorMsg(mysql_errno().": ".mysql_error());
+                        }
+                    } 
+                    
+                    mysql_query("DELETE FROM teamsmathlet
+                                WHERE
+                                    xTeamsm = ".$_GET['item']."");
+                    if(mysql_errno()>0){ 
+                        AA_printErrorMsg(mysql_errno().": ".mysql_error());                    
+                    }   
+                }  
+			    
+			    mysql_query("DELETE FROM teamsm
+				    WHERE
+					    xTeamsm = ".$_GET['item']."");
+			    if(mysql_errno()>0){   
+				    AA_printErrorMsg(mysql_errno().": ".mysql_error());
+			    }  
+		      	              
+		        mysql_query("UNLOCK TABLES");
+        }
 	}
 }
 
@@ -331,7 +534,12 @@ if($_POST['item'] > 0){
         , at.Name
         , at.Vorname
         , at.Jahrgang 
-        , t.Startnummer         
+        , t.Startnummer
+        , t.Gruppe 
+        , d.xDisziplin
+        , t.Quali
+        , t.Leistung 
+        , d.Typ       
     FROM
         teamsm AS t
         LEFT JOIN teamsmathlet AS tsa USING(xTeamsm)
@@ -347,7 +555,7 @@ if($_POST['item'] > 0){
         a.Startnummer";   
  
 $result = mysql_query($sql);
-
+ 
 if(mysql_errno() > 0)		// DB error
 {              
 	AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
@@ -357,7 +565,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 	$row = mysql_fetch_array($result);
 	$event = $row[5];
 	$club = $row[4];
-	
+    $disc = $row[13];  
+	$group = $row[12];  
 	?>
 	
 <table class='dialog'>
@@ -378,6 +587,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 	<form action="meeting_teamsm.php" method="POST" name="teamsm">
 	<input type="hidden" name="arg" value="change">
 	<input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
+    <input type="hidden" name="disc" value="<?php echo $row[13]; ?>">
+    <input type="hidden" name="dTyp" value="<?php echo $row[16]; ?>">    
 	<tr>
 		<th class="dialog"><?php echo $strName ?></th>
 		<td class="forms"><input type="text" name="name" value="<?php echo $row[0] ?>"
@@ -391,6 +602,71 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<th class="dialog"><?php echo $strDiscipline ?></th>
 		<td class="dialog"><?php echo $row[2]." (".$row[3].")" ?></td>
 	</tr>
+    <?php
+     $quali = $row[14]; 
+     if ($row[14] == 0){
+         $quali = '';
+     }
+    
+    ?>
+    <tr>
+        <th class="dialog"><?php echo $strQualifyRank; ?></th>
+        <td class="forms"><input type="text" name="quali" value="<?php echo $quali; ?>"
+            onchange="document.teamsm.submit()"></td>
+    </tr>
+    <?php
+     if(($row[16] == $cfgDisciplineType[$strDiscTypeJump])
+                        || ($row[16] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                        || ($row[16] == $cfgDisciplineType[$strDiscTypeThrow])
+                        || ($row[16] == $cfgDisciplineType[$strDiscTypeHigh])) {
+            $perf = AA_formatResultMeter($row[15]);
+     }
+     else {
+            if(($row[16] == $cfgDisciplineType[$strDiscTypeTrack])
+                        || ($row[16] == $cfgDisciplineType[$strDiscTypeTrackNoWind])){
+                            $perf = AA_formatResultTime($row[15], true, true);
+            }else{
+                            $perf = AA_formatResultTime($row[15], true);
+            }
+     }
+     if ($perf == 0){
+         $perf = '';
+     }
+    ?>
+    
+    <tr>
+        <th class="dialog"><?php echo $strQualifyValue; ?></th>
+         <td class="forms"><input type="text" name="perf" value="<?php echo $perf; ?>"
+            onchange="document.teamsm.submit()"></td>
+    </tr>
+    <?php
+    if (!empty($row[12])) {
+        ?>
+       
+      <th class="dialog"><?php echo $strGroup ?></td>
+            <td class='forms'> 
+                             <select name='group' id='group_selectbox' onChange='document.teamsm.submit()'> 
+                             <?php
+                               for ($i=1; $i < 3; $i++){
+                                   if ($row[12] == $i){
+                                         ?>
+                                     <option selected value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                     <?php   
+                                   }
+                                   else {
+                                        ?>
+                                     <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                     <?php    
+                                   }   
+                               }                                 
+                               ?>
+                                
+                             </select>      
+             </td>
+      </th>             
+     <?php
+    }
+    ?>
 	</form>
 	
 </table>
@@ -439,30 +715,50 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<input type="hidden" name="arg" value="add_athlete">
 		<input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
 		<input type="hidden" name="event" value="<?php echo $event ?>">
+         <input type="hidden" name="group" value="<?php echo $group; ?>">
 		<td class="forms" colspan="3">
 		<?php
-		// athletes who are registered for the current team event      
+		// athletes who are registered for the current team event  
+        $sqlClubLG=" = " .$club;
+        $arrClub=AA_meeting_getLG_Club($club);      // get all clubs with same LG
+       
+        if (count($arrClub) > 0) {
+            $sqlClubLG=" IN (";
+            foreach ($arrClub as $key => $val) {
+                $sqlClubLG.=$val .",";              
+           }
+           $sqlClubLG.=$club;    
+           $sqlClubLG.=")";
+        }   
+            
 		$dropdown = new GUI_Select("athlete", 1, "document.teamsm_add1.submit()");
 		$dropdown->addOption($strUnassignedAthletes, 0);
+       
+                   
 		$dropdown->addOptionsFromDB("
 			SELECT
 				a.xAnmeldung
-				, CONCAT(a.Startnummer, '. ', at.Name, ' ', at.Vorname, ' ( ' , at.Jahrgang, ' )')
+                , CONCAT( at.Name,' ', at.Vorname)   
+                , a.Startnummer
+                , at.Jahrgang
 			FROM
 				anmeldung AS a
 				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
 				LEFT JOIN start AS st ON (a.xAnmeldung = st.xAnmeldung)
-				LEFT JOIN teamsmathlet AS tsa ON (tsa.xAnmeldung = a.xAnmeldung
+				LEFT JOIN teamsmathlet AS tsa ON (tsa.xAnmeldung = a.xAnmeldung 
 					AND tsa.xTeamsm = ".$_POST['item'].")
 			WHERE
 				tsa.xTeamsm IS NULL
 			AND	st.xWettkampf = $event			
-			AND	at.xVerein = $club
+			AND	at.xVerein $sqlClubLG
 			ORDER BY
 				at.Name
 				, at.Vorname
-		");
-	    
+		", true);
+                      
+            
+        
+        
 		if(!empty($GLOBALS['AA_ERROR']))
 		{
 			AA_printErrorMsg($GLOBALS['AA_ERROR']);
@@ -476,6 +772,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<input type="hidden" name="arg" value="add_athlete">
 		<input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
 		<input type="hidden" name="event" value="<?php echo $event ?>">
+         <input type="hidden" name="group" value="<?php echo $group; ?>">
 		<td class="forms" colspan="2">
 		<?php
 		// athletes who are in the right club and LG          
@@ -495,7 +792,9 @@ else if(mysql_num_rows($result) > 0)  // data found
 		$dropdown->addOptionsFromDB("
 			SELECT
 				a.xAnmeldung
-				, CONCAT(a.Startnummer, '. ', at.Name, ' ', at.Vorname, ' ( ' , at.Jahrgang, ' )')
+                , CONCAT( at.Name,' ', at.Vorname)   
+                , a.Startnummer
+                , at.Jahrgang
 			FROM
 				anmeldung AS a
 				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
@@ -510,7 +809,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			ORDER BY
 				at.Name
 				, at.Vorname
-		");  
+		", true);  
       
 		if(!empty($GLOBALS['AA_ERROR']))
 		{
@@ -527,6 +826,8 @@ else if(mysql_num_rows($result) > 0)  // data found
 		<input type="hidden" name="arg" value="add_athlete">
 		<input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
 		<input type="hidden" name="event" value="<?php echo $event ?>">
+        <input type="hidden" name="disc" value="<?php echo $disc ?>"> 
+        <input type="hidden" name="group" value="<?php echo $group; ?>">
 		<td class="forms" colspan="4">
 		<?php
 		// athletes who are in the right club
@@ -535,7 +836,9 @@ else if(mysql_num_rows($result) > 0)  // data found
 		$dropdown->addOptionsFromDB("
 			SELECT
 				a.xAnmeldung
-				, CONCAT(a.Startnummer, '. ', at.Name, ' ', at.Vorname, ' ( ' , at.Jahrgang, ' )')
+                , CONCAT( at.Name,' ', at.Vorname)   
+                , a.Startnummer
+                , at.Jahrgang
 			FROM
 				anmeldung AS a
 				LEFT JOIN athlet AS at ON (at.xAthlet = a.xAthlet)
@@ -547,7 +850,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 			ORDER BY
 				at.Name
 				, at.Vorname
-		");
+		", true);
         
 	
 		if(!empty($GLOBALS['AA_ERROR']))
@@ -557,22 +860,15 @@ else if(mysql_num_rows($result) > 0)  // data found
 		$dropdown->printList();
 		?>
 		<br/>
-        </td> 
-        
+        </td>
         
         <td class="forms_bottom" > 
         <input type="button" value="<?php echo $strAdd ?>"
-                        onclick="document.teamsm_add3.submit()">
-                        
+                        onclick="document.teamsm_add3.submit()">                         
 		</td>
 		</form>         
   
-	</tr>
-    
-   
-    
-    
-    
+	</tr> 
      
      <tr><td class="blue" colspan="5"><?php echo $strCtrlHelp; ?></td></tr>  
      
@@ -585,6 +881,8 @@ else if(mysql_num_rows($result) > 0)  // data found
        <input type="hidden" name="arg" value="add_athlete_stnr"> 
        <input type="hidden" name="item" value="<?php echo $_POST['item'] ?>">
         <input type="hidden" name="event" value="<?php echo $event ?>">
+         <input type="hidden" name="disc" value="<?php echo $disc ?>"> 
+         <input type="hidden" name="group" value="<?php echo $group; ?>">      
         
        <input name='startnr' type='text' value='' size="4" onchange='this.form.submit()'/>  
     </td>
@@ -602,7 +900,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 	<?php    
 	
 	echo "<br>";
-	$btn = new GUI_Button("meeting_teamsm.php?arg=del&item=".$_POST['item'], $strDelete);
+	$btn = new GUI_Button("meeting_teamsm.php?arg=del&item=".$_POST['item']. "&disc=".$disc, $strDelete);
 	$btn->printButton();
 }// ET DB error
 ?>

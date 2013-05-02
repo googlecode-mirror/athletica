@@ -372,7 +372,7 @@ if(mysql_errno() > 0) {	// DB error
 else if(mysql_num_rows($result) > 0)  // data found
 {
 	$row = mysql_fetch_row($result);
-	$xDiscipline = $row[9];
+	$xDiscipline = $row[9];      
 	
 	$page->printPageTitle("$row[7], $row[8]");
 ?>
@@ -517,6 +517,7 @@ $result = mysql_query("
 		, rs.Hauptrunde
 		, rt.Name
 		, rs.xRundenset
+        , r.Gruppe
 	FROM
 		runde AS r
 		LEFT JOIN rundenset AS rs ON (rs.xRunde = r.xRunde AND rs.xMeeting = ". $_COOKIE['meeting_id'] .")  
@@ -565,7 +566,8 @@ else			// no DB error
 	<input name='round' type='hidden' value='<?php echo $row[0]; ?>'>
 	<input name='item' type='hidden' value='<?php echo $event; ?>'>
 	<input name='cat' type='hidden' value='<?php echo $category; ?>' />
-	<input name='xDis' type='hidden' value='<?php echo $xDiscipline; ?>' />
+	<input name='xDis' type='hidden' value='<?php echo $xDiscipline; ?>' />     
+    <input name='g' type='hidden' value='<?php echo $row[12]; ?>' />  
 		<?php
 		$dd = new GUI_RoundtypeDropDown($row[5]);
 		$dd = new GUI_DateDropDown($row[1]);

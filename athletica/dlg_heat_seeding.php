@@ -333,7 +333,9 @@ if($round > 0)
 					. " WHERE $sqlEvents"
 					. " AND s.Anwesend=0";
 		}
-		if($teamsm && !empty($cGroup)){ // team sm event with group (tech)
+		if($teamsm) {
+            
+           if (!empty($cGroup)){ // team sm event with group (tech)
 			$query = "SELECT
 						  COUNT(*)
 					  FROM
@@ -343,11 +345,28 @@ if($round > 0)
 					  WHERE 
 						  ".$sqlEvents."   
 					  AND
-						  a.Gruppe = '".$cGroup."'
+						  s.Gruppe = '".$cGroup."'
 					  AND 
 						  s.Anwesend = 0;";
-		}
-	
+		    }
+            else {
+                  $query = "SELECT
+                              DISTINCT s.xAnmeldung                             
+                          FROM
+                              start AS s
+                          INNER JOIN
+                              anmeldung AS a USING(xAnmeldung)
+                          INNER JOIN
+                              teamsmathlet AS tat ON (s.xAnmeldung = tat.xAnmeldung)
+                          WHERE 
+                              ".$sqlEvents."   
+                          AND
+                              s.Gruppe = '".$cGroup."'
+                          AND 
+                              s.Anwesend = 0;";
+                  
+            }
+        }
 		$res = mysql_query($query);
 		
 		if(mysql_errno() > 0)		// DB error
@@ -356,9 +375,16 @@ if($round > 0)
 		}
 		else
 		{
-			$row = mysql_fetch_row($res);
-			$present = $row[0];
-			mysql_free_result($res);
+            if ($teamsm && empty($cGroup)){
+                 $present = mysql_num_rows($res);
+            }
+            else {
+                 $row = mysql_fetch_row($res);
+                 $present = $row[0];
+                 mysql_free_result($res);   
+            }
+			
+			
 		}
 		
 		if(($type == $cfgDisciplineType[$strDiscTypeJump])
@@ -399,6 +425,7 @@ if($round > 0)
 		<input name='event' type='hidden' value='<?php echo $event; ?>' />
 		<input name='round' type='hidden' value='<?php echo $round; ?>' />
 		<input name='cGroup' type='hidden' value='<?php echo $cGroup; ?>' />
+        <input name='teamsm' type='hidden' value='<?php echo $teamsm; ?>' />   
 			<table class='dialog'>
 <?php
 		if(!empty($roundname)) {		// round name set

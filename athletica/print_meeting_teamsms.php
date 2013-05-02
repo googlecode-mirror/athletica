@@ -27,19 +27,19 @@ $cat_clause="";
 $disc_clause=""; 
 $club_clause="";
 
-// default sort argument: category, relay name
-$argument="v.Sortierwert,  k.anzeige, t.Name";  
+// default sort argument: category, team sm name
+$argument="v.sortierwert, k.anzeige, t.Name";  
 
 
 // sort according to "group by" arguments
 if ($_GET['discgroup'] == "yes") {
-    $argument = "d.Anzeige, " . $argument;
+    $argument = "d.Anzeige, t.Name";
 }
 if ($_GET['catgroup'] == "yes") {
-    $argument = "k.Anzeige, " . $argument;
+    $argument = "k.Anzeige, t.Name";
 }
 if ($_GET['clubgroup'] == "yes") {
-    $argument = "v.Sortierwert, " . $argument;
+    $argument = "v.Sortierwert, k.anzeige, t.Name";
 }
 
 // selection arguments
@@ -99,7 +99,7 @@ else if (($_GET['clubgroup'] == "yes")
     && ($_GET['discgroup'] == "yes"))
 {
     if($print == true) {
-        $doc = new PRINT_ClubCatDiscEntryPage($_COOKIE['meeting']);
+        $doc = new PRINT_ClubDiscTeamPage($_COOKIE['meeting']);
     }
     else {
         $doc = new GUI_ClubDiscTeamPage($_COOKIE['meeting']);
@@ -165,7 +165,7 @@ if($_GET['enrolSheet'] == 'enrolSheet') {        // print cover page
 ");*/
 
 // Read all teams
-$sql = "SELECT t.xTeamsm
+$sql = "SELECT DISTINCT t.xTeamsm
 			   , v.Name
 			   , k.Name
 			   , t.Name
@@ -174,17 +174,26 @@ $sql = "SELECT t.xTeamsm
                , d.name
                , w.xKategorie
                , d.xDisziplin
+               , t.Quali
+               , t.Leistung
+               , d.Typ
+               , TIME_FORMAT(r.Appellzeit, '$cfgDBtimeFormat')
+               , TIME_FORMAT(r.Startzeit, '$cfgDBtimeFormat')
+               , TIME_FORMAT(r.Stellzeit, '$cfgDBtimeFormat')              
+               , DATE_FORMAT(r.Datum, '$cfgDBdateFormat')
+               , w.info
 		  FROM teamsm AS t
 	 LEFT JOIN kategorie AS k ON(t.xKategorie = k.xKategorie)
 	 LEFT JOIN verein AS v ON(t.xVerein = v.xVerein) 
      LEFT JOIN wettkampf AS w ON(w.xWettkampf = t.xWettkampf) 
+     LEFT JOIN runde AS r ON (r.xWettkampf = w.xWettkampf)
      LEFT JOIN disziplin_" . $_COOKIE['language'] ." AS d ON(d.xDisziplin = w.xDisziplin) 
 	 	 WHERE t.xMeeting = ".$_COOKIE['meeting_id']." 
 	 	   ".$cat_clause."
            ".$disc_clause."   
 	 	   ".$club_clause." 
 	  ORDER BY " . $argument;   
-           
+
 $result = mysql_query($sql);
 
 if(mysql_errno() > 0)		// DB error
@@ -198,46 +207,73 @@ else if(mysql_num_rows($result) > 0)  // data found
     $l = 0;        // line counter
     $k = "";        // current category
     $v = "";        // current club
-
+   
+    
     // Team loop 
     // full display ordered by name or start nbr   
     while ($row = mysql_fetch_row($result))
     {   
-          // print previous relay, if any
+        
+        
+         $doc->event = $row[6] .$row[16];
+         $doc->cat = $row[2];
+         
+         $et = "";
+          $ot = "";
+          if($row[12] != "00:00"){ // add enrolement time
+              $et = ", " . $row[12];
+          }
+          $ot .= " ($strStarttime $row[13]"; // add starttime
+          if($row[14] != "00:00"){ // add manipulation time
+              $ot .= ", $strManipulationTime $row[14]";
+          }
+          $ot .= ")";
+          
+         $doc->time = $strEnrolement. ": " . $row[15] . $et;
+         $doc->timeinfo = $ot;
+        
+        
+        
+        
+        
+        
+        
+        
+          // print previous team sm, if any
         if($s != $row[0] && $s > 0)
         {
             if((is_a($doc, "PRINT_CatTeamPage"))
                 || (is_a($doc, "GUI_CatTeamPage")))
               {
-                $doc->printLine($name, $club, $disc, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $club, $disc, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
             }
             else if((is_a($doc, "PRINT_ClubTeamPage"))
                 || (is_a($doc, "GUI_ClubTeamPage")))
               {
-                $doc->printLine($name, $cat, $disc, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $cat, $disc, $perf, $startnbr,$enrolSheet,$quali, $teamPerf );
             }
             else if((is_a($doc, "PRINT_CatDiscTeamPage"))
                 || (is_a($doc, "GUI_CatDiscTeamPage")))
               {
-                $doc->printLine($name, $club, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $club, $perf, $startnbr,$enrolSheet, $quali, $teamPerf );
             }
             else if((is_a($doc, "PRINT_ClubDiscTeamPage"))
                 || (is_a($doc, "GUI_ClubDiscTeamPage")))
               {
-                $doc->printLine($name, $cat, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $cat, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
             }
             else if((is_a($doc, "PRINT_ClubCatTeamPage"))
                 || (is_a($doc, "GUI_ClubCatTeamPage")))
               {
-                $doc->printLine($name, $disc, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $disc, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
             }
             else if((is_a($doc, "PRINT_ClubCatDiscTeamPage"))
                 || (is_a($doc, "GUI_ClubCatDiscTeamPage")))
               {
-                $doc->printLine($name, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
             }
             else {
-                $doc->printLine($name, $cat, $club, $disc, $perf, $startnbr,$enrolSheet);
+                $doc->printLine($name, $cat, $club, $disc, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
             }
 
             $athletes = '';
@@ -258,6 +294,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                             WHERE sma.xTeamsm = ".$s." 
                        ORDER BY at.Name
                                    , at.Vorname";
+         
             $res = mysql_query($sql);
             
             if(mysql_errno() > 0) {        // DB error
@@ -296,6 +333,7 @@ else if(mysql_num_rows($result) > 0)  // data found
 
             $doc->printAthletes($athletes, true);
             $l++;            // increment line count
+            
 
             $name = "";
             $cat = "";
@@ -317,7 +355,7 @@ else if(mysql_num_rows($result) > 0)  // data found
                         || ($_GET['catbreak']=="yes") && ($k != $row[4])
                         || ($_GET['discbreak']=="yes") && ($d != $row[6]))
                     {
-                        $doc->insertPageBreak();
+                        $doc->insertPageBreak();                        
                     }
                 }
             }
@@ -325,54 +363,71 @@ else if(mysql_num_rows($result) > 0)  // data found
             if((is_a($doc, "PRINT_CatTeamPage"))
                 || (is_a($doc, "GUI_CatTeamPage")))
               {
-                $doc->printSubTitle($row[2]);
+                $doc->printTitle($row[2]);
             }
             else if((is_a($doc, "PRINT_ClubTeamPage"))
                 || (is_a($doc, "GUI_ClubTeamPage")))
               {
-                $doc->printSubTitle($row[1]);
+                $doc->printTitle($row[1]);
             }
             else if((is_a($doc, "PRINT_CatDiscTeamPage"))
                 || (is_a($doc, "GUI_CatDiscTeamPage")))
               {
-                $doc->printSubTitle($row[2] . " " . $row[6]);
+                $doc->printTitle($row[2] . " " . $row[6]);
             }
             else if((is_a($doc, "PRINT_ClubDiscTeamPage"))
                 || (is_a($doc, "GUI_ClubDiscTeamPage")))
               {
-                $doc->printSubTitle($row[1] . " " . $row[6]);
+                $doc->printTitle($row[1] . " " . $row[6]);
             }
             else if((is_a($doc, "PRINT_ClubCatTeamPage"))
                 || (is_a($doc, "GUI_ClubCatTeamPage")))
               {
-                $doc->printSubTitle($row[1] . " " . $row[2]);
+                $doc->printTitle($row[1] . " " . $row[2]);
             }
             else if((is_a($doc, "PRINT_ClubCatDiscTeamPage"))
                 || (is_a($doc, "GUI_ClubCatDiscTeamPage")))
               {
-                $doc->printSubTitle($row[1] . " " . $row[2] . " " . $row[6]);
+                $doc->printTitle($row[1] . " " . $row[2] . " " . $row[6]);
             }
             else {
-                $doc->printSubTitle($row[6]);
+                $doc->printTitle($row[6]);
             }
 
             $l = 0;                // reset line counter
             $k = $row[4];        // keep current category
             $v = $row[1];        // keep current club
             $d = $row[6];        // keep current discipline
+           
         }
 
-        if($l == 0) {                    // new page, print header line
+        if($l == 0) {                    // new page, print header line           
             printf("<table class='dialog'>\n");
-            $doc->printHeaderLine($enrolSheet);
+            $doc->printHeaderLine($enrolSheet);   
+
         }
 
         $name = $row[3];    // team name
         $cat = $row[2];        // category
         $club = $row[1];
         $disc = $row[6];    // discipline
-        $startnbr = $row[5];    // start number
-        $perf = AA_formatResultTime($row[9]);
+        $startnbr = $row[5];    // start number        
+        
+        $quali = $row[9]; 
+        if(($row[11] == $cfgDisciplineType[$strDiscTypeJump])
+                        || ($row[11] == $cfgDisciplineType[$strDiscTypeJumpNoWind])
+                        || ($row[11] == $cfgDisciplineType[$strDiscTypeThrow])
+                        || ($row[11] == $cfgDisciplineType[$strDiscTypeHigh])) {
+                        $teamPerf = AA_formatResultMeter($row[10]);
+        }
+        else {
+            if(($row[11] == $cfgDisciplineType[$strDiscTypeTrack])
+                            || ($row[11]== $cfgDisciplineType[$strDiscTypeTrackNoWind])){
+                            $teamPerf = AA_formatResultTime($row[10], true, true);
+            }else{
+                $teamPerf = AA_formatResultTime($row[10], true);
+            }
+        }        
         
         $l++;            // increment line count
         $s = $row[0];
@@ -385,12 +440,12 @@ else if(mysql_num_rows($result) > 0)  // data found
         if((is_a($doc, "PRINT_CatTeamPage"))
             || (is_a($doc, "GUI_CatTeamPage")))
         {
-            $doc->printLine($name, $club, $disc, $perf, $startnbr,$enrolSheet);
+            $doc->printLine($name, $club, $disc, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
         }
         else if((is_a($doc, "PRINT_ClubTeamPage"))
             || (is_a($doc, "GUI_ClubTeamPage")))
         {
-            $doc->printLine($name, $cat, $disc, $perf, $startnbr,$enrolSheet);
+            $doc->printLine($name, $cat, $disc, $perf, $startnbr,$enrolSheet, $quali, $teamPerf);
         }
         else if((is_a($doc, "PRINT_CatDiscTeamPage"))
             || (is_a($doc, "GUI_CatDiscTeamPage")))
@@ -400,15 +455,15 @@ else if(mysql_num_rows($result) > 0)  // data found
         else if((is_a($doc, "PRINT_ClubCatTeamPage"))
             || (is_a($doc, "GUI_ClubCatTeamPage")))
         {
-            $doc->printLine($name, $disc, $perf, $startnbr,$enrolSheet);
+            $doc->printLine($name, $disc, $perf, $startnbr,$enrolSheet,  $quali, $teamPerf);
         }
         else if((is_a($doc, "PRINT_ClubCatDiscTeamPage"))
             || (is_a($doc, "GUI_ClubCatDiscTeamPage")))
         {
-            $doc->printLine($name, $perf, $startnbr,$enrolSheet);
+            $doc->printLine($name, $perf, $startnbr,$enrolSheet,  $quali, $teamPerf);
         }
         else {
-            $doc->printLine($name, $cat, $club, $disc, $perf, $startnbr, $enrolSheet);
+            $doc->printLine($name, $cat, $club, $disc, $perf, $startnbr, $enrolSheet, $quali, $teamPerf );
         }
 
         $l++;            // increment line count

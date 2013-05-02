@@ -29,6 +29,9 @@ $ukc_meeting = AA_checkMeeting_UKC() ;
 
 $manual_club = '';
 
+// check Teamsm
+$teamsm = AA_checkTeamSM(0,0);
+
 //
 // check if a heat is assigned
 //
@@ -2215,6 +2218,8 @@ else {
  <?php 
     
     }
+    
+    if (!$teamsm){
  ?>
  
 <tr>
@@ -2242,7 +2247,7 @@ else {
 
 
     <?php
-    
+    }
     }
     
     //

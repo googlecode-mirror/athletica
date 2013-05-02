@@ -9,6 +9,8 @@
 
 require('./lib/cl_gui_page.lib.php');
 require("./lib/cl_gui_dropdown.lib.php");
+require('./lib/cl_result.lib.php'); 
+require('./lib/cl_performance.lib.php');   
 
 require('./lib/common.lib.php');
 
@@ -45,11 +47,16 @@ if(!empty($_POST['startnumber'])) {
     $nbr = $_POST['startnumber'];    // store selected startnumber
 }
 
+$group = '-';
+if(!empty($_POST['group'])) {           // store selected group     
+    $group = $_POST['group'];    
+}
+
 //
 // add team
 //
 if ($_POST['arg']=="add")
-{
+{   
 	$name = $_POST['name'];
 	
 	// Error: Empty fields
@@ -63,6 +70,10 @@ if ($_POST['arg']=="add")
 				, kategorie READ
                 , anmeldung READ
                 , staffel READ
+                , start as s READ
+                , runde as r READ 
+                , runde WRITE   
+                , wettkampf as w READ  
 				, verein READ");
 		
 		if(AA_checkReference("kategorie", "xKategorie", $_POST['category']) == 0){
@@ -103,8 +114,32 @@ if ($_POST['arg']=="add")
                             $nbr = AA_getNextStartnbr($nbr);
                         }
                     }
+            }              
+       
+            if (!$_POST['techDisc']) {
+                $group = '';
             }
             
+            if (empty($_POST['perf'])){ 
+                $perf = 0;  
+            }
+            else {                  
+                if ($_POST['techDisc']) {                            
+                             $perf = new PerformanceAttempt($_POST['perf']);
+                             $perf->performance = $perf->getPerformance();
+                             $perf = $perf->getPerformance();
+                 }
+                 else {                          
+                        $perf = new PerformanceTime($_POST['perf'], false);
+                        $perf->performance = $perf->getPerformance();  
+                        $perf = $perf->getPerformance();   
+                 }  
+             }  
+            $quali = $_POST['quali'];
+            if (empty($_POST['quali'])){
+                $quali= 0;
+            }
+             
 			// add
 			mysql_query("INSERT INTO teamsm SET
 					Name = '".$_POST['name']."'
@@ -112,20 +147,36 @@ if ($_POST['arg']=="add")
 					, xVerein = ".$_POST['club']."
 					, xWettkampf = ".$_POST['event']."
                     , Startnummer = ".$nbr." 
+                    , Gruppe = '".$group."'
+                    , Quali = ".$quali."    
+                    , Leistung = ".$perf ."   
 					, xMeeting = ".$_COOKIE['meeting_id']."");
+                    
 			
 			if(mysql_errno() > 0){
 				AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 			}else{
 				$xTeam = mysql_insert_id();
 			}
-		}
-		
+		} 
+		if ($quali == 0){
+            $quali = '';
+        }
+        
+        if ($_POST['techDisc']){                           
+              $perf = AA_formatResultMeter($perf);
+        }
+        else {  
+              $perf = AA_formatResultTime($perf, true);
+                
+        }
+        if ($perf == 0){
+             $perf = '';
+        }  
 		mysql_query("UNLOCK TABLES");
 	}
 }
-
-
+        
 //
 // display data
 //
@@ -143,25 +194,43 @@ if ($_POST['arg']=="add")
 </script>
 	<?php
 }
-
+    $techDisc = false;
+if (isset($_POST['event']) && $_POST['event'] > 0 ){    
+       $techDisc = AA_checkEventDisc($_POST['event']); 
+}
 
 ?>
 <table>
-<tr>
-	<form action="meeting_teamsm_add.php" method="POST" name="select">
-	<th class="dialog"><?php echo $strClub ?></td>
-	<?php $dd = new GUI_ClubDropDown($club, true, "document.select.submit()"); ?>
-	<th class="dialog"><?php echo $strCategory ?></td>
-	<?php $dd = new GUI_CategoryDropDown($category, "document.select.event.value=0; document.select.submit()", false); ?>
-	<th class="dialog"><?php echo $strDiscipline ?></td>
-	<?php $dd = new GUI_EventDropDown($category, $event, "document.select.submit()"); ?>
-	</form>
+
+  <tr>
+    <td class='forms'>
+        <?php AA_printClubSelection("meeting_teamsm_add.php", $club, $category, 0, true); ?>
+    </td>
+    <td class='forms'>
+        <?php AA_printCategoryEntries("meeting_teamsm_add.php", $category, $club); ?>
+    </td>
+    <td class='forms'>
+        <?php AA_printTeamsmSelection("meeting_teamsm_add.php", $category, $event, $club); ?>
+    </td>
+     <?php
+    if ($techDisc){  
+           ?>
+        <td class='forms'>
+            <?php AA_printGroupSelection("meeting_teamsm_add.php", $category, $event, $club, $group); ?>
+        </td>
+        <?php
+    }      
+    ?>  
+    
 </tr>
+
+
+
 </table>
 <?php
 
-if((!empty($event)) && (!empty($club)))		// category & club selected
-{
+if((!empty($event)) && (!empty($club)) && (  ($techDisc && ($group!='-'))  || (!$techDisc)                ))		// category & club selected
+{        
 	?>
 
 <br>
@@ -218,6 +287,8 @@ mysql_free_result($res);
         <input name='arg' type='hidden' value='add' />
         <input name='event' type='hidden' value='<?php echo $event; ?>' />
         <input name='club' type='hidden' value='<?php echo $club; ?>' />
+         <input name='group' type='hidden' value='<?php echo $group; ?>' />  
+         <input name='techDisc' type='hidden' value='<?php echo $techDisc; ?>' />    
         <input class='text' name='name' type='text' maxlength='100'
             value="<?php echo $clubName." ".$disciplineName ?>" />
     </td>
@@ -245,6 +316,18 @@ mysql_free_result($res);
 		<input type="radio" name="category" value="<?php echo $tempcat['WOM_'] ?>"
 			<?php echo ($categorySex == 'w') ? "checked" : ""; ?>> WOM   
 	</td>
+</tr>
+<tr> 
+      <th class='dialog'> <?php echo $strQualifyRank; ?>     
+     </th>
+    <td class="forms">   <input class='quali' type='text' maxlength='6' name="quali" value="<?php echo $quali; ?>">   
+     </td>
+</tr>
+<tr> 
+      <th class='dialog'> <?php echo $strQualifyValue; ?>     
+     </th>
+    <td class="forms">   <input class='perf' type='text' maxlength='6' name="perf" value="<?php echo $perf; ?>">   
+     </td>
 </tr>
 </table>
 <p/>

@@ -3342,7 +3342,7 @@ if(!empty($club2) && false){ // not yet in use
 	<?php $dd = new GUI_CategoryDropDown($category, "check_category($allow_search_from_base)", true); ?>
 </tr>
 <tr>
-	<th class='dialog'><?php echo $strTeam; ?></th>
+	<th class='dialog'><?php echo $strTeam; ?>Test</th>
 	<?php
 		$dd = new GUI_TeamDropDown($category, $club, $team);
 	?>
