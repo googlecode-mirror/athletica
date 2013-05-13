@@ -650,7 +650,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
                             . $order_perf;                         
                 }
                 else {                        // relay event
-                     echo "relay";                                  
+                                
                     $query = "
                         SELECT
                             ss.xSerienstart
@@ -1355,7 +1355,6 @@ document.getElementById("progress").width="<?php echo $width ?>";
                     $this->close_open_tags("disciplines");
                 }
                 
-                
             $combined = array();
             
             // get the svm results
@@ -1388,11 +1387,12 @@ document.getElementById("progress").width="<?php echo $width ?>";
                 ORDER BY
                     w.xWettkampf
             ");
-            
+           
             if(mysql_errno() > 0){
+                
                 echo(mysql_errno().": ".mysql_error());
             }else{
-                
+               
                 while($row = mysql_fetch_array($res)){
                     //
                     // open rankinlist_team lib for calculating the svm points
@@ -1402,9 +1402,8 @@ document.getElementById("progress").width="<?php echo $width ?>";
                         $this->write_xml_open("teams");
                         
                         $GLOBALS['doe'] = $row[10]; // date of team effort (last round date)
-                        $GLOBALS['rankadd'] = $global_rankadd;
-                        AA_rankinglist_Team($row[8], 'xml', "", false, $this);
-                        
+                        $GLOBALS['rankadd'] = $global_rankadd;                       
+                        AA_rankinglist_Team($row[8], 'xml', "", false, $this);                         
                         $this->close_open_tags("disciplines");
                     }
                 }
@@ -1415,7 +1414,7 @@ document.getElementById("progress").width="<?php echo $width ?>";
         }
         
         $this->gzip_close();
-        
+       
         return $nbr_effort;
     }
     
