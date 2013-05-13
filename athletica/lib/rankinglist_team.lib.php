@@ -881,7 +881,7 @@ function processCombined($xCategory, $category, $type, $wTyp)
         $country = '';  
 	
 		while($row = mysql_fetch_row($results))
-		{      
+		{    
 			// store previous athlete before processing new athlete
 			if(($a != $row[0])		// new athlete
 				&& ($a > 0))			// first athlete processed
@@ -982,7 +982,7 @@ function processCombined($xCategory, $category, $type, $wTyp)
 			{   
 				while($pt_row = mysql_fetch_row($res))
 				{
-                    if ($row[8] != NULL) {
+                    if ($row[8] != NULL && $pt_row[4] != NULL) {
                        
                             $sql = "INSERT INTO tmp_team 
                                             VALUES (
@@ -1119,6 +1119,7 @@ function processCombined($xCategory, $category, $type, $wTyp)
 		$tp = 0;
         
          $t = 0;
+
         foreach($teamList as $team)
             {
                
@@ -1140,7 +1141,7 @@ function processCombined($xCategory, $category, $type, $wTyp)
         $key_2 = array();  
         $p = 0;     
         $i = 0;  
-       
+        
         foreach($teamList as $team)
             {
                 $r++;
@@ -1175,7 +1176,7 @@ function processCombined($xCategory, $category, $type, $wTyp)
        }       
         
        usort($teamList, "cmp_rank");      
-       
+
         
         if ($type == 'teamP'){                     // ranking athletes not depending on team                
             
