@@ -690,7 +690,7 @@ class PRINT_RankingList extends PRINT_Page
 			$this->insertPageBreak(); 
 			$this->printSubTitle();  			 	
 			printf("<table class='rank'>");  
-			$this->printHeaderLine('', $this->relay, $this->pointinfo, $this->windinfo, '', '', false, false, false, '', $withStartnr);          
+			$this->printHeaderLine('', $this->relay, $this->points, $this->wind, '', '', false, false, false, '', $withStartnr);          
 		}   
        
         // count more lines if string is to long (club string) 
@@ -1024,20 +1024,20 @@ class PRINT_TeamSheet extends PRINT_Page
 		<td class='sheet_col1'><?php echo $GLOBALS['strPlace'] . ", " . $GLOBALS['strStadium']; ?></td>
 		<td class='sheet_col2'><?php echo $place . ", " . $stadium; ?></td>
 		<td class='sheet_col3'><?php echo $GLOBALS['strDate']; ?></td>
-		<td class='sheet_col4' colspan='3'><?php echo $date; ?></td>
+		<td class='sheet_col4' colspan='4'><?php echo $date; ?></td>
 	</tr>
 	<tr>
 		<td class='sheet_col1'><?php echo $GLOBALS['strClub']; ?></td>
 		<td class='sheet_team'><?php echo $team; ?></td>
 		<td class='sheet_col3'><?php echo $GLOBALS['strCategory']; ?></td>
-		<td class='sheet_cat' colspan='3'><?php echo $category; ?></td>
+		<td class='sheet_cat' colspan='4'><?php echo $category; ?></td>
 	</tr>
 	<tr>
 		<td class='sheet_col1'><?php echo $GLOBALS['strCompetition']; ?></td>
-		<td class='sheet_col2' colspan='5'><?php echo $competitors; ?></td>
+		<td class='sheet_col2' colspan='6'><?php echo $competitors; ?></td>
 	</tr>
 	<tr>
-		<td colspan='6'><hr class='sep'/></td>
+		<td colspan='7'><hr class='sep'/></td>
 	</tr>
 <?php
 		$this->linecnt = $this->linecnt + 3;			// increment line count
@@ -1080,6 +1080,7 @@ class PRINT_TeamSheet extends PRINT_Page
 		<td class='sheet_name'><?php echo $name; ?></td>
 		<td class='sheet_perf'><?php echo $perf; ?></td>
 		<td class='sheet_wind'><?php echo $wind; ?></td>
+       <td class='sheet_pts'><?php echo $points; ?></td>
 		<td class='sheet_remark'><?php echo $remark; ?></td>
 		<td class='sheet_tot'><?php echo $total; ?></td>
 	</tr>
