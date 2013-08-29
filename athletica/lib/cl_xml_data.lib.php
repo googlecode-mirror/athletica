@@ -1154,6 +1154,12 @@ document.getElementById("progress").width="<?php echo $width ?>";
                             }
                             
                             // output result data
+                            
+                            // temp. solution (wind only with 4 characters)
+                            $windEnd= substr($wind,-1);
+                            if ($windEnd == 'm'){
+                                $wind= substr($wind,0,-1);
+                            }
                             $this->write_xml_finished("wind",$wind);
                             $this->write_xml_finished("kindOfLap"," ".$row_results['Typ']);    // round type
                             $this->write_xml_finished("lap",$row_results['Bezeichnung']);    // heat name (A_, B_, 01, 02 ..)  
@@ -1833,11 +1839,11 @@ function gen_result_xml_UKC($file){
                                         'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'indoor'=>$indoor, 'points'=>$row_results['Punkte'],
                                         'effort'=>$perfRounded, 'discipline'=>$row[6], 'license'=>$license, 'kidID'=>$kidsID_upload,
                                         'inMasterData'=>$inMasterData, 'licensePaid'=>$licensePaid, 'DateOfEffort'=>$row_results['Datum'],
-                                        'lastName'=>$row_results['Name'], 'firstName'=>$row_results['Vorname'], 
+                                        'lastName'=>htmlspecialchars($row_results['Name']), 'firstName'=>htmlspecialchars($row_results['Vorname']), 
                                         'birthDate'=>$row_results['Jahrgang'], 'sex'=>strtoupper ( $row_results['Geschlecht']), 'nationality'=>$row_results['Land'], 
-                                        'adress'=>$row_results['Adresse'],  'plz'=>$row_results['Plz'],  'city'=>$row_results['Ort'],
+                                        'adress'=>htmlspecialchars($row_results['Adresse']),  'plz'=>$row_results['Plz'],  'city'=>htmlspecialchars($row_results['Ort']),
                                          'email'=>$row_results['Email'],   'canton'=>$row_results['Kanton'], 
-                                        'accountName'=>$row_results['Vereinname'], 'priority'=>$combinedPriority, 
+                                        'accountName'=>htmlspecialchars($row_results['Vereinname']), 'priority'=>$combinedPriority, 
                                         'licenseType'=>$row_results['Lizenztyp']);
                                     
                                     // category of athlete, used for calculating the rankings
@@ -2428,11 +2434,11 @@ function gen_result_xml_UKC_CM($file, $meeting_nr){
                                         'lap'=>$row_results['Bezeichnung'], 'placeAddon'=>$rankadd, 'indoor'=>$indoor, 'points'=>$row_results['Punkte'],
                                         'effort'=>$perfRounded, 'discipline'=>$row[6], 'license'=>$license, 'kidID'=>$kidsID_upload,
                                         'inMasterData'=>$inMasterData, 'licensePaid'=>$licensePaid, 'DateOfEffort'=>$row_results['Datum'],
-                                        'lastName'=>$row_results['Name'], 'firstName'=>$row_results['Vorname'], 
+                                        'lastName'=>htmlspecialchars($row_results['Name']), 'firstName'=>htmlspecialchars($row_results['Vorname']), 
                                         'birthDate'=>$row_results['Jahrgang'], 'sex'=>strtoupper ( $row_results['Geschlecht']), 'nationality'=>$row_results['Land'], 
-                                        'adress'=>$row_results['Adresse'],  'plz'=>$row_results['Plz'],  'city'=>$row_results['Ort'],
+                                        'adress'=>htmlspecialchars($row_results['Adresse']),  'plz'=>$row_results['Plz'],  'city'=>htmlspecialchars($row_results['Ort']),
                                          'email'=>$row_results['Email'],   'canton'=>$row_results['Kanton'], 
-                                        'accountName'=>$row_results['Vereinname'], 'priority'=>$combinedPriority, 
+                                        'accountName'=>htmlspecialchars($row_results['Vereinname']), 'priority'=>$combinedPriority, 
                                         'licenseType'=>$row_results['Lizenztyp'], 'dCode'=>$row_results['dCode'], 'xAnmeldung'=>$row_results['xAnmeldung'], 
                                         'xSerienstart'=>$row_results['xSerienstart'], 'Leistung'=>$row_results['Leistung'], 'xathlete'=>$row_results['xAthlet']);        
                                     
