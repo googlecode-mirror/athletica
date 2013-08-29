@@ -16,7 +16,7 @@
  * Application Info
  */
 $cfgApplicationName = 'Athletica';
-$cfgApplicationVersion = '6.1';
+$cfgApplicationVersion = '6.2';
 $cfgInstallDir = '[ATHLETICA]';
 
 /**
@@ -84,7 +84,8 @@ $cfgBackupCompatibles = array(
     '5.2',  
     '5.3',    
     '6.0',
-    '6.1'                        
+    '6.1',
+    '6.2'                                              
 );
 
 
@@ -169,7 +170,7 @@ $cfgCombinedDef = array(	410 => 'MAN'		// Stadion
                 , 414 => '10MASM'   // Zehnkampf MM
 				, 402 => '6U16M'    // Sechskampf U16M
 				, 400 => 'WOM'
-				, 401 => 'U18W'
+				, 401 => 'U18W'     // Siebenkamp U18W
                 , 406 => '5U16M'     // Fünfkampf U16 M   
                 , 425 => '5U16MI'    // Fünfkampf U16 M Indoor  
                 , 407 => 'U23M'     // Fünfkampf U23 M
@@ -209,7 +210,7 @@ $cfgCombinedWO = array(	'MAN' => array(40,330,351,310,70,271,361,320,391,110)
 			, '6U16M_F' => 1                
 			, 'WOM' => array(261,310,349,50,330,388,90)
 			, 'WOM_F' => 4
-			, 'U18W' => array(259,330,388,50,310,352,90)
+			, 'U18W' => array(259,330,390,50,310,352,90)
 			, 'U18W_F' => 4               
 			, 'U16W' => array(35,330,352,310,100)
 			, 'U16W_F' => 2  
