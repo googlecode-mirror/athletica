@@ -674,7 +674,7 @@ function AA_sheets_processSingle($xCategory, $category, $selection2)
 
 					if($c < $a)		// show only top ranking relays
 					{
-						$perf = AA_formatResultTime($pt_row[2], true, true);
+						$perf = AA_formatResultTime($pt_row[2], true, false);
 
 						// calculate points
 						$p = $p + $pt_row[3];			// accumulate points per discipline
