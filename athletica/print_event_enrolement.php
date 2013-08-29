@@ -6,7 +6,7 @@
  *	-------------------------
  *	
  */
-               
+       
 include('./config.inc.php');
 require('./lib/common.lib.php');
 require('./lib/cl_print_entrypage.lib.php');
@@ -482,12 +482,12 @@ else
                             LEFT JOIN athlet as at ON (at.xAthlet = a.xAthlet)
                             LEFT JOIN team as t ON st.xTeam = t.xTeam
                      WHERE 
-                            s.xWettkampf = " . $event ."                        
-                     GROUP BY stat.xAthletenstart
+                            s.xWettkampf = " . $event ."       
                      ORDER BY $sortAddition $sort , stat.position ";     
-                  
+                   
 		  }
 
+   
           $res = mysql_query($query);    
            
           $first=true;
@@ -497,13 +497,13 @@ else
 			  AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 		  }
 		  else if(mysql_num_rows($res) > 0)  // data found
-		  {
+		  {  
 			  $l = 0;		// line counter
               $noDisc = false;      
               
 			  // full list
 			  while ($row = mysql_fetch_row($res))
-			  {  
+			  {   
                   if (!$relay){        // not relay and not combined        
                         // print only disciplines related to header 
                         if ($row[8]!=$discHeader & $xComb==0 ){ 
@@ -604,7 +604,6 @@ else
 	}		// END WHILE events
 	mysql_free_result($result);
 }	// ET DB error event data
-
 
 $doc->endPage();		// end a HTML page for printing
 
