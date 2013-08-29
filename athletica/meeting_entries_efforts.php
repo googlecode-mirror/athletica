@@ -102,6 +102,9 @@ if (isset($_POST['updateEfforts'])){
 		   		$perf = (ltrim($perf,"0"))*100;  
                 $perfSeason = (ltrim($perfSeason,"0"))*100;  
 			}
+            if  (empty($perf)){
+                 $perf = 0.0; 
+            }
             if  (empty($perfSeason)){
                  $perfSeason = 0; 
             }
@@ -134,8 +137,20 @@ if (isset($_POST['updateEfforts'])){
                  
                  $rowPerf = mysql_fetch_array($res); 
                  
-                 $perf = $rowPerf['notification_effort'];       // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
-                 $seasonPerf = $rowPerf['season_effort'];       
+                 if (empty($rowPerf['notification_effort'])){
+                     $perf = 0.0;
+                 }
+                 else {
+                      $perf = $rowPerf['notification_effort'];       // best effort current or previous year (Indoor: best of both / Outdoor: best of outdoor)
+                 }
+                
+                 if (empty($rowPerf['season_effort'])){
+                     $seasonPerf = 0;
+                 }
+                 else {
+                     $seasonPerf = $rowPerf['season_effort'];       
+                 }
+                 
                                                                                                                                        
                  if($perf != NULL) {    // invalid performance
                         $sql = "UPDATE anmeldung SET 
