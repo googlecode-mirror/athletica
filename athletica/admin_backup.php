@@ -2385,7 +2385,12 @@ else if ($_POST['arg'] == 'restore')
              
              
             }
-            
+             if ($shortVersion < 6.2){            
+                    mysql_query("UPDATE `disziplin_it` SET Kurzname = 'PALLINA200' WHERE Code = 386");  
+                    mysql_query("UPDATE `disziplin_it` SET Kurzname = 'PALLINA80' WHERE Code = 385");  
+             }
+             
+             
             $sql="SELECT xKategorie FROM kategorie WHERE Code = 'U12X'";
             $res = mysql_query($sql);
             if (mysql_num_rows($res) > 0){
