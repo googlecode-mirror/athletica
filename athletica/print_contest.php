@@ -651,6 +651,7 @@ else
                                     , at.Vorname
                                     , sta.Position
                                     , IF(at.xRegion = 0, at.Land, re.Anzeige) AS Land
+                                    , a.Startnummer                                
                                 FROM 
                                         athlet AS at
                                         LEFT JOIN anmeldung AS a ON (a.xAthlet = at.xAthlet)                                                 
@@ -677,8 +678,10 @@ else
 							{   
 								$team = $team . "<br />&nbsp;&nbsp;&nbsp;"
 										. $athl_row[2] . ". "
-										. $athl_row[0] . " "
-										. $athl_row[1] . (($athl_row[3]!='' && $athl_row[3]!='-') ? ', '.$athl_row[3] : '');   
+										. $athl_row[0] . " "                                        
+                                        . $athl_row[1] . ", Nr. "
+                                        . $athl_row[4]
+                                        . (($athl_row[3]!='' && $athl_row[3]!='-') ? ', '.$athl_row[3] : '');
 							}
 							mysql_free_result($res);
 						}    
