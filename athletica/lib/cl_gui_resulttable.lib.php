@@ -430,7 +430,7 @@ function printHeatTitleRegie($cat, $disc)
 			$strAthl = '';
 			for($a=0; $a<count($athl); $a++){
 				$actAthl = $athl[$a];
-				$strAct = $actAthl[0].' '.$actAthl[1].' '.$actAthl[2];
+				$strAct = $actAthl[0].' '.$actAthl[1].' '.$actAthl[2].', Nr. '.$actAthl[3];
 				$strAthl .= $strAct;
 				$strAthl .= ($a<(count($athl)-1)) ? ' / ' : '';
 			}

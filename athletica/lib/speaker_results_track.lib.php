@@ -274,7 +274,7 @@ function AA_speaker_Track($event, $round, $layout)
 					
 					// get Athletes
 					$arrAthletes = array();
-					$sql = "SELECT at.Vorname, at.Name, at.Jahrgang FROM
+					$sql = "SELECT at.Vorname, at.Name, at.Jahrgang, a.Startnummer FROM
 								staffelathlet as sfat
 								LEFT JOIN start as st ON sfat.xAthletenstart = st.xStart
 								LEFT JOIN anmeldung as a USING(xAnmeldung)
@@ -289,7 +289,7 @@ function AA_speaker_Track($event, $round, $layout)
 						AA_printErrorMsg(mysql_errno() . ": " . mysql_error());
 					}else{
 						while($row_at = mysql_fetch_array($res_at)){
-							$arrAthletes[] = array($row_at[1], $row_at[0], AA_formatYearOfBirth($row_at[2]));
+							$arrAthletes[] = array($row_at[1], $row_at[0], AA_formatYearOfBirth($row_at[2]), $row_at[3]);
 						}
 					}
 					
