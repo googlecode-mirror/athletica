@@ -6,6 +6,11 @@
  *	
  */
 
+// 
+// Zeile 581 bis 590: Korrektur wegen falscher Windübermittlung in OMEGA Scan'o'Vision - Software  
+// Paul Rohrer LC Basel, Juni 2014                                 *******************************
+//
+
 if (!defined('AA_RESULTS_LIB_INCLUDED'))
 {
 	define('AA_RESULTS_LIB_INCLUDED', 1);
@@ -572,11 +577,18 @@ function AA_results_getTimingOmega($round, $arg=false, $noerror=false){
 					$wind = "";
 				}else{
 					$wind = substr($wind,0,5);
+					
+					// Korrektur um auf allen Versionen der OMEGA-Zeitmessung korrekte positive Winde zu übermitteln
+					// Paul Rohrer LC Basel Juni 2014
 					if(substr($wind,0,1) == "-"){
 						$wind = "-".trim(substr($wind,1,4));
-					}else{
+					}elseif(substr($wind,0,1) == "+"){
 						$wind = trim(substr($wind,1,4));
+					}else{ 
+					    // positiver Wind ab der ersten Position zu lesen
+						$wind = trim(substr($wind,0,4));
 					}
+					
 					// round fraction hundert up
 					$wind = (ceil($wind*10)/10);
 					$wind = sprintf("%01.1f", $wind);
