@@ -287,7 +287,8 @@ class EXPORT_RankingListPress extends EXPORT_Page
 		if(!empty($rank)){
 			$rank .= ".";
 		}
-		
+        list($name, $vorname) = split(' ', $name);
+		$name = $vorname . ' ' . $name;
 		echo " $rank $name ($club) $perf.";
 		//$this->printCsvLine(array($rank, $name, $year, $perf, $points));
 		
