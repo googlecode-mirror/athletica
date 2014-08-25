@@ -885,8 +885,8 @@ if ($_POST['arg']=="add")
                  FROM
                         verein
                  WHERE
-                        Sortierwert='".$_POST['clubtext']."'";
-      
+                        Name='".$_POST['clubtext']."'";
+     
        $resClub=mysql_query($sqlClub); 
        if(mysql_errno() > 0) {
                AA_printErrorMsg("Line " . __LINE__ . ": ". mysql_errno() . ": " . mysql_error());                 
